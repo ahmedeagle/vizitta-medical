@@ -45,6 +45,11 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
         User::where('insurance_expire_date', '0000-00-00')->update(['insurance_expire_date' => null]);
     });
 
+    Route::get('clearPermissionCach', function () {
+        app()['cache']->forget('spatie.permission.cache');
+    });
+
+
     Auth::routes();
 });
 
@@ -55,9 +60,7 @@ Route::group(['prefix' => 'drawing', 'namespace' => 'Dashboard', 'middleware' =>
 
 Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['web', 'auth', 'ChangeLanguage']], function () {
 
-    Route::get('clearPermissionCach', function () {
-        app()['cache']->forget('spatie.permission.cache');
-    });
+
 
     Route::get('/', 'HomeController@index')->name('home');
 

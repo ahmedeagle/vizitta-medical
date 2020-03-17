@@ -51,7 +51,7 @@ trait AdminTrait
         ];
 
         if (isset($request->password))
-            $result['password'] = Hash::make($request->password);
+            $result['password'] =  $request->password ;
 
         $manager = $manager->update($result);
         return $manager;
