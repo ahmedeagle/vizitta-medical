@@ -19,7 +19,7 @@ class Manager extends Authenticatable  implements JWTSubject
         'paid_balance', 'unpaid_balance','balance', 'app_price'
     ];
 
-    //f//
+    //ff//
     protected $hidden = [
         'password', 'remember_token', 'api_token', 'id'
     ];
