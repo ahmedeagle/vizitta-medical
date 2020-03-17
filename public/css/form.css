@@ -1,0 +1,185 @@
+.page-header {
+    margin-bottom: 10px;
+}
+.panel-heading {
+    padding: 1px 15px;
+}
+.form form .error {
+    color: #f00;
+}
+.redborder {
+    border: 1px solid #b16159 !important;
+}
+form {
+    padding: 20px;
+}
+input,
+textarea {
+    padding: 10px 15px !important;
+    margin-bottom: 7px;
+}
+.has-float-label {
+    position: relative;
+}
+.astric {
+    color: #ff0000;
+    opacity: 1;
+}
+label {
+    color: #fa5c66;
+}
+.has-float-label label .astric {
+    color: #ff0000;
+    opacity: 1;
+}
+.has-float-label label {
+    background: #fff;
+    position: absolute;
+    right: 25px;
+    cursor: text;
+    font-size: 13px;
+    opacity: 1;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    top: -0.55em;
+    z-index: 3;
+    line-height: 1;
+    padding: 0 1px;
+    color: #fa5c66;
+}
+.has-float-label label::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    background: white;
+    height: 2px;
+    top: 50%;
+    right: -0.2em;
+    z-index: -1;
+}
+.has-float-label .form-control::-webkit-input-placeholder {
+    opacity: 1;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+.has-float-label
+    .form-control:placeholder-shown:not(:focus)::-webkit-input-placeholder {
+    opacity: 0;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus) + label {
+    font-size: 130%;
+    opacity: 1;
+    top: -0.5em;
+    color: #bdb8b8;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus) + label .astric {
+    opacity: 1;
+    color: #bdb8b8;
+}
+.form-group {
+    margin-bottom: 15px !important;
+    overflow-x: auto;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}
+input:focus,
+input:hover,
+input:visited,
+input:active {
+    border-color: #fa5c66 !important;
+}
+input:focus::-webkit-input-placeholder,
+textarea:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+input:focus:-moz-placeholder,
+textarea:focus:-moz-placeholder {
+    color: transparent;
+}
+input:focus::-moz-placeholder,
+textarea:focus::-moz-placeholder {
+    color: transparent;
+}
+input:focus:-ms-input-placeholder,
+textarea:focus:-ms-input-placeholder {
+    color: transparent;
+}
+.col-md-6 {
+    padding-right: 0 !important;
+}
+input,
+textarea,
+select {
+    border-radius: 3px !important;
+}
+select:hover,
+select:focus {
+    border-color: #fa5c66;
+}
+input,
+select {
+    height: 40px !important;
+}
+.multi select {
+    height: 100px !important;
+}
+.btn {
+    height: auto !important;
+}
+select {
+    font-size: 13px !important;
+    padding-left: 10px !important;
+}
+.imgContainer img {
+    height: 40px;
+}
+.col-md-10,
+.col-md-12 {
+    padding: 0 !important;
+}
+.has-float-label.col-sm-6 {
+    padding-left: 0;
+}
+.permission input {
+    height: auto !important;
+    margin-left: 10px !important;
+}
+.form-group.submit {
+    margin-top: 15px;
+}
+input[type="submit"] {
+    padding: 5px 20px !important;
+}
+.modal form {
+    padding: 5px 0;
+}
+.modal.form .modal-footer {
+    margin-top: 65px;
+}
+.language,
+.choice {
+    border: 1px solid #ccc;
+    padding: 25px 10px 10px 15px !important;
+    margin: 10px 0 20px 0;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 6px 19px -4px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 6px 19px -4px rgba(0, 0, 0, 0.75);
+    box-shadow: 0 6px 19px -4px rgba(0, 0, 0, 0.75);
+    border-top: 0;
+}
+.side_image {
+    height: 60px;
+    margin-bottom: 10px;
+}
+.side_image img {
+    height: 100%;
+}
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice {
+    float: right;
+}

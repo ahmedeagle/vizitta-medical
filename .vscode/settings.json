@@ -1,0 +1,6 @@
+{
+    "i18n-ally.localesPaths": [
+        "resources/lang",
+        "bower_components/datatables.net-plugins/i18n"
+    ]
+}

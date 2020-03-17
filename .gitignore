@@ -1,0 +1,5 @@
+.env
+/app/Providers/AppServiceProvider.php
+/vendor
+/images
+/App/Traits/OdooTrait.php
