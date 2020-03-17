@@ -92,9 +92,10 @@ class OffersController extends Controller
                             ->whereHas('categories', function ($q) use ($categoryId) {
                                 $q->where('promocodes_categories.id', $categoryId);
                             })
-                            ->orderBy(DB::raw('RAND()'))
+
                             ->limit(10)
                             ->selection()
+                            ->inRandomOrder()
                             ->get();
                     } else {
                         //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
@@ -116,7 +117,7 @@ class OffersController extends Controller
                                 $q->where('promocodes_categories.id', $categoryId);
                             })
                             ->selection()
-                            ->orderBy(DB::raw('RAND()'))
+                            ->inRandomOrder()
                             ->paginate(10);
                     }
                 }
@@ -139,9 +140,10 @@ class OffersController extends Controller
                                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                             }]);
                         },])
-                        ->orderBy(DB::raw('RAND()'))
+
                         ->selection()
                         ->limit(25)
+                        ->inRandomOrder()
                         ->get();
                 } else
 
@@ -161,7 +163,7 @@ class OffersController extends Controller
                             }]);
                         }])
                         ->selection()
-                        ->orderBy(DB::raw('RAND()'))
+                        ->inRandomOrder()
                         ->paginate(10);
             }
 
