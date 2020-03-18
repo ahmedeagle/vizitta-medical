@@ -20,6 +20,14 @@ class MedicalProfile extends Model
     {
         return $this->hasMany('App\Models\MedicalProfileSensitivity', 'medical_profile_id');
     }
+    public function disease()
+    {
+        return $this->hasMany('App\Models\MedicalProfileDiseases', 'medical_profile_id');
+    }
+    public function pharmaceuticals()
+    {
+        return $this->hasMany('App\Models\MedicalProfilePharmaceutical', 'medical_profile_id');
+    }
 
     public function user()
     {

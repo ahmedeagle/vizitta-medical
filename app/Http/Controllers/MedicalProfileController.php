@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MedicalProfile;
+use App\Models\MedicalProfileDiseases;
+use App\Models\MedicalProfilePharmaceutical;
 use App\Models\MedicalProfileSensitivity;
 use App\Models\Sensitivity;
 use Illuminate\Http\Request;
@@ -22,6 +24,8 @@ class MedicalProfileController extends Controller
                 "user_id" => "required|numeric",
                 "blood" => "required|string|max:191",
                 "sensitivities" => "array",
+                "diseases" => "array",
+                "pharmaceuticals" => "array",
             ]);
 
             if ($validator->fails()) {
@@ -43,9 +47,10 @@ class MedicalProfileController extends Controller
             else
                 $medical_profile->update(['blood' => $request->blood, 'user_id' => $request->user_id]);
 
+
+            //////////////////save sensitivities for medical profile /////////////////////////
             if (isset($request->sensitivities) && is_array($request->sensitivities)) {
                 $data = [];
-
                 $sensitivities = array_filter($request->sensitivities, function ($value) {
                     return !is_null($value) && $value !== '';
                 });
@@ -58,6 +63,42 @@ class MedicalProfileController extends Controller
 
             } else
                 $medical_profile->sensitivities()->delete();
+            //////////////////end sensitivities for medical profile /////////////////////////
+
+
+            //////////////////save diseases for medical profile /////////////////////////
+            if (isset($request->diseases) && is_array($request->diseases)) {
+                $data = [];
+                $diseases = array_filter($request->diseases, function ($value) {
+                    return !is_null($value) && $value !== '';
+                });
+
+                foreach ($diseases as $disease) {
+                    $data[] = ['medical_profile_id' => $medical_profile->id, 'diseases_name' => $disease];
+                }
+                $medical_profile->disease()->delete();
+                $medical_profile->disease()->insert($data);
+
+            } else
+                $medical_profile->disease()->delete();
+            //////////////////end diseases for medical profile /////////////////////////
+
+            //////////////////save pharmaceuticals for medical profile /////////////////////////
+            if (isset($request->pharmaceuticals) && is_array($request->pharmaceuticals)) {
+                $data = [];
+                $pharmaceuticals = array_filter($request->pharmaceuticals, function ($value) {
+                    return !is_null($value) && $value !== '';
+                });
+
+                foreach ($pharmaceuticals as $pharmaceutical) {
+                    $data[] = ['medical_profile_id' => $medical_profile->id, 'pharmaceutical_name' => $pharmaceutical];
+                }
+                $medical_profile->pharmaceuticals()->delete();
+                $medical_profile->pharmaceuticals()->insert($data);
+
+            } else
+                $medical_profile->pharmaceuticals()->delete();
+            //////////////////end pharmaceuticals for medical profile /////////////////////////
 
             DB::commit();
             return $this->returnSuccessMessage(trans('messages.Medical profile updated successfully'));
@@ -84,6 +125,8 @@ class MedicalProfileController extends Controller
 
             if ($medical_profile != null) {
                 $medical_profile->sensitivities = MedicalProfileSensitivity::where('medical_profile_id', $medical_profile->id)->pluck('sensitivity_id as name');
+                $medical_profile->pharmaceuticals = MedicalProfilePharmaceutical::where('medical_profile_id', $medical_profile->id)->pluck('pharmaceutical_name as name');
+                $medical_profile->diseases = MedicalProfileDiseases::where('medical_profile_id', $medical_profile->id)->pluck('diseases_name as name');
                 return $this->returnData('MedicalProfile', json_decode($medical_profile, true));
             }
             return $this->returnError('E001', trans('messages.No medical profile with this user id'));
