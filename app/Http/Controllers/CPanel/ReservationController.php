@@ -158,4 +158,45 @@ class ReservationController extends Controller
         }
     }
 
+    public function changeStatus(Request $request)
+    {
+        $reservation = Reservation::where('id', $request->id)->with('user')->first();
+
+        if ($reservation == null)
+            return view('errors.404');
+        if ($reservation->approved == 1) {
+            Flashy::error(trans('messages.Reservation already approved'));
+            return redirect()->back();
+        }
+
+        if ($reservation->approved == 2) {
+            Flashy::error(trans('messages.Reservation already rejected'));
+            return redirect()->back();
+        }
+
+        /*    if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
+            ) {
+                Flashy::error(trans("messages.You can't take action to a reservation passed"));
+                return redirect()->back();
+            }*/
+
+        if ($request->status != 2 && $request->status != 1) {
+            Flashy::error('إدخل الكود صحيح');
+        } else {
+
+            if ($request->status == 2) {
+                if ($request->rejection_reason == null) {
+                    Flashy::error('رجاء ادخال سبب رفض الحجز ');
+                    return redirect()->back();
+                }
+            }
+            $this->changerReservationStatus($reservation, $request->status);
+            Flashy::success('تم تغيير حالة الحجز بنجاح');
+        }
+        return redirect()->back();
+
+    }
+
 }
