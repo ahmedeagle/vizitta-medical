@@ -320,7 +320,8 @@ trait ProviderTrait
 
         $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status',
             DB::raw('name_' . $this->getCurrentLang() . ' as name'),
-            DB::raw('information_' . $this->getCurrentLang() . ' as information')
+            DB::raw('information_' . $this->getCurrentLang() . ' as information'),
+            DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')
         );
 
         // not check doctor status if api visit by front-end dev
@@ -758,7 +759,9 @@ trait ProviderTrait
         ])->where('provider_id', $id)
             // ->where('doctors.status',1)
             ->select('*',
-                DB::raw('name_' . app()->getLocale() . ' as name'), 'gender', 'nickname_id', 'specification_id', 'nationality_id')
+                DB::raw('name_' . app()->getLocale() . ' as name'), 'gender', 'nickname_id', 'specification_id', 'nationality_id',
+                DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')
+            )
             ->paginate(10);
     }
 

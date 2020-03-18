@@ -127,6 +127,24 @@
                     </div>
                 </div>
 
+
+                <div class="profile-info-row">
+                    <div class="profile-info-name">النبذه بالعربية</div>
+                    <div class="profile-info-value">
+                        <span class="editable">{{ $doctor->abbreviation_ar }}</span>
+                    </div>
+                </div>
+
+                <div class="profile-info-row">
+                    <div class="profile-info-name">النبذة بالإنجليزية</div>
+                    <div class="profile-info-value">
+                        <span class="editable">{{ $doctor->abbreviation_en }}</span>
+                    </div>
+                </div>
+
+
+
+
                 <div class="profile-info-row">
                     <div class="profile-info-name">النوع</div>
                     <div class="profile-info-value">

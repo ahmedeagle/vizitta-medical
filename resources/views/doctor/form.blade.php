@@ -11,6 +11,18 @@
 </div>
 
 <div class="form-group has-float-label col-sm-6">
+    {{ Form::text('abbreviation_ar', old('abbreviation_ar'), ['placeholder' => 'النبذة بالعربى  ',  'class' => 'form-control ' . ($errors->has('abbreviation_ar') ? 'redborder' : '') ]) }}
+    <label for="abbreviation_ar"> النبذة بالعربى <span class="astric">*</span></label>
+    <small class="text-danger">{{ $errors->has('abbreviation_ar') ? $errors->first('abbreviation_ar') : '' }}</small>
+</div>
+
+<div class="form-group has-float-label col-sm-6">
+    {{ Form::text('abbreviation_en', old('abbreviation_en'), ['placeholder' => ' النبذة بالعربى ',  'class' => 'form-control ' . ($errors->has('abbreviation_en') ? 'redborder' : '') ]) }}
+    <label for="abbreviation_en">النبذة بالإنجليزى <span class="astric">*</span></label>
+    <small class="text-danger">{{ $errors->has('abbreviation_en') ? $errors->first('abbreviation_en') : '' }}</small>
+</div>
+
+<div class="form-group has-float-label col-sm-6">
     {{ Form::textarea('information_ar', old('information_ar'), ['placeholder' => 'المعلومات بالعربية', 'class' => 'form-control ' . ($errors->has('information_ar') ? 'redborder' : '') ]) }}
     <label for="information_ar">المعلومات بالعربية</label>
     <small class="text-danger">{{ $errors->has('information_ar') ? $errors->first('information_ar') : '' }}</small>
