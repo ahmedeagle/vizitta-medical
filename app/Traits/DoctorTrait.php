@@ -42,6 +42,7 @@ trait DoctorTrait
         ])->find($id);
         if ($doctor != null) {
             $doctor->name = $doctor->getTranslatedName();
+            $doctor->abbreviation = $doctor->getTranslatedAbbreviation();
             $doctor->information = $doctor->getTranslatedInformation();
         }
         return $doctor;

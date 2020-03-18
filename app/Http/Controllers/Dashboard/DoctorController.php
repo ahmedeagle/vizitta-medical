@@ -88,6 +88,8 @@ class DoctorController extends Controller
                 "name_ar" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
+                "abbreviation_ar" => "required|max:255",
+                "abbreviation_en" => "required|max:255",
                 "gender" => "required|in:1,2",
                 "provider_id" => "required|numeric|exists:providers,id",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
@@ -118,7 +120,6 @@ class DoctorController extends Controller
             }
             DB::beginTransaction();
             try {
-
                 $doctor = Doctor::create([
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
@@ -128,6 +129,8 @@ class DoctorController extends Controller
                     "photo" => $fileName,
                     "information_en" => $request->information_en,
                     "information_ar" => $request->information_ar,
+                    "abbreviation_ar" => $request->abbreviation_ar,
+                    "abbreviation_en" => $request->abbreviation_en,
                     "specification_id" => $request->specification_id,
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                     "price" => $request->price,
@@ -178,11 +181,8 @@ class DoctorController extends Controller
                 return redirect()->route('admin.doctor');
 
             } catch (\Exception $e) {
-
                 DB::rollback();
-
             }
-
         } catch (Exception $e) {
             return abort('404');
         }
@@ -258,6 +258,8 @@ class DoctorController extends Controller
                 "name_ar" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
+                "abbreviation_ar" => "required|max:255",
+                "abbreviation_en" => "required|max:255",
                 "gender" => "required|in:1,2",
                 "provider_id" => "required|numeric|exists:providers,id",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
@@ -346,7 +348,7 @@ class DoctorController extends Controller
                 DB::rollback();
             }
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return abort('404');
         }
     }
