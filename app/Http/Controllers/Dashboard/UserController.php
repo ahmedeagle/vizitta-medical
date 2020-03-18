@@ -35,7 +35,7 @@ class UserController extends Controller
 
     public function index()
     {
-        //all user table no laraTables
+        //all user table no laraTables //
         $data = [];
         $queryStr = '';
         if (request('queryStr')) {
