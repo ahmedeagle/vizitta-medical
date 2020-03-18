@@ -21,8 +21,8 @@ return [
 
         'allow_origins' => [
             '*',
-            'https://hs.wisyst.info/',
-            'https://www.mcallapp.com/',
+//            'https://hs.wisyst.info/',
+//            'https://www.mcallapp.com/',
         ],
 
         'allow_methods' => [

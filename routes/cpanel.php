@@ -6,10 +6,10 @@ Route::get('clearPermissionCach', function () {
     app()['cache']->forget('spatie.permission.cache');
 });
 
-Route::post('/login', 'AuthController@login')->middleware('Cors');
+Route::post('/login', 'AuthController@login');
 
 #### Start Authenticated Routes
-Route::group(['middleware' => ['CheckManagerToken:manager-api', 'Cors']], function () {
+Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
 
     // Authentication Routes
     Route::post('/logout', 'AuthController@logout');
