@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AcceptReservationMail;
 use App\Mail\NewReplyMessageMail;
 use App\Mail\NewUserMessageMail;
+use App\Mail\RejectReservationMail;
 use App\Models\Bill;
 use App\Models\CommentReport;
 use App\Models\Doctor;
@@ -177,7 +178,7 @@ class UserController extends Controller
                 $invited_points = $settings->invited_points;
             }
 
-            if ($request-> has('invitation_by_code')) {
+            if ($request->has('invitation_by_code')) {
                 $invited_by_code = strtolower($request->invitation_by_code);
                 $codeOwner = User::where('invitation_code', $invited_by_code)->first();
                 if (!$codeOwner) {
@@ -993,16 +994,11 @@ class UserController extends Controller
                    });*/
 
             if (isset($doctors) && $doctors->count() > 0) {
-
                 foreach ($doctors as $key => $doctor) {
-
                     $main_provider = Provider::where('id', $doctor->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
-
                     $doctor->main_provider = $main_provider;
-
                 }
             }
-
 
             if (count($doctors->toArray()) > 0) {
                 $total_count = $doctors->total();
@@ -1482,4 +1478,69 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+
+    public
+    function RejectReservation(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_no" => "required|max:255",
+                "user_reject_reason" => "required|max:225"  //
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            $user = $this->auth('user-api');
+            $reservation = $this->getReservationByNoAndUser($request->reservation_no, $user->id);
+
+            if ($reservation == null)
+                return $this->returnError('D000', trans('messages.No reservation with this number'));
+
+            if ($reservation->approved == 1)
+                return $this->returnError('E001', trans("messages.You can't reject approved reservation"));
+
+            if ($reservation->approved == 2)
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+
+            $reservation->update([
+                'approved' => 5,
+                'user_rejection_reason' => $request->user_reject_reason
+            ]);
+
+
+            DB::commit();
+            try {
+                $name = 'name_' . app()->getLocale();
+                $bodyProvider = __('messages.the user') . "  {$reservation->user->name}   " . __('messages.cancel the reservation') . " {$reservation -> reservation_no } " . __('messages.because') . '( ' . $request->user_reject_reason . ' ) ';
+                //send push notification
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))
+                    ->sendProvider($reservation->provider_id);
+                $message = __('messages.reject_reservations_by_user') . ' ( ' . "{$reservation->user->name}" . ' ) ' .
+                    __('messages.because') . '( ' . $request->user_reject_reason . ' ) ' . __('messages.can_re_book');
+                $this->sendSMS($reservation->user->mobile, $message);
+
+            } catch (\Exception $ex) {
+
+            }
+            return $this->returnSuccessMessage(trans('messages.Reservation rejected successfully'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    protected function getReservationByNoAndUser($reservation_no, $userId)
+    {
+        return Reservation::where(function ($q) use ($reservation_no, $userId) {
+            $q->where('reservation_no', $reservation_no)->where(function ($qq) use ($userId) {
+                $qq->where('user_id', $userId);
+            });
+        })->with(['user'])->first();
+    }
+
 }

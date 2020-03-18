@@ -35,7 +35,12 @@
             </div>
             <div class="m-2">
                 <a class="btn btn-white btn-info btn-lg btn-bold" href="{{route('admin.reservation')}}?status=reject">
-                    مرفوضه
+                  مرفوضه من العياده
+                </a>
+            </div>
+            <div class="m-2">
+                <a class="btn btn-white btn-info btn-lg btn-bold" href="{{route('admin.reservation')}}?status=rejected_by_user">
+                  مرفوضه من المستخدم
                 </a>
             </div>
             <div class="m-2">
@@ -58,8 +63,6 @@
             </div>
         </div>
     </div>
-
-
     <br><br>
     <div class="row">
         <div class="col-12  d-flex flex-wrap justify-content-center">

@@ -33,7 +33,8 @@ class HomeController extends Controller
         // $data['paidReservationsCount'] = $this->getPaidReservations(true);
         $data['pendingReservations'] = Reservation::where('approved', 0)->count(); //pending reservations
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
-        $data['refusedReservations'] = Reservation::where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations
+        $data['refusedReservationsByProvider'] = Reservation::where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations  by providers
+        $data['refusedReservationsByUser'] = Reservation::where('approved', 5)->count(); //rejected  reservations by users
         $data['completedReservationsWithVisited'] = Reservation::where('approved', 3)->count(); //completed  reservations with user visit doctor
         $data['completedReservationsWithNotVisited'] = Reservation::where('approved', 2)->where(function ($q) {
             $q->whereNull('rejection_reason');

@@ -295,7 +295,7 @@ trait UserTrait
         return Reservation::current()
             ->with([
                 'doctor' => function ($q) {
-                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
+                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
                 }, 'provider' => function ($que) {
@@ -320,7 +320,7 @@ trait UserTrait
         return Reservation::finished()->with(['commentReport' => function ($q) use ($id) {
             $q->where('user_id', $id);
         }, 'doctor' => function ($q) {
-            $q->select('id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
+            $q->select('id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'),DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
                 $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
         }, 'provider' => function ($que) {

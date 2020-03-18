@@ -262,6 +262,7 @@ return [
     'if_you_wish_to_change_reservations' => 'في حال الرغبة بتغيير الحجز أو الإلغاء يرجى التواصل مع خدمة العملاء 920035999',
 
     'reject_reservations' => 'يؤسفنا ابلاغك برفض حجزك لدى',
+    'reject_reservations_by_user' => 'يؤسفنا ابلاغك برفض حجزك من قبل العميل',
     'because' => ' بسبب ',
     'can_re_book' => 'يمكنك إعادة الحجز عبر تطبيق ميديكل كول لمقدم خدمة آخر أو تغيير الموعد وللمساعدة والاستفسارات يسعدنا تواصلك على 920035999',
 
@@ -271,5 +272,7 @@ return [
     'filter not found' => 'الفلتر غير موجود ',
     'there are reservations need to be closed first'  => ' عفوا هناك حجوزات مر علي وقتها 24 ساعه يجب إغلاقها اولا ',
     'invitation code not exist' => 'كود الدعوه غير صحيح',
+    'the user' => 'قام المستخدم',
+    'cancel the reservation'  => 'بالغاء الحجز رقم'
 
 ];

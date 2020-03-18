@@ -10,12 +10,12 @@ class Reservation extends Model
 {
     protected $table = 'reservations';
     public $timestamps = true;
-    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time'];
+    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason'];
     protected $forcedNullNumbers = [];
 
     protected $fillable = ['reservation_no', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'use_insurance', 'promocode_id', 'order', 'provider_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'people_id', 'is_visit_doctor', 'bill_total', 'discount_type',
-        'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time'];
+        'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'people_id', 'discount_type', 'odoo_invoice_id', 'odoo_offer_id'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total'];
@@ -77,6 +77,8 @@ class Reservation extends Model
             $result = ' مكتمل بعدم زياره العميل';
         elseif ($this->approved == 4)
             $result = 'مشغول';
+        elseif ($this->approved == 5)
+            $result = 'مرفوض بواسطه المستخدم ';
         else
             $result = 'معلق';
         return $result;
@@ -148,14 +150,16 @@ class Reservation extends Model
     {
         if ($this->approved == 1)
             $result = 'موافق عليه';
-        elseif ($this->approved == 2 && $this->rejection_reason != null && $this->rejection_reason != ""  && $this->rejection_reason != 0 )
-            $result = 'مرفوض';
+        elseif ($this->approved == 2 && $this->rejection_reason != null && $this->rejection_reason != "" && $this->rejection_reason != 0)
+            $result = 'مرفوض بواسطه العياده';
         elseif ($this->approved == 3)
             $result = ' مكتمل بزياره العميل';
-        elseif ($this->approved == 2 && ($this->rejection_reason == null or $this->rejection_reason == "" or $this->rejection_reason == 0 ))
+        elseif ($this->approved == 2 && ($this->rejection_reason == null or $this->rejection_reason == "" or $this->rejection_reason == 0))
             $result = ' مكتمل بعدم زياره العميل';
         elseif ($this->approved == 4)
             $result = 'مشغول';
+        elseif ($this->approved == 5)
+            $result = 'مرفوض بواسطه المستخدم ';
         else
             $result = 'معلق';
         return $result;
@@ -356,6 +360,15 @@ class Reservation extends Model
     }
 
     public function getLastToTimeAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
+
+    public function getUserRejectionReasonAttribute($val)
     {
         if ($val === null)
             return '';

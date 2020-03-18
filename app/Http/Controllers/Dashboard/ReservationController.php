@@ -35,14 +35,14 @@ class ReservationController extends Controller
         $data = [];
         $data['reasons'] = Reason::get();
         $status = 'all';
-        $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'completed', 'complete_visited', 'complete_not_visited'];
+        $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'rejected_by_user', 'completed', 'complete_visited', 'complete_not_visited'];
 
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
                 $data['reservations'] = $this->getReservationByStatus();
             } else {
                 $status = request('status') ? request('status') : $status;
-                 $data['reservations'] = $this->getReservationByStatus($status);
+                $data['reservations'] = $this->getReservationByStatus($status);
             }
             return view('reservation.index', $data);
         } elseif (request('generalQueryStr')) {  //search all column
@@ -68,10 +68,10 @@ class ReservationController extends Controller
                         $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
                     });
                 })->orderBy('day_date', 'DESC')
-                 ->paginate(10);
+                ->paginate(10);
         } else {
-             $data['reservations'] = Reservation::orderBy('day_date', 'DESC')
-                 ->paginate(10);
+            $data['reservations'] = Reservation::orderBy('day_date', 'DESC')
+                ->paginate(10);
         }
         return view('reservation.index', $data);
     }
@@ -95,6 +95,8 @@ class ReservationController extends Controller
             return $reservaitons = Reservation::selection()->where('approved', 1)->orderBy('day_date', 'DESC')->paginate(10);
         } elseif ($status == 'reject') {
             return $reservaitons = Reservation::selection()->where('approved', 2)->whereNotNull('rejection_reason')->where('rejection_reason', '!=', '')->orderBy('day_date', 'DESC')->paginate(10);
+        } elseif ($status == 'rejected_by_user') {
+            return $reservaitons = Reservation::selection()->where('approved', 5)->paginate(10);
         } elseif ($status == 'completed') {
             return $reservaitons = Reservation::selection()->where('approved', 3)->orderBy('day_date', 'DESC')->orderBy('from_time', 'ASC')->paginate(10);
         } elseif ($status == 'complete_visited') {

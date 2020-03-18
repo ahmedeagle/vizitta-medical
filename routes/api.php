@@ -118,6 +118,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('coupon/send', 'OffersController@sendCouponToMobile')->name('savePaymentDetails1');
             Route::group(['prefix' => 'v2'], function () {
                 Route::post('invitation_code', 'UserController@getInvitationCode');
+                Route::post('reject/reservation', 'UserController@RejectReservation') ;
             });
         });
     });

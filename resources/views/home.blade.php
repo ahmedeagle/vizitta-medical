@@ -108,8 +108,22 @@
                             <div class="infobox-data">
                                 <a style="text-decoration: none;"
                                    href="{{ route('admin.reservation') }}?status=reject">
-                                    <span class="infobox-data-number">{{ $refusedReservations }}</span>
-                                    <div class="infobox-content">الحجوزات المرفوضه</div>
+                                    <span class="infobox-data-number">{{ $refusedReservationsByProvider }}</span>
+                                    <div class="infobox-content">الحجوزات المرفوضه من مقدمي الخدمات</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 my-3">
+                        <div class="infobox infobox-red">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-close"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <a style="text-decoration: none;"
+                                   href="{{ route('admin.reservation') }}?status=rejected_by_user">
+                                    <span class="infobox-data-number">{{ $refusedReservationsByUser }}</span>
+                                    <div class="infobox-content">الحجوزات المرفوضه من المستخدمين</div>
                                 </a>
                             </div>
                         </div>
