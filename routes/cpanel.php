@@ -21,6 +21,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('/me', 'AuthController@me');
 
         Route::post('/getDashboardStatistics', 'HomeController@index');
+        Route::post('/search', 'HomeController@search');
 
         ############## Start Insurance Company Routes ##############
         Route::prefix('insurance_company/')->group(function () {
@@ -306,12 +307,22 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/index', "ReservationController@index");
             Route::post('/show/{id}', 'ReservationController@show');
             Route::post('/edit/{id}', 'ReservationController@edit');
-            Route::post('/update/{id}', 'ReservationController@update');
+            Route::post('/update', 'ReservationController@update');
             Route::post('/delete/{id}', "ReservationController@destroy");
             Route::post('/changeStatus', 'ReservationController@changeStatus');
             Route::post('/rejection', 'ReservationController@rejectReservation');
         });
         ############## End Reservations Routes ##############
+
+        ############### Start Offers Filters Routes ##############
+        Route::prefix('offers-filters/')->group(function () {
+            Route::post('/index', "OfferFilterController@index");
+            Route::post("/store", "OfferFilterController@store");
+            Route::post('/edit/{id}', 'OfferFilterController@edit');
+            Route::post('/update/{id}', 'OfferFilterController@update');
+            Route::post('/delete/{id}', "OfferFilterController@destroy");
+        });
+        ############## End Offers Filters Routes ##############
 
 
     });

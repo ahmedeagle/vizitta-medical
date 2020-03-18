@@ -157,4 +157,9 @@ return [
     'appointment_for_this_reservation_cannot_be_updated'                => 'The appointment for this reservation cannot be updated',
     'there_is_no_reservation_with_this_number'                          => 'There is no reservation with this number',
 
+    'required_price_with_this_filter_type'                              => 'The price is required for this type of filter',
+    'filter_type_added_successfully'                                    => 'Filter operation added successfully',
+    'filter_type_updated_successfully'                                  => 'Filter operation updated successfully',
+    'filter_type_deleted_successfully'                                  => 'Filter operation deleted successfully',
+
 ];

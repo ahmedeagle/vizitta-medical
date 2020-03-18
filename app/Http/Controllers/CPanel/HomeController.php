@@ -68,6 +68,26 @@ class HomeController extends Controller
         return response()->json(['status' => true, 'data' => $data]);
     }
 
+    public function search(Request $request)
+    {
+        $queryStr = $request->queryStr;
+        $type = $request->type_id;
+        if ($type) {
+            if ($type != 'provider' && $type != 'branch' && $type != 'doctor' && $type != 'users') {
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+            }
+        } else {
+            return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+        }
+
+        $result['page'] = $type;
+        $result['queryStr'] = $queryStr;
+        return response()->json(['status' => true, 'data' => $result]);
+
+//        $url = "mc33/{$type}/?queryStr=" . $queryStr;
+//        return redirect($url);
+    }
+
     public function branchTimes(Request $request)
     {
         $input = $request->only('branchTimes');
