@@ -21,6 +21,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('/me', 'AuthController@me');
 
         Route::post('/getDashboardStatistics', 'HomeController@index');
+        Route::post('/search', 'HomeController@search');
 
         ############## Start Insurance Company Routes ##############
         Route::prefix('insurance_company/')->group(function () {
