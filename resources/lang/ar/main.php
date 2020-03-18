@@ -157,4 +157,9 @@ return [
     'appointment_for_this_reservation_cannot_be_updated'                  => 'لا يمكن تحديث الموعد لهذا الحجز',
     'there_is_no_reservation_with_this_number'                            => 'لا يوجد حجز بهذا الرقم',
 
+    'required_price_with_this_filter_type'                                => 'السعر مطلوب  مع  هذا النوع من الفلتر',
+    'filter_type_added_successfully'                                      => 'تم إضافة عملية الفلتره بنجاح',
+    'filter_type_updated_successfully'                                    => 'تم تحديث عملية الفلتره بنجاح',
+    'filter_type_deleted_successfully'                                    => 'تم حذف عملية الفلتره بنجاح',
+
 ];

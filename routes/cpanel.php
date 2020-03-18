@@ -313,6 +313,16 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Reservations Routes ##############
 
+        ############### Start Offers Filters Routes ##############
+        Route::prefix('offers-filters/')->group(function () {
+            Route::post('/index', "OfferFilterController@index");
+            Route::post("/store", "OfferFilterController@store");
+            Route::post('/edit/{id}', 'OfferFilterController@edit');
+            Route::post('/update/{id}', 'OfferFilterController@update');
+            Route::post('/delete/{id}', "OfferFilterController@destroy");
+        });
+        ############## End Offers Filters Routes ##############
+
 
     });
 
