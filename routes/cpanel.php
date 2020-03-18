@@ -306,7 +306,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/index', "ReservationController@index");
             Route::post('/show/{id}', 'ReservationController@show');
             Route::post('/edit/{id}', 'ReservationController@edit');
-            Route::post('/update/{id}', 'ReservationController@update');
+            Route::post('/update', 'ReservationController@update');
             Route::post('/delete/{id}', "ReservationController@destroy");
             Route::post('/changeStatus', 'ReservationController@changeStatus');
             Route::post('/rejection', 'ReservationController@rejectReservation');

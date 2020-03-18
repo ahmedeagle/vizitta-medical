@@ -163,40 +163,232 @@ class ReservationController extends Controller
         $reservation = Reservation::where('id', $request->id)->with('user')->first();
 
         if ($reservation == null)
-            return view('errors.404');
+            return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
         if ($reservation->approved == 1) {
-            Flashy::error(trans('messages.Reservation already approved'));
-            return redirect()->back();
+            return response()->json(['status' => false, 'error' => __('messages.Reservation already approved')], 200);
         }
 
         if ($reservation->approved == 2) {
-            Flashy::error(trans('messages.Reservation already rejected'));
-            return redirect()->back();
+            return response()->json(['status' => false, 'error' => __('messages.Reservation already rejected')], 200);
         }
 
-        /*    if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
-                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
-            ) {
-                Flashy::error(trans("messages.You can't take action to a reservation passed"));
-                return redirect()->back();
-            }*/
-
         if ($request->status != 2 && $request->status != 1) {
-            Flashy::error('إدخل الكود صحيح');
+            return response()->json(['status' => false, 'error' => __('main.enter_valid_activation_code')], 200);
         } else {
 
             if ($request->status == 2) {
                 if ($request->rejection_reason == null) {
-                    Flashy::error('رجاء ادخال سبب رفض الحجز ');
-                    return redirect()->back();
+                    return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
                 }
             }
             $this->changerReservationStatus($reservation, $request->status);
-            Flashy::success('تم تغيير حالة الحجز بنجاح');
+            return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
         }
-        return redirect()->back();
 
+    }
+
+    public function rejectReservation(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+        $rejection_reason = $request->rejection_reason;
+
+        $reservation = Reservation::where('id', $id)->with('user')->first();
+        if ($reservation == null)
+            return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+        if ($reservation->approved == 2) {
+            return response()->json(['status' => false, 'error' => __('messages.Reservation already rejected')], 200);
+        }
+
+        if ($status != 2) {
+            return response()->json(['status' => false, 'error' => __('main.enter_valid_activation_code')], 200);
+        } else {
+
+            if ($status == 2) {
+                if ($rejection_reason == null or !is_numeric($rejection_reason)) {
+                    return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
+                }
+            }
+            $this->changerReservationStatus($reservation, $status, $rejection_reason);
+            return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $reservation = $this->getReservationById($request->id);
+            if ($reservation == null)
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            if ($reservation->approved) {
+                return response()->json(['status' => false, 'error' => __('main.accepted_reservation_cannot_be_deleted')], 200);
+            } else {
+                $reservation->delete();
+                return response()->json(['status' => true, 'msg' => __('main.reservation_deleted_successfully')]);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
+    public function edit(Request $request)
+    {
+        try {
+            $reservation = Reservation::find($request->id);
+            if (!$reservation) {
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+            }
+            if ($reservation->approved == 2 or $reservation->approved == 3) {   // 2-> cancelled  3 -> complete
+                return response()->json(['status' => false, 'error' => __('main.appointment_for_this_reservation_cannot_be_updated')], 200);
+            }
+            $doctor_id = $reservation->doctor->id;
+            if (!$doctor_id || $doctor_id == 0) {
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+            }
+            $result['reservation'] = $reservation;
+            $result['doctor_id_for_edit_reservation'] = $doctor_id;
+            return response()->json(['status' => true, 'data' => $result]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_no" => "required|max:255",
+                "day_date" => "required|date",
+                "from_time" => "required",
+                "to_time" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+
+            DB::beginTransaction();
+            $reservation = Reservation::where('reservation_no', $request->reservation_no)->with('user')->first();
+            if ($reservation == null) {
+                return response()->json(['status' => false, 'error' => __('main.there_is_no_reservation_with_this_number')], 200);
+            }
+            $provider = Provider::find($reservation->provider_id);
+
+            $doctor = $reservation->doctor;
+            if ($doctor == null) {
+                return response()->json(['status' => false, 'error' => __('messages.No doctor with this id')], 200);
+            }
+
+            $hasReservation = $this->checkReservationInDate($doctor->id, $request->day_date, $request->from_time, $request->to_time);
+            if ($hasReservation) {
+                return response()->json(['status' => false, 'error' => __('messages.This time is not available')], 200);
+            }
+
+            $reservationDayName = date('l', strtotime($request->day_date));
+            $rightDay = false;
+            $timeOrder = 1;
+            $last = false;
+            $times = $this->getDoctorTimesInDay($doctor->id, $reservationDayName);
+            foreach ($times as $key => $time) {
+                if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
+                    && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
+                    $rightDay = true;
+                    $timeOrder = $key + 1;
+                    //if(count($times) == ($key+1))
+                    //  $last = true;
+                    break;
+                }
+            }
+            if (!$rightDay) {
+                return response()->json(['status' => false, 'error' => __('messages.This day is not in doctor days')], 200);
+            }
+
+            $reservation->update([
+                "day_date" => date('Y-m-d', strtotime($request->day_date)),
+                "from_time" => date('H:i:s', strtotime($request->from_time)),
+                "to_time" => date('H:i:s', strtotime($request->to_time)),
+                'order' => $timeOrder,
+                //"approved" => 1,
+            ]);
+
+            if ($last) {
+                ReservedTime::create([
+                    'doctor_id' => $doctor->id,
+                    'day_date' => date('Y-m-d', strtotime($request->day_date))
+                ]);
+            }
+
+            if ($reservation->user->email != null)
+                Mail::to($reservation->user->email)->send(new AcceptReservationMail($reservation->reservation_no));
+
+            DB::commit();
+            try {
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
+            } catch (\Exception $ex) {
+
+            }
+            return response()->json(['status' => true, 'msg' => __('messages.Reservation updated successfully')]);
+
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
+    protected function checkReservationInDate($doctorId, $dayDate, $fromTime, $toTime)
+    {
+        // effect by date
+        $reservation = Reservation::where([
+            ['doctor_id', '=', $doctorId],
+            ['day_date', '=', Carbon::parse($dayDate)->format('Y-m-d')],
+            ['from_time', '=', $fromTime],
+            ['to_time', '=', $toTime],
+        ])->where('approved', '!=', 2)->first();
+        if ($reservation != null)
+            return true;
+
+        else
+            return false;
+    }
+
+    protected function getDoctorTimesInDay($doctorId, $dayName, $count = false)
+    {
+        // effect by date
+        $doctorTimes = DoctorTime::query();
+        $doctorTimes = $doctorTimes->where('doctor_id', $doctorId)->whereRaw('LOWER(day_name) = ?', strtolower($dayName))
+            ->orderBy('created_at')->orderBy('order');
+
+        $times = $this->getDoctorTimePeriods($doctorTimes->get());
+        if ($count)
+            if (!empty($times) && is_array($times))
+                return count($times);
+            else
+                return 0;
+
+        return $times;
+    }
+
+    protected function getDoctorTimePeriods($working_days)
+    {
+        $times = [];
+        $j = 0;
+        foreach ($working_days as $working_day) {
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
+            $diffInterval = ($to - $from) / 60;
+            $periodCount = $diffInterval / $working_day['time_duration'];
+            for ($i = 0; $i < round($periodCount); $i++) {
+                $times[$j]['day_code'] = $working_day['day_code'];
+                $times[$j]['day_name'] = $working_day['day_name'];
+                $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                $times[$j++]['time_duration'] = $working_day['time_duration'];
+            }
+        }
+        return $times;
     }
 
 }
