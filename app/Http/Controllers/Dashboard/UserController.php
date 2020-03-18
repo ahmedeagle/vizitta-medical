@@ -25,6 +25,7 @@ class UserController extends Controller
 
     public function getDataTable()
     {
+        //laratables
         try {
             $queryStr = request('queryStr');
             return $this->getAllUsers($queryStr);
@@ -35,6 +36,8 @@ class UserController extends Controller
 
     public function index()
     {
+
+        // not lara tables
          $data = [];
         $queryStr = '';
         if (request('queryStr')) {
