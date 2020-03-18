@@ -6,17 +6,19 @@ Route::get('clearPermissionCach', function () {
     app()['cache']->forget('spatie.permission.cache');
 });
 
-Route::post('/login', 'AuthController@login');
+Route::prefix('{locale}')->middleware(['setAPILocale'])->where(['locale' => '[a-zA-Z]{2}'])->group(function () {
+    Route::post('/login', 'AuthController@login');
+});
 
 #### Start Authenticated Routes
 Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
 
-    // Authentication Routes
-    Route::post('/logout', 'AuthController@logout');
-    Route::post('/refresh', 'AuthController@refresh');
-    Route::post('/me', 'AuthController@me');
-
     Route::prefix('{locale}')->middleware(['setAPILocale'])->where(['locale' => '[a-zA-Z]{2}'])->group(function () {
+
+        // Authentication Routes
+        Route::post('/logout', 'AuthController@logout');
+        Route::post('/refresh', 'AuthController@refresh');
+        Route::post('/me', 'AuthController@me');
 
         Route::post('/getDashboardStatistics', 'HomeController@index');
 
