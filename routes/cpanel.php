@@ -1,8 +1,5 @@
 <?php
 
-header('Access-Control-Allow-Headers: *');
-header('Access-Control-Allow-Origin: *');
-
 define('PAGINATION_COUNT', 10);
 
 Route::get('clearPermissionCach', function () {
