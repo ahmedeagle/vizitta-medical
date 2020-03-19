@@ -31,11 +31,11 @@ class InsuranceCompanyController extends Controller
         try {
             $company = $this->getCompanyById($request->id);
             if ($company == null)
-                $result = [];
-            else
-                $result = new InsuranceCompanyResource($company);
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+            /*else
+                $result = new InsuranceCompanyResource($company);*/
 
-            return response()->json(['status' => true, 'data' => $result]);
+            return response()->json(['status' => true, 'data' => $company]);
         } catch (\Exception $ex) {
             return response()->json([
                 'success' => false,

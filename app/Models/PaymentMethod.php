@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentMethod extends Model
 {
     protected $table = 'payment_methods';
-    public $timestamps = true;
+    public $timestamps = false;
 
-    protected $fillable = ['name_en', 'name_ar'];
+    protected $fillable = ['name_en', 'name_ar', 'status'];
 
 }

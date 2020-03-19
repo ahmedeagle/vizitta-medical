@@ -2,6 +2,7 @@
 
 namespace App\Traits\Dashboard;
 
+use App\Models\PaymentMethod;
 use App\Models\Offer;
 use App\Models\OfferBranch;
 //use App\Models\PromoCode_Doctor;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Freshbitsweb\Laratables\Laratables;
 //use Illuminate\Http\Request;
 //use function foo\func;
+use DB;
 
 trait OfferTrait
 {
@@ -146,6 +148,15 @@ trait OfferTrait
                 }
             }
         }*/
+
+    public function getAllPaymentMethodWithSelected($offer = null)
+    {
+        if ($offer != null) {
+            return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.offer_id = ' . $offer->id . ' AND offer_payment_methods.payment_method_id = payment_method.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('0 as selected'))->get();
+        }
+    }
 
 
 }

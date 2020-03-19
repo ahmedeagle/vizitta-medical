@@ -86,7 +86,8 @@
 <div class="form-group has-float-label col-sm-6">
     {{ Form::select('available_count_type', ['once' => 'مرة واحدة', 'more_than_once' => 'اكثر من مرة'], old('available_count_type'), ['placeholder' => 'نوع العدد المتاح',  'class' => 'form-control ' . ($errors->has('available_count_type') ? 'redborder' : '') ]) }}
     <label for="available_count_type">نوع العدد المتاح <span class="astric">*</span></label>
-    <small class="text-danger">{{ $errors->has('available_count_type') ? $errors->first('available_count_type') : '' }}</small>
+    <small
+        class="text-danger">{{ $errors->has('available_count_type') ? $errors->first('available_count_type') : '' }}</small>
 </div>
 
 
@@ -127,6 +128,12 @@
     <small class="text-danger">{{ $errors->has('featured') ? $errors->first('featured') : '' }}</small>
 </div>
 
+<div class="form-group has-float-label col-sm-6">
+    {{ Form::text('device_type', old('device_type'), ['placeholder' => 'نوع الجهاز ',  'class' => 'form-control ' . ($errors->has('device_type') ? 'redborder' : '') ]) }}
+    <label for="title"> نوع الجهاز </label>
+    <small class="text-danger">{{ $errors->has('device_type') ? $errors->first('device_type') : '' }}</small>
+</div>
+
 <div class="form-group has-float-label col-sm-12">
     {{ Form::select('users', $users, old('users'), ['multiple'=>'multiple','name'=>'users[]' ,'data-live-search'=> 'true', 'id'=>"users", 'class' => 'js-example-basic-multiple form-control ' . ($errors->has('users') ? 'redborder' : '') ]) }}
     <label for="provider_id"> تخصيص مستخدمي العرض </label>
@@ -145,6 +152,27 @@
     </select>
     <label for="branches"> الأفرع </label>
     <small class="text-danger">{{ $errors->has('branchIds') ? $errors->first('branchIds') : '' }}</small>
+</div>
+
+{{--<label> وسائل الدفع </label>--}}
+<div class="row form-group has-float-label">
+    @if(isset($paymentMethods) && $paymentMethods -> count() > 0)
+        @foreach($paymentMethods as $index => $paymentMethod)
+            <div class="col-md-4">
+                <label class="checkbox-inline" style="user-select: none">
+                    <input style="margin: -8px -19px 0 0 " type="checkbox" id="payment_method" name="payment_method[]"
+                           {{ (is_array(old('payment_method')) && in_array($paymentMethod->id, old('payment_method'))) ? ' checked' : '' }} @if($paymentMethod -> selected == 1) checked
+                           @endif style=" display: inline-block"
+                           value="{{$paymentMethod -> id}}"> {{$paymentMethod -> name_ar}}
+                </label>
+            </div>
+        @endforeach
+    @endif
+</div>
+<br>
+<div class="form-group has-float-label col-sm-6">
+    {{ Form::select('paymentAmountType', ['all' => 'المبلغ كامل', 'custom' => 'مبلغ معين'], old('payment_amount_type'), ['name'=>'payment_amount_type' ,'class' => 'form-control', '']) }}
+    <label for="payment_amount_type"> نوع المبلغ </label>
 </div>
 
 {{--<div class="form-group has-float-label col-sm-12">
@@ -171,3 +199,23 @@
     {{ Form::submit($btn, ['class' => 'btn btn-sm' ]) }}
 </div>
 
+@section('extra_scripts')
+
+    <script type="text/javascript">
+
+        $(document).on('click', '#payment_method', function (e) {
+
+            if ($(this).val() == 6) {
+                if ($(this).prop("checked") == true) { // Checkbox is checked
+
+
+                } else if ($(this).prop("checked") == false) { // Checkbox is unchecked
+
+                }
+            }
+
+        });
+
+    </script>
+
+@endsection

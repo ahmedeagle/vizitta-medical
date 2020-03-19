@@ -11,8 +11,9 @@
             float: right;
             text-align: center;
             position: fixed;
-         }
-        .select2-container--default .select2-selection--multiple .select2-selection__rendered{
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
             padding-top: 5px;
         }
     </style>
