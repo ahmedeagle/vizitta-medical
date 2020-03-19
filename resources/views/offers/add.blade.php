@@ -67,60 +67,121 @@
             });
         });
 
-        //get branch doctors
-        /*$(document).on('change', '#branches', function (e) {
-            e.preventDefault();
-            $.ajax({
-
-                type: 'post',
-                url: "{{Route('admin.promoCode.brancheDoctors')}}",
-                data: {
-                    'branche_id': $(this).val(),
-                },
-
-                success: function (data) {
-                    $('.appenddoctors').empty().append(data.content);
-                }
-
-            });
-
-        });*/
-
-        /*$(document).ready(function () {
-            $(".artextarea").each(function () {
-                var editor = CKEDITOR.replace($(this).attr('id'), {
-                    language: 'ar',
-                });
-            });
-
-            $(".entextarea").each(function () {
-                var editor = CKEDITOR.replace($(this).attr('id'), {
-                    language: 'en',
-                });
-            });
-        });*/
-
-        /*$(document).on('change', '#cop_type', function () {
-
-            if ($(this).val() == 2) {
-                $('#cop_price').show();
-                $('#cop_percg').show();
-                $('#cop_discount').hide();
-                $('#copounCode').hide();
-                $('#app_perc').hide();
-            } else {
-                $('#cop_price').hide();
-                $('#cop_percg').hide();
-                $('#cop_discount').show();
-                $('#copounCode').show();
-                $('#app_perc').show();
-            }
-        });*/
-
         $(document).ready(function () {
             $('.js-example-basic-single').select2();
             $('.js-example-basic-multiple').select2();
         });
 
     </script>
+
+    <script type="text/javascript">
+
+        $(document).on('click', '#payment_method', function (e) {
+
+            if ($(this).val() == 6) {
+                if ($(this).prop("checked") == true) { // Checkbox is checked
+                    $('#amountTypeDiv').show();
+                    $('#payment_amount_type').val('all');
+                } else if ($(this).prop("checked") == false) { // Checkbox is unchecked
+                    $('#amountTypeDiv').hide();
+                    $('#customAmountDiv').hide();
+                }
+            }
+
+        });
+
+        $(document).on('change', '#payment_amount_type', function (e) {
+            $(this).val() == 'custom' ? $('#customAmountDiv').show() : $('#customAmountDiv').hide();
+        });
+
+        var count = 0;
+        $(document).on('click', '.btnAddMoreContent', function () {
+
+            var allContent = $('#allContentDivs');
+
+            var body = `<div style="padding-top: 5px" id="contentBox_${count}"><div class="col-sm-6">
+                            <label for="title"> المحتوى بالعربية </label>
+                            <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
+                        </div>
+                        <div class="col-sm-6" style="padding-top: 5px">
+                            <label for="title"> المحتوى بالإنجليزية </label>
+                            <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
+                            <button type="button" class="btnDeleteContent btn btn-danger sm" onclick="deleteContentBox(${count})"><i
+                            class="menu-icon fa fa-trash-o fa-fw"></i></button>
+                        </div></div>`;
+            allContent.append(body);
+            count++;
+        });
+
+        function deleteContentBox(id) {
+            $('#contentBox_' + id).remove();
+        }
+
+        $('#branches').on('select2:select', function (e) {
+            var data = e.params.data;
+            // console.log(data);
+
+            var allBranchTimes = $('#branchTimesDiv');
+            var body = `<div id="branchTimeBox_${data.id}" class="form-group has-float-label col-sm-6">
+                            <h3># ${data.text} #</h3>
+                            <input type="number" name="branchTimes[${data.id}][duration]" placeholder="مدة الإنتظار" style="width: 100%">
+                            <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th>اليوم</th>
+                                        <th>من</th>
+                                        <th>الى</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td>السبت</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][sat][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][sat][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الاحد</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][sun][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][sun][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الاثنين</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][mon][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][mon][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الثلاثاء</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][tue][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][tue][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الاربعاء</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][wed][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][wed][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الخميس</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][thu][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][thu][to]"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>الجمعة</td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][fri][from]"></td>
+                                        <td><input type="time" name="branchTimes[${data.id}][days][fri][to]"></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                        </div>`;
+            allBranchTimes.append(body);
+        });
+
+        $('#branches').on('select2:unselect', function (e) {
+            var data = e.params.data;
+            // console.log(data);
+            $('#branchTimeBox_' + data.id).remove();
+        });
+
+    </script>
+
 @stop
+

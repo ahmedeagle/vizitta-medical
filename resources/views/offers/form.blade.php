@@ -36,14 +36,6 @@
     <small class="text-danger">{{ $errors->has('photo') ? $errors->first('photo') : '' }}</small>
 </div>
 
-
-{{--<div class="form-group has-float-label col-sm-6">
-    {{ Form::select('coupons_type_id', [1 => 'خصم ', 2 => 'كوبون '], old('coupons_type_id'), ['placeholder' => ' النوع ', 'id' => 'cop_type', 'class' => 'form-control ' . ($errors->has('coupons_type_id') ? 'redborder' : '') ]) }}
-    <label for="status">النوع <span class="astric">*</span></label>
-    <small
-        class="text-danger">{{ $errors->has('coupons_type_id') ? $errors->first('coupons_type_id') : '' }}</small>
-</div>--}}
-
 <div id="cop_pricee" class="form-group has-float-label col-sm-6">
     {{ Form::number('price', old('price'), ['placeholder' => 'ادخل السعر في حاله الكوبون فقط ','class' => 'form-control ' . ($errors->has('price') ? 'redborder' : '') ]) }}
     <label for="price"> سعر الكوبون<span class="astric">*</span> </label>
@@ -154,6 +146,10 @@
     <small class="text-danger">{{ $errors->has('branchIds') ? $errors->first('branchIds') : '' }}</small>
 </div>
 
+<div id="branchTimesDiv" style="margin-bottom: 50px"></div>
+<div class="clearfix"></div>
+<hr>
+<br>
 {{--<label> وسائل الدفع </label>--}}
 <div class="row form-group has-float-label">
     @if(isset($paymentMethods) && $paymentMethods -> count() > 0)
@@ -168,12 +164,39 @@
             </div>
         @endforeach
     @endif
+    <small class="text-danger">{{ $errors->has('payment_method') ? $errors->first('payment_method') : '' }}</small>
 </div>
 <br>
-<div class="form-group has-float-label col-sm-6">
-    {{ Form::select('paymentAmountType', ['all' => 'المبلغ كامل', 'custom' => 'مبلغ معين'], old('payment_amount_type'), ['name'=>'payment_amount_type' ,'class' => 'form-control', '']) }}
+<div class="form-group has-float-label col-sm-6" style="display: none;" id="amountTypeDiv">
+    {{ Form::select('payment_amount_type', ['all' => 'المبلغ كامل', 'custom' => 'مبلغ معين'], old('payment_amount_type'), ['id'=>'payment_amount_type', 'name'=>'payment_amount_type' ,'class' => 'form-control', '']) }}
     <label for="payment_amount_type"> نوع المبلغ </label>
 </div>
+
+<div class="form-group has-float-label col-sm-6" style="display: none;" id="customAmountDiv">
+    {{ Form::number('payment_amount', old('payment_amount'), ['placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
+    <label for="title"> المبلغ </label>
+    <small class="text-danger">{{ $errors->has('payment_amount') ? $errors->first('payment_amount') : '' }}</small>
+</div>
+
+<hr>
+<br>
+
+<div class="form-group has-float-label offer-content" style="padding-top: 30px">
+    <div class="col-sm-6">
+        <label for="title"> المحتوى بالعربية </label>
+        <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
+    </div>
+    <div class="col-sm-6">
+        <label for="title"> المحتوى بالإنجليزية </label>
+        <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
+        <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
+                class="menu-icon fa fa-plus-circle fa-fw"></i></button>
+
+    </div>
+</div>
+
+<div class="form-group has-float-label offer-content" id="allContentDivs"></div>
+
 
 {{--<div class="form-group has-float-label col-sm-12">
     <select name="doctorsIds[]" style='height: 100px !important;' id="doctors" multiple='multiple'
@@ -199,23 +222,4 @@
     {{ Form::submit($btn, ['class' => 'btn btn-sm' ]) }}
 </div>
 
-@section('extra_scripts')
 
-    <script type="text/javascript">
-
-        $(document).on('click', '#payment_method', function (e) {
-
-            if ($(this).val() == 6) {
-                if ($(this).prop("checked") == true) { // Checkbox is checked
-
-
-                } else if ($(this).prop("checked") == false) { // Checkbox is unchecked
-
-                }
-            }
-
-        });
-
-    </script>
-
-@endsection

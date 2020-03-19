@@ -152,7 +152,7 @@ trait OfferTrait
     public function getAllPaymentMethodWithSelected($offer = null)
     {
         if ($offer != null) {
-            return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.offer_id = ' . $offer->id . ' AND offer_payment_methods.payment_method_id = payment_method.id) > 0, 1, 0) as selected'))->get();
+            return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.offer_id = ' . $offer->id . ' AND offer_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))->get();
         } else {
             return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('0 as selected'))->get();
         }
