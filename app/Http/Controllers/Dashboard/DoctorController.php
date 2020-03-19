@@ -68,7 +68,7 @@ class DoctorController extends Controller
         $nationalities = $this->getAllNationalities();
         $companies = $this->getAllInsuranceCompaniesWithSelected(null);
         $days = ['Saturday' => 'السبت', 'Sunday' => 'الأحد', 'Monday' => 'الإثنين ', 'Tuesday' => 'الثلاثاء', 'Wednesday' => 'الأربعاء', 'Thursday' => 'الخميس ', 'Friday' => 'الجمعة '];
-        return view('doctor.create', compact('providers', 'nicknames', 'specifications', 'nationalities', 'companies', 'days')) -> with('branchId',$branchId);
+        return view('doctor.create', compact('providers', 'nicknames', 'specifications', 'nationalities', 'companies', 'days'))->with('branchId', $branchId);
     }
 
 
@@ -145,6 +145,8 @@ class DoctorController extends Controller
                         $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
                     }
                     $insurancs = InsuranceCompanyDoctor::insert($insurance_companies_data);
+
+                    $doctor->update(['has_insurance' => 1]);
                 }
 
                 // working days
@@ -225,7 +227,7 @@ class DoctorController extends Controller
         $specifications = $this->getAllSpecifications();
         $nicknames = $this->getAllNicknames();
         $nationalities = $this->getAllNationalities();
-           $companies = $this->getAllInsuranceCompaniesWithSelected($doctor);
+        $companies = $this->getAllInsuranceCompaniesWithSelected($doctor);
         $times = $doctor->times()->get();
 
         //trans namd of all days
@@ -333,9 +335,12 @@ class DoctorController extends Controller
                 // Insurance company IDs
                 if ($request->has('insurance_companies') && is_array($request->insurance_companies) && !empty($request->insurance_companies)) {
                     $doctor->insuranceCompanies()->sync($request->insurance_companies); // manay to many save only the new values and delete others from database
-                }else{
-                   // $doctor -> insuranceCompanies() -> delete();
-                    InsuranceCompanyDoctor::where('doctor_id',$doctor -> id) -> delete();
+
+                    $doctor->update(['has_insurance' => 1]);
+                } else {
+                    // $doctor -> insuranceCompanies() -> delete();
+                    InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+                    $doctor->update(['has_insurance' => 0]);
                 }
 
                 $doctor->times()->delete();
@@ -455,7 +460,7 @@ class DoctorController extends Controller
     public function getDoctorAvailableTime($date)
     {
         $doctor_id = Session::has('doctor_id_for_Edit_reserv') ? Session::get('doctor_id_for_Edit_reserv') : 0;
-        $base = url('/')."/api/";
+        $base = url('/') . "/api/";
         $client = new \GuzzleHttp\Client(['base_uri' => $base]);
         $response = $client->request('POST', 'provider/doctor/available/times', [
             'form_params' => [
@@ -496,99 +501,99 @@ class DoctorController extends Controller
         return response()->json([]);
     }
 
-   /* public function UpdateReservationDateTime(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                "reservation_no" => "required|max:255",
-                "day_date" => "required|date",
-                "from_time" => "required",
-                "to_time" => "required",
-            ]);
+    /* public function UpdateReservationDateTime(Request $request)
+     {
+         try {
+             $validator = Validator::make($request->all(), [
+                 "reservation_no" => "required|max:255",
+                 "day_date" => "required|date",
+                 "from_time" => "required",
+                 "to_time" => "required",
+             ]);
 
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
+             if ($validator->fails()) {
+                 $code = $this->returnCodeAccordingToInput($validator);
+                 return $this->returnValidationError($code, $validator);
+             }
 
-            DB::beginTransaction();
-            $reservation = $this->getReservationByNo($request->reservation_no);
-            if ($reservation == null)
-                return $this->returnError('D000', trans('messages.No reservation with this number'));
+             DB::beginTransaction();
+             $reservation = $this->getReservationByNo($request->reservation_no);
+             if ($reservation == null)
+                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
-            if ($reservation->approved != 1)
-                return $this->returnError('E001', trans('messages.Only approved reservation can be  updated '));
+             if ($reservation->approved != 1)
+                 return $this->returnError('E001', trans('messages.Only approved reservation can be  updated '));
 
-            if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
-                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))) {
-                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
-            }
+             if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                     strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))) {
+                 return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+             }
 
-            if ($provider->provider_id == null)
-                return $this->returnError('D000', trans("messages.Your account isn't branch to update reservations"));
+             if ($provider->provider_id == null)
+                 return $this->returnError('D000', trans("messages.Your account isn't branch to update reservations"));
 
 
-            $doctor = $reservation->doctor;
-            if ($doctor == null)
-                return $this->returnError('D000', trans('messages.No doctor with this id'));
+             $doctor = $reservation->doctor;
+             if ($doctor == null)
+                 return $this->returnError('D000', trans('messages.No doctor with this id'));
 
-            if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-                ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
-                return $this->returnError('D000', trans("messages.You can't reserve to a time passed"));
-            $hasReservation = $this->checkReservationInDate($doctor->id, $request->day_date, $request->from_time, $request->to_time);
-            if ($hasReservation)
-                return $this->returnError('E001', trans('messages.This time is not available'));
+             if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                 ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
+                 return $this->returnError('D000', trans("messages.You can't reserve to a time passed"));
+             $hasReservation = $this->checkReservationInDate($doctor->id, $request->day_date, $request->from_time, $request->to_time);
+             if ($hasReservation)
+                 return $this->returnError('E001', trans('messages.This time is not available'));
 
-            $reservationDayName = date('l', strtotime($request->day_date));
-            $rightDay = false;
-            $timeOrder = 1;
-            $last = false;
-            $times = $this->getDoctorTimesInDay($doctor->id, $reservationDayName);
-            foreach ($times as $key => $time) {
-                if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
-                    && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
-                    $rightDay = true;
-                    $timeOrder = $key + 1;
-                    //if(count($times) == ($key+1))
-                    //  $last = true;
-                    break;
-                }
-            }
-            if (!$rightDay)
-                return $this->returnError('E001', trans('messages.This day is not in doctor days'));
+             $reservationDayName = date('l', strtotime($request->day_date));
+             $rightDay = false;
+             $timeOrder = 1;
+             $last = false;
+             $times = $this->getDoctorTimesInDay($doctor->id, $reservationDayName);
+             foreach ($times as $key => $time) {
+                 if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
+                     && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
+                     $rightDay = true;
+                     $timeOrder = $key + 1;
+                     //if(count($times) == ($key+1))
+                     //  $last = true;
+                     break;
+                 }
+             }
+             if (!$rightDay)
+                 return $this->returnError('E001', trans('messages.This day is not in doctor days'));
 
-            $reservation->update([
-                "day_date" => date('Y-m-d', strtotime($request->day_date)),
-                "from_time" => date('H:i:s', strtotime($request->from_time)),
-                "to_time" => date('H:i:s', strtotime($request->to_time)),
-                'order' => $timeOrder,
-                "approved" => 1,
-                "approved" => 1,
-            ]);
+             $reservation->update([
+                 "day_date" => date('Y-m-d', strtotime($request->day_date)),
+                 "from_time" => date('H:i:s', strtotime($request->from_time)),
+                 "to_time" => date('H:i:s', strtotime($request->to_time)),
+                 'order' => $timeOrder,
+                 "approved" => 1,
+                 "approved" => 1,
+             ]);
 
-            if ($last) {
-                ReservedTime::create([
-                    'doctor_id' => $doctor->id,
-                    'day_date' => date('Y-m-d', strtotime($request->day_date))
-                ]);
-            }
+             if ($last) {
+                 ReservedTime::create([
+                     'doctor_id' => $doctor->id,
+                     'day_date' => date('Y-m-d', strtotime($request->day_date))
+                 ]);
+             }
 
-            if ($reservation->user->email != null)
-                Mail::to($reservation->user->email)->send(new AcceptReservationMail($reservation->reservation_no));
+             if ($reservation->user->email != null)
+                 Mail::to($reservation->user->email)->send(new AcceptReservationMail($reservation->reservation_no));
 
-            DB::commit();
-            try {
-                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
-                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
-            } catch (\Exception $ex) {
+             DB::commit();
+             try {
+                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
+                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
+             } catch (\Exception $ex) {
 
-            }
-            return $this->returnSuccessMessage(trans('messages.Reservation updated successfully'));
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }*/
+             }
+             return $this->returnSuccessMessage(trans('messages.Reservation updated successfully'));
+         } catch (\Exception $ex) {
+             return $this->returnError($ex->getCode(), $ex->getMessage());
+         }
+     }*/
 
 
 }
