@@ -35,7 +35,7 @@ class Provider extends Authenticatable implements JWTSubject
         'odoo_provider_id',
         'android_device_hasCode', 'lottery', 'rate'];
 
-    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill','has_insurance', 'is_lottery'];  // to append coulms to table virtual
+    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill', 'has_insurance', 'is_lottery'];  // to append coulms to table virtual
 
     protected $hidden = [
         'created_at', 'password', 'city_id', 'type_id',
@@ -274,22 +274,21 @@ class Provider extends Authenticatable implements JWTSubject
     public function getHasInsuranceAttribute()
     {
 
-         if ($this->provider_id != null) {  // branch
+        if ($this->provider_id != null) {  // branch
             $branchDoctorId = $this->doctors->pluck('doctors.id');
-            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id',$branchDoctorId) -> count();
+            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id', $branchDoctorId)->count();
             if ($doctorsHasInsurance > 0)
                 return 1;
             else
                 return 0;
         } else { //provide
-             return 0;
-           /* $branchesId = Provider::where('provider_id',$this->id) -> pluck('id');
-            $doctorIds = Doctor::whereIn('provider_id',$branchesId) -> pluck('id');
-            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id',$doctorIds) -> count();
+            $branchesId = Provider::where('provider_id', $this->id)->pluck('id');
+            $doctorIds = Doctor::whereIn('provider_id', $branchesId)->pluck('id');
+            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id', $doctorIds)->count();
             if ($doctorsHasInsurance > 0)
                 return 1;
             else
-                return 0;*/
+                return 0;
         }
     }
 
