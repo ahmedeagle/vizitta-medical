@@ -282,13 +282,14 @@ class Provider extends Authenticatable implements JWTSubject
             else
                 return 0;
         } else { //provide
-            $branchesId = Provider::where('provider_id', $this->id)->pluck('id');
-            $doctorIds = Doctor::whereIn('provider_id', $branchesId)->pluck('id');
-            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id', $doctorIds)->count();
-            if ($doctorsHasInsurance > 0)
-                return 1;
-            else
-                return 0;
+            /*  $branchesId = Provider::where('provider_id', $this->id)->pluck('id');
+              $doctorIds = Doctor::whereIn('provider_id', $branchesId)->pluck('id');
+              $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id', $doctorIds)->count();
+              if ($doctorsHasInsurance > 0)
+                  return 1;
+              else
+                  return 0;*/
+            return 0;
         }
     }
 
