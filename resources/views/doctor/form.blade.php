@@ -103,6 +103,13 @@
         class="text-danger">{{ $errors->has('reservation_period') ? $errors->first('reservation_period') : '' }}</small>
 </div>
 
+<div class="form-group has-float-label col-sm-6">
+    {{ Form::text('waiting_period', old('waiting_period'), ['placeholder' => '15 مثال ','onkeyup'=>'keyupFunction(this)','id' =>'waiting_period' ,'class' => 'form-control ' . ($errors->has('waiting_period') ? 'redborder' : '') ]) }}
+    <label for="waiting_period"> مدة الانتظار <span class="astric">*</span></label>
+    <small
+        class="text-danger">{{ $errors->has('waiting_period') ? $errors->first('waiting_period') : '' }}</small>
+</div>
+
 {{-- <div class="form-group has-float-label col-sm-6">
     {{ Form::select('insurance_companies[]', $companies, isset($doctor->insuranceCompanies) ? $doctor->insuranceCompanies->pluck('id')->toArray() : old('insurance_companies'), [ 'multiple' => 'multiple',  'class' => 'js-example-basic-multiple form-control ' . ($errors->has('insurance_companies.*') ? 'redborder' : '') ]) }}
     <label for="insurance_companies">شركات التأمين <span class="astric">*</span></label>

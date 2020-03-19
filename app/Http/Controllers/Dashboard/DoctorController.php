@@ -146,7 +146,6 @@ class DoctorController extends Controller
                     }
                     $insurancs = InsuranceCompanyDoctor::insert($insurance_companies_data);
 
-                    $doctor->update(['has_insurance' => 1]);
                 }
 
                 // working days
@@ -336,12 +335,10 @@ class DoctorController extends Controller
                 if ($request->has('insurance_companies') && is_array($request->insurance_companies) && !empty($request->insurance_companies)) {
                     $doctor->insuranceCompanies()->sync($request->insurance_companies); // manay to many save only the new values and delete others from database
 
-                    $doctor->update(['has_insurance' => 1]);
-                } else {
+                 } else {
                     // $doctor -> insuranceCompanies() -> delete();
                     InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
-                    $doctor->update(['has_insurance' => 0]);
-                }
+                 }
 
                 $doctor->times()->delete();
                 $doctor->times()->insert($working_days_data);

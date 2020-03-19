@@ -129,12 +129,7 @@ class DoctorController extends Controller
                         $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
                     }
                     InsuranceCompanyDoctor::insert($insurance_companies_data);
-                    $doctor->update(['has_insurance' => 1]);
-                }else{
-                    $doctor->update(['has_insurance' => 0]);
-                }
-            }else{
-                $doctor->update(['has_insurance' => 0]);
+                 }
             }
 
             for ($i = 0; $i < count($working_days_data); $i++) {
@@ -294,13 +289,10 @@ class DoctorController extends Controller
                 if (is_array($request->insurance_companies) && count($request->insurance_companies) > 0) {
                     $doctor->insuranceCompanies()->sync($request->insurance_companies);
                 }else{
-                    $doctor->update(['has_insurance' => 0]);
-                    InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+                     InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
                 }
-                $doctor->update(['has_insurance' => 1]);
-            } else {
-                $doctor->update(['has_insurance' => 0]);
-                InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+             } else {
+                 InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
             }
 
             $doctor->times()->delete();

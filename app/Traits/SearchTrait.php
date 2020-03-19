@@ -25,15 +25,15 @@ trait SearchTrait
 
 
         $provider = $query->whereDoesntHave('subscriptions')
-        ->with(['type' => function ($q) {
-            $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'favourites' => function ($qu) use ($userId) {
-            $qu->where('user_id', $userId)->select('provider_id');
-        }, 'city' => function ($q) {
-            $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'district' => function ($q) {
-            $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-        }])->where('providers.status', true)->whereNotNull('providers.provider_id');
+            ->with(['type' => function ($q) {
+                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'favourites' => function ($qu) use ($userId) {
+                $qu->where('user_id', $userId)->select('provider_id');
+            }, 'city' => function ($q) {
+                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'district' => function ($q) {
+                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+            }])->where('providers.status', true)->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
             $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
@@ -86,6 +86,15 @@ trait SearchTrait
               });*/
 
         }
+
+        // Insurance Companies
+        if (isset($request->branch_has_insurance) && $request->branch_has_insurance != 0) {
+            $provider = $provider->whereHas('doctors', function ($que) use ($request) {
+                $que->whereHas('manyInsuranceCompanies');
+            });
+        }
+
+
         //  Name
         if (isset($request->doctor_name) && !empty($request->doctor_name)) {
             $provider = $provider->whereHas('doctors', function ($query) use ($request) {

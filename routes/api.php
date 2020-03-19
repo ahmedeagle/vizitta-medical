@@ -2,9 +2,6 @@
 
 use App\Models\Provider;
 
-header('Access-Control-Allow-Headers: *');
-header('Access-Control-Allow-Origin: *');
-
 
 Route::get('/optimize', function () {
     exec('optimize:clear');
