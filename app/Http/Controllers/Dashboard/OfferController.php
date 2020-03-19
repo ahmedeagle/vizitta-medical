@@ -138,6 +138,7 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         $rules = [
             "title_ar" => "required|max:255",
             "title_en" => "required|max:255",
@@ -157,6 +158,7 @@ class OfferController extends Controller
             "available_count_type" => "required|in:once,more_than_once",
             "started_at" => "required|date",
             "gender" => "required|in:all,males,females",
+            "payment_method" => "required|array|min:1",
 
         ];
 
@@ -261,7 +263,7 @@ class OfferController extends Controller
         $data['categories'] = $this->getAllCategoriesWithCurrentOfferSelected($data['offer']);
         $data['users'] = $this->getAllActiveUsersWithCurrentOfferSelected($data['offer']);
         $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
-        $data['paymentMethods'] = PaymentMethod::where('status', 1)->pluck('name_ar', 'id');
+        $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected($data['offer']);
         return view('offers.edit', $data);
     }
 
@@ -287,6 +289,7 @@ class OfferController extends Controller
             "available_count_type" => "required|in:once,more_than_once",
             "started_at" => "required|date",
             "gender" => "required|in:all,males,females",
+            "payment_method" => "required|array|min:1",
 
         ];
 
