@@ -538,3 +538,76 @@ Breadcrumbs::for('sharing', function ($trail) {
     $trail->parent('dashboard');
     $trail->push('أعدادت مشاركه التطبيق ', route('admin.sharing'));
 });
+
+#####################################################################
+
+// Home > offerCategories
+Breadcrumbs::for('offerCategories', function ($trail) {
+    $trail->parent('dashboard');
+    $trail->push('أقسام العروض ', route('admin.offerCategories'));
+});
+// Home > ٍ offerCategories > Add
+Breadcrumbs::for('add.offerCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('إضافة  قسم جديد ');
+});
+// Home > offerCategories > Edit
+Breadcrumbs::for('edit.offerCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('تعديل  قسم ');
+});
+//reorder
+
+Breadcrumbs::for('reorderCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('ترتيب اقسام العروض ', route('admin.offerCategories'));
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// Home > Offers
+Breadcrumbs::for('offers', function ($trail) {
+    $trail->parent('dashboard');
+    $trail->push('العروض', route('admin.offers'));
+});
+
+// Home > Promo Codes > branches
+Breadcrumbs::for('offers-branches', function ($trail) {
+    $trail->parent('dashboard');
+    $trail->push('افرع العرض ', route('admin.offers.branches', ['id', '*']));
+});
+
+// Home > Promo Codes > Add
+Breadcrumbs::for('add.offers', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('إضافة عرض');
+});
+
+/*Breadcrumbs::for('add.filter', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('إضافة  فلتر');
+});
+
+
+Breadcrumbs::for('mostreserved', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('أكثر العروض حجزا');
+});
+
+Breadcrumbs::for('edit.filter', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('تعديل فلتر');
+});*/
+
+// Home > Promo Codes > Edit
+Breadcrumbs::for('edit.offers', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('تعديل عرض');
+});
+// Home > Promo Codes > View
+Breadcrumbs::for('view.offers', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('تفاصيل عرض الخصم');
+});
+
+#####################################################################
