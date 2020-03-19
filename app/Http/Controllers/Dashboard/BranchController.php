@@ -64,7 +64,7 @@ class BranchController extends Controller
                 ->orderBy('id', 'DESC')
                 ->paginate(10);
         } else
-            $data['branches'] = Provider::whereNotNull('provider_id')->orderBy('id', 'DESC')->paginate(10);
+              $data['branches'] = Provider::whereNotNull('provider_id')->orderBy('id', 'DESC')->paginate(10);
 
         return view('branch.index', $data);
     }

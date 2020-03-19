@@ -33,14 +33,14 @@ class Provider extends Authenticatable implements JWTSubject
         'no_of_sms', 'status', 'activation', 'activation_code', 'activation_code', 'api_token', 'branch_no', 'paid_balance',
         'unpaid_balance', 'application_percentage', 'application_percentage_bill', 'balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
         'odoo_provider_id',
-        'android_device_hasCode', 'lottery','rate'];
+        'android_device_hasCode', 'lottery', 'rate'];
 
-    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill','is_lottery'];  // to append coulms to table virtual
+    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill','has_insurance', 'is_lottery'];  // to append coulms to table virtual
 
     protected $hidden = [
         'created_at', 'password', 'city_id', 'type_id',
         'district_id', 'updated_at', 'no_of_sms', 'activation', 'device_token', 'web_token', 'application_percentage', 'application_percentage_bill',
-        'odoo_provider_id','adminprices'
+        'odoo_provider_id', 'adminprices'
     ];
 
 
@@ -68,15 +68,16 @@ class Provider extends Authenticatable implements JWTSubject
 
     public function laratablesLottery()
     {
-         return $this -> lottery == 0 ? 'لا':'نعم';
+        return $this->lottery == 0 ? 'لا' : 'نعم';
 
     }
 
     public function getProviderLottery()
     {
-         return $this -> lottery == 0 ? 'لا':'نعم';
+        return $this->lottery == 0 ? 'لا' : 'نعم';
 
     }
+
     public static function laratablesCustomAdminAction($provider)
     {
         return view('admin.actions', compact('provider'))->render();
@@ -269,13 +270,35 @@ class Provider extends Authenticatable implements JWTSubject
         return 1;
     }
 
+    //is branch has doctors with insurance
+    public function getHasInsuranceAttribute()
+    {
+
+         if ($this->provider_id != null) {  // branch
+            $branchDoctorId = $this->doctors->pluck('doctors.id');
+            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id',$branchDoctorId) -> count();
+            if ($doctorsHasInsurance > 0)
+                return 1;
+            else
+                return 0;
+        } else { //provide
+             return 0;
+           /* $branchesId = Provider::where('provider_id',$this->id) -> pluck('id');
+            $doctorIds = Doctor::whereIn('provider_id',$branchesId) -> pluck('id');
+            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id',$doctorIds) -> count();
+            if ($doctorsHasInsurance > 0)
+                return 1;
+            else
+                return 0;*/
+        }
+    }
 
     public function getIsLotteryAttribute()
     {
         if ($this->lottery == 0)
             return 0;
         else
-        return 1;
+            return 1;
     }
 
 
@@ -314,13 +337,15 @@ class Provider extends Authenticatable implements JWTSubject
         return $this->hasMany('App\Models\FeaturedBranch', 'branch_id', 'id');
     }
 
-    public function gifts(){
-        return $this -> hasMany('App\Models\Gift','branch_id','id');
+    public function gifts()
+    {
+        return $this->hasMany('App\Models\Gift', 'branch_id', 'id');
     }
 
-    public function scopeWithdrawable($query){
-        return $query -> where('lottery',1) ->where('provider_id',null)-> whereHas('gifts',function ($query){
-            $query -> where('amount','>',0);
+    public function scopeWithdrawable($query)
+    {
+        return $query->where('lottery', 1)->where('provider_id', null)->whereHas('gifts', function ($query) {
+            $query->where('amount', '>', 0);
         });
     }
 }
