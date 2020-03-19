@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Filter;
+use App\Models\PaymentMethod;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Traits\Dashboard\PublicTrait;
@@ -72,6 +73,7 @@ class OfferController extends Controller
         $data['categories'] = $this->getAllCategoriesCollection();    // categories
         $data['users'] = $this->getAllActiveUsers();
         $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
+        $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected();
         return view('offers.add', $data);
     }
 
@@ -259,6 +261,7 @@ class OfferController extends Controller
         $data['categories'] = $this->getAllCategoriesWithCurrentOfferSelected($data['offer']);
         $data['users'] = $this->getAllActiveUsersWithCurrentOfferSelected($data['offer']);
         $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
+        $data['paymentMethods'] = PaymentMethod::where('status', 1)->pluck('name_ar', 'id');
         return view('offers.edit', $data);
     }
 

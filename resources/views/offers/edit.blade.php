@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'تعديل رمز')
+@section('title', 'تعديل عرض')
 
 @section('styles')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet"/>
@@ -21,19 +21,19 @@
 
 @section('content')
 @section('breadcrumbs')
-    {!! Breadcrumbs::render('edit.promoCode') !!}
+    {!! Breadcrumbs::render('edit.offers') !!}
 @stop
 
 <div class="page-content">
     <div class="col-md-12">
         <div class="page-header">
-            <h1><i class="menu-icon fa fa-pencil"></i> تعديل كوبون </h1>
+            <h1><i class="menu-icon fa fa-pencil"></i> تعديل عرض </h1>
         </div>
     </div>
 
 
 
-    {{ Form::model($promoCode, ['route' => ['admin.promoCode.update' , $promoCode->id], 'class' => 'form', 'method' => 'PUT','files' => true]) }}
+    {{ Form::model($offer, ['route' => ['admin.promoCode.update' , $offer->id], 'class' => 'form', 'method' => 'PUT','files' => true]) }}
 
     <div class="form-group has-float-label col-sm-12" style="padding-bottom: 8px;">
         <select name="category_ids[]" multiple="multiple" class='js-example-basic-multiple form-control ' . {{$errors->has('category_id') ? 'redborder' : ''}}>
@@ -96,8 +96,8 @@
     </div>
 
     <div id="copounCode" class="form-group has-float-label col-sm-6">
-        {{ Form::text('code', old('code'), ['placeholder' => 'الرمز',  'class' => 'form-control ' . ($errors->has('code') ? 'redborder' : '') ]) }}
-        <label for="code">الرمز <span class="astric">*</span></label>
+        {{ Form::text('code', old('code'), ['placeholder' => 'العرض',  'class' => 'form-control ' . ($errors->has('code') ? 'redborder' : '') ]) }}
+        <label for="code">العرض <span class="astric">*</span></label>
         <small class="text-danger">{{ $errors->has('code') ? $errors->first('code') : '' }}</small>
     </div>
 
@@ -249,7 +249,8 @@
         });
 
         $(document).ready(function () {
-            if ($('#cop_type').val() == '1') {  // discount
+            
+            /*if ($('#cop_type').val() == '1') {  // discount
                 $('#cop_price').hide();
                 $('#cop_percg').hide();
                 $('#cop_discount').show();
@@ -261,14 +262,14 @@
                 $('#cop_discount').hide();
                 $('#copounCode').hide();
                 $('#app_perc').hide();
-            }
+            }*/
 
             $.ajax({
                 type: 'post',
-                url: "{{Route('admin.promoCode.providerbranches')}}",
+                url: "{{Route('admin.offers.providerbranches')}}",
                 data: {
                     'parent_id': $('#providers').val(),
-                    'couponId': "{{$promoCode -> id}}",
+                    'couponId': "{{$offer -> id}}",
                     //'_token'   :   $('meta[name="csrf-token"]').attr('content'),
                 },
                 success: function (data) {
@@ -278,7 +279,7 @@
                         url: "{{Route('admin.promoCode.brancheDoctors')}}",
                         data: {
                             'branche_id': $('#branches').val(),
-                            'couponId': "{{$promoCode -> id}}",
+                            'couponId': "{{$offer -> id}}",
                         },
                         success: function (data) {
                             $('.appenddoctors').empty().append(data.content);
@@ -302,7 +303,7 @@
 
         });
 
-        $(document).on('change', '#cop_type', function () {
+        /*$(document).on('change', '#cop_type', function () {
 
             if ($(this).val() == 2) {
                 $('#cop_price').show();
@@ -317,7 +318,7 @@
                 $('#copounCode').show();
                 $('#app_perc').show();
             }
-        });
+        });*/
 
         $(document).ready(function () {
             $('.js-example-basic-single').select2();
