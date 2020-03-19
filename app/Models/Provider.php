@@ -273,11 +273,9 @@ class Provider extends Authenticatable implements JWTSubject
     //is branch has doctors with insurance
     public function getHasInsuranceAttribute()
     {
-        return 0;
         if ($this->provider_id != null) {  // branch
-            $branchDoctorId = $this->doctors->pluck('id');
-            $doctorsHasInsurance = InsuranceCompanyDoctor::whereIn('doctor_id', $branchDoctorId)->count();
-            if ($doctorsHasInsurance > 0)
+             $doctorHasInsurance = $this -> doctors ->where('has_insurance',1) -> count();
+            if ($doctorHasInsurance > 0)
                 return 1;
             else
                 return 0;
