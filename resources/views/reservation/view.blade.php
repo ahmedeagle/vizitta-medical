@@ -218,13 +218,16 @@
                             @if($reservation->approved == 1)
                                 موافق عليه
                             @elseif($reservation->approved == 2 && $reservation-> rejection_reason !=0 && $reservation-> rejection_reason != null  && $reservation-> rejection_reason !=""  )
-                                مرفوض
+                                مرفوض بواسطة العياده
                             @elseif($reservation->approved == 3)
                                 مكتمل بزياره العميل
                             @elseif($reservation->approved == 2 &&  ($reservation -> rejection_reason == null  or  $reservation -> rejection_reason == '' or  $reservation -> rejection_reason == 0) )
                                 مكتمل بعدم زياره العميل
                             @elseif ($reservation->approved == 4)
                                 $result = 'مشغول';
+                            @elseif($reservation->approved == 5)
+                                مرفوض بواسطة المستخدم
+                                ({{$reservation-> user_rejection_reason}})
                             @else
                                 معلق
                             @endif

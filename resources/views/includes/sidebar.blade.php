@@ -172,6 +172,15 @@
             </li>
         @endcan
 
+        @can('show_coupons')
+            <li class="{{ Request::is('mc33/promoCode/banner*') ? 'active' : '' }}">
+                <a href="{{ route('admin.promoCode.filters') }}">
+                    <i class="menu-icon fa fa-filter fa-fw"></i>
+                    <span class="menu-text"> بنرات العروض </span>
+                </a>
+            </li>
+        @endcan
+
         @can('show_provider_messages')
             <li class="{{ Request::is('mc33/provider/message*') ? 'active' : '' }}">
                 <a href="{{ route('admin.provider.message') }}">

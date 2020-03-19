@@ -1504,7 +1504,7 @@ class UserController extends Controller
             if ($reservation->approved == 1)
                 return $this->returnError('E001', trans("messages.You can't reject approved reservation"));
 
-            if ($reservation->approved == 2)
+            if ($reservation->approved == 2 or $reservation->approved == 5)
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
 
             $reservation->update([
@@ -1512,18 +1512,18 @@ class UserController extends Controller
                 'user_rejection_reason' => $request->user_reject_reason
             ]);
 
-
             DB::commit();
             try {
+
                 $name = 'name_' . app()->getLocale();
+                $branch = Provider::find($reservation->provider_id);
+                $provider = Provider::find($branch->provider_id);
                 $bodyProvider = __('messages.the user') . "  {$reservation->user->name}   " . __('messages.cancel the reservation') . " {$reservation -> reservation_no } " . __('messages.because') . '( ' . $request->user_reject_reason . ' ) ';
                 //send push notification
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))
-                    ->sendProvider($reservation->provider_id);
-                $message = __('messages.reject_reservations_by_user') . ' ( ' . "{$reservation->user->name}" . ' ) ' .
-                    __('messages.because') . '( ' . $request->user_reject_reason . ' ) ' . __('messages.can_re_book');
-                $this->sendSMS($reservation->user->mobile, $message);
-
+                    ->sendProvider($branch);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))
+                    ->sendProvider($provider);
             } catch (\Exception $ex) {
 
             }

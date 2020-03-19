@@ -118,7 +118,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('coupon/send', 'OffersController@sendCouponToMobile')->name('savePaymentDetails1');
             Route::group(['prefix' => 'v2'], function () {
                 Route::post('invitation_code', 'UserController@getInvitationCode');
-                Route::post('reject/reservation', 'UserController@RejectReservation') ;
+                Route::post('reject/reservation', 'UserController@RejectReservation');
             });
         });
     });
@@ -134,11 +134,15 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('/forgetPassword', "ProviderController@forgetPassword");
         Route::post('rates', 'UserController@getProviderRate')->name('user.provider.rate');
         Route::group(['middleware' => 'CheckProviderToken'], function () {
-
             Route::post('resend/activation', 'ProviderController@resendActivation')->name('provider.resend.activation');
         });
         Route::post('view', 'ProviderController@show')->name('provider.view'); // get minimum data for provider
         Route::post('doctors', 'ProviderController@getProviderDoctors')->name('provider.doctors'); // get provider doctors
+
+        Route::group(['prefix' => 'v2'], function () {
+            Route::post('doctors', 'ProviderController@getProviderDoctorsV2')->name('provider.doctors'); // get provider doctors
+        });
+
         Route::post('types', 'ProviderController@getProviderTypes')->name('provider.types');
         // doctor routes
         Route::group(['prefix' => 'doctor'], function () {

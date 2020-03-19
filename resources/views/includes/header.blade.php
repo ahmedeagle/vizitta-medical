@@ -14,6 +14,7 @@
 {!! Html::style('css/ace.min.css') !!}
 {!! Html::style('css/ace-skins.min.css') !!}
 {!! Html::style('css/main.css') !!}
+{!! Html::script('js/ace-extra.min.js') !!}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
 
 @yield('extra-scripts')
