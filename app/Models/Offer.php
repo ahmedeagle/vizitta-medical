@@ -35,7 +35,7 @@ class Offer extends Model
 
     public static function laratablesCustomAction($offer)
     {
-        return view('offer.actions', compact('offer'))->render();
+        return view('offers.actions', compact('offer'))->render();
     }
 
     public function laratablesApplicationPercentage()

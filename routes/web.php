@@ -146,7 +146,39 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
     });
     //  End offer categories routes
 
-######################################################################################
+    //  Start Offers Routes
+    Route::group(['prefix' => 'offers'], function () {
+        Route::get('/data', 'OfferController@getDataTable')->name('admin.offers.data');
+        Route::get('/getDataTableOfferBranches/{promoId}', 'OfferController@getDataTableOfferBranches')->name('admin.offers.databranch');
+//        Route::get('/getDataTablePromoCodeDoctors/{promoId}', 'OfferController@getDataTablePromoCodeDoctors')->name('admin.promoCode.datadoctor');
+        Route::get('/', 'OfferController@index')->name('admin.offers')->middleware('permission:show_coupons');
+        Route::get('/show/{id}', 'OfferController@view')->name('admin.offers.view')->middleware('permission:show_coupons');
+        Route::get('/add', 'OfferController@add')->name('admin.offers.add')->middleware('permission:add_coupons');
+        Route::post('/store', 'OfferController@store')->name('admin.offers.store')->middleware('permission:add_coupons');
+        Route::post('/getprovider/branches', 'OfferController@getProviderBranches')->name('admin.offers.providerbranches');
+//        Route::post('/getbranch/doctors', 'OfferController@getBranchDoctors')->name('admin.promoCode.brancheDoctors');
+        Route::get('/branches/{id}', 'OfferController@branches')->name('admin.offers.branches');
+//        Route::get('/doctors/{id}', 'OfferController@doctors')->name('admin.promoCode.doctors');
+        Route::get('/edit/{id}', 'OfferController@edit')->name('admin.offers.edit')->middleware('permission:edit_coupons');
+        Route::put('/update/{id}', 'OfferController@update')->name('admin.offers.update')->middleware('permission:edit_coupons');
+        Route::get('/delete/{id}', 'OfferController@destroy')->name('admin.offers.delete')->middleware('permission:delete_coupons');
+        Route::get('/mostReserved', 'OfferController@mostReserved')->name('admin.offers.mostreserved')->middleware('permission:show_coupons');
+
+        //المستفدين من العرض
+        Route::get('/discount/beneficiaries/{couponId}', 'OfferController@beneficiaries')->name('admin.offers.beneficiaries');
+
+        Route::group(['prefix' => 'filters'], function () {
+            Route::get('/', 'OfferController@filters')->name('admin.offers.filters');
+            Route::get('/create', 'OfferController@addFilter')->name('admin.offers.filters.create');
+            Route::post('/store', 'OfferController@storeFilters')->name('admin.offers.filters.store');
+            Route::get('/edit/{id}', 'OfferController@editFilter')->name('admin.offers.filters.edit');
+            Route::post('/update/{id}', 'OfferController@updateFilter')->name('admin.offers.filters.update');
+            Route::get('/delete/{id}', 'OfferController@deleteFilter')->name('admin.offers.filters.delete');
+        });
+
+    });
+    //  End Offers Routes
+    ######################################################################################
 
     // Doctor Nickname
     Route::group(['prefix' => 'nickname'], function () {

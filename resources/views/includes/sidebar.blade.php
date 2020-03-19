@@ -164,24 +164,45 @@
         @endcan
 
 
-        {{--@can('show_promoCategories')
+
+        @can('show_promoCategories')
             <li class="{{ Request::is('mc33/offerCategories*') ? 'active' : '' }}">
                 <a href="{{ route('admin.offerCategories') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
                     <span class="menu-text">أقسام العروض  </span>
                 </a>
             </li>
-        @endcan--}}
-
+        @endcan
 
         @can('show_coupons')
+            <li class="{{ Request::is('mc33/offers') ? 'active' : '' }}">
+                <a href="{{ route('admin.offers') }}">
+                    <i class="menu-icon fa fa-gift fa-fw"></i>
+                    <span class="menu-text">العروض</span>
+                </a>
+            </li>
+        @endcan
+
+        @can('show_coupons')
+            <li class="{{ Request::is('mc33/offers/filters*') ? 'active' : '' }}">
+                <a href="{{ route('admin.offers.filters') }}">
+                    <i class="menu-icon fa fa-filter fa-fw"></i>
+                    <span class="menu-text">فلترة العروض</span>
+                </a>
+            </li>
+        @endcan
+
+
+
+
+        {{--@can('show_coupons')
             <li class="{{ Request::is('mc33/promoCode/filters*') ? 'active' : '' }}">
                 <a href="{{ route('admin.promoCode.filters') }}">
                     <i class="menu-icon fa fa-filter fa-fw"></i>
                     <span class="menu-text">فلتره العروض</span>
                 </a>
             </li>
-        @endcan
+        @endcan--}}
 
         @can('show_provider_messages')
             <li class="{{ Request::is('mc33/provider/message*') ? 'active' : '' }}">
@@ -276,12 +297,12 @@
             </li>
         @endcan
 
-             <li class="{{ Request::is('mc33/sharing*') ? 'active' : '' }}">
-                <a href="{{ route('admin.sharing') }}">
-                    <i class="menu-icon fa fa-file fa-fw"></i>
-                    <span class="menu-text">  أعدادات مشاركه التطبيق </span>
-                </a>
-            </li>
+        <li class="{{ Request::is('mc33/sharing*') ? 'active' : '' }}">
+            <a href="{{ route('admin.sharing') }}">
+                <i class="menu-icon fa fa-file fa-fw"></i>
+                <span class="menu-text">  أعدادات مشاركه التطبيق </span>
+            </a>
+        </li>
 
         @can('show_development')
             <li class="{{ Request::is('mc33/development*') ? 'active' : '' }}">
@@ -329,12 +350,12 @@
         @endcan
 
         @can('show_lotteries_users')
-        <li class="{{ Request::is('mc33/lotteries/users*') ? 'active' : '' }}">
-            <a href="{{ route('admin.lotteries.users') }}">
-                <i class="menu-icon fa fa-users fa-fw"></i>
-                <span class="menu-text"> الفائزين من السحب </span>
-            </a>
-        </li>
+            <li class="{{ Request::is('mc33/lotteries/users*') ? 'active' : '' }}">
+                <a href="{{ route('admin.lotteries.users') }}">
+                    <i class="menu-icon fa fa-users fa-fw"></i>
+                    <span class="menu-text"> الفائزين من السحب </span>
+                </a>
+            </li>
         @endcan
         <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
             <i id="sidebar-toggle-icon" class="ace-save-state ace-icon fa fa-angle-double-right"
