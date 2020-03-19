@@ -150,7 +150,11 @@ class OfferController extends Controller
             "paid_coupon_percentage" => "sometimes|nullable|min:0",
             "discount" => "sometimes|nullable|min:0",
             "price" => "required|min:0",
-            "price_after_discount" => "required|min:0"
+            "price_after_discount" => "required|min:0",
+
+            "available_count_type" => "required|in:once,more_than_once",
+            "started_at" => "required|date",
+            "gender" => "required|in:all,males,females",
 
         ];
 
@@ -275,7 +279,12 @@ class OfferController extends Controller
             "paid_coupon_percentage" => "sometimes|nullable|min:0",
             "discount" => "sometimes|nullable|numeric|min:0",
             "price" => "required|min:0",
-            "price_after_discount" => "required|min:0"
+            "price_after_discount" => "required|min:0",
+
+            "available_count_type" => "required|in:once,more_than_once",
+            "started_at" => "required|date",
+            "gender" => "required|in:all,males,females",
+
         ];
 
         /*if ($request->coupons_type_id == 1) {
