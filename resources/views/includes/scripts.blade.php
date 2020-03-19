@@ -2,7 +2,7 @@
 {!! Html::script('bower_components/jquery-ui/js/jquery-ui.min.js') !!}
 {!! Html::script('bower_components/popper.js/js/popper.min.js') !!}
 {!! Html::script('bower_components/bootstrap/js/bootstrap.min.js') !!}
-{!! Html::script('js/ace-extra.min.js') !!}
+
 
 <!-- page specific plugin scripts -->
 <script src="https://cdn.ckeditor.com/4.6.2/standard/ckeditor.js"></script>

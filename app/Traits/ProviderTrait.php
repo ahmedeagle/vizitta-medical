@@ -333,6 +333,57 @@ trait ProviderTrait
 
     }
 
+    public function getDoctorsV2($IDs, $specificationId = null, $nicknameId = null, $branchId = null, $gender = null, $front = 0, $doctor_name = '')
+    {
+        $doctor = Doctor::query();
+        $doctor = $doctor->whereIn('provider_id', $IDs)
+            ->with(['specification' => function ($q1) {
+                $q1->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+            },// 'times' => function($q){
+                // $q->orderBy('order');
+                //},
+                'nationality' => function ($q2) {
+                    $q2->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'insuranceCompanies' => function ($q2) {
+                    $q2->select('insurance_companies.id', 'image', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'nickname' => function ($q3) {
+                    $q3->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+
+        if ($specificationId != null && $specificationId != 0)
+            $doctor = $doctor->where('specification_id', $specificationId);
+
+        if ($nicknameId != null && $nicknameId != 0)
+            $doctor = $doctor->where('nickname_id', $nicknameId);
+
+        /* if ($branchId != null && $branchId != 0)
+             $doctor = $doctor->where('provider_id', $branchId);*/
+
+        if ($gender != null && $gender != 0 && in_array($gender, [1, 2]))
+            $doctor = $doctor->where('gender', $gender);
+
+        if (isset($doctor_name) && !empty($doctor_name)) {
+            $doctor = $doctor->where(function ($qq) use ($doctor_name) {
+                $qq->where('name_en', 'LIKE', '%' . trim($doctor_name) . '%')
+                    ->orWhere('name_ar', 'LIKE', '%' . trim($doctor_name) . '%');
+            });
+        }
+
+        $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status',
+            DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+            DB::raw('information_' . $this->getCurrentLang() . ' as information'),
+            DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')
+        );
+
+        // not check doctor status if api visit by front-end dev
+        if ($front == 1) {
+            return $doctor->paginate(10);
+        } else {
+            return $doctor->where('doctors.status', 1)->paginate(10);
+        }
+
+    }
+
     public function getAllProviders($userId = null, $longitude = null, $latitude = null, $order = "ASC", $rate = 0, $type_id = [])
     {
         $provider = Provider::query();

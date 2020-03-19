@@ -86,7 +86,6 @@ class NotificationController extends Controller
 
     public function sendProviderWeb(Provider $notify, $reservation_no = null,$type='new_reservation')
     {
-
         if ($reservation_no != null) {
             $notification = [
                 'title' => $this->title,
