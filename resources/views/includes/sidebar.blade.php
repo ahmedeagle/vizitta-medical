@@ -165,7 +165,7 @@
 
 
 
-        @can('show_promoCategories')
+        {{--@can('show_promoCategories')
             <li class="{{ Request::is('mc33/offerCategories*') ? 'active' : '' }}">
                 <a href="{{ route('admin.offerCategories') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
@@ -181,7 +181,7 @@
                     <span class="menu-text">العروض</span>
                 </a>
             </li>
-        @endcan
+        @endcan--}}
 
         @can('show_coupons')
             <li class="{{ Request::is('mc33/offers/filters*') ? 'active' : '' }}">
