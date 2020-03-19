@@ -538,3 +538,29 @@ Breadcrumbs::for('sharing', function ($trail) {
     $trail->parent('dashboard');
     $trail->push('أعدادت مشاركه التطبيق ', route('admin.sharing'));
 });
+
+#####################################################################
+
+// Home > offerCategories
+Breadcrumbs::for('offerCategories', function ($trail) {
+    $trail->parent('dashboard');
+    $trail->push('أقسام العروض ', route('admin.offerCategories'));
+});
+// Home > ٍ offerCategories > Add
+Breadcrumbs::for('add.offerCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('إضافة  قسم جديد ');
+});
+// Home > offerCategories > Edit
+Breadcrumbs::for('edit.offerCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('تعديل  قسم ');
+});
+//reorder
+
+Breadcrumbs::for('reorderCategories', function ($trail) {
+    $trail->parent('offerCategories');
+    $trail->push('ترتيب اقسام العروض ', route('admin.offerCategories'));
+});
+
+#####################################################################

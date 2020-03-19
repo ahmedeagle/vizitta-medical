@@ -163,6 +163,17 @@
             </li>
         @endcan
 
+
+        {{--@can('show_promoCategories')
+            <li class="{{ Request::is('mc33/offerCategories*') ? 'active' : '' }}">
+                <a href="{{ route('admin.offerCategories') }}">
+                    <i class="menu-icon fa fa-gift fa-fw"></i>
+                    <span class="menu-text">أقسام العروض  </span>
+                </a>
+            </li>
+        @endcan--}}
+
+
         @can('show_coupons')
             <li class="{{ Request::is('mc33/promoCode/filters*') ? 'active' : '' }}">
                 <a href="{{ route('admin.promoCode.filters') }}">

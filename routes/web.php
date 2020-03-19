@@ -61,7 +61,6 @@ Route::group(['prefix' => 'drawing', 'namespace' => 'Dashboard', 'middleware' =>
 Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['web', 'auth', 'ChangeLanguage']], function () {
 
 
-
     Route::get('/', 'HomeController@index')->name('home');
 
     // Insurance Company
@@ -129,6 +128,25 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::post('/reorder', 'PromoCategoriesController@saveReorder')->name('admin.promoCategories.reorder.save');
         Route::post('/addTotimer', 'PromoCategoriesController@addToTimer')->name('admin.promoCategories.addToTimer');
     });
+
+    ######################################################################################
+
+    //  Start offer categories routes
+    Route::group(['prefix' => 'offerCategories'], function () {
+        Route::get('/data', 'OfferCategoriesController@getDataTable')->name('admin.offerCategories.data');
+        Route::get('/', 'OfferCategoriesController@index')->name('admin.offerCategories');
+        Route::get('/add', 'OfferCategoriesController@add')->name('admin.offerCategories.add');
+        Route::post('/store', 'OfferCategoriesController@store')->name('admin.offerCategories.store');
+        Route::get('/edit/{id}', 'OfferCategoriesController@edit')->name('admin.offerCategories.edit');
+        Route::put('/update/{id}', 'OfferCategoriesController@update')->name('admin.offerCategories.update');
+        Route::get('/delete/{id}', 'OfferCategoriesController@destroy')->name('admin.offerCategories.delete');
+        Route::get('/reorderCategories', 'OfferCategoriesController@reorder')->name('admin.offerCategories.reorder');
+        Route::post('/reorder', 'OfferCategoriesController@saveReorder')->name('admin.offerCategories.reorder.save');
+        Route::post('/addToTimer', 'OfferCategoriesController@addToTimer')->name('admin.offerCategories.addToTimer');
+    });
+    //  End offer categories routes
+
+######################################################################################
 
     // Doctor Nickname
     Route::group(['prefix' => 'nickname'], function () {
@@ -420,5 +438,6 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'auth', 'ChangeLanguag
 
 
 Route::get('map', 'Site\HomeController@getProvidersOnMap')->name('map');
+
 
 
