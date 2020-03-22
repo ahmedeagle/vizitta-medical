@@ -57,6 +57,12 @@ class User extends Authenticatable implements JWTSubject
         return ($val != "" ? asset($val) : "");
     }
 
+
+    public function getPhotoAttribute($val)
+    {
+        return ($val != "" ? asset($val) : "");
+    }
+
     public function city()
     {
         return $this->belongsTo('App\Models\City', 'city_id')->withDefault(["id" => null, "name" => ""]);
