@@ -42,6 +42,6 @@ class UserRecord extends Model
 
     public function reservation()
     {
-        return $this->belongsTo('App\Models\Reservation', 'reservation_no', 'reservation_no');
+        return $this->belongsTo('App\Models\Reservation', 'reservation_no', 'reservation_no')->withDefault(['id'=>0]);
     }
 }
