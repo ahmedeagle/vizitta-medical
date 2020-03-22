@@ -2143,6 +2143,8 @@ class ProviderController extends Controller
                         $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
                         $doctor->time = $availableTime;
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
+                        $countRate = count($doctor->reservations);
+                        $doctor->rate_count = $countRate;
                     }
                     $total_count = $doctors->total();
                     $doctors->getCollection()->each(function ($doctor) {
