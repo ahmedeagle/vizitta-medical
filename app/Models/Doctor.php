@@ -18,7 +18,7 @@ class Doctor extends Model
     ];
 
     protected $fillable = ['name_en', 'name_ar', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
-        'provider_id', 'specification_id', 'nationality_id', 'price', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en'];
+        'provider_id', 'specification_id', 'nationality_id', 'price', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en','waiting_period'];
 
     protected $hidden = ['pivot', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
     protected $appends = ['available_time', 'hide'];
@@ -182,12 +182,17 @@ class Doctor extends Model
         }
     }
 
-    public function getAbbreviationAr($val)
+    public function getAbbreviationArAttribute($val)
     {
         return ($val !== null ? $val : "");
     }
 
-    public function getAbbreviationEn($val)
+    public function getAbbreviationEnAttribute($val)
+    {
+        return ($val !== null ? $val : "");
+    }
+
+    public function getWaitingPeriodAttribute($val)
     {
         return ($val !== null ? $val : "");
     }

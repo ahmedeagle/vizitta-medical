@@ -116,6 +116,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::group(['prefix' => 'v2'], function () {
                 Route::post('invitation_code', 'UserController@getInvitationCode');
                 Route::post('reject/reservation', 'UserController@RejectReservation');
+                Route::post('update', 'UserController@updateV2') ;
             });
         });
     });

@@ -243,6 +243,7 @@ return [
         'price_less' => 'copoun Price',
         'point_price' => 'Point Price ',
         'bank_fees' =>  'bank fees',
+        'waiting_period'  =>  'waiting period',
 
     ],
 

@@ -100,6 +100,7 @@ class DoctorController extends Controller
                 //  "insurance_companies"   => "required|array|min:1",
                 //"insurance_companies.*"   => "required",
                 "reservation_period" => "required|numeric",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "working_days" => "required|array|min:1",
             ]);
 
@@ -135,6 +136,7 @@ class DoctorController extends Controller
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
+                    "waiting_period" => $request->waiting_period,
                     "status" => true]);
 
 
@@ -271,6 +273,7 @@ class DoctorController extends Controller
                 //   "insurance_companies"   => "required|array|min:1",
                 //   "insurance_companies.*"   => "required",
                 "reservation_period" => "required|numeric",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "working_days" => "required|array|min:1",
             ]);
 

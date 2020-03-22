@@ -120,7 +120,7 @@ class UserController extends Controller
                 'api_token' => '',
                 'password' => 'none',
                 'token_created_at' => Carbon::now(),
-                'android_device_hasCode' => $android_device_hasCode
+                'android_device_hasCode' => $android_device_hasCode,
             ]);
 
             // save user  to odoo erp system
@@ -156,6 +156,7 @@ class UserController extends Controller
                 "email" => "email|max:255|unique:users,email|unique:managers,email",
                 "address" => "max:255",
                 "device" => "required|in:android,ios",
+               // "photo" => "required",
             ]);
 
 
@@ -211,6 +212,11 @@ class UserController extends Controller
                 $android_device_hasCode = $request->android_device_hasCode;
             }
 
+//            $userPhoto = "";
+//            if (isset($request->photo) && !empty($request->photo)) {
+//                $userPhoto = $this->saveImage('users', $request->photo);
+//            }
+
             $user = User::create([
                 'name' => trim($request->name),
                 'mobile' => $request->mobile,
@@ -219,7 +225,7 @@ class UserController extends Controller
                 'address' => trim($request->address),
                 'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
                 'status' => 0,
-                'city_id' => $request->city_id,
+                 'city_id' => $request->city_id,
                 'insurance_company_id' => $request->insurance_company_id,
                 'no_of_sms' => 1,
                 'activation_code' => $activationCode,
@@ -234,6 +240,7 @@ class UserController extends Controller
                 'token_created_at' => Carbon::now(),
                 'android_device_hasCode' => $android_device_hasCode,
                 'operating_system' => $request->device,
+               // 'photo' => $userPhoto,
             ]);
 
             // save user  to odoo erp system
@@ -298,6 +305,9 @@ class UserController extends Controller
             if (isset($request->insurance_image) && !empty($request->insurance_image)) {
                 $fileName = $this->saveImage('users', $request->insurance_image);
             }
+
+
+
             $activation = 0;
             if (isset($request->mobile)) {
                 if ($user->mobile == '0123456789') {  //apple account test
@@ -313,7 +323,7 @@ class UserController extends Controller
                         'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                         'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                         'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
-                    ]);
+                     ]);
 
                 } else {
                     if ($request->mobile != $user->mobile) {
@@ -334,6 +344,135 @@ class UserController extends Controller
                             'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                             'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                             'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                         ]);
+                    } else {
+                        $user->update([
+                            'name' => trim($request->name),
+                            'city_id' => $request->city_id ? $request->city_id : $user->city_id,
+                            'id_number' => $request->id_number,
+                            'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
+                            'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
+                            'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
+                            'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                         ]);
+                    }
+
+                }
+            } else {   // not change phone
+                $user->update([
+                    'name' => trim($request->name),
+                    'city_id' => $request->city_id ? $request->city_id : $user->city_id,
+                    'id_number' => $request->id_number,
+                    'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
+                    'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
+                    'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
+                    'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                 ]);
+            }
+
+            $user = $this->getAllData($user->id, $activation);
+            return $this->returnData('user', json_decode(json_encode($user, JSON_FORCE_OBJECT)),
+                trans('messages.User data updated successfully'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function updateV2(Request $request)
+    {
+        try {
+            $user = $this->auth('user-api');
+
+            if (!$user) {
+                return $this->returnError('D000', trans('messages.User not found'));
+            }
+
+            $validator = Validator::make($request->all(), [
+                "name" => 'required|max:255',
+                /* "id_number" => [
+                     "required",
+                     "digits_between:8,20",
+                     Rule::unique('users', 'id_number')->ignore($user->id),
+                 ],*/
+                "mobile" => array(
+                    "numeric",
+                    "digits_between:8,10",
+                    Rule::unique('users', 'mobile')->ignore($user->id),
+                    //   "regex:/^(009665|9665|\+9665|05|5)(5|0|3|6|4|9|1|8|7)([0-9]{7})$/"
+                ),
+//                "birth_date" => "required|date",
+                "insurance_expire_date" => "sometimes|nullable|date",
+                "city_id" => "numeric",
+                "gender"  => "required|in:1,2,3" // 1-> male 2 -> female 3->none
+            ]);
+
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+
+            $fileName = "";
+            if (isset($request->insurance_company_id) && $request->insurance_company_id != 0) {
+                $insuranceCompany = $this->getInsuranceCompanyByID($request->insurance_company_id);
+                if ($insuranceCompany == null)
+                    return $this->returnError('D000', trans('messages.There is no insurance company with this id'));
+            }
+            if (isset($request->city_id) && $request->city_id != 0) {
+                $city = $this->getCityByID($request->city_id);
+                if ($city == null)
+                    return $this->returnError('D000', trans('messages.There is no city with this id'));
+            }
+            if (isset($request->insurance_image) && !empty($request->insurance_image)) {
+                $fileName = $this->saveImage('users', $request->insurance_image);
+            }
+
+            $userPhoto = $user->photo;
+            if (isset($request->photo) && !empty($request->photo)) {
+                $userPhoto = $this->saveImage('users', $request->photo);
+            }
+
+            $activation = 0;
+            if (isset($request->mobile)) {
+                if ($user->mobile == '0123456789') {  //apple account test
+
+                    $user->update([
+                        'mobile' => $request->mobile ? $request->mobile : $user->mobile,
+                        'status' => 1,
+                        'gender'  => $request -> gender,
+                        //'activation_code' => $activationCode,
+                        'name' => trim($request->name),
+                        'city_id' => $request->city_id ? $request->city_id : $user->city_id,
+                        'id_number' => $request->id_number,
+                        'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
+                        'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
+                        'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
+                        'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                        'photo' => $userPhoto
+                    ]);
+
+                } else {
+                    if ($request->mobile != $user->mobile) {
+                        $activation = 1;
+                        $activationCode = (string)rand(1000, 9999);
+                        $deviceHash = $user->android_device_hasCode === null ? '' : $user->android_device_hasCode;
+                        $message = trans('messages.Your Activation Code') . ' ' . $activationCode . ' ' . $deviceHash;
+                        $this->sendSMS($user->mobile, $message);
+
+                        $user->update([
+                            'mobile' => $request->mobile ? $request->mobile : $user->mobile,
+                            'status' => 0,
+                            'gender'  => $request -> gender,
+                            'activation_code' => $activationCode,
+                            'name' => trim($request->name),
+                            'city_id' => $request->city_id ? $request->city_id : $user->city_id,
+                            'id_number' => $request->id_number,
+                            'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
+                            'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
+                            'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
+                            'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                            'photo' => $userPhoto
                         ]);
                     } else {
                         $user->update([
@@ -344,6 +483,8 @@ class UserController extends Controller
                             'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                             'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                             'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                            'photo' => $userPhoto,
+                            'gender'  => $request -> gender,
                         ]);
                     }
 
@@ -357,9 +498,11 @@ class UserController extends Controller
                     'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                     'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                     'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
+                    'photo' => $userPhoto,
+                    'gender'  => $request -> gender,
                 ]);
-            }
 
+        }
             $user = $this->getAllData($user->id, $activation);
             return $this->returnData('user', json_decode(json_encode($user, JSON_FORCE_OBJECT)),
                 trans('messages.User data updated successfully'));

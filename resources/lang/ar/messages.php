@@ -273,6 +273,7 @@ return [
     'there are reservations need to be closed first'  => ' عفوا هناك حجوزات مر علي وقتها 24 ساعه يجب إغلاقها اولا ',
     'invitation code not exist' => 'كود الدعوه غير صحيح',
     'the user' => 'قام المستخدم',
-    'cancel the reservation'  => 'بالغاء الحجز رقم'
+    'cancel the reservation'  => 'بالغاء الحجز رقم',
+
 
 ];

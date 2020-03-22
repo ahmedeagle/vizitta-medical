@@ -105,7 +105,7 @@
 
 <div class="form-group has-float-label col-sm-6">
     {{ Form::text('waiting_period', old('waiting_period'), ['placeholder' => '15 مثال ','onkeyup'=>'keyupFunction(this)','id' =>'waiting_period' ,'class' => 'form-control ' . ($errors->has('waiting_period') ? 'redborder' : '') ]) }}
-    <label for="waiting_period"> مدة الانتظار <span class="astric">*</span></label>
+    <label for="waiting_period"> مدة الانتظار  </label>
     <small
         class="text-danger">{{ $errors->has('waiting_period') ? $errors->first('waiting_period') : '' }}</small>
 </div>

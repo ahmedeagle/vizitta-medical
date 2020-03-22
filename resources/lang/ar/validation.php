@@ -256,6 +256,7 @@ return [
         'image'  => 'الصورة',
         'notify-type'  => 'نوع الإشعار',
         'gift_id'  => 'رقم الهدية',
+        'waiting_period'  => 'مدة الانتظار',
 
     ],
 ];
