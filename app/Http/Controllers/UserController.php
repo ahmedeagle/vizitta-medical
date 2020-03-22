@@ -809,7 +809,7 @@ class UserController extends Controller
             if (!$user)
                 return $this->returnError('E022', 'User not found');
 
-            $user->photo = url() . '/' . $user->photo;
+            $user->photo = url('/') . '/' . $user->photo;
             $user->year = $user->birth_date ? date('Y', strtotime($user->birth_date)) : "";
             $user->month = $user->birth_date ? date('m', strtotime($user->birth_date)) : "";
             $user->day = $user->birth_date ? date('d', strtotime($user->birth_date)) : "";
