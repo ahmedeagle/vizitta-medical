@@ -1519,9 +1519,7 @@ class UserController extends Controller
                     $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
                 }, 'attachments.category' => function ($q) {
                     $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
-                },'reservation' => function($q){
-                    $q -> select('id','reservation_no','from_time','to_time','day_date');
-                }])->paginate(10);
+                },'reservation' ])->paginate(10);
             } else if ($provider) {
                 $resrvation = Reservation::with('doctor')->where('reservation_no', $request->reservation_no)->first();
                 if (!$resrvation)
