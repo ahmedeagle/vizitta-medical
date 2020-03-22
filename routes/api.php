@@ -58,6 +58,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::group(['prefix' => 'user'], function () {
         Route::post('register', 'UserController@store')->name('user.register');
         Route::post('login', 'UserController@login')->name('user.login');
+        Route::post('records', 'UserController@getRecords')->name('user.records');
         Route::post('medical/profile', 'MedicalProfileController@show')->name('user.medical.profile');
         Route::post('medical/profile/update', 'MedicalProfileController@store')->name('update.medical.profile');
         Route::post('search', 'GlobalController@search')->name('search');
