@@ -156,7 +156,7 @@ class UserController extends Controller
                 "email" => "email|max:255|unique:users,email|unique:managers,email",
                 "address" => "max:255",
                 "device" => "required|in:android,ios",
-               // "photo" => "required",
+                // "photo" => "required",
             ]);
 
 
@@ -225,7 +225,7 @@ class UserController extends Controller
                 'address' => trim($request->address),
                 'birth_date' => $request->has('birth_date') ? date('Y-m-d', strtotime($request->birth_date)) : null,
                 'status' => 0,
-                 'city_id' => $request->city_id,
+                'city_id' => $request->city_id,
                 'insurance_company_id' => $request->insurance_company_id,
                 'no_of_sms' => 1,
                 'activation_code' => $activationCode,
@@ -240,7 +240,7 @@ class UserController extends Controller
                 'token_created_at' => Carbon::now(),
                 'android_device_hasCode' => $android_device_hasCode,
                 'operating_system' => $request->device,
-               // 'photo' => $userPhoto,
+                // 'photo' => $userPhoto,
             ]);
 
             // save user  to odoo erp system
@@ -307,7 +307,6 @@ class UserController extends Controller
             }
 
 
-
             $activation = 0;
             if (isset($request->mobile)) {
                 if ($user->mobile == '0123456789') {  //apple account test
@@ -323,7 +322,7 @@ class UserController extends Controller
                         'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                         'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                         'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
-                     ]);
+                    ]);
 
                 } else {
                     if ($request->mobile != $user->mobile) {
@@ -344,7 +343,7 @@ class UserController extends Controller
                             'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                             'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                             'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
-                         ]);
+                        ]);
                     } else {
                         $user->update([
                             'name' => trim($request->name),
@@ -354,7 +353,7 @@ class UserController extends Controller
                             'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                             'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                             'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
-                         ]);
+                        ]);
                     }
 
                 }
@@ -367,7 +366,7 @@ class UserController extends Controller
                     'insurance_expire_date' => $request->has('insurance_expire_date') ? date('Y-m-d', strtotime($request->insurance_expire_date)) : "",
                     'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                     'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
-                 ]);
+                ]);
             }
 
             $user = $this->getAllData($user->id, $activation);
@@ -402,8 +401,8 @@ class UserController extends Controller
                 ),
 //                "birth_date" => "required|date",
                 "insurance_expire_date" => "sometimes|nullable|date",
-                "city_id" => "numeric",
-                "gender"  => "required|in:1,2,3" // 1-> male 2 -> female 3->none
+                "city_id" => "sometimes|nullable|numeric",
+                "gender" => "required|in:1,2,3" // 1->male 2->female 3->none
             ]);
 
 
@@ -440,7 +439,7 @@ class UserController extends Controller
                     $user->update([
                         'mobile' => $request->mobile ? $request->mobile : $user->mobile,
                         'status' => 1,
-                        'gender'  => $request -> gender,
+                        'gender' => $request->gender,
                         //'activation_code' => $activationCode,
                         'name' => trim($request->name),
                         'city_id' => $request->city_id ? $request->city_id : $user->city_id,
@@ -463,7 +462,7 @@ class UserController extends Controller
                         $user->update([
                             'mobile' => $request->mobile ? $request->mobile : $user->mobile,
                             'status' => 0,
-                            'gender'  => $request -> gender,
+                            'gender' => $request->gender,
                             'activation_code' => $activationCode,
                             'name' => trim($request->name),
                             'city_id' => $request->city_id ? $request->city_id : $user->city_id,
@@ -484,7 +483,7 @@ class UserController extends Controller
                             'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                             'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
                             'photo' => $userPhoto,
-                            'gender'  => $request -> gender,
+                            'gender' => $request->gender,
                         ]);
                     }
 
@@ -499,10 +498,9 @@ class UserController extends Controller
                     'insurance_company_id' => $request->insurance_company_id ? $request->insurance_company_id : $user->insurance_company_id,
                     'insurance_image' => $fileName != null ? $fileName : $user->insurance_image,
                     'photo' => $userPhoto,
-                    'gender'  => $request -> gender,
+                    'gender' => $request->gender,
                 ]);
-
-        }
+            }
             $user = $this->getAllData($user->id, $activation);
             return $this->returnData('user', json_decode(json_encode($user, JSON_FORCE_OBJECT)),
                 trans('messages.User data updated successfully'));
@@ -1490,6 +1488,83 @@ class UserController extends Controller
         }
     }
 
+    public function getRecordsV2(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "user_id" => "required|numeric",
+                "reservation_no" => "sometimes|string"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            // if(!$this->checkLogin($request))
+            //   return $this->returnError('E001', trans('auth.failed'));
+            $user = $this->auth('user-api');
+            $provider = $this->auth('provider-api');
+            if ($user) {
+                if ($user->id != $request->user_id)
+                    return $this->returnError('E001', trans("messages.User not found"));
+                $user = User::with('records', 'records.attachments')->find($user->id);
+                if ($user == null)
+                    return $this->returnError('E001', trans("messages.User not found"));
+
+                $records = $user->records()->with(['attachments', 'provider' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'logo', 'rate');
+                }, 'doctor' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'specification' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'attachments.category' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                },'reservation' => function($q){
+                    $q -> select('id','reservation_no','from_time','to_time','day_date');
+                }])->paginate(10);
+            } else if ($provider) {
+                $resrvation = Reservation::with('doctor')->where('reservation_no', $request->reservation_no)->first();
+                if (!$resrvation)
+                    return $this->returnError('E001', trans("messages.reservation not found"));
+                $user = User::whereHas('records', function ($q) use ($resrvation) {
+                    $q->whereHas('reservation', function ($q) use ($resrvation) {
+                        $q->whereHas('doctor', function ($q) use ($resrvation) {
+                            $q->where('specification_id', $resrvation->doctor->specification_id);
+                        });
+                    });
+                })->find($request->user_id);
+
+                if ($user == null)
+                    return $this->returnError('E011', trans("messages.No medical records founded"));
+
+                $records = $user->records()->with(['attachments', 'specification' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'attachments.category' => function ($q) {
+                    $q->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
+                }])->whereHas('reservation', function ($q) use ($resrvation) {
+                    $q->whereHas('doctor', function ($q) use ($resrvation) {
+                        $q->where('specification_id', $resrvation->doctor->specification_id);
+                    });
+                })->paginate(10);
+            } else
+                return $this->returnError('E001', trans("messages.No medical records founded"));
+
+            if (count($records->toArray()) > 0) {
+                $total_count = $records->total();
+                $records = json_decode($records->toJson());
+                $recordsJson = new \stdClass();
+                $recordsJson->current_page = $records->current_page;
+                $recordsJson->total_pages = $records->last_page;
+                $recordsJson->total_count = $total_count;
+                $recordsJson->data = $records->data;
+                return $this->returnData('records', $recordsJson);
+            }
+            return $this->returnError('E001', trans("messages.No medical records founded"));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
     public function logout(Request $request)
     {
         try {

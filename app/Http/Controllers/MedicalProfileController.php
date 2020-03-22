@@ -109,7 +109,6 @@ class MedicalProfileController extends Controller
 
     public function show(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 "user_id" => "required|numeric",

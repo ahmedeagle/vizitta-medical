@@ -58,7 +58,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::group(['prefix' => 'user'], function () {
         Route::post('register', 'UserController@store')->name('user.register');
         Route::post('login', 'UserController@login')->name('user.login');
-        Route::post('records', 'UserController@getRecords')->name('user.records');
         Route::post('medical/profile', 'MedicalProfileController@show')->name('user.medical.profile');
         Route::post('medical/profile/update', 'MedicalProfileController@store')->name('update.medical.profile');
         Route::post('search', 'GlobalController@search')->name('search');
@@ -68,6 +67,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('offers/{featured?}', 'OffersController@indexV2');
             Route::post('register', 'UserController@storeV2');
             Route::post('verify/phone', 'UserController@verifyPhone');
+            Route::post('records', 'UserController@getRecordsV2');
         });
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
         Route::post('offer/doctors', 'OffersController@doctors')->name('offer.doctors');
@@ -116,7 +116,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::group(['prefix' => 'v2'], function () {
                 Route::post('invitation_code', 'UserController@getInvitationCode');
                 Route::post('reject/reservation', 'UserController@RejectReservation');
-                Route::post('update', 'UserController@updateV2') ;
+                Route::post('update', 'UserController@updateV2');
             });
         });
     });
@@ -138,7 +138,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('doctors', 'ProviderController@getProviderDoctors')->name('provider.doctors'); // get provider doctors
 
         Route::group(['prefix' => 'v2'], function () {
-            Route::post('doctors', 'ProviderController@getProviderDoctorsV2')->name('provider.doctors'); // get provider doctors
+            Route::post('doctors', 'ProviderController@getProviderDoctorsV2'); // get provider doctors
         });
 
         Route::post('types', 'ProviderController@getProviderTypes')->name('provider.types');
