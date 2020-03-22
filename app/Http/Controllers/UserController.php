@@ -804,6 +804,7 @@ class UserController extends Controller
             }, 'city' => function ($q) {
                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
+
             if (!$user)
                 return $this->returnError('E022', 'User not found');
             $user->year = $user->birth_date ? date('Y', strtotime($user->birth_date)) : "";
