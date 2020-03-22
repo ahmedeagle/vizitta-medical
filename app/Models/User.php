@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name', 'mobile', 'id_number', 'email', 'address', 'device_token', 'birth_date', 'status', 'longitude', 'latitude',
         'insurance_image', 'no_of_sms', 'activation_code', 'city_id', 'insurance_company_id', 'api_token', 'password', 'insurance_expire_date', 'token_created_at', 'odoo_user_id'
-        , 'android_device_hasCode', 'operating_system', 'invitation_code', 'invitation_points', 'invited_by_code','photo'
+        , 'android_device_hasCode', 'operating_system', 'invitation_code', 'invitation_points', 'invited_by_code','photo','gender'
     ];
 
     protected $hidden = [
