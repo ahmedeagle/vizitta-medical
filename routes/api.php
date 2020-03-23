@@ -174,7 +174,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('complete/reservation', 'ProviderController@completeReservation')->name('provider.complete.reservation');
             Route::post('reservation/details', 'ProviderController@ReservationDetails')->name('provider.reservation.details'); // for mobile application allow only for branches
             Route::post('reservation/details/front', 'ProviderController@ReservationDetailsFront')->name('provider.reservation.details.front'); // for front end allow for main provider only
-            Route::post('reservation/mustClosed', 'ProviderController@reservationsNeedToClosed');
 
             Route::post('branches', 'ProviderBranchController@index')->name('provider.branches');
             Route::post('hide/branch', 'ProviderBranchController@hide')->name('provider.hide.branch');

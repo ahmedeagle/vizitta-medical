@@ -369,7 +369,7 @@ trait ProviderTrait
             });
         }
 
-        $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status','waiting_period',
+        $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status', 'waiting_period',
             DB::raw('name_' . $this->getCurrentLang() . ' as name'),
             DB::raw('information_' . $this->getCurrentLang() . ' as information'),
             DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')
@@ -602,7 +602,7 @@ trait ProviderTrait
 
     }
 
-    public function checkIfThereReservationsNeedToClosed($no, $provider_id)
+    public function checkIfThereReservationsNeedToClosed($no, $provider_id, $list = true)
     {
         $need_To_finish = 0;
         $provider = Provider::where('id', $provider_id)->first();
@@ -619,8 +619,9 @@ trait ProviderTrait
                 });
             });
         })->where('approved', 1)
-            ->whereDate('day_date', '<=', Carbon::today())
+            ->whereDate('day_date', '<=', date('Y-m-d'))
             ->get();
+
         if (isset($reservations) && $reservations->count() > 0) {
             foreach ($reservations as $reservation) {
                 $day_date = $reservation->day_date . ' ' . $reservation->from_time;
@@ -699,9 +700,12 @@ trait ProviderTrait
                 $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-            }])->whereIn('provider_id', $providers)->whereIn('approved', [1])
+            }])->whereIn('provider_id', $providers)
+            ->whereIn('approved', [1])
             /* ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
-            ->orderBy('day_date')->orderBy('from_time')->paginate(10);
+            ->orderBy('day_date')
+            ->orderBy('from_time')
+            ->paginate(10);
     }
 
     public function getReservationByNoWihRelation($no, $provider_id)
