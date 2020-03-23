@@ -42,7 +42,7 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
 
     Route::get('test', function () {
 
-        return date('Y-m-d');
+        return Carbon::now()->format('Y-m-d');
         User::where('birth_date', '0000-00-00')->update(['birth_date' => '1970-01-01']);
         User::where('insurance_expire_date', '0000-00-00')->update(['insurance_expire_date' => null]);
     });

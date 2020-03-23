@@ -64,6 +64,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('search', 'GlobalController@search')->name('search');
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
+
+
         Route::group(['prefix' => 'v2'], function () {
             Route::post('offers/{featured?}', 'OffersController@indexV2');
             Route::post('register', 'UserController@storeV2');
@@ -129,7 +131,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         Route::post('activate/account', 'ProviderController@activateAccount')->name('provider.activate.account');
         Route::post('reset/password', 'ProviderController@resetPassword')->name('provider.password.reset');
-
         Route::post('report/comment', 'ProviderController@reportingComment')->name('reportingTypes');
         Route::post('register', 'ProviderController@store')->name('provider.register');
         Route::post('login', 'ProviderController@login')->name('provider.login');

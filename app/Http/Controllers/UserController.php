@@ -809,7 +809,7 @@ class UserController extends Controller
             if (!$user)
                 return $this->returnError('E022', 'User not found');
 
-             $user->year = $user->birth_date ? date('Y', strtotime($user->birth_date)) : "";
+            $user->year = $user->birth_date ? date('Y', strtotime($user->birth_date)) : "";
             $user->month = $user->birth_date ? date('m', strtotime($user->birth_date)) : "";
             $user->day = $user->birth_date ? date('d', strtotime($user->birth_date)) : "";
             return $this->returnData('user', json_decode(json_encode($user, JSON_FORCE_OBJECT)));
@@ -1085,12 +1085,18 @@ class UserController extends Controller
                 ->Where('provider_rate', '!=', 0)
                 ->paginate(10);
 
+            if (count($reservations->toArray()) > 0) {
+                $total_count = $reservations->total();
+                $doctors = json_decode($reservations->toJson());
+                $rateJson = new \stdClass();
+                $rateJson->current_page = $reservations->current_page;
+                $rateJson->total_pages = $reservations->last_page;
+                $rateJson->total_count = $total_count;
+                $rateJson->data = $reservations->data;
+                return $this->returnData('rates', $rateJson);
+            }
+            $this->returnError('E001', trans('messages.No rates founded'));
 
-            if ($provider->reservations == null || count($reservations->toArray()) == 0)
-                return $this->returnError('E001', trans('messages.No rates for this provider'));
-
-
-            return $this->returnData('rates', $reservations);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
