@@ -123,7 +123,7 @@ class Reservation extends Model
 
     public function branchId()
     {
-        return $this->belongsTo('App\Models\Provider', 'provider_id')->select('provider_id', 'address', 'street', 'latitude', 'longitude');
+        return $this->belongsTo('App\Models\Provider', 'provider_id')->select('id',\Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'),'provider_id', 'address', 'street', 'latitude', 'longitude');
     }
 
     public function records()
