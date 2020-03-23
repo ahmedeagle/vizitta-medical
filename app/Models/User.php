@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name', 'mobile', 'id_number', 'email', 'address', 'device_token', 'birth_date', 'status', 'longitude', 'latitude',
         'insurance_image', 'no_of_sms', 'activation_code', 'city_id', 'insurance_company_id', 'api_token', 'password', 'insurance_expire_date', 'token_created_at', 'odoo_user_id'
-        , 'android_device_hasCode', 'operating_system', 'invitation_code', 'invitation_points', 'invited_by_code','photo','gender'
+        , 'android_device_hasCode', 'operating_system', 'invitation_code', 'invitation_points', 'invited_by_code', 'photo', 'gender'
     ];
 
     protected $hidden = [
@@ -190,5 +190,16 @@ class User extends Authenticatable implements JWTSubject
     public function offers()
     {
         return $this->belongsToMany('App\Models\PromoCode', 'user_promocode', 'user_id', 'promocode_id');
+    }
+
+
+    public function getGender()
+    {
+        if ($this->gender == 1) {
+            return "ذكر";
+        } elseif ($this->gender == 2) {
+            return "أنثي";
+        } else
+            return "غير محدد";
     }
 }

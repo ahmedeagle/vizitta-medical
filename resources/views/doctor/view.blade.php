@@ -187,6 +187,15 @@
                     </div>
                 </div>
 
+
+                <div class="profile-info-row">
+                    <div class="profile-info-name">مده أنتظار الطبيب   </div>
+                    <div class="profile-info-value">
+                        <span class="editable">{{ $doctor-> waiting_period }}</span>
+                    </div>
+                </div>
+
+
                 <div class="profile-info-row">
                     <div class="profile-info-name">الحالة</div>
                     <div class="profile-info-value">

@@ -135,6 +135,14 @@
                     </div>
                 </div>
 
+                <div class="profile-info-row">
+                    <div class="profile-info-name">الجنس </div>
+                    <div class="profile-info-value">
+                        <span class="editable">{{ $user-> getGender() }}</span>
+                    </div>
+                </div>
+
+
                 <div class="profile-info-row full">
                     <div class="profile-info-name">الدكاترة المفضليين</div>
                     <div class="profile-info-value">

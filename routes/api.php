@@ -89,6 +89,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('pay/get_checkout_id', 'DoctorController@get_checkout_id')->name('user.doctor.pay.checkout.id');
             Route::post('pay/check_payment_status', 'DoctorController@checkPaymentStatus')->name('user.doctor.pay.checkout.id');
             Route::post('reservation/update/time', 'UserController@UpdateReservationDateTime')->name('user.update.reservation');
+            Route::group(['prefix' => 'v2'], function () {
+                Route::post('reserve', 'DoctorController@reserveTimeV2');
+            });
         });
         // user which activated and authenticated
         Route::group(['middleware' => ['CheckUserStatus', 'CheckUserToken']], function () {
@@ -171,6 +174,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('complete/reservation', 'ProviderController@completeReservation')->name('provider.complete.reservation');
             Route::post('reservation/details', 'ProviderController@ReservationDetails')->name('provider.reservation.details'); // for mobile application allow only for branches
             Route::post('reservation/details/front', 'ProviderController@ReservationDetailsFront')->name('provider.reservation.details.front'); // for front end allow for main provider only
+            Route::post('reservation/mustClosed', 'ProviderController@reservationsNeedToClosed');
+
             Route::post('branches', 'ProviderBranchController@index')->name('provider.branches');
             Route::post('hide/branch', 'ProviderBranchController@hide')->name('provider.hide.branch');
             Route::post('delete/branch', 'ProviderBranchController@destroy')->name('provider.delete.branch');
