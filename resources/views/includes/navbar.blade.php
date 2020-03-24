@@ -26,14 +26,14 @@
 
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
                         <li class="dropdown-header">
-                            <i class="ace-icon fa fa-exclamation-triangle"></i>
+                            <i class="ace-icon fa fa-bell"></i>
                             التنبيهات
                         </li>
 
                         <li class="dropdown-content scrollable-container">
                             <ul class="dropdown-menu dropdown-navbar navbar-pink">
                                 @if(takeLastNotifications(5))
-                                    @foreach(takeLastNotifications(5) as $notify)
+                                    @forelse(takeLastNotifications(5) as $notify)
                                         <li>
                                             <a href="#" class="clearfix">
                                                 <img src="{{$notify -> notificationable -> logo}}" class="msg-photo"
@@ -52,7 +52,11 @@
 												</span>
                                             </a>
                                         </li>
-                                    @endforeach
+                                    @empty
+                                        <li style="padding: 20px">
+                                            لا يوجد تنبيهات حتي اللحظة
+                                        </li>
+                                    @endforelse
                                 @endif
                             </ul>
                         </li>
