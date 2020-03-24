@@ -6,6 +6,7 @@ use App\Models\PaymentMethod;
 use App\Models\Offer;
 use App\Models\OfferBranch;
 //use App\Models\PromoCode_Doctor;
+use App\Models\OfferCategory;
 use App\Models\Provider;
 //use App\Models\Doctor;
 use App\Models\User;
@@ -37,7 +38,7 @@ trait OfferTrait
             $q->with(['branch' => function ($qq) {
                 $qq->select('id', 'name_ar', 'provider_id');
             }]);
-        }, 'reservations'])->find($id);
+        }, 'reservations', 'paymentMethods'])->find($id);
         if (!$offer) {
             return null;
         }
@@ -155,6 +156,29 @@ trait OfferTrait
             return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.offer_id = ' . $offer->id . ' AND offer_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))->get();
         } else {
             return PaymentMethod::where('status', 1)->select('id','name_ar',DB::raw('0 as selected'))->get();
+        }
+    }
+
+    public function getCategoriesWithCurrentOfferSelected($offer = null)
+    {
+        if ($offer != null) {
+            return OfferCategory::select('id',
+                'name_ar',
+                'hastimer',
+                DB::raw('IF ((SELECT count(id) FROM offers_categories_pivot WHERE offers_categories_pivot.offer_id = ' . $offer->id . ' AND offers_categories_pivot.category_id = offers_categories.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return OfferCategory::select('id','name_ar','hastimer',DB::raw('0 as selected')) -> get();
+        }
+    }
+
+    public function getActiveUsersWithCurrentOfferSelected($offer = null)
+    {
+        if ($offer != null) {
+            return User::select('id',
+                'name',
+                DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return User::select('id','name',DB::raw('0 as selected'))->get();
         }
     }
 

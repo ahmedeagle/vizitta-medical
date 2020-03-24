@@ -89,13 +89,24 @@ class OfferController extends Controller
          }*/
 
         if (isset($request->couponId) && $request->couponId != null)
-            $branches = Provider::where('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('IF ((SELECT count(id) FROM offers_branches WHERE offers_branches.promocodes_id = ' . $request->couponId . ' AND providers.id = offers_branches.branch_id) > 0, 1, 0) as selected'))->get();
+            $branches = Provider::where('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('IF ((SELECT count(id) FROM offers_branches WHERE offers_branches.offer_id = ' . $request->couponId . ' AND providers.id = offers_branches.branch_id) > 0, 1, 0) as selected'))->get();
         else
             $branches = Provider::where('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('0 as selected'))->get();
+
+        $offerBranchTimes = [];
+        $offer = Offer::find($request->couponId);
+        if ($offer) {
+            foreach ($branches as $key => $value) {
+                $offerBranchTimes[$value->id]['branch_name'] = $value->name_ar;
+                $offerBranchTimes[$value->id]['duration'] = $offer->branchTimes()->where('branch_id', $value->id)->value('duration');
+                $offerBranchTimes[$value->id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->id)->get(['day_code', 'start_from', 'end_to']);
+            }
+        }
 
         $view = view('includes.loadbranches', compact('branches'))->renderSections();
         return response()->json([
             'content' => $view['main'],
+            'offerBranchTimes' => $offerBranchTimes,
         ]);
     }
 
@@ -138,7 +149,7 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+//        dd($request->all());
         $rules = [
             "title_ar" => "required|max:255",
             "title_en" => "required|max:255",
@@ -178,7 +189,8 @@ class OfferController extends Controller
             Flashy::error($validator->errors()->first());
             return redirect()->back()->withErrors($validator)->withInput($request->all());
         }
-        $inputs = $request->only('code', 'discount', 'available_count', 'status', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price', 'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount');
+        $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
+            'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
         $fileName = "";
         if (isset($request->photo) && !empty($request->photo)) {
@@ -196,11 +208,57 @@ class OfferController extends Controller
             });
         }
 
-        /*if ($request->has('doctorsIds')) {
-            $doctorsIds = array_filter($request->doctorsIds, function ($val) {
-                return !empty($val);
-            });
-        }*/
+
+        ####################################################################################################################
+
+        if (isset($request->payment_method) && !empty($request->payment_method)) {
+
+            $methods = [];
+            foreach ($request->payment_method as $k => $v) {
+                if ($v == 6) {
+                    $methods[$k]['payment_method_id'] = $v;
+                    $methods[$k]['payment_amount_type'] = $request->payment_amount_type;
+                    $methods[$k]['payment_amount'] = $request->payment_amount;
+                } else {
+                    $methods[$k]['payment_method_id'] = $v;
+                    $methods[$k]['payment_amount_type'] = null;
+                    $methods[$k]['payment_amount'] = null;
+                }
+            }
+            $offer->paymentMethods()->attach($methods);
+        }
+
+        if (isset($request->offer_content) && !empty($request->offer_content)) {
+            foreach ($request->offer_content['ar'] as $key => $value) {
+                if (!empty($value)) {
+                    $offer->contents()->create([
+                        'content_ar' => $value,
+                        'content_en' => $request->offer_content['en'][$key],
+                    ]);
+                }
+            }
+        }
+
+        if (isset($request->branchTimes) && !empty($request->branchTimes)) {
+            $branches = $request->branchTimes;
+            foreach ($branches as $branchId => $branch) {
+                foreach ($branch['days'] as $dayCode => $time) {
+                    $returnTimes = $this->splitTimes($time['from'], $time['to'], $branch['duration']);
+                    foreach ($returnTimes as $key => $value) {
+                        $offer->branchTimes()->attach($branchId, [
+                            'day_code' => $dayCode,
+                            'time_from' => $value['from'],
+                            'time_to' => $value['to'],
+                            'duration' => $branch['duration'],
+                            'start_from' => $time['from'],
+                            'end_to' => $time['to'],
+                        ]);
+                    }
+                }
+            }
+        }
+
+        ####################################################################################################################
 
         if (!isset($request->users)) {
             if (!$request->filled('available_count')) {
@@ -260,10 +318,13 @@ class OfferController extends Controller
         if ($data['offer'] == null)
             return view('errors.404');
         $data['providers'] = $this->getAllMainActiveProviders();
-        $data['categories'] = $this->getAllCategoriesWithCurrentOfferSelected($data['offer']);
-        $data['users'] = $this->getAllActiveUsersWithCurrentOfferSelected($data['offer']);
+        $data['categories'] = $this->getCategoriesWithCurrentOfferSelected($data['offer']);
+        $data['users'] = $this->getActiveUsersWithCurrentOfferSelected($data['offer']);
         $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
         $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected($data['offer']);
+        $data['offerContents'] = $data['offer']->contents;
+
+//        dd($data['offer']->toArray());
         return view('offers.edit', $data);
     }
 
@@ -303,14 +364,15 @@ class OfferController extends Controller
             $rules['paid_coupon_percentage'] = "required";
         }*/
 
-        $validator = Validator::make($request->all(), $rules
-        );
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             Flashy::error($validator->errors()->first());
             return redirect()->back()->withErrors($validator)->withInput($request->all());
         }
-        $inputs = $request->only('code', 'discount', 'available_count', 'status', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price', 'price_after_discount', 'application_percentage', 'featured', 'paid_coupon_percentage');
+        dd($request->offer_content);
+        $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
+            'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
         $fileName = $offer->photo;
         if (isset($request->photo) && !empty($request->photo)) {
@@ -327,11 +389,58 @@ class OfferController extends Controller
             });
         }
 
-        /*if ($request->has('doctorsIds')) {
-            $doctorsIds = array_filter($request->doctorsIds, function ($val) {
-                return !empty($val);
-            });
-        }*/
+
+        ####################################################################################################################
+
+        if (isset($request->payment_method) && !empty($request->payment_method)) {
+
+            $methods = [];
+            foreach ($request->payment_method as $k => $v) {
+                if ($v == 6) {
+                    $methods[$k]['payment_method_id'] = $v;
+                    $methods[$k]['payment_amount_type'] = $request->payment_amount_type;
+                    $methods[$k]['payment_amount'] = $request->payment_amount;
+                } else {
+                    $methods[$k]['payment_method_id'] = $v;
+                    $methods[$k]['payment_amount_type'] = null;
+                    $methods[$k]['payment_amount'] = null;
+                }
+            }
+            $offer->paymentMethods()->sync($methods);
+        }
+
+        if (isset($request->offer_content) && !empty($request->offer_content)) {
+            $offer->contents()->delete();
+            foreach ($request->offer_content['ar'] as $key => $value) {
+                if (!empty($value)) {
+                    $offer->contents()->create([
+                        'content_ar' => $value,
+                        'content_en' => $request->offer_content['en'][$key],
+                    ]);
+                }
+            }
+        }
+
+        if (isset($request->branchTimes) && !empty($request->branchTimes)) {
+            $branches = $request->branchTimes;
+            foreach ($branches as $branchId => $branch) {
+                foreach ($branch['days'] as $dayCode => $time) {
+                    $returnTimes = $this->splitTimes($time['from'], $time['to'], $branch['duration']);
+                    foreach ($returnTimes as $key => $value) {
+                        $offer->branchTimes()->sync($branchId, [
+                            'day_code' => $dayCode,
+                            'time_from' => $value['from'],
+                            'time_to' => $value['to'],
+                            'duration' => $branch['duration'],
+                            'start_from' => $time['from'],
+                            'end_to' => $time['to'],
+                        ]);
+                    }
+                }
+            }
+        }
+
+        ####################################################################################################################
 
         if (!isset($request->users)) {
             if (!$request->filled('available_count')) {
@@ -491,6 +600,27 @@ class OfferController extends Controller
         $filter->delete();
         Flashy::success('تم حذف الفلتر بنجاح ');
         return redirect()->route('admin.offers.filters');
+    }
+
+    public function splitTimes($StartTime, $EndTime, $Duration = "60")
+    {
+        $returnArray = [];// Define output
+        $StartTime = strtotime($StartTime); //Get Timestamp
+        $EndTime = strtotime($EndTime); //Get Timestamp
+
+        $addMinutes = $Duration * 60;
+
+        for ($i = 0; $StartTime <= $EndTime; $i++) //Run loop
+        {
+            $from = date("G:i", $StartTime);
+            $StartTime += $addMinutes; //End time check
+            $to = date("G:i", $StartTime);
+            if ($EndTime >= $StartTime) {
+                $returnArray[$i]['from'] = $from;
+                $returnArray[$i]['to'] = $to;
+            }
+        }
+        return $returnArray;
     }
 
 }

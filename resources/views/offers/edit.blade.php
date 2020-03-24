@@ -207,33 +207,56 @@
     <small class="text-danger">{{ $errors->has('payment_method') ? $errors->first('payment_method') : '' }}</small>
 </div>
 <br>
-<div class="form-group has-float-label col-sm-6" style="display: none;" id="amountTypeDiv">
-    {{ Form::select('payment_amount_type', ['all' => 'المبلغ كامل', 'custom' => 'مبلغ معين'], old('payment_amount_type'), ['id'=>'payment_amount_type', 'name'=>'payment_amount_type' ,'class' => 'form-control', '']) }}
-    <label for="payment_amount_type"> نوع المبلغ </label>
-</div>
 
-<div class="form-group has-float-label col-sm-6" style="display: none;" id="customAmountDiv">
-    {{ Form::number('payment_amount', old('payment_amount'), ['placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
-    <label for="title"> المبلغ </label>
-    <small class="text-danger">{{ $errors->has('payment_amount') ? $errors->first('payment_amount') : '' }}</small>
-</div>
+@foreach($offer->paymentMethods as $pMethod)
+
+    @if ($pMethod->id == 6)
+        <div class="form-group has-float-label col-sm-6" id="amountTypeDiv">
+            <select name="payment_amount_type" id="payment_amount_type" class="form-control">
+                <option value="all" {{ $pMethod->pivot->payment_amount_type == 'all' ? 'selected' : '' }}>المبلغ كامل
+                </option>
+                <option value="custom" {{ $pMethod->pivot->payment_amount_type == 'custom' ? 'selected' : '' }}>مبلغ
+                    معين
+                </option>
+            </select>
+            <label for="payment_amount_type"> نوع المبلغ </label>
+        </div>
+
+        <div class="form-group has-float-label col-sm-6"
+             style="{{ $pMethod->pivot->payment_amount_type == 'custom' ? '': 'display: none;' }}" id="customAmountDiv">
+            {{ Form::number('payment_amount', $pMethod->pivot->payment_amount, ['placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
+            <label for="title"> المبلغ </label>
+            <small
+                class="text-danger">{{ $errors->has('payment_amount') ? $errors->first('payment_amount') : '' }}</small>
+        </div>
+    @endif
+@endforeach
 
 <hr>
 <br>
 
-<div class="form-group has-float-label offer-content" style="padding-top: 30px">
-    <div class="col-sm-6">
-        <label for="title"> المحتوى بالعربية </label>
-        <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
-    </div>
-    <div class="col-sm-6">
-        <label for="title"> المحتوى بالإنجليزية </label>
-        <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
-        <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
-                class="menu-icon fa fa-plus-circle fa-fw"></i></button>
+@foreach($offerContents as $index => $offerCont)
+    <div class="form-group has-float-label offer-content" id="contentBox_{{$offerCont->id}}" style="padding-top: 30px">
+        <div class="col-sm-6">
+            <label for="title"> المحتوى بالعربية </label>
+            <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;"
+                   value="{{ $offerCont->content_ar }}">
+        </div>
+        <div class="col-sm-6">
+            <label for="title"> المحتوى بالإنجليزية </label>
+            <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;"
+                   value="{{ $offerCont->content_en }}">
+            <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
+                    class="menu-icon fa fa-plus-circle fa-fw"></i></button>
 
+            @if ($index != 0)
+                <button type="button" class="btnDeleteContent btn btn-danger sm" onclick="deleteContentBox({{$offerCont->id}})"><i
+                        class="menu-icon fa fa-trash-o fa-fw"></i></button>
+            @endif
+
+        </div>
     </div>
-</div>
+@endforeach
 
 <div class="form-group has-float-label offer-content" id="allContentDivs"></div>
 
@@ -261,6 +284,7 @@
             e.preventDefault();
             $('.appenddoctors').empty();
             $('.appendbranches').empty();
+            $('#branchTimesDiv').empty();
 
             $.ajax({
 
@@ -288,10 +312,90 @@
                 },
                 success: function (data) {
                     $('.appendbrnaches').empty().append(data.content);
-                }
-            });
 
-        });
+                    var offerBranchTimes = data.offerBranchTimes;
+                    var allBranchTimes = $('#branchTimesDiv');
+
+                    for (let branch in offerBranchTimes) {
+
+                        var body = `<div id="branchTimeBox_${branch}" class="form-group has-float-label col-sm-6">
+                            <h3># ${offerBranchTimes[branch].branch_name} #</h3>
+                            <input type="number" name="branchTimes[${branch}][duration]" value="${offerBranchTimes[branch].duration}" placeholder="مدة الإنتظار" style="width: 100%">
+                            <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th>اليوم</th>
+                                        <th>من</th>
+                                        <th>الى</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                        for (let day of offerBranchTimes[branch].days) {
+
+                            if (day.day_code == "sat") {
+                                body += `<tr>
+                                        <td>السبت</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][sat][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][sat][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+
+                            if (day.day_code == "sun") {
+                                body += `<tr>
+                                        <td>الأحد</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][sun][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][sun][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                            if (day.day_code == "mon") {
+                                body += `<tr>
+                                        <td>الاثنين</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][mon][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][mon][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                            if (day.day_code == "tue") {
+                                body += `<tr>
+                                        <td>الثلاثاء</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][tue][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][tue][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                            if (day.day_code == "wed") {
+                                body += `<tr>
+                                        <td>الأربعاء</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][wed][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][wed][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                            if (day.day_code == "thu") {
+                                body += `<tr>
+                                        <td>الخميس</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][thu][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][thu][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                            if (day.day_code == "fri") {
+                                body += `<tr>
+                                        <td>الجمعة</td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][fri][from]" value="${day.start_from}"></td>
+                                        <td><input type="time" name="branchTimes[${branch}][days][fri][to]" value="${day.end_to}"></td>
+                                      </tr>`;
+                            }
+                        }
+
+                        body += `</tbody>
+                                  </table>
+                        </div>`;
+                        allBranchTimes.append(body);
+                    }
+                }
+            })
+            ;
+
+        })
+        ;
 
         $(document).ready(function () {
             $('.js-example-basic-single').select2();
@@ -323,11 +427,11 @@
 
             var body = `<div style="padding-top: 5px" id="contentBox_${count}"><div class="col-sm-6">
                             <label for="title"> المحتوى بالعربية </label>
-                            <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
+                            <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
                         </div>
                         <div class="col-sm-6" style="padding-top: 5px">
                             <label for="title"> المحتوى بالإنجليزية </label>
-                            <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
+                            <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
                             <button type="button" class="btnDeleteContent btn btn-danger sm" onclick="deleteContentBox(${count})"><i
                             class="menu-icon fa fa-trash-o fa-fw"></i></button>
                         </div></div>`;

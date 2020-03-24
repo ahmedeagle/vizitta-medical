@@ -184,11 +184,11 @@
 <div class="form-group has-float-label offer-content" style="padding-top: 30px">
     <div class="col-sm-6">
         <label for="title"> المحتوى بالعربية </label>
-        <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
+        <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
     </div>
     <div class="col-sm-6">
         <label for="title"> المحتوى بالإنجليزية </label>
-        <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
+        <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
         <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
                 class="menu-icon fa fa-plus-circle fa-fw"></i></button>
 

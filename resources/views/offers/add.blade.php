@@ -53,6 +53,7 @@
         //get provider branches
         $(document).on('change', '#providers', function (e) {
             e.preventDefault();
+            $('#branchTimesDiv').empty();
             $.ajax({
 
                 type: 'post',
@@ -101,11 +102,11 @@
 
             var body = `<div style="padding-top: 5px" id="contentBox_${count}"><div class="col-sm-6">
                             <label for="title"> المحتوى بالعربية </label>
-                            <input type="text" name="content_ar[]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
+                            <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;" value="">
                         </div>
                         <div class="col-sm-6" style="padding-top: 5px">
                             <label for="title"> المحتوى بالإنجليزية </label>
-                            <input type="text" name="content_en[]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
+                            <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;" value="">
                             <button type="button" class="btnDeleteContent btn btn-danger sm" onclick="deleteContentBox(${count})"><i
                             class="menu-icon fa fa-trash-o fa-fw"></i></button>
                         </div></div>`;
