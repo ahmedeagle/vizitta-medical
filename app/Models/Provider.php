@@ -364,6 +364,13 @@ class Provider extends Authenticatable implements JWTSubject
             $query->where('amount', '>', 0);
         });
     }
+
+
+
+    public function generalNotifications()
+    {
+        return $this->morphMany('\App\Models\GeneralNotification', 'notificationable');
+    }
 }
 
 

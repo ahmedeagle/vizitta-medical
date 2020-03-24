@@ -26,7 +26,7 @@
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
                         <li class="dropdown-header">
                             <i class="ace-icon fa fa-exclamation-triangle"></i>
-                            8 Notifications
+                           التنبيهات
                         </li>
 
                         <li class="dropdown-content scrollable-container">
@@ -45,7 +45,6 @@
                                                    <img src="{{$notify -> notificationable -> photo}}"
                                                    alt="avatar"><i></i></span>
                                                     </div>
-
                                                 </div>
                                             </a>
                                         </li>
