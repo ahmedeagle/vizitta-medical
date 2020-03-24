@@ -919,7 +919,7 @@ class UserController extends Controller
             'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar. ')',
             'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar . ')',
             'content_ar' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
-            'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
+            'content_en' => 'New rating for reservation No: '. ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
             'notificationable_type' => 'App\Models\Provider',
             'notificationable_id' => $reservation->provider_id,
             'data_id' => $reservation->id,
