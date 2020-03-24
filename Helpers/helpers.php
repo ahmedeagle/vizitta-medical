@@ -2,6 +2,29 @@
 
 use Carbon\Carbon;
 
+
+function takeLastMessage($count)
+{
+    return \App\Models\Replay::with('ticket')->whereHas('ticket', function ($q) {
+        $q->whereHasMorph('ticketable', 'App\Models\User');
+        $q->orWhereHasMorph('ticketable', 'App\Models\Coach');
+    })
+        ->where(function ($q) {
+            $q->where('FromUser', 1);
+            $q->orWhere('FromUser', 2);
+        })
+        ->latest()
+        ->take($count)
+        ->get();
+
+}
+
+function takeLastNotifications($count)
+{
+    return \App\Models\GeneralNotification::latest()->admin()->take($count)->get();
+}
+
+
 function getDiffBetweenTwoDate($startDate, $endDate, $formate = 'a')
 {
     $fdate = $startDate;

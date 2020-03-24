@@ -202,4 +202,9 @@ class User extends Authenticatable implements JWTSubject
         } else
             return "غير محدد";
     }
+
+    public function generalNotifications()
+    {
+        return $this->morphMany('\App\Models\GeneralNotification', 'notificationable');
+    }
 }

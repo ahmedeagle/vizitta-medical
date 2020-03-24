@@ -8,7 +8,7 @@ class GeneralNotification extends Model
 {
     protected $table = 'notifications';
     public $timestamps = true;
-    protected $fillable = ['title_ar', 'title_en', 'content_ar', 'content_en', 'notificationable_id', 'notificationable_type', 'created_at', 'updated_at', 'seen', 'seenByUser', 'type'];
+    protected $fillable = ['title_ar', 'title_en', 'content_ar', 'content_en', 'notificationable_id', 'notificationable_type', 'created_at', 'updated_at', 'seen', 'seenByUser', 'type','data_id'];
     protected $forcedNullStrings = ['title_ar', 'title_en', 'content_ar', 'content_en', 'created_at'];
     protected $hidden = ['updated_at'];
 
