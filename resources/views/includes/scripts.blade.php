@@ -19,10 +19,9 @@
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.print.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+
+{!! Html::script('js/pusher/pusherNewReservation.js') !!}
 <script>
-
-    {!! Html::script('js/pusher/pusherNewReservation.js') !!}
-
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
