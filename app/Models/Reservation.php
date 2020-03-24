@@ -123,7 +123,7 @@ class Reservation extends Model
 
     public function branchId()
     {
-        return $this->belongsTo('App\Models\Provider', 'provider_id')->select('id',\Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'),'provider_id', 'address', 'street', 'latitude', 'longitude');
+        return $this->belongsTo('App\Models\Provider', 'provider_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id', 'address', 'street', 'latitude', 'longitude');
     }
 
     public function records()
@@ -376,7 +376,8 @@ class Reservation extends Model
             return
                 $val;
     }
-    public function getUserRateDateAttribute($val)
+
+    public function getRateDateAttribute($val)
     {
         if ($val === null)
             return '';
@@ -385,25 +386,8 @@ class Reservation extends Model
                 $val;
     }
 
-    public function getUserDoctorRateAttribute($val)
-    {
-        if ($val === null)
-            return '';
-        else
-            return
-                $val;
-    }
 
-    public function getUserProviderRateAttribute($val)
-    {
-        if ($val === null)
-            return '';
-        else
-            return
-                $val;
-    }
-
-    public function getUserRateCommentAttribute($val)
+    public function getRateCommentAttribute($val)
     {
         if ($val === null)
             return '';
