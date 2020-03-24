@@ -20,7 +20,7 @@
                 <li class="purple dropdown-notifications">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <i class="ace-icon fa fa-bell icon-animated-bell"></i>
-                        <span class="badge badge-important notif-count" data-count="8">8</span>
+                        <span class="badge badge-important notif-count" data-count="{{\App\Models\GeneralNotification::new() ->admin()-> count()}}">{{\App\Models\GeneralNotification::new() ->admin()-> count()}}</span>
                     </a>
 
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
