@@ -129,7 +129,7 @@ class DoctorController extends Controller
                         $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
                     }
                     InsuranceCompanyDoctor::insert($insurance_companies_data);
-                 }
+                }
             }
 
             for ($i = 0; $i < count($working_days_data); $i++) {
@@ -289,11 +289,11 @@ class DoctorController extends Controller
             if ($request->has('insurance_companies')) {
                 if (is_array($request->insurance_companies) && count($request->insurance_companies) > 0) {
                     $doctor->insuranceCompanies()->sync($request->insurance_companies);
-                }else{
-                     InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+                } else {
+                    InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
                 }
-             } else {
-                 InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+            } else {
+                InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
             }
 
             $doctor->times()->delete();
@@ -777,18 +777,26 @@ class DoctorController extends Controller
             //push notification
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)); // branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)->provider); // main  provider
-
-//            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
-
-
+            //$this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
             $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
             $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
+
             $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
-
-
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
+
+            $notify = [
+                'provider_name' => $providerName,
+                'reservation_no' => $reservation->reservation_no,
+                'reservation_id' => $reservation->id,
+                'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'photo' =>  $reserve->provider -> logo
+            ];
+
+            //fire pusher  notification for admin
+            event(new \App\Events\NewReservation($notify));   // fire pusher message event notification*/
         } catch (\Exception $ex) {
+
 
         }
         return $this->returnData('reservation', $reserve);

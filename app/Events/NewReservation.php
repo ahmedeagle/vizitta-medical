@@ -19,11 +19,10 @@ class NewReservation implements ShouldBroadcast
     public $content;
     public $date;
     public $time;
-    public $id;
     public $photo;
     public $path;
-    public $userId;
-
+    public $reservation_no;
+    public $reservation_id;
 
     /**
      * Create a new event instance.
@@ -32,15 +31,15 @@ class NewReservation implements ShouldBroadcast
      */
     public function __construct($notification = [])
     {
-        $this->title = ' تسجيل لاعب جديد ';
+
+        $this->title = $notification['provider_name'] . 'حجز جديد لدي مقدم الخدمة  ';
         $this->content = Str::limit($notification['content'], 70);
         $this->date = date("Y M d", strtotime(Carbon::now()));
         $this->time = date("h:i A", strtotime(Carbon::now()));
         $this->photo = $notification['photo'];
-        $this->id = $notification['notification_id'];
-        $this->userId = $notification['user_id'];
-        $this->path = route('admin.users.view',$notification['user_id']);
-
+        $this->reservation_no = $notification['reservation_no'];
+        $this->reservation_id = $notification['reservation_id'];
+        $this->path = route('admin.reservation.view', $notification['reservation_id']);
     }
 
     /**

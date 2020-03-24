@@ -274,6 +274,7 @@ return [
     'invitation code not exist' => 'كود الدعوه غير صحيح',
     'the user' => 'قام المستخدم',
     'cancel the reservation'  => 'بالغاء الحجز رقم',
+    'You have new reservation no:'  => 'هناك حجز جديد برقم :',
 
 
 ];
