@@ -95,7 +95,7 @@
                         </span>
                         <i class="ace-icon fa fa-caret-down"></i>
                     </a>
-                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-blue dropdown-caret dropdown-close">
+                    <ul class="user-menu dropdown-menu-left dropdown-menu dropdown-blue dropdown-caret dropdown-close">
                         <li>
                             <a href="{{ route('admin.data.information.edit') }}">
                                 <i class="ace-icon fa fa-user"></i>
