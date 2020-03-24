@@ -26,7 +26,7 @@
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
                         <li class="dropdown-header">
                             <i class="ace-icon fa fa-exclamation-triangle"></i>
-                           التنبيهات
+                            التنبيهات
                         </li>
 
                         <li class="dropdown-content scrollable-container">
@@ -37,13 +37,13 @@
                                             <a href="#">
                                                 <div class="clearfix">
 													<span class="pull-left">
-														<i class="btn btn-xs no-hover btn-pink fa fa-comment"></i>
-														New Comments
+ 														{{\Illuminate\Support\Str::limit($notify -> title_ar,50)}}
 													</span>
                                                     <div class="media-left">
                                                    <span class="avatar avatar-sm avatar-online rounded-circle">
-                                                   <img src="{{$notify -> notificationable -> logo}}"
-                                                   alt="avatar"><i></i></span>
+                                                   <img class="nav-user-photo"
+                                                        src="{{$notify -> notificationable -> logo}}"
+                                                        alt="avatar"><i></i></span>
                                                     </div>
                                                 </div>
                                             </a>
