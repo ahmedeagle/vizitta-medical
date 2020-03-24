@@ -10,6 +10,7 @@ use App\Models\Bill;
 use App\Models\CommentReport;
 use App\Models\Doctor;
 use App\Models\Favourite;
+use App\Models\GeneralNotification;
 use App\Models\Message;
 use App\Models\Mix;
 use App\Models\Point;
@@ -913,6 +914,17 @@ class UserController extends Controller
                 'rate' => $sumAll ? number_format($rate, 1) : 0
             ]);
         }
+
+        $notification = GeneralNotification::create([
+            'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar - $reservation->provider->name_ar . ')',
+            'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar - $reservation->provider->name_ar . ')',
+            'content_ar' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
+            'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+            'notificationable_type' => 'App\Models\Provider',
+            'notificationable_id' => $reservation->provider_id,
+            'data_id' => $reservation->id,
+            'type' => 2 //user rate provider and doctor
+        ]);
         return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
     }
 
@@ -1119,10 +1131,10 @@ class UserController extends Controller
                 return $this->returnError('D000', trans("messages.Your account isn't branch"));
 
             $reservations = $provider->reservations()
-                ->with([ 'user' => function ($q) {
-                    $q->select('id', 'name','photo');
+                ->with(['user' => function ($q) {
+                    $q->select('id', 'name', 'photo');
                 }])->select('id', 'user_id', 'doctor_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
-               // ->Where('doctor_rate', '!=', null)
+                // ->Where('doctor_rate', '!=', null)
                 //->Where('doctor_rate', '!=', 0)
                 ->Where('provider_rate', '!=', null)
                 ->Where('provider_rate', '!=', 0)

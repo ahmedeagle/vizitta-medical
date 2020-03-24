@@ -20,7 +20,8 @@
                 <li class="purple dropdown-notifications">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <i class="ace-icon fa fa-bell icon-animated-bell"></i>
-                        <span class="badge badge-important notif-count" data-count="{{\App\Models\GeneralNotification::new() ->admin()-> count()}}">{{\App\Models\GeneralNotification::new() ->admin()-> count()}}</span>
+                        <span class="badge badge-important notif-count"
+                              data-count="{{\App\Models\GeneralNotification::new() ->admin()-> count()}}">{{\App\Models\GeneralNotification::new() ->admin()-> count()}}</span>
                     </a>
 
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
@@ -33,15 +34,15 @@
                             <ul class="dropdown-menu dropdown-navbar navbar-pink">
                                 @if(takeLastNotifications(5))
                                     @foreach(takeLastNotifications(5) as $notify)
-
                                         <li>
                                             <a href="#" class="clearfix">
-                                                <img src="{{$notify -> notificationable -> logo}}" class="msg-photo" alt="Alex's Avatar">
+                                                <img src="{{$notify -> notificationable -> logo}}" class="msg-photo"
+                                                     alt="Alex's Avatar">
                                                 <span class="msg-body">
 													<span class="msg-title">
-														<span class="blue">{{\Illuminate\Support\Str::limit($notify -> title_ar,50)}}</span>
+														<span
+                                                            class="blue">{{\Illuminate\Support\Str::limit($notify -> title_ar,50)}}</span>
 													</span>
-
 													<span class="msg-time">
 														<i class="ace-icon fa fa-clock-o"></i>
 														<span>{{date("Y M d", strtotime($notify -> created_at))}} </span>
@@ -51,7 +52,6 @@
 												</span>
                                             </a>
                                         </li>
-
                                     @endforeach
                                 @endif
                             </ul>
@@ -59,8 +59,8 @@
 
                         <li class="dropdown-footer">
                             <a href="#">
-                                See all notifications
-                                <i class="ace-icon fa fa-arrow-right"></i>
+                                عرض جميع الاشعارات
+                                <i class="ace-icon fa fa-arrow-left"></i>
                             </a>
                         </li>
                     </ul>

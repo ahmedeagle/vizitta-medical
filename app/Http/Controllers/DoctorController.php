@@ -805,8 +805,8 @@ class DoctorController extends Controller
                 'photo' => $reserve->provider->logo
             ];
 
-            //fire pusher  notification for admin
-            event(new \App\Events\NewReservation($notify));   // fire pusher message event notification*/
+            //fire pusher  notification for admin  stop pusher for now
+            // event(new \App\Events\NewReservation($notify));   // fire pusher message event notification*/
         } catch (\Exception $ex) {
 
 
