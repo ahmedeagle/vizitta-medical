@@ -235,16 +235,14 @@
                         position: place.geometry.location
                     }));
 
+                    $('#latitudef').val(place.geometry.location.lat());
+                    $('#longitudef').val(place.geometry.location.lng());
 
                     if (place.geometry.viewport) {
                         // Only geocodes have viewport.
                         bounds.union(place.geometry.viewport);
-                        $('#latitudef').val(place.geometry.viewport.lat());
-                        $('#longitudef').val(place.geometry.viewport.lng());
                     } else {
                         bounds.extend(place.geometry.location);
-                        $('#latitudef').val(place.geometry.location.lat());
-                        $('#longitudef').val(place.geometry.location.lng());
                     }
                 });
                 map.fitBounds(bounds);
