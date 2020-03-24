@@ -1,4 +1,4 @@
-<script src="//js.pusher.com/3.1/pusher.min.js"></script>
+<script src="//js.pusher.com/5.1/pusher.min.js"></script>
 {!! Html::script('bower_components/jquery/js/jquery.min.js') !!}
 {!! Html::script('bower_components/jquery-ui/js/jquery-ui.min.js') !!}
 {!! Html::script('bower_components/popper.js/js/popper.min.js') !!}
