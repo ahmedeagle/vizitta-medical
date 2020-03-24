@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\NewReservationMail;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
+use App\Models\GeneralNotification;
 use App\Models\InsuranceCompanyDoctor;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
@@ -785,12 +786,22 @@ class DoctorController extends Controller
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
 
+            $notification = GeneralNotification::create([
+                'title_ar' => $providerName . 'حجز جديد لدي مقدم الخدمة ',
+                'title_en' => 'New reservation for ' . $providerName,
+                'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'notificationable_type' => 'App\Models\Provider',
+                'notificationable_id' => $reservation->provider_id,
+                'type' => 1 //new reservation
+            ]);
+
             $notify = [
                 'provider_name' => $providerName,
                 'reservation_no' => $reservation->reservation_no,
                 'reservation_id' => $reservation->id,
                 'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
-                'photo' =>  $reserve->provider -> logo
+                'photo' => $reserve->provider->logo
             ];
 
             //fire pusher  notification for admin
