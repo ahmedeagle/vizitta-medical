@@ -1,9 +1,8 @@
+<script src="//js.pusher.com/3.1/pusher.min.js"></script>
 {!! Html::script('bower_components/jquery/js/jquery.min.js') !!}
 {!! Html::script('bower_components/jquery-ui/js/jquery-ui.min.js') !!}
 {!! Html::script('bower_components/popper.js/js/popper.min.js') !!}
 {!! Html::script('bower_components/bootstrap/js/bootstrap.min.js') !!}
-
-
 <!-- page specific plugin scripts -->
 <script src="https://cdn.ckeditor.com/4.6.2/standard/ckeditor.js"></script>
 <!-- ace scripts -->
@@ -19,9 +18,6 @@
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.print.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
-<script src="//js.pusher.com/3.1/pusher.min.js"></script>
-
-{!! Html::script('js/pusher/pusherNewReservation.js') !!}
 <script>
     $.ajaxSetup({
         headers: {
@@ -246,6 +242,8 @@
     });
 
 </script>
+
+{!! Html::script('js/pusher/pusherNewReservation.js') !!}
 @yield('scripts')
 @yield('extra_scripts')
 @include('flashy::message')
