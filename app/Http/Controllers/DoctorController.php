@@ -787,7 +787,7 @@ class DoctorController extends Controller
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
 
             $notification = GeneralNotification::create([
-                'title_ar' => $providerName . ' ' . 'حجز جديد لدي مقدم الخدمة ',
+                'title_ar' => 'حجز جديد لدي مقدم الخدمة ' .' '.  $providerName,
                 'title_en' => 'New reservation for ' . ' ' . $providerName,
                 'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                 'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',

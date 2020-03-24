@@ -44,7 +44,8 @@
 
 													<span class="msg-time">
 														<i class="ace-icon fa fa-clock-o"></i>
-														<span>{{date("Y M d", strtotime($notify -> created_at))}} -  {{date("h:i A", strtotime($notify -> created_at))}}</span>
+														<span>{{date("Y M d", strtotime($notify -> created_at))}} </span>
+                                                        <span>  {{date("h:i A", strtotime($notify -> created_at))}}</span>
 													</span>
 												</span>
                                             </a>
