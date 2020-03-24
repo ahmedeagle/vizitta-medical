@@ -25,7 +25,9 @@ trait UserTrait
     }
 
     public function getAllAdmins(){
-        return Laratables::recordsOf(Manager::class);
+        return Laratables::recordsOf(Manager::class,function ($query){
+               return $query -> orderBy('id','DESC');
+        });
     }
 
     public function getAdminById($id){

@@ -57,7 +57,7 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
 
 //فصلناها عن الادمن كرابط ولكن لها نفس الاوسنتيكيشن
 Route::group(['prefix' => 'drawing', 'namespace' => 'Dashboard', 'middleware' => ['web', 'auth']], function () {
-    Route::get('/', 'LotteryController@getDrawing')->name('admin.lotteries.drawing');
+    Route::get('/', 'LotteryController@getDrawing')->name('admin.lotteries.drawing')->middleware('permission:random_drawing');
 });
 
 Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['web', 'auth', 'ChangeLanguage']], function () {
@@ -194,7 +194,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
     });
 
     // Provider Types
-    Route::group(['prefix' => 'types'], function () {
+    Route::group(['prefix' => 'types', 'middleware' => 'permission:show_providers_types'], function () {
         Route::get('/data', 'ProviderTypesController@getDataTable')->name('admin.types.data');
         Route::get('/', 'ProviderTypesController@index')->name('admin.types');
         Route::get('/add', 'ProviderTypesController@add')->name('admin.types.add');
@@ -236,7 +236,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
     });
 
     // brands
-    Route::group(['prefix' => 'brands'], function () {
+    Route::group(['prefix' => 'brands', 'middleware' => ['permission:show_brands']], function () {
         Route::get('/data', 'BrandsController@getDataTable')->name('admin.brands.data');
         Route::get('/', 'BrandsController@index')->name('admin.brands');
         Route::get('/add', 'BrandsController@add')->name('admin.brands.add');
@@ -377,7 +377,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
     });
 
 
-    Route::group(['prefix' => 'notifications'], function () {
+    Route::group(['prefix' => 'notifications', 'middleware' => 'permission:notifications'], function () {
 
         Route::get('/list/{type}', "NotificationsController@index")->name('admin.notifications');
         Route::get('/data/{type}', "NotificationsController@getData")->name('admin.notifications.data');
@@ -388,14 +388,14 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::get('/delete/{notifyId}', "NotificationsController@delete")->name('admin.notifications.delete');
     });
 
-    Route::group(['prefix' => 'comments'], function () {
+    Route::group(['prefix' => 'comments', 'middleware' => 'permission:show_comments'], function () {
         Route::get('/', "CommentsController@index")->name('admin.comments');
         Route::get('/data', "CommentsController@getData")->name('admin.comments.data');
         Route::get('/delete/{id}', "CommentsController@delete")->name('admin.comments.delete');
         Route::post('/update', "CommentsController@update")->name('admin.comments.update');
     });
 
-    Route::group(['prefix' => 'reports'], function () {
+    Route::group(['prefix' => 'reports', 'middleware' => 'permission:show_reports'], function () {
         Route::get('/', "CommentsController@reports")->name('admin.reports');
         Route::get('/data', "CommentsController@getreportsData")->name('admin.reports.data');
         Route::get('/delete/{id}', "CommentsController@deletereport")->name('admin.reports.delete');
@@ -408,31 +408,33 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
     });
 
     // settings
-    Route::group(['prefix' => 'settings'], function () {
+    Route::group(['prefix' => 'settings', 'middleware' => 'permission:show_settings'], function () {
         Route::get('/', 'GeneralController@getContents')->name('admin.settings.index');
         Route::put('/', 'GeneralController@updateContents')->name('admin.settings.update');
 
     });
 
-    Route::get('/sharing', 'GeneralController@sharingSettings')->name('admin.sharing');
-    Route::post('update/sharing', 'GeneralController@updateSharingSettings')->name('admin.sharing.update');
+    Route::group(['middleware' => 'permission:share_application_setting'], function () {
+        Route::get('/sharing', 'GeneralController@sharingSettings')->name('admin.sharing');
+        Route::post('update/sharing', 'GeneralController@updateSharingSettings')->name('admin.sharing.update');
+    });
 
     // Development Company
-    Route::group(['prefix' => 'development'], function () {
+    Route::group(['prefix' => 'development', 'middleware' => 'permission:show_development'], function () {
         Route::get('/', 'GeneralController@getDevelopmentContents')->name('admin.development.index');
         Route::put('/', 'GeneralController@updateDevelopmentContents')->name('admin.development.update');
 
     });
 
     // subscription
-    Route::group(['prefix' => 'subscriptions'], function () {
+    Route::group(['prefix' => 'subscriptions', 'middleware' => 'permission:show_subscriptions'], function () {
         Route::get('/data', 'GeneralController@getSubscribtionsData')->name('admin.subscriptions.data');
         Route::get('/', 'GeneralController@getSubscriptions')->name('admin.subscriptions.index');
         Route::get('/delete/{id}', 'GeneralController@deleteSubscription')->name('admin.subscriptions.delete');
     });
 
     // reservation bills
-    Route::group(['prefix' => 'bills'], function () {
+    Route::group(['prefix' => 'bills', 'middleware' => 'permission:show_bills'], function () {
         Route::get('/data', 'BillController@getDataTable')->name('admin.bills.data');
         Route::get('/', 'BillController@index')->name('admin.bills.index');
         Route::get('/delete/{id}', 'BillController@delete')->name('admin.bills.delete');
@@ -440,7 +442,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::post('/point/add', 'BillController@addPointToUser')->name('admin.bills.addPoints');  //add specific point to user
     });
 
-    Route::group(['prefix' => 'reasons'], function () {
+    Route::group(['prefix' => 'reasons', 'middleware' => 'permission:show_cancellation_reasons'], function () {
         Route::get('/data', 'GeneralController@getReasonsData')->name('admin.reasons.data');
         Route::get('/', 'GeneralController@getReasons')->name('admin.reasons.index');
         Route::get('/add', 'GeneralController@addReason')->name('admin.reasons.add');
@@ -452,7 +454,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
 
     Route::group(['prefix' => 'lotteries'], function () {
         Route::get('/data', 'LotteryController@getDataTable')->name('admin.lotteriesBranches');
-        Route::get('/branches', 'LotteryController@lotteryBranches')->name('admin.lotteriesBranches.index');
+        Route::get('/branches', 'LotteryController@lotteryBranches')->name('admin.lotteriesBranches.index')->middleware('permission:show_lotteries_branches');
         Route::post('/add', 'LotteryController@addLotteryBranch')->name('admin.lotteriesBranches.add');
         Route::post('/remove', 'LotteryController@removeLotteryBranch')->name('admin.lotteriesBranches.remove');
         Route::post('/gift/add', 'LotteryController@addGiftToBranch')->name('admin.lotteriesBranches.addGiftToBranch');
@@ -460,7 +462,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::get('/gift/show/{branchId}', 'LotteryController@showBranchGifts')->name('admin.lotteriesBranches.showBranchGifts');
         Route::post('/loadGifts', 'LotteryController@loadBranchGifts')->name('admin.lotteries.loadGifts');
         Route::post('/load/users', 'LotteryController@loadGiftUsers')->name('admin.lotteries.loadUsers');
-        Route::get('/users', 'LotteryController@users')->name('admin.lotteries.users');
+        Route::get('/users', 'LotteryController@users')->name('admin.lotteries.users')->middleware('permission:show_lotteries_users');
     });
 
     Route::get("mc33/search", 'GeneralController@search')->name('admin.search');

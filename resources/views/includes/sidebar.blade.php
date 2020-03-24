@@ -231,6 +231,15 @@
             </li>
         @endcan
 
+        @can('notifications')
+            <li class="{{ Request::is('mc33/user/message*') ? 'active' : '' }}">
+                <a href="{{ route('admin.user.message') }}">
+                    <i class="menu-icon fa fa-envelope-o fa-fw"></i>
+                    <span class="menu-text">التنبيهات </span>
+                </a>
+            </li>
+        @endcan
+
 
         @can('show_providers_notifications')
             <li class="{{ Request::is('mc33/notifications/list/providers*') ? 'active' : '' }}">
@@ -306,12 +315,15 @@
             </li>
         @endcan
 
+
+        @can('share_application_setting')
         <li class="{{ Request::is('mc33/sharing*') ? 'active' : '' }}">
             <a href="{{ route('admin.sharing') }}">
                 <i class="menu-icon fa fa-file fa-fw"></i>
                 <span class="menu-text">  أعدادات مشاركه التطبيق </span>
             </a>
         </li>
+        @endcan
 
         @can('show_development')
             <li class="{{ Request::is('mc33/development*') ? 'active' : '' }}">

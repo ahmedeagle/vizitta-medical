@@ -345,9 +345,8 @@
 </tr>
 
 
-
 <tr>
-    <td> أنواع مقدمي الخدمات   </td>
+    <td> أنواع مقدمي الخدمات</td>
     <td>
         <input type="checkbox" name="show_providers_types" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_providers_types')) checked @endif  @endif />
@@ -364,7 +363,7 @@
 
 
 <tr>
-    <td>   مستخدمي السحب العشوائي  </td>
+    <td> مستخدمي السحب العشوائي</td>
     <td>
         <input type="checkbox" name="show_lotteries_users" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_lotteries_users')) checked @endif  @endif />
@@ -396,9 +395,8 @@
 </tr>
 
 
-
 <tr>
-    <td>  عرض عيادات السحب العشوائي  </td>
+    <td> عرض عيادات السحب العشوائي</td>
     <td>
         <input type="checkbox" name="show_lotteries_branches" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_lotteries_branches')) checked @endif  @endif />
@@ -414,12 +412,8 @@
 </tr>
 
 
-
-
-
-
 <tr>
-    <td> أنواع مقدمي الخدمات   </td>
+    <td> أنواع مقدمي الخدمات</td>
     <td>
         <input type="checkbox" name="show_providers_types" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_providers_types')) checked @endif  @endif />
@@ -436,7 +430,7 @@
 
 
 <tr>
-    <td>  أقسام الكوبونات  </td>
+    <td> أقسام الكوبونات</td>
     <td>
         <input type="checkbox" name="show_promoCategories" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_promoCategories')) checked @endif  @endif />
@@ -452,10 +446,8 @@
 </tr>
 
 
-
-
 <tr>
-    <td>  اشعارات مقدمي الخدمات   </td>
+    <td> اشعارات مقدمي الخدمات</td>
     <td>
         <input type="checkbox" name="show_providers_notifications" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_providers_notifications')) checked @endif  @endif />
@@ -471,10 +463,8 @@
 </tr>
 
 
-
-
 <tr>
-    <td>  اشعارات المستخدمين   </td>
+    <td> اشعارات المستخدمين</td>
     <td>
         <input type="checkbox" name="show_users_notifications" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_users_notifications')) checked @endif  @endif />
@@ -490,9 +480,8 @@
 </tr>
 
 
-
 <tr>
-    <td>التعليقات   </td>
+    <td>التعليقات</td>
     <td>
         <input type="checkbox" name="show_comments" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_comments')) checked @endif  @endif />
@@ -508,9 +497,8 @@
 </tr>
 
 
-
 <tr>
-    <td>التقارير   </td>
+    <td>التقارير</td>
     <td>
         <input type="checkbox" name="show_reports" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_reports')) checked @endif  @endif />
@@ -526,9 +514,8 @@
 </tr>
 
 
-
 <tr>
-    <td>اسباب رفض الحجوزات    </td>
+    <td>اسباب رفض الحجوزات</td>
     <td>
         <input type="checkbox" name="show_cancellation_reasons" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_cancellation_reasons')) checked @endif  @endif />
@@ -544,10 +531,8 @@
 </tr>
 
 
-
-
 <tr>
-    <td> الارصده  </td>
+    <td> الارصده</td>
     <td>
         <input type="checkbox" name="show_balance" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_balance')) checked @endif  @endif />
@@ -563,9 +548,8 @@
 </tr>
 
 
-
 <tr>
-    <td>  الاعدادات   </td>
+    <td> الاعدادات</td>
     <td>
         <input type="checkbox" name="show_settings" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_settings')) checked @endif  @endif />
@@ -581,9 +565,8 @@
 </tr>
 
 
-
 <tr>
-    <td>  الشركة المطورة   </td>
+    <td> الشركة المطورة</td>
     <td>
         <input type="checkbox" name="show_development" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_development')) checked @endif  @endif />
@@ -599,10 +582,8 @@
 </tr>
 
 
-
-
 <tr>
-    <td>  الفواتير     </td>
+    <td> الفواتير</td>
     <td>
         <input type="checkbox" name="show_bills" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_bills')) checked @endif  @endif />
@@ -619,7 +600,7 @@
 
 
 <tr>
-    <td>  الاشتراكات      </td>
+    <td> الاشتراكات</td>
     <td>
         <input type="checkbox" name="show_subscriptions" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_subscriptions')) checked @endif  @endif />
@@ -635,10 +616,8 @@
 </tr>
 
 
-
-
 <tr>
-    <td>  الشعارات       </td>
+    <td> الشعارات</td>
     <td>
         <input type="checkbox" name="show_brands" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','show_brands')) checked @endif  @endif />
@@ -654,10 +633,27 @@
 </tr>
 
 <tr>
-    <td>  التنبيهات       </td>
+    <td> التنبيهات</td>
     <td>
-        <input type="checkbox" name="show_brands" value="1"
+        <input type="checkbox" name="notifications" value="1"
                @if(isset($permissions))  @if(@$permissions ->contains('name','notifications')) checked @endif  @endif />
+    </td>
+
+    <td>
+    </td>
+
+    <td>
+    </td>
+    <td>
+    </td>
+</tr>
+
+
+<tr>
+    <td> أعدادات مشاركة التطبيق</td>
+    <td>
+        <input type="checkbox" name="share_application_setting" value="1"
+               @if(isset($permissions))  @if(@$permissions ->contains('name','share_application_setting')) checked @endif  @endif />
     </td>
 
     <td>
