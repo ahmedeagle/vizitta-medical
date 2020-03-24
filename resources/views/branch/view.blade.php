@@ -57,7 +57,7 @@
                         </span>
                     </span>
 
-                    <span class="btn btn-app btn-lg btn-primary no-hover">
+                <span class="btn btn-app btn-lg btn-primary no-hover">
                         <span class="line-height-1 bigger-170 white icon">
                             <a href="{{ route('admin.branch.edit', $branch->id) }}">
                                 <i class="ace-icon fa fa-pencil white"></i>
@@ -124,15 +124,19 @@
 
     <div class="col-md-12  page-header">
         <div class="col-md-4">
-            <h1>    الحجوزات المقبوله : {{@$acceptanceReservationCount}}   </h1>
-        </div>
-        <div class="col-md-4">
-            <h1>   الحجوزات المرفوضه : {{@$refusedReservationCount }}         </h1>
+            <p style="font-size: 14px;"><span>  الحجوزات المقبوله (الموافقة والمكتمله بالحضور) </span>
+                :<span style="font-size: 20px;" class="text-danger"> {{@$acceptanceReservationCount}} </span>  </p>
         </div>
 
         <div class="col-md-4">
-            <h1> جميع الحجوزات : {{@$allReservationCount }}         </h1>
-        </div>
+            <p style="font-size: 14px;"><span>   الحجوزات المرفوضه من قبل العيادة </span>
+                : <span style="font-size: 20px;" class="text-danger">{{@$refusedReservationCount}}</span>   </p>
+         </div>
+
+        <div class="col-md-4">
+            <p style="font-size: 14px;"><span>   جميع الحجوزات </span>
+                : <span style="font-size: 20px;" class="text-danger"> {{@$allReservationCount}} </span>  </p>
+         </div>
 
 
     </div>

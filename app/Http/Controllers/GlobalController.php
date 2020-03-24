@@ -310,7 +310,6 @@ class GlobalController extends Controller
     public
     function search(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             "rate" => "boolean",   // provider rate
             "type_id" => "array",   // provider type clinic - doctor - hospital  - ....
@@ -394,7 +393,6 @@ class GlobalController extends Controller
                     return $result;
                 });
 
-
                 /* //order by nearest available date
                  if (isset($request->nearest_date) && $request->nearest_date != 0) {
                      $dataResults = $results->sortBy(function ($a) use ($request) {
@@ -436,7 +434,9 @@ class GlobalController extends Controller
     function addProviderToresults($providersJson)
     {
         foreach ($providersJson->data as $key => $branch) {
-            $provider = Provider::where('id', $branch->provider_id)->select('name_' . app()->getLocale() . ' as name', 'logo')->first();
+            $provider = Provider::where('id', $branch->provider_id)
+                ->select('id', 'name_' . app()->getLocale() . ' as name', 'logo')
+                ->first();
             //set main provider  to branches results
             $branch->provider = $provider;
 

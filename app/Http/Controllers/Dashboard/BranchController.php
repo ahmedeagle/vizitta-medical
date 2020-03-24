@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Models\FeaturedBranch;
+use App\Models\Reservation;
 use App\Traits\Dashboard\ProviderTrait;
 use App\Traits\Dashboard\PublicTrait;
 use App\Traits\OdooTrait;
@@ -77,8 +78,8 @@ class BranchController extends Controller
             return view('errors.404');
 
         $allReservationCount = $branch->reservations()->count();
-        $acceptanceReservationCount = $branch->reservations()->whereIn('approved', [1, 3])->count();  // accept and complete reservations
-        $refusedReservationCount = $branch->reservations()->where('approved', 2)->count();   // refuse reservation
+        $acceptanceReservationCount = $branch->reservations()->whereIn('approved', [1,3])->count();  // accept and complete reservations
+        $refusedReservationCount = $branch->reservations() -> where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations  by providers
 
         if ($allReservationCount == 0) {
             $acceptance_rate = 'لم يحسب بعد ';

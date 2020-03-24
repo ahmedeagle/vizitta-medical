@@ -1076,18 +1076,19 @@ class UserController extends Controller
             if ($provider->provider_id == null)
                 return $this->returnError('D000', trans("messages.Your account isn't branch"));
 
-            $reservations = $provider->reservations()->with(['user' => function ($q) {
-                $q->select('id', 'name');
-            }])->select('id', 'doctor_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
-                ->Where('doctor_rate', '!=', null)
-                ->Where('doctor_rate', '!=', 0)
+            $reservations = $provider->reservations()
+                ->with([ 'user' => function ($q) {
+                    $q->select('id', 'name','photo');
+                }])->select('id', 'user_id', 'doctor_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
+               // ->Where('doctor_rate', '!=', null)
+                //->Where('doctor_rate', '!=', 0)
                 ->Where('provider_rate', '!=', null)
                 ->Where('provider_rate', '!=', 0)
                 ->paginate(10);
 
             if (count($reservations->toArray()) > 0) {
                 $total_count = $reservations->total();
-                $doctors = json_decode($reservations->toJson());
+                $reservations = json_decode($reservations->toJson());
                 $rateJson = new \stdClass();
                 $rateJson->current_page = $reservations->current_page;
                 $rateJson->total_pages = $reservations->last_page;
@@ -1095,8 +1096,8 @@ class UserController extends Controller
                 $rateJson->data = $reservations->data;
                 return $this->returnData('rates', $rateJson);
             }
-            $this->returnError('E001', trans('messages.No rates founded'));
 
+            $this->returnError('E001', trans('messages.No rates founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

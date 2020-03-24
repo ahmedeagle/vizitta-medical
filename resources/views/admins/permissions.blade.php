@@ -653,6 +653,22 @@
     </td>
 </tr>
 
+<tr>
+    <td>  التنبيهات       </td>
+    <td>
+        <input type="checkbox" name="show_brands" value="1"
+               @if(isset($permissions))  @if(@$permissions ->contains('name','notifications')) checked @endif  @endif />
+    </td>
+
+    <td>
+    </td>
+
+    <td>
+    </td>
+    <td>
+    </td>
+</tr>
+
 
 
 

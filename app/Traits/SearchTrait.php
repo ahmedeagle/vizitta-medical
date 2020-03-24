@@ -33,7 +33,9 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'district' => function ($q) {
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-            }])->where('providers.status', true)->whereNotNull('providers.provider_id');
+            }])
+            ->where('providers.status', true)
+            ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
             $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
@@ -84,7 +86,6 @@ trait SearchTrait
             /*  $doctors = $doctors->whereHas('manyInsuranceCompanies', function ($quer) use ($request) {
                   $quer->where('insurance_company_id', $request->insurance_company_id);
               });*/
-
         }
 
         // Insurance Companies
@@ -93,7 +94,6 @@ trait SearchTrait
                 $que->whereHas('manyInsuranceCompanies');
             });
         }
-
 
         //  Name
         if (isset($request->doctor_name) && !empty($request->doctor_name)) {

@@ -35,7 +35,7 @@ class Provider extends Authenticatable implements JWTSubject
         'odoo_provider_id',
         'android_device_hasCode', 'lottery', 'rate'];
 
-    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill', 'has_insurance', 'is_lottery'];  // to append coulms to table virtual
+    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill', 'has_insurance', 'is_lottery', 'rate_count'];  // to append coulms to table virtual
 
     protected $hidden = [
         'created_at', 'password', 'city_id', 'type_id',
@@ -289,6 +289,23 @@ class Provider extends Authenticatable implements JWTSubject
               else
                   return 0;*/
             return 0;
+        }
+    }
+
+    public function getRateCountAttribute()
+    {
+        if ($this->provider_id != null) {  // branch
+            return $this->reservations()->Where('provider_rate', '!=', null)
+                ->Where('provider_rate', '!=', 0)->count();
+        } else { //provider
+            $branchesId = $this->providers()->pluck('id');
+            if (count($branchesId) > 0)
+                return Reservation::whereIn('provider_id', $branchesId)
+                    ->Where('provider_rate', '!=', null)
+                    ->Where('provider_rate', '!=', 0)
+                    ->count();
+            else
+                return 0;
         }
     }
 
