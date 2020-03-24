@@ -915,6 +915,7 @@ class UserController extends Controller
             ]);
         }
 
+        return 0;
        return  $notification = GeneralNotification::create([
             'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar - $reservation->provider->name_ar . ')',
             'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar - $reservation->provider->name_ar . ')',
