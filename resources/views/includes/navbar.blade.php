@@ -42,7 +42,7 @@
 													</span>
                                                     <div class="media-left">
                                                    <span class="avatar avatar-sm avatar-online rounded-circle">
-                                                   <img src="{{$notify -> notificationable -> photo}}"
+                                                   <img src="{{$notify -> notificationable -> logo}}"
                                                    alt="avatar"><i></i></span>
                                                     </div>
                                                 </div>
