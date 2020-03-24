@@ -19,6 +19,7 @@
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.4.1/js/buttons.print.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+<script src="//js.pusher.com/3.1/pusher.min.js"></script>
 
 {!! Html::script('js/pusher/pusherNewReservation.js') !!}
 <script>
@@ -26,6 +27,12 @@
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
+    });
+
+    // Enable pusher logging - don't include this in production
+    // Pusher.logToConsole = true;
+    var pusher = new Pusher('428568067c79ab115250', {
+        encrypted: false
     });
 
     $(document).ready(function () {
@@ -103,54 +110,54 @@
                 to: to,
             };
 
-        @if(Request::is('mc33/doctor/create'))
+            @if(Request::is('mc33/doctor/create'))
             if (localStorage.getItem('working_hours') === null || localStorage.getItem('working_hours') === [] || localStorage.getItem('working_hours') === undefined) {
-              var working_hours = [];
-              working_hours.push(working_hour);
-              localStorage.setItem('working_hours', JSON.stringify(working_hours));
+                var working_hours = [];
+                working_hours.push(working_hour);
+                localStorage.setItem('working_hours', JSON.stringify(working_hours));
             } else {
-              var working_hours = JSON.parse(localStorage.getItem('working_hours'));
-              //add bookmark into array
-              working_hours.push(working_hour);
-              localStorage.setItem('working_hours', JSON.stringify(working_hours));
+                var working_hours = JSON.parse(localStorage.getItem('working_hours'));
+                //add bookmark into array
+                working_hours.push(working_hour);
+                localStorage.setItem('working_hours', JSON.stringify(working_hours));
             }
-     @endif
+            @endif
 
-         @if(Request::is('mc33/doctor/edit/*'))
-             if (localStorage.getItem('working_hoursedit') === null || localStorage.getItem('working_hoursedit') === [] || localStorage.getItem('working_hoursedit') === undefined) {
-                 var working_hours = [];
-                 working_hours.push(working_hour);
-                 localStorage.setItem('working_hoursedit', JSON.stringify(working_hours));
-             } else {
-                 var working_hours = JSON.parse(localStorage.getItem('working_hoursedit'));
-                 //add bookmark into array
-                 working_hours.push(working_hour);
-                 localStorage.setItem('working_hoursedit', JSON.stringify(working_hours));
-             }
+                @if(Request::is('mc33/doctor/edit/*'))
+            if (localStorage.getItem('working_hoursedit') === null || localStorage.getItem('working_hoursedit') === [] || localStorage.getItem('working_hoursedit') === undefined) {
+                var working_hours = [];
+                working_hours.push(working_hour);
+                localStorage.setItem('working_hoursedit', JSON.stringify(working_hours));
+            } else {
+                var working_hours = JSON.parse(localStorage.getItem('working_hoursedit'));
+                //add bookmark into array
+                working_hours.push(working_hour);
+                localStorage.setItem('working_hoursedit', JSON.stringify(working_hours));
+            }
             @endif
 
 
-$.ajax({
-  url: "{{route('doctor.addshifttimes')}}",
+            $.ajax({
+                url: "{{route('doctor.addshifttimes')}}",
 
-  data: {
-      'counter': counter,
-      'day_ar': day_ar,
-      'day_en': day_en
-  },
-  type: 'post',
-  success: function (data) {
-      $('.order' + day_en + counter).after(data.content);
-      $('.add_minus' + day_en + counter).empty().append("<i    data_counter='" + counter + "'   data_from='" + from + "'     data_to='" + to + "'   data_day_en='" + day_en + "' data_day_ar='" + day_ar + "'   class='fa fa-minus fa-2x removeShiftTime'></i>");
-  },
-  error: function (reject) {
-  }
-});
+                data: {
+                    'counter': counter,
+                    'day_ar': day_ar,
+                    'day_en': day_en
+                },
+                type: 'post',
+                success: function (data) {
+                    $('.order' + day_en + counter).after(data.content);
+                    $('.add_minus' + day_en + counter).empty().append("<i    data_counter='" + counter + "'   data_from='" + from + "'     data_to='" + to + "'   data_day_en='" + day_en + "' data_day_ar='" + day_ar + "'   class='fa fa-minus fa-2x removeShiftTime'></i>");
+                },
+                error: function (reject) {
+                }
+            });
 
-console.log(JSON.parse(localStorage.getItem('working_hours')));
+            console.log(JSON.parse(localStorage.getItem('working_hours')));
             console.log(JSON.parse(localStorage.getItem('working_hoursedit')));
-}
-);
+        }
+    );
 
     $(document).on('click', '.removeShiftTime', function (e) {
         e.preventDefault();
@@ -163,8 +170,7 @@ console.log(JSON.parse(localStorage.getItem('working_hours')));
         @if(Request::is('mc33/doctor/create'))
         if (localStorage.getItem('working_hours') === null || localStorage.getItem('working_hours') === [] || localStorage.getItem('working_hours') === undefined) {
 
-        }
-        else {
+        } else {
             var working_hours = JSON.parse(localStorage.getItem('working_hours'));
 
             working_hours.forEach(function (time, index) {
@@ -181,8 +187,7 @@ console.log(JSON.parse(localStorage.getItem('working_hours')));
             @if(Request::is('mc33/doctor/edit/*'))
         if (localStorage.getItem('working_hoursedit') === null || localStorage.getItem('working_hoursedit') === [] || localStorage.getItem('working_hoursedit') === undefined) {
 
-        }
-        else {
+        } else {
             var working_hours = JSON.parse(localStorage.getItem('working_hoursedit'));
 
             working_hours.forEach(function (time, index) {
@@ -205,17 +210,17 @@ console.log(JSON.parse(localStorage.getItem('working_hours')));
     $(document).on('click', '#postWorkingHourse', function (e) {
         e.preventDefault();
         @if(Request::is('mc33/doctor/create'))
-            document.cookie = "working_hours=" + localStorage.getItem('working_hours')+";path=/";
+            document.cookie = "working_hours=" + localStorage.getItem('working_hours') + ";path=/";
         console.log(getCookie('working_hours'));
 
         @endif
         @if(Request::is('mc33/doctor/edit/*'))
         //create new one
-        document.cookie = "working_hoursedit=" + localStorage.getItem('working_hoursedit')+";path=/";
+        document.cookie = "working_hoursedit=" + localStorage.getItem('working_hoursedit') + ";path=/";
         console.log('cookie work here');
         console.log(getCookie('working_hoursedit'));
         @endif
-      $('.doctorForm').submit();
+        $('.doctorForm').submit();
     });
     $(document).on('click', '.removeEditTime', function (e) {
         e.preventDefault();
