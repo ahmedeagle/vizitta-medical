@@ -376,4 +376,39 @@ class Reservation extends Model
             return
                 $val;
     }
+    public function getUserRateDateAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
+
+    public function getUserDoctorRateAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
+
+    public function getUserProviderRateAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
+
+    public function getUserRateCommentAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
 }
