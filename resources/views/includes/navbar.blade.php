@@ -33,21 +33,23 @@
                             <ul class="dropdown-menu dropdown-navbar navbar-pink">
                                 @if(takeLastNotifications(5))
                                     @foreach(takeLastNotifications(5) as $notify)
+
                                         <li>
-                                            <a href="#">
-                                                <div class="clearfix">
-													<span class="pull-left">
- 														{{\Illuminate\Support\Str::limit($notify -> title_ar,50)}}
+                                            <a href="#" class="clearfix">
+                                                <img src="{{$notify -> notificationable -> logo}}" class="msg-photo" alt="Alex's Avatar">
+                                                <span class="msg-body">
+													<span class="msg-title">
+														<span class="blue">{{\Illuminate\Support\Str::limit($notify -> title_ar,50)}}</span>
 													</span>
-                                                    <div class="media-left">
-                                                   <span class="avatar avatar-sm avatar-online rounded-circle">
-                                                   <img class="nav-user-photo"
-                                                        src="{{$notify -> notificationable -> logo}}"
-                                                        alt="avatar"><i></i></span>
-                                                    </div>
-                                                </div>
+
+													<span class="msg-time">
+														<i class="ace-icon fa fa-clock-o"></i>
+														<span>{{date("Y M d", strtotime($notify -> created_at))}} -  {{date("h:i A", strtotime($notify -> created_at))}}</span>
+													</span>
+												</span>
                                             </a>
                                         </li>
+
                                     @endforeach
                                 @endif
                             </ul>
