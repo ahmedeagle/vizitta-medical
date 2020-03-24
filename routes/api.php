@@ -144,6 +144,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         Route::group(['prefix' => 'v2'], function () {
             Route::post('doctors', 'ProviderController@getProviderDoctorsV2'); // get provider doctors
+            Route::post('rates', 'UserController@getProviderRateV2'); // get provider doctors
+
         });
 
         Route::post('types', 'ProviderController@getProviderTypes')->name('provider.types');
