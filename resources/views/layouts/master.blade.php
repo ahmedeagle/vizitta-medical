@@ -27,6 +27,7 @@
         .select2-container--default .select2-selection--multiple{
             padding-bottom: 15px;
         }
+
     </style>
     @include('includes.header')
 </head>

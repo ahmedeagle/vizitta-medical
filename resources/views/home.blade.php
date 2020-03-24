@@ -2,6 +2,16 @@
 
 @section('title', 'الرئيسية')
 
+@section('styles-after')
+    <style>
+        .shadowe {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        body{
+
+        }
+    </style>
+@stop
 @section('content')
 @section('breadcrumbs')
     {!! Breadcrumbs::render('dashboard') !!}
@@ -14,7 +24,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 infobox-container">
+            <div class="col-12 infobox-container d-flex justify-content-center">
                 <form class="d-flex flex-wrap" action="{{route('admin.search')}}" method="GET">
                     <div class="form-group has-float-label mx-2">
                         <input class="form-control " name="queryStr"
@@ -39,8 +49,8 @@
         <div class="row">
             <div class="col-12 infobox-container">
                 <div class="row">
-                    <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox d-flex infobox-green">
+                    <div class="col-lg-3 col-md-4 col-sm-6 my-3 ">
+                        <div class="infobox d-flex infobox-green shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-building"></i>
                             </div>
@@ -51,7 +61,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox d-flex infobox-blue">
+                        <div class="infobox d-flex infobox-blue shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-user-md"></i>
                             </div>
@@ -62,18 +72,18 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox d-flex infobox-pink">
+                        <div class="infobox d-flex infobox-pink shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-users"></i>
                             </div>
                             <div class="infobox-data">
                                 <span class="infobox-data-number">{{ $usersCount }}</span>
-                                <div class="infobox-content">المستخدمين </div>
+                                <div class="infobox-content">المستخدمين</div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-orange2">
+                        <div class="infobox infobox-orange2 shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon  fa fa-hourglass-start"></i>
                             </div>
@@ -87,7 +97,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-blue2">
+                        <div class="infobox infobox-blue2 shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-check"></i>
                             </div>
@@ -101,7 +111,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-close"></i>
                             </div>
@@ -115,7 +125,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-close"></i>
                             </div>
@@ -130,7 +140,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-clock-o"></i>
                             </div>
@@ -145,7 +155,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-blue2">
+                        <div class="infobox infobox-blue2 shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-check"></i>
                             </div>
@@ -161,7 +171,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-close"></i>
                             </div>
@@ -195,7 +205,7 @@
 
     --}}
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox d-flex infobox-green">
+                        <div class="infobox d-flex infobox-green shadowe">
 
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-plus"></i>
@@ -214,7 +224,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-users"></i>
                             </div>
@@ -226,7 +236,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-users"></i>
                             </div>
@@ -241,7 +251,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-mobile"></i>
                             </div>
@@ -254,7 +264,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-android"></i>
                             </div>
@@ -267,7 +277,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-red">
+                        <div class="infobox infobox-red shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-apple"></i>
                             </div>
@@ -280,7 +290,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-sm-6 my-3">
-                        <div class="infobox infobox-green2">
+                        <div class="infobox infobox-green2 shadowe">
                             <div class="infobox-icon">
                                 <i class="ace-icon fa fa-gift"></i>
                             </div>
@@ -309,7 +319,7 @@
 
         <div class="row">
             <div class="col-12 my-3">
-                <div class="infobox infobox-green p-4">
+                <div class="infobox infobox-green p-4 shadowe">
                     <div class="infobox-icon">
                         <i class="ace-icon fa fa-calendar"></i>
                     </div>
@@ -327,7 +337,7 @@
                 </div>
             </div>
             <div class="col-12 my-3">
-                <div class="infobox infobox-red p-4">
+                <div class="infobox infobox-red p-4 shadowe">
                     <div class="infobox-icon">
                         <i class="ace-icon fa fa-history"></i>
                     </div>
@@ -346,7 +356,7 @@
             </div>
 
             <div class="col-12 my-3">
-                <div class="infobox infobox-pink p-4">
+                <div class="infobox infobox-pink p-4 shadowe">
                     <div class="infobox-icon">
                         <i class="ace-icon fa fa-building"></i>
                     </div>
@@ -369,7 +379,7 @@
         </div>
         <div class="row">
             <div class="col-12 my-3">
-                <div class="infobox infobox-blue2 p-4">
+                <div class="infobox infobox-blue2 p-4 shadowe">
                     <div class="infobox-icon">
                         <i class="ace-icon fa fa-user-md"></i>
                     </div>
@@ -386,7 +396,7 @@
                 </div>
             </div>
             <div class="col-12 my-3">
-                <div class="infobox infobox-blue p-4">
+                <div class="infobox infobox-blue p-4 shadowe">
                     <div class="infobox-icon">
                         <i class="ace-icon fa fa-clock-o"></i>
                     </div>
