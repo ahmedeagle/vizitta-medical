@@ -27,7 +27,7 @@
 
     // Enable pusher logging - don't include this in production
     // Pusher.logToConsole = true;
-    var pusher = new Pusher('a687d63f17b62fd14d87', {
+    var pusher = new Pusher('b0e07cc9a12d705c6b4d', {
         encrypted: false
     });
 
@@ -244,6 +244,7 @@
 </script>
 
 {!! Html::script('js/pusher/pusherNewReservation.js') !!}
+
 @yield('scripts')
 @yield('extra_scripts')
 @include('flashy::message')
