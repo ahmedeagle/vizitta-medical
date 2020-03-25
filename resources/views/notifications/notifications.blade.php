@@ -60,11 +60,11 @@
                                                 <div class="message-list">
                                                     <div class="message-item message-unread">
 
-                                                        <img class="nav-user-photo pull-right" src="https://hs.wisyst.info/images/male.png" alt="Admin">
+                                                        <img class="nav-user-photo pull-right" src="{{$notify -> notificationable -> logo}}" alt="photo">
 
                                                         <span class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
-                                                        <span class="summary">
+                                                        <span class="">
                                                             {{$notify -> title_ar}}
                                                             <br>
 																		<span class="text">
