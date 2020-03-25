@@ -57,10 +57,12 @@
 
                                                         <span class="summary">
                                                             {{$notify -> title_ar}}
+                                                            <br>
 																		<span class="text">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
+                                                        <br>
                                                     </div>
 
                                                 </div>
