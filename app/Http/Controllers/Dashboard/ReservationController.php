@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Mail\AcceptReservationMail;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
+use App\Models\GeneralNotification;
 use App\Models\PaymentMethod;
 use App\Models\Provider;
 use App\Models\Reason;
@@ -209,6 +210,7 @@ class ReservationController extends Controller
     public function view($id)
     {
         try {
+            //mark seen if ther is notification
             $reservation = $this->getReservationById($id);
             if ($reservation == null)
                 return view('errors.404');

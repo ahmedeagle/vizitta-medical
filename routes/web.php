@@ -33,6 +33,7 @@ use App\Models\Provider;
 use App\Models\User;
 use App\Models\Reservation;
 use Carbon\Carbon;
+use Vinkla\Hashids\Facades\Hashids;
 
 Route::get('/crons', 'Crons@cron_job');
 
@@ -41,7 +42,6 @@ Route::get('/', 'Site\HomeController@index');
 Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], function () {
 
     Route::get('test', function () {
-
         return Carbon::now()->format('Y-m-d');
         User::where('birth_date', '0000-00-00')->update(['birth_date' => '1970-01-01']);
         User::where('insurance_expire_date', '0000-00-00')->update(['insurance_expire_date' => null]);

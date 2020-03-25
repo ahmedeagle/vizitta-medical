@@ -38,11 +38,11 @@
                                             @if($notify -> seen =='0') style="background-color: #ececec61;" @endif>
                                             <a href="
                                              @if($notify -> type == 1 )   {{--new reservation notification--}}
-                                            {{route('admin.reservation.view',$notify -> data_id)}}
+                                            {{route('admin.reservation.view',$notify -> data_id)}}?notification={{Vinkla\Hashids\Facades\Hashids::encode($notify -> id)}}
                                             @elseif($notify -> type == 2){{--user rate reservation--}}
                                             {{route('admin.comments')}}
                                             @elseif($notify -> type == 3 or  $notify -> type == 4) {{--user update reservation Date --}}
-                                            {{route('admin.reservation.view',$notify -> data_id)}}
+                                            {{route('admin.reservation.view',$notify -> data_id)}}?notification={{Vinkla\Hashids\Facades\Hashids::encode($notify -> id)}}
                                             @else # @endif" class="clearfix">
                                                 <img src="{{$notify -> notificationable -> logo}}" class="msg-photo"
                                                      alt="Alex's Avatar">

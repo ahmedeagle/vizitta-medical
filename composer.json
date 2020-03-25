@@ -26,7 +26,8 @@
         "spatie/laravel-cors": "^1.6",
         "spatie/laravel-permission": "^3.0",
         "twilio/sdk": "^5.34",
-        "tymon/jwt-auth": "1.0.*"
+        "tymon/jwt-auth": "1.0.*",
+        "vinkla/hashids": "^5.1"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

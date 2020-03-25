@@ -119,4 +119,15 @@
       0 => 'Tymon\\JWTAuth\\Providers\\LaravelServiceProvider',
     ),
   ),
+  'vinkla/hashids' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Vinkla\\Hashids\\HashidsServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Hashids' => 'Vinkla\\Hashids\\Facades\\Hashids',
+    ),
+  ),
 );

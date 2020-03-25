@@ -181,9 +181,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
-
-
-
+        Vinkla\Hashids\HashidsServiceProvider::class,
     ],
 
     /*
@@ -239,6 +237,8 @@ return [
         'Flashy' => MercurySeries\Flashy\Flashy::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'Hashids' => Vinkla\Hashids\Facades\Hashids::class,
+
 
     ],
 

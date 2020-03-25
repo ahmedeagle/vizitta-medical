@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class Reservation extends Model
 {
+
     protected $table = 'reservations';
     public $timestamps = true;
     protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason'];

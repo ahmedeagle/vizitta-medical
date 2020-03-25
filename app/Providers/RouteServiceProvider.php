@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Reservation;
+use Hashids\Hashids;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -23,9 +25,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-
         parent::boot();
+
     }
 
     /**
@@ -80,4 +81,7 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace('App\Http\Controllers\CPanel')
             ->group(base_path('routes/cpanel.php'));
     }
+
+
+
 }
