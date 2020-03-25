@@ -49,7 +49,7 @@
 
                                     <div class="message-list-container">
                                         @if(isset($notifications) &&  $notifications -> count() > 0)
-                                            @forelse($notifications as $notification)
+                                            @forelse($notifications as $notify)
                                                 <div class="message-list">
                                                     <div class="message-item message-unread">
                                                  <span class="sender"
