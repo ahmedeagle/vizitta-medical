@@ -52,11 +52,11 @@
                                             @forelse($notifications as $notify)
                                                 <div class="message-list">
                                                     <div class="message-item message-unread">
-                                                 <span class="sender"
-                                                 >{{$notify -> title_ar}}</span>
+
                                                         <span class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
                                                         <span class="summary">
+                                                            {{$notify -> title_ar}}
 																		<span class="text">
 																			{{$notify -> content_ar}}
 																		</span>
