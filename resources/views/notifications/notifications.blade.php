@@ -19,17 +19,17 @@
                         <ul id="inbox-tabs" class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
                             <li @if(Request::query('status') == 'all' )class="active"@endif>
                                 <a href="{{route('notification.center')}}?status=all">
-                                    <span class="bigger-110">الكل ( {{ $notifications['total_count']}})</span>
+                                    <span class="bigger-110">الكل ( {{\App\Models\GeneralNotification::count()}})</span>
                                 </a>
                             </li>
                             <li @if(Request::query('status') == 'read' )class="active"@endif>
                                 <a href="{{route('notification.center')}}?status=read">
-                                    <span class="bigger-110">المقروءة</span>
+                                    <span class="bigger-110"> المقروءه ( {{\App\Models\GeneralNotification::where('seen','1')->count()}})</span>
                                 </a>
                             </li>
                             <li @if(Request::query('status') == 'unread' )class="active"@endif>
                                 <a href="{{route('notification.center')}}?status=unread">
-                                    <span class="bigger-110">الغير مقروءه</span>
+                                    <span class="bigger-110"> الغير مقروءه ( {{\App\Models\GeneralNotification::where('seen','0')->count()}})</span>
                                 </a>
                             </li>
                         </ul>
