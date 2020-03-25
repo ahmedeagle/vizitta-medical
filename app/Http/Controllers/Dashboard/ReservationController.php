@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Mail;
 use Validator;
 use Session;
 use DB;
+use Vinkla\Hashids\Facades\Hashids;
 use function foo\func;
 
 class ReservationController extends Controller
@@ -212,16 +213,11 @@ class ReservationController extends Controller
         try {
 
 
-            if (request('notification')) {
-                if (!in_array(request('status'), $list)) {
-                    $data['reservations'] = $this->getReservationByStatus();
-                } else {
-                    $status = request('status') ? request('status') : $status;
-                    $data['reservations'] = $this->getReservationByStatus($status);
-                }
-                return view('reservation.index', $data);
+            if (request('notification')) {  // mark as read
+                GeneralNotification::where('seen', '0')
+                    ->where('id', Hashids::decode(request('notification')))
+                    ->update(['seen' => '1']);
             }
-
 
             //mark seen if ther is notification
             $reservation = $this->getReservationById($id);
