@@ -757,8 +757,7 @@ class DoctorController extends Controller
         $reserve->provider = Provider::providerSelection()->find($reservation->provider_id);
 
         if ($request->filled('latitude') && $request->filled('longitude')) {
-            $distance = $this->getDistance($reserve->provider->latitude, $reserve->provider->longitude, $request->latitude, $request->longitude, 'K');
-            $reserve->provider->distance = (string)number_format($distance * 1.609344, 2);
+            $reserve->provider->distance = (string)$this->getDistance($reserve->provider->latitude, $reserve->provider->longitude, $request->latitude, $request->longitude, 'K');
         }
         $reserve->branch = $branch;
         $reserve->doctor = Reservation::find($reservation->id)->doctorInfo;
