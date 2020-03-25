@@ -53,12 +53,12 @@
                                                 <div class="message-list">
                                                     <div class="message-item message-unread">
                                                  <span class="sender"
-                                                 >Alex John Red Smith </span>
-                                                        <span class="time">{{date("Y M d", strtotime($notify -> created_at))}}</span>
+                                                 >{{$notify -> title_ar}}</span>
+                                                        <span class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
                                                         <span class="summary">
 																		<span class="text">
-																			Click to open this message
+																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
                                                     </div>
