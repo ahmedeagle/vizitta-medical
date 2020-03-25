@@ -3,7 +3,7 @@
 
 
         <div class="navbar-header pull-right">
-            <a href="index.html" class="navbar-brand">
+            <a href="{{route('home')}}" class="navbar-brand">
                 <small>
                     Medical Call
                 </small>
