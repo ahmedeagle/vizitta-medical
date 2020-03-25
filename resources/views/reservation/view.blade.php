@@ -91,6 +91,14 @@
 
 
             <div class="profile-info-row">
+                <div class="profile-info-name">اخر موعد قبل تحديث الحجز  </div>
+                <div class="profile-info-value">
+                    <span class="editable">{{ $reservation-> last_day_date }} - ({{ $reservation->last_from_time}} -{{$reservation->last_to_time }})</span>
+                </div>
+            </div>
+
+
+            <div class="profile-info-row">
                 <div class="profile-info-name">الحجز للمستخدم / للغير</div>
                 <div class="profile-info-value">
                     <span class="editable">{{ $reservation->people_id  !== null? "للغير" : "للمستخدم" }}</span>
