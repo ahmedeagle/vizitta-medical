@@ -607,10 +607,10 @@ class ProviderBranchController extends Controller
             $provider = $this->auth('provider-api');
             $reservation = $this->getReservationByNo($request->reservation_no, $provider->id);
             if ($reservation == null)
-                return $this->returnError('D000', trans('messages.No reservation with this number'));
+                return $this->returnError('D000', __('messages.No reservation with this number'));
 
             if ($reservation->approved != 1)
-                return $this->returnError('E001', trans('messages.Only approved reservation can be  updated'));
+                return $this->returnError('E001', __('messages.Only approved reservation can be updated'));
 
             if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
@@ -624,7 +624,7 @@ class ProviderBranchController extends Controller
 
             $doctor = $reservation->doctor;
             if ($doctor == null)
-                return $this->returnError('D000', trans('messages.No doctor with this id'));
+                return $this->returnError('D000', __('messages.No doctor with this id'));
 
             if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
