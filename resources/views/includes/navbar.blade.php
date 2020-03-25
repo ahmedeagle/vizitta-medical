@@ -34,7 +34,8 @@
                             <ul class="dropdown-menu dropdown-navbar navbar-pink">
                                 @if(takeLastNotifications(5))
                                     @forelse(takeLastNotifications(5) as $notify)
-                                        <li data_notify_id="{{$notify -> id}}">
+                                        <li data_notify_id="{{$notify -> id}}"
+                                            @if($notify -> seen =='0') style="background-color: #ececec61;" @endif>
                                             <a href="
                                              @if($notify -> type == 1 )   {{--new reservation notification--}}
                                             {{route('admin.reservation.view',$notify -> data_id)}}
