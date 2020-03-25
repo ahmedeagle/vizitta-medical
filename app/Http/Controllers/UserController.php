@@ -915,11 +915,11 @@ class UserController extends Controller
             ]);
         }
 
-          $notification = GeneralNotification::create([
-            'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar. ')',
+        $notification = GeneralNotification::create([
+            'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar . ')',
             'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar . ')',
             'content_ar' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
-            'content_en' => 'New rating for reservation No: '. ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
+            'content_en' => 'New rating for reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
             'notificationable_type' => 'App\Models\Provider',
             'notificationable_id' => $reservation->provider_id,
             'data_id' => $reservation->id,
@@ -1028,6 +1028,21 @@ class UserController extends Controller
                     ->sendProviderWeb($mainProvider, $reservation->reservation_no, 'update_reservation');
 
                 // (new \App\Http\Controllers\NotificationController(['title'=>__('messages.Reservation Status'), 'body'=>__('messages.The branch').$provider->getTranslatedName().__('messages.updated your reservation')]))->sendUser($reservation->user);
+
+
+                $provider = $reservation->provider; //branch
+                $mainProvider = Provider::where('id', $provider->provider_id)->first();
+
+                $notification = GeneralNotification::create([
+                    'title_ar' => 'تعديل الحجز رقم  ' . ' ' . $reservation->reservation_no,
+                    'title_en' => 'Update Reservation Date for reservation No:' . ' ' . $reservation->reservation_no,
+                    'content_ar' => 'قام المستخدم  ' . ' ' . $reservation->user->name . ' ' . 'بتحديث موعد الحجز رقم' . ' ' . $reservation->reservation_no . ' ' . 'لمقدم الخدمة ' . ' ( ' . $mainProvider->name_ar . ' )',
+                    'content_en' => $reservation->user->name . ' ' . 'change the reservation date for reservation no: ' . ' ' . $reservation->reservation_no . ' ' . 'for provider' . ' ( ' . $mainProvider->name_ar . ' )',
+                    'notificationable_type' => 'App\Models\Provider',
+                    'notificationable_id' => $reservation->provider_id,
+                    'data_id' => $reservation->id,
+                    'type' => 3 //user edit  reservation date
+                ]);
 
             } catch (\Exception $ex) {
 
