@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Models\CommentReport;
+use App\Models\GeneralNotification;
 use App\Models\Notification;
 use App\Models\Provider;
 use App\Models\Reciever;
@@ -15,6 +16,7 @@ use DB;
 use Validator;
 use App\Traits\Dashboard\CommentsTrait;
 use MercurySeries\Flashy\Flashy;
+use Vinkla\Hashids\Facades\Hashids;
 
 class CommentsController extends Controller
 {
@@ -37,6 +39,12 @@ class CommentsController extends Controller
 
     public function index()
     {
+        if (request('notification')) {  // mark as read
+            GeneralNotification::where('seen', '0')
+                ->where('id', Hashids::decode(request('notification')))
+                ->update(['seen' => '1']);
+        }
+
         $reservations = Reservation::select('id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date')->get();
         return view('comments.index', compact('reservations'));
     }
