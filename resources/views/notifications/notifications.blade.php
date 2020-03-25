@@ -19,7 +19,7 @@
                         <ul id="inbox-tabs" class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
                             <li @if(Request::query('status') == 'all' )class="active"@endif>
                                 <a href="{{route('notification.center')}}?status=all">
-                                    <span class="bigger-110">الكل ( {{ $notification -> total_count }})</span>
+                                    <span class="bigger-110">الكل ( {{ $notifications -> total_count }})</span>
                                 </a>
                             </li>
                             <li @if(Request::query('status') == 'read' )class="active"@endif>
