@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AcceptReservationMail;
+use App\Models\GeneralNotification;
 use App\Models\Manager;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
@@ -450,7 +451,7 @@ class ProviderBranchController extends Controller
             }
         }
 
-        if ($status == 0 ) {   // all reservations
+        if ($status == 0) {   // all reservations
             $completeReservations = Reservation::whereIn('provider_id', $branchsids)->where('approved', 3)->get();
             $reservationsCount = Reservation::whereIn('provider_id', $branchsids)->whereIn('approved', [2, 3])->count();
             if (isset($completeReservations) && $completeReservations->count() > 0) {   //some only complete price
@@ -672,6 +673,17 @@ class ProviderBranchController extends Controller
             try {
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
+
+                $notification = GeneralNotification::create([
+                    'title_ar' => 'تعديل الحجز رقم  ' . ' ' . $reservation->reservation_no,
+                    'title_en' => 'Update Reservation Date for reservation No:' . ' ' . $reservation->reservation_no,
+                    'content_ar' => 'قام  مقدم الخدمه  ' . ' ' . $reservation->provider->name_ar . ' ' . 'بتحديث موعد الحجز رقم' . ' ' . $reservation->reservation_no . ' ' . ' الخاص بالمستخدم ' . ' ( ' . $reservation->user->name . ' )',
+                    'content_en' => $reservation->provider->name_ar . ' ' . 'change the reservation date for reservation no: ' . ' ' . $reservation->reservation_no . ' ' . 'for user' . ' ( ' . $reservation->user->name . ' )',
+                    'notificationable_type' => 'App\Models\Provider',
+                    'notificationable_id' => $reservation->provider_id,
+                    'data_id' => $reservation->id,
+                    'type' => 4 //provider edit  reservation date
+                ]);
             } catch (\Exception $ex) {
 
             }

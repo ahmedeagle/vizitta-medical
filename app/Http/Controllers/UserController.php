@@ -1030,9 +1030,6 @@ class UserController extends Controller
                 // (new \App\Http\Controllers\NotificationController(['title'=>__('messages.Reservation Status'), 'body'=>__('messages.The branch').$provider->getTranslatedName().__('messages.updated your reservation')]))->sendUser($reservation->user);
 
 
-                $provider = $reservation->provider; //branch
-                $mainProvider = Provider::where('id', $provider->provider_id)->first();
-
                 $notification = GeneralNotification::create([
                     'title_ar' => 'تعديل الحجز رقم  ' . ' ' . $reservation->reservation_no,
                     'title_en' => 'Update Reservation Date for reservation No:' . ' ' . $reservation->reservation_no,
@@ -1043,6 +1040,7 @@ class UserController extends Controller
                     'data_id' => $reservation->id,
                     'type' => 3 //user edit  reservation date
                 ]);
+
 
             } catch (\Exception $ex) {
 

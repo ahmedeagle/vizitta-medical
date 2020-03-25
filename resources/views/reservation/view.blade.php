@@ -93,7 +93,7 @@
             <div class="profile-info-row">
                 <div class="profile-info-name">اخر موعد قبل تحديث الحجز  </div>
                 <div class="profile-info-value">
-                    <span class="editable"> @if($reservation-> last_day_date){{ $reservation-> last_day_date }} - ({{ $reservation->last_from_time}} -{{$reservation->last_to_time }}) @else لم يتم تحديث موعد الحجز من قبل العميل  @endif</span>
+                    <span class="editable"> @if($reservation-> last_day_date){{ $reservation-> last_day_date }} - ({{ $reservation->last_from_time}} -{{$reservation->last_to_time }}) @else لم يتم تحديث موعد الحجز من قبل العميل حتي اللحظة   @endif</span>
                 </div>
             </div>
 

@@ -36,17 +36,13 @@
                                     @forelse(takeLastNotifications(5) as $notify)
                                         <li data_notify_id="{{$notify -> id}}">
                                             <a href="
-                                                        @if($notify -> type == 1 )   {{--new reservation notification--}}
+                                             @if($notify -> type == 1 )   {{--new reservation notification--}}
                                             {{route('admin.reservation.view',$notify -> data_id)}}
-
                                             @elseif($notify -> type == 2){{--user rate reservation--}}
                                             {{route('admin.comments')}}
-                                            @elseif($notify -> type == 3) {{--user update reservation Date --}}
+                                            @elseif($notify -> type == 3 or  $notify -> type == 4) {{--user update reservation Date --}}
                                             {{route('admin.reservation.view',$notify -> data_id)}}
-                                            @else
-                                               #
-                                            @endif
-                                                " class="clearfix">
+                                            @else # @endif" class="clearfix">
                                                 <img src="{{$notify -> notificationable -> logo}}" class="msg-photo"
                                                      alt="Alex's Avatar">
                                                 <span class="msg-body">
