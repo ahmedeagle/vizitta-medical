@@ -78,7 +78,7 @@
                                                             <span class="">
                                                             {{$notify -> title_ar}}
                                                             <br>
-																		<span class="text-dark">
+																		<span  style="color: #000;">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
