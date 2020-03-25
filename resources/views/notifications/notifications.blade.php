@@ -8,7 +8,7 @@
             width: 40px;
         }
     </style>
-    @stop
+@stop
 @section('content')
 @section('breadcrumbs')
     {!! Breadcrumbs::render('notifications.center') !!}
@@ -57,29 +57,41 @@
                                     <div class="message-list-container">
                                         @if(isset($notifications) &&  $notifications -> count() > 0)
                                             @forelse($notifications as $notify)
-                                                <div class="message-list">
-                                                    <div class="message-item message-unread">
+                                                <a href=" @if($notify -> type == 1 )   {{--new reservation notification--}}
+                                                {{route('admin.reservation.view',$notify -> data_id)}}?notification={{Vinkla\Hashids\Facades\Hashids::encode($notify -> id)}}
+                                                @elseif($notify -> type == 2){{--user rate reservation--}}
+                                                {{route('admin.comments')}}?notification={{Vinkla\Hashids\Facades\Hashids::encode($notify -> id)}}
+                                                @elseif($notify -> type == 3 or  $notify -> type == 4) {{--user update reservation Date --}}
+                                                {{route('admin.reservation.view',$notify -> data_id)}}?notification={{Vinkla\Hashids\Facades\Hashids::encode($notify -> id)}}
+                                                @else # @endif"
+                                                >
+                                                    <div class="message-list">
+                                                        <div class="message-item message-unread">
 
-                                                        <img class="nav-user-photo pull-right" src="{{$notify -> notificationable -> logo}}" alt="photo">
+                                                            <img class="nav-user-photo pull-right"
+                                                                 src="{{$notify -> notificationable -> logo}}"
+                                                                 alt="photo">
 
-                                                        <span class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
+                                                            <span
+                                                                class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
-                                                        <span class="">
+                                                            <span class="">
                                                             {{$notify -> title_ar}}
                                                             <br>
 																		<span class="text">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
-                                                        <br>
-                                                    </div>
+                                                            <br>
+                                                        </div>
 
-                                                </div>
+                                                    </div>
+                                                </a>
                                             @empty
                                                 <br><br><br><br><br><br><br><br>
                                                 <div class="message-list">
                                                     <div class="message-item message-unread">
-                                                        <p style="font-size: 24px">  لا يوجد اي تنبيهات حتي اللحظة</p>
+                                                        <p style="font-size: 24px"> لا يوجد اي تنبيهات حتي اللحظة</p>
                                                     </div>
                                                 </div>
                                             @endforelse
@@ -87,7 +99,7 @@
                                             <br><br><br><br><br><br><br><br>
                                             <div class="message-list">
                                                 <div class="message-item message-unread d-flex justify-content-center">
-                                                  <p style="font-size: 24px" >  لا يوجد اي تنبيهات حتي اللحظة</p>
+                                                    <p style="font-size: 24px"> لا يوجد اي تنبيهات حتي اللحظة</p>
                                                 </div>
                                             </div>
                                         @endif
