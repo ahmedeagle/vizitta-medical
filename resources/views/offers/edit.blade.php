@@ -183,37 +183,47 @@
         <label for="branches"> الأفرع </label>
         <small class="text-danger">{{ $errors->has('branchIds') ? $errors->first('branchIds') : '' }}</small>
     </div>
-</div>
 
+    <div id="branchTimesDiv" style="margin-bottom: 50px"></div>
+    <div class="clearfix"></div>
+    <hr>
+    <br>
+    {{--<label> وسائل الدفع </label>--}}
+    <div class="row form-group has-float-label">
+        @if(isset($paymentMethods) && $paymentMethods -> count() > 0)
+            @foreach($paymentMethods as $index => $paymentMethod)
+                <div class="col-md-4">
+                    <label class="checkbox-inline" style="user-select: none">
+                        <input style="margin: -8px -19px 0 0 " type="checkbox" id="payment_method"
+                               name="payment_method[]"
+                               {{ (is_array(old('payment_method')) && in_array($paymentMethod->id, old('payment_method'))) ? ' checked' : '' }} @if($paymentMethod -> selected == 1) checked
+                               @endif style=" display: inline-block"
+                               value="{{$paymentMethod -> id}}"> {{$paymentMethod -> name_ar}}
+                    </label>
+                </div>
+            @endforeach
+        @endif
+        <small class="text-danger">{{ $errors->has('payment_method') ? $errors->first('payment_method') : '' }}</small>
+    </div>
+    <br>
 
-<div id="branchTimesDiv" style="margin-bottom: 50px"></div>
-<div class="clearfix"></div>
-<hr>
-<br>
-{{--<label> وسائل الدفع </label>--}}
-<div class="row form-group has-float-label">
-    @if(isset($paymentMethods) && $paymentMethods -> count() > 0)
-        @foreach($paymentMethods as $index => $paymentMethod)
-            <div class="col-md-4">
-                <label class="checkbox-inline" style="user-select: none">
-                    <input style="margin: -8px -19px 0 0 " type="checkbox" id="payment_method" name="payment_method[]"
-                           {{ (is_array(old('payment_method')) && in_array($paymentMethod->id, old('payment_method'))) ? ' checked' : '' }} @if($paymentMethod -> selected == 1) checked
-                           @endif style=" display: inline-block"
-                           value="{{$paymentMethod -> id}}"> {{$paymentMethod -> name_ar}}
-                </label>
-            </div>
-        @endforeach
-    @endif
-    <small class="text-danger">{{ $errors->has('payment_method') ? $errors->first('payment_method') : '' }}</small>
-</div>
-<br>
+    @php
+        if (isset($offer)){
+            foreach($offer->paymentMethods as $pMethod){
+                if ($pMethod->id == 6){
+                    $checkElectronicPayment = true;
+                    break;
+                }
+                $checkElectronicPayment = false;
+            }
+        }
+    @endphp
 
-@foreach($offer->paymentMethods as $pMethod)
-
-    @if ($pMethod->id == 6)
+    @if ($checkElectronicPayment)
         <div class="form-group has-float-label col-sm-6" id="amountTypeDiv">
             <select name="payment_amount_type" id="payment_amount_type" class="form-control">
-                <option value="all" {{ $pMethod->pivot->payment_amount_type == 'all' ? 'selected' : '' }}>المبلغ كامل
+                <option value="all" {{ $pMethod->pivot->payment_amount_type == 'all' ? 'selected' : '' }}>المبلغ
+                    كامل
                 </option>
                 <option value="custom" {{ $pMethod->pivot->payment_amount_type == 'custom' ? 'selected' : '' }}>مبلغ
                     معين
@@ -223,43 +233,59 @@
         </div>
 
         <div class="form-group has-float-label col-sm-6"
-             style="{{ $pMethod->pivot->payment_amount_type == 'custom' ? '': 'display: none;' }}" id="customAmountDiv">
-            {{ Form::number('payment_amount', $pMethod->pivot->payment_amount, ['placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
+             style="{{ $pMethod->pivot->payment_amount_type == 'custom' ? '': 'display: none;' }}"
+             id="customAmountDiv">
+            {{ Form::number('payment_amount', $pMethod->pivot->payment_amount, ['name' => 'payment_amount', 'placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
+            <label for="title"> المبلغ </label>
+            <small
+                class="text-danger">{{ $errors->has('payment_amount') ? $errors->first('payment_amount') : '' }}</small>
+        </div>
+    @else
+        <div class="form-group has-float-label col-sm-6" style="display: none;" id="amountTypeDiv">
+            {{ Form::select('payment_amount_type', ['all' => 'المبلغ كامل', 'custom' => 'مبلغ معين'], old('payment_amount_type'), ['id'=>'payment_amount_type', 'name'=>'payment_amount_type' ,'class' => 'form-control', '']) }}
+            <label for="payment_amount_type"> نوع المبلغ </label>
+        </div>
+
+        <div class="form-group has-float-label col-sm-6" style="display: none;" id="customAmountDiv">
+            {{ Form::number('payment_amount', old('payment_amount'), ['placeholder' => 'المبلغ',  'class' => 'form-control ' . ($errors->has('payment_amount') ? 'redborder' : '') ]) }}
             <label for="title"> المبلغ </label>
             <small
                 class="text-danger">{{ $errors->has('payment_amount') ? $errors->first('payment_amount') : '' }}</small>
         </div>
     @endif
-@endforeach
 
-<hr>
-<br>
+    <hr>
+    <br>
 
-@foreach($offerContents as $index => $offerCont)
-    <div class="form-group has-float-label offer-content" id="contentBox_{{$offerCont->id}}" style="padding-top: 30px">
-        <div class="col-sm-6">
-            <label for="title"> المحتوى بالعربية </label>
-            <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;"
-                   value="{{ $offerCont->content_ar }}">
+    @foreach($offerContents as $index => $offerCont)
+        <div class="form-group has-float-label offer-content" id="contentBox_{{$offerCont->id}}"
+             style="padding-top: 30px">
+            <div class="col-sm-6">
+                <label for="title"> المحتوى بالعربية </label>
+                <input type="text" name="offer_content[ar][]" placeholder="المحتوى بالعربية" style="width: 100%;"
+                       value="{{ $offerCont->content_ar }}">
+            </div>
+            <div class="col-sm-6">
+                <label for="title"> المحتوى بالإنجليزية </label>
+                <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;"
+                       value="{{ $offerCont->content_en }}">
+
+                @if ($index == 0)
+                    <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
+                            class="menu-icon fa fa-plus-circle fa-fw"></i></button>
+                @else
+                    <button type="button" class="btnDeleteContent btn btn-danger sm"
+                            onclick="deleteContentBox({{$offerCont->id}})"><i
+                            class="menu-icon fa fa-trash-o fa-fw"></i></button>
+                @endif
+
+            </div>
         </div>
-        <div class="col-sm-6">
-            <label for="title"> المحتوى بالإنجليزية </label>
-            <input type="text" name="offer_content[en][]" placeholder="المحتوى بالإنجليزية" style="width: 73%;"
-                   value="{{ $offerCont->content_en }}">
-            <button type="button" id="" class="btnAddMoreContent btn btn-success sm"><i
-                    class="menu-icon fa fa-plus-circle fa-fw"></i></button>
+    @endforeach
 
-            @if ($index != 0)
-                <button type="button" class="btnDeleteContent btn btn-danger sm" onclick="deleteContentBox({{$offerCont->id}})"><i
-                        class="menu-icon fa fa-trash-o fa-fw"></i></button>
-            @endif
+    <div class="form-group has-float-label offer-content" id="allContentDivs"></div>
 
-        </div>
-    </div>
-@endforeach
-
-<div class="form-group has-float-label offer-content" id="allContentDivs"></div>
-
+</div>
 
 <div class="form-group col-sm-12 submit">
     {{ Form::submit('تحديث', ['class' => 'btn btn-sm' ]) }}

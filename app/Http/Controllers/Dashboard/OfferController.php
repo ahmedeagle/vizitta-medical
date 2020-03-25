@@ -330,6 +330,7 @@ class OfferController extends Controller
 
     public function update($id, Request $request)
     {
+//        dd($request->payment_amount_type, $request->payment_amount);
         $offer = Offer::findOrFail($id);
         $rules = [
             "title_ar" => "required|max:255",
@@ -370,7 +371,6 @@ class OfferController extends Controller
             Flashy::error($validator->errors()->first());
             return redirect()->back()->withErrors($validator)->withInput($request->all());
         }
-        dd($request->offer_content);
         $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
             'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
@@ -423,11 +423,13 @@ class OfferController extends Controller
 
         if (isset($request->branchTimes) && !empty($request->branchTimes)) {
             $branches = $request->branchTimes;
+            //// delete all branch times of the current offer
+            $offer->branchTimes()->detach();
             foreach ($branches as $branchId => $branch) {
                 foreach ($branch['days'] as $dayCode => $time) {
                     $returnTimes = $this->splitTimes($time['from'], $time['to'], $branch['duration']);
                     foreach ($returnTimes as $key => $value) {
-                        $offer->branchTimes()->sync($branchId, [
+                        $offer->branchTimes()->attach($branchId, [
                             'day_code' => $dayCode,
                             'time_from' => $value['from'],
                             'time_to' => $value['to'],
