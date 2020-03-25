@@ -199,4 +199,9 @@ class NotificationsController extends Controller
             return redirect()->back()->with("error", "حدث خطأ برجاء المحاولة مرة اخرى");
         }
     }
+
+    public function notificationCenter(){
+        return view('notifications.notifications');
+    }
+
 }

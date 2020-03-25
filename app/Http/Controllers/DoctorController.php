@@ -1075,11 +1075,11 @@ class DoctorController extends Controller
         $branch = Reservation::find($reservation->id)->branchId;
 
         $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
+        $reserve->branch = $branch;
 
         if ($request->filled('latitude') && $request->filled('longitude')) {
-            $reserve->provider->distance = (string)$this->getDistance($reserve->provider->latitude, $reserve->provider->longitude, $request->latitude, $request->longitude, 'K');
+            $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
         }
-        $reserve->branch = $branch;
         $reserve->doctor = Reservation::find($reservation->id)->doctorInfo;
         $reserve->coupon = PromoCode::selection2()->find($reservation->promocode_id);
         if ($reserve->payment_method->id == 5)   // prepaid coupon

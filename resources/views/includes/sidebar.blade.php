@@ -231,16 +231,6 @@
             </li>
         @endcan
 
-        @can('notifications')
-            <li class="{{ Request::is('mc33/user/message*') ? 'active' : '' }}">
-                <a href="{{ route('admin.user.message') }}">
-                    <i class="menu-icon fa fa-envelope-o fa-fw"></i>
-                    <span class="menu-text">التنبيهات </span>
-                </a>
-            </li>
-        @endcan
-
-
         @can('show_providers_notifications')
             <li class="{{ Request::is('mc33/notifications/list/providers*') ? 'active' : '' }}">
                 <a href="{{ route('admin.notifications','providers') }}">

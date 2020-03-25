@@ -32,6 +32,175 @@ class OffersController extends Controller
 
     }
 
+
+    protected  function getOfferForVisitors($request){
+
+        $orderBy = 'id';
+        if (isset($request->mostVisits) && $request->mostVisits == 1) {
+            $orderBy = 'visits';
+        }
+
+        if (isset($request->mostpaid) && $request->mostpaid == 1) {
+            $orderBy = 'uses';
+        }
+
+        /*  if (isset($request->lessThan) && $request->lessThan == 1) {
+              $orderBy = 'price';
+          }*/
+
+        // if 0 get all offer
+        if ($request->category_id != 0) {
+            $category = PromoCodeCategory::find($request->category_id);
+            if (!$category) {
+                return $this->returnError('D000', trans('messages.category not found'));
+            }
+            $categoryId = $category->id;
+            if (!$category)
+                return $this->returnError('E001', trans('messages.There is no category with this id'));
+            else {
+
+                if (isset($request->featured) && $request->featured == 1) {
+                    $offers = PromoCode::where(function ($qq) use ($user) {
+                        $qq->where('general', 1)
+                            ->orWhereHas('users', function ($qu) use ($user) {
+                                $qu->where('users.id', $user->id);
+                            });
+                    })->featured()
+                        ->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->where('promocodes_categories.id', $categoryId);
+                        })
+
+                        ->limit(10)
+                        ->selection()
+                        ->inRandomOrder()
+                        ->get();
+                } else {
+                    //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
+                    $offers = PromoCode::where(function ($qq) use ($user) {
+                        $qq->where('general', 1)
+                            ->orWhereHas('users', function ($qu) use ($user) {
+                                $qu->where('users.id', $user->id);
+                            });
+                    })->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->where('promocodes_categories.id', $categoryId);
+                        })
+                        ->selection()
+                        ->inRandomOrder()
+                        ->paginate(10);
+                }
+            }
+
+        } else {
+
+            if (isset($request->featured) && $request->featured == 1) {
+                $offers = PromoCode::where(function ($qq) use ($user) {
+                    $qq->where('general', 1)
+                        ->orWhereHas('users', function ($qu) use ($user) {
+                            $qu->where('users.id', $user->id);
+                        });
+                })->featured()
+                    ->active()
+                    ->valid()
+                    ->with(['provider' => function ($q) {
+                        $q->select('id', 'rate', 'logo', 'type_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                        $q->with(['type' => function ($q) {
+                            $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                        }]);
+                    },])
+
+                    ->selection()
+                    ->limit(25)
+                    ->inRandomOrder()
+                    ->get();
+            } else
+
+                // PromoCode::find(6) -> currentId();
+                $offers = PromoCode::where(function ($qq) use ($user) {
+                    $qq->where('general', 1)
+                        ->orWhereHas('users', function ($qu) use ($user) {
+                            $qu->where('users.id', $user->id);
+                        });
+                })->active()
+                    ->valid()
+                    ->with(['provider' => function ($q) {
+                        $q->select('id', 'rate', 'logo', 'type_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                        $q->with(['type' => function ($q) {
+                            $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                        }]);
+                    }])
+                    ->selection()
+                    ->inRandomOrder()
+                    ->paginate(10);
+        }
+
+        if (isset($request->featured) && $request->featured == 1) {
+            //if coupon allowed only for some users
+            /*        if (isset($offers) && $offers->count() > 0) {
+                        foreach ($offers as $index => $offer) {
+                            if (!empty($offer->users) && count($offer->users) > 0) {
+                                $authUserExistsForThisOffer = in_array($user->id, array_column($offer->users->toArray(), 'id'));
+                                if (!$authUserExistsForThisOffer) {
+                                    unset($offers[$index]);
+                                }
+                            }
+                        }
+                    }*/
+            return $this->returnData('featured_offers', $offers);
+        }
+
+        $selectedValue = 0;
+        if (count($offers->toArray()) > 0) {
+
+            foreach ($offers as $index => $offer) {
+                unset($offer->provider_id);
+                unset($offer->available_count);
+                unset($offer->status);
+                unset($offer->created_at);
+                unset($offer->updated_at);
+                unset($offer->specification_id);
+                /* if ($offers->coupons_type_id == 1) {
+                     $offers->price = "0";
+                 }*/
+                if ($offer->coupons_type_id == 2) {
+                    $offer->discount = "0";
+                    $offer->code = "0";
+                }
+
+            }
+
+            $offers = json_decode($offers->toJson());
+            $total_count = $offers->total;
+            $offersJson = new \stdClass();
+            $offersJson->current_page = $offers->current_page;
+            $offersJson->total_pages = $offers->last_page;
+            $offersJson->total_count = $total_count;
+            $offersJson->data = $offers->data;
+            return $this->returnData('offers', $offersJson);
+        }
+
+        return $this->returnError('E001', trans('messages.No offers founded'));
+
+    }
     public function index(Request $request)
     {
         try {
@@ -46,7 +215,7 @@ class OffersController extends Controller
 
             $user = $this->auth('user-api');
             if (!$user) {
-                return $this->returnError('D000', trans('messages.User not found'));
+                   $this -> getOfferForVisitors($request);
             }
 
             $orderBy = 'id';

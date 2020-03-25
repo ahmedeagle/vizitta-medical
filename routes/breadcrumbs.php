@@ -583,6 +583,12 @@ Breadcrumbs::for('add.offers', function ($trail) {
     $trail->push('إضافة عرض');
 });
 
+// Home > Promo Codes > Add
+Breadcrumbs::for('notifications.center', function ($trail) {
+    $trail->parent('dashboard');
+    $trail->push('التنبيهات');
+});
+
 /*Breadcrumbs::for('add.filter', function ($trail) {
     $trail->parent('offers');
     $trail->push('إضافة  فلتر');

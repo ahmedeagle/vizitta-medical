@@ -41,6 +41,7 @@ Route::get('/', 'Site\HomeController@index');
 
 Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], function () {
 
+
     Route::get('test', function () {
 
         return Hashids::encode(275);
@@ -67,6 +68,8 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
 
 
     Route::get('/', 'HomeController@index')->name('home');
+    Route::get('notifications-center', 'NotificationsController@notificationCenter')->name('notification.center');
+
 
     // Insurance Company
     Route::group(['prefix' => 'insurance_company'], function () {

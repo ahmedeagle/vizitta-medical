@@ -70,7 +70,7 @@
                         </li>
 
                         <li class="dropdown-footer">
-                            <a href="#">
+                            <a href="{{route('notification.center')}}">
                                 عرض جميع الاشعارات
                                 <i class="ace-icon fa fa-arrow-left"></i>
                             </a>
