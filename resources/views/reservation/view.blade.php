@@ -81,6 +81,15 @@
                 </div>
             </div>
 
+
+            <div class="profile-info-row">
+                <div class="profile-info-name">تاريخ  الكشف </div>
+                <div class="profile-info-value">
+                    <span class="editable">{{ $reservation->created_at }} - ({{ $reservation->from_time -  $reservation->to_time }})</span>
+                </div>
+            </div>
+
+
             <div class="profile-info-row">
                 <div class="profile-info-name">الحجز للمستخدم / للغير</div>
                 <div class="profile-info-value">
