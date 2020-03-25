@@ -46,8 +46,6 @@
                                             @else
                                                #
                                             @endif
-
-                                            {{route('admin.reservation.view')}}
                                                 " class="clearfix">
                                                 <img src="{{$notify -> notificationable -> logo}}" class="msg-photo"
                                                      alt="Alex's Avatar">
