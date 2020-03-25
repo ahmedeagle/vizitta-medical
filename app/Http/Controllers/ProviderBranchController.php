@@ -610,7 +610,7 @@ class ProviderBranchController extends Controller
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
             if ($reservation->approved != 1)
-                return $this->returnError('E001', trans('messages.Only approved reservation can be  updated '));
+                return $this->returnError('E001', trans('messages.Only approved reservation can be  updated'));
 
             if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
