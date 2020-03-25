@@ -225,7 +225,7 @@ class NotificationsController extends Controller
         if ($status == 'read') {
             return $notifications = GeneralNotification::where('seen', '=', '1')->orderBy('id', 'DESC')->paginate(50);
         } elseif ($status == 'unread') {
-            return $notifications = GeneralNotification::where('seen', '=', '0')->orderBy('id', 'DESC')->paginate(50);
+            return $notifications = GeneralNotification::where('seen', '=', '0')->orderBy('id', 'DESC')->paginate(10);
         } else {
             return $notifications = GeneralNotification::orderBy('id', 'DESC')->paginate(50);
         }

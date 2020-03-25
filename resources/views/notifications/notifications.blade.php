@@ -72,13 +72,13 @@
                                                                  src="{{$notify -> notificationable -> logo}}"
                                                                  alt="photo">
 
-                                                            <span style="color: #000;"
+                                                            <span style="color: #585858;"
                                                                   class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
                                                             <span class="">
                                                             {{$notify -> title_ar}}
                                                             <br>
-																		<span style="color: #000;">
+																		<span style="color: #585858;">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
