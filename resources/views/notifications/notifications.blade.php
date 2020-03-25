@@ -78,7 +78,7 @@
                                                             <span class="">
                                                             {{$notify -> title_ar}}
                                                             <br>
-																		<span class="text">
+																		<span class="text-success">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>

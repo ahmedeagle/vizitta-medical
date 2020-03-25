@@ -221,8 +221,11 @@ class ReservationController extends Controller
 
             //mark seen if ther is notification
             $reservation = $this->getReservationById($id);
-            if ($reservation == null)
-                return view('errors.404');
+            if ($reservation == null){
+                Flashy::error('الحجز غير موجود او ربما يكون قد حجز ');
+                return  redirect()->back();
+            }
+
 
             $reservation->makeVisible(['rejection_reason']);
 
