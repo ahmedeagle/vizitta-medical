@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Models\GeneralNotification;
 use App\Models\Notification;
 use App\Models\Provider;
 use App\Models\Reciever;
@@ -78,9 +79,9 @@ class NotificationsController extends Controller
     public function get_add($type)
     {
         if ($type == "users") {
-            $data['receivers'] = User::select('id','name') -> get();
+            $data['receivers'] = User::select('id', 'name')->get();
         } else {
-            $data['receivers'] = Provider::select('id','name_ar as name') -> get();
+            $data['receivers'] = Provider::select('id', 'name_ar as name')->get();
         }
         $data['type'] = $type;
         return view("notifications.add", $data);
@@ -103,26 +104,25 @@ class NotificationsController extends Controller
         }
 
 
-
         $title = $request->input("title");
         $content = $request->input("content");
         $option = $request->input("notify-type");
         $type = $request->input("type");
 
-        if($option == 2){
-            if($request ->  has('ids')){
-                if(!is_array($request -> ids) ||  count($request -> ids) == 0 ){
-                    return redirect() -> back() -> withErrors(['receivers' => 'يجب اختيار مستخدم علي الاقل ']) -> withInput($request -> all);
+        if ($option == 2) {
+            if ($request->has('ids')) {
+                if (!is_array($request->ids) || count($request->ids) == 0) {
+                    return redirect()->back()->withErrors(['receivers' => 'يجب اختيار مستخدم علي الاقل '])->withInput($request->all);
                 }
-            }else{
-                return redirect() -> back() -> withErrors(['receivers' => 'يجب اختيار مستخدم علي الاقل ']) -> withInput($request -> all);
+            } else {
+                return redirect()->back()->withErrors(['receivers' => 'يجب اختيار مستخدم علي الاقل '])->withInput($request->all);
             }
         }
 
 
         if ($type == "users") {
             if ($option == 2) {
-                $actors = User::whereIn("id", $request -> ids)
+                $actors = User::whereIn("id", $request->ids)
                     ->select("id", "device_token")
                     ->get();
             } else {
@@ -130,8 +130,8 @@ class NotificationsController extends Controller
             }
         } else {
             if ($option == 2) {
-                $actors = Provider::whereIn("id", $request -> ids)
-                    ->select("id", "device_token","web_token")
+                $actors = Provider::whereIn("id", $request->ids)
+                    ->select("id", "device_token", "web_token")
                     ->get();
             } else {
                 $actors = Provider::get();
@@ -146,7 +146,7 @@ class NotificationsController extends Controller
 
         foreach ($actors as $actor) {
 
-            $actor->makeVisible(['device_token','web_token']);
+            $actor->makeVisible(['device_token', 'web_token']);
             if ($type == "users") {
 
                 Reciever::insert([
@@ -168,18 +168,18 @@ class NotificationsController extends Controller
                 ]);
                 // push notification
                 if ($actor->device_token != null) {
-                     (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProvider(Provider::find($actor->id));
+                    (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProvider(Provider::find($actor->id));
                 }
 
                 if ($actor->web_token != null) {
-                     (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProviderWeb(Provider::find($actor->id));
+                    (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProviderWeb(Provider::find($actor->id));
                 }
 
             }
         }
 
         Flashy::success('تمت العملية بنجاح');
-        return redirect() -> back();
+        return redirect()->back();
 
 
     }
@@ -200,8 +200,37 @@ class NotificationsController extends Controller
         }
     }
 
-    public function notificationCenter(){
-        return view('notifications.notifications');
+    public function notificationCenter()
+    {
+        $status = 'all';
+        $list = ['all', 'read', 'unread'];
+
+        if (request('status')) {
+            if (!in_array(request('status'), $list)) {
+                $data['notifications'] = $this->geNotificationByStatus();
+            } else {
+                $status = request('status') ? request('status') : $status;
+                $data['notifications'] = $this->geNotificationByStatus($status);
+            }
+            return view('notifications.notifications', $data);
+        } else {
+            $data['notifications'] = GeneralNotification::orderBy('id', 'DESC')
+                ->paginate(50);
+        }
+        return view('notifications.notifications', $data);
     }
+
+    private function geNotificationByStatus($status = 'all')
+    {
+        if ($status == 'read') {
+            return $notifications = GeneralNotification::where('seen', '==', '1')->orderBy('id', 'DESC')->paginate(50);
+        } elseif ($status == 'unread') {
+            return $notifications = GeneralNotification::where('seen', '==', '0')->orderBy('id', 'DESC')->paginate(50);
+        } else {
+            return $notifications = GeneralNotification::orderBy('id', 'DESC')->paginate(50);
+        }
+
+    }
+
 
 }
