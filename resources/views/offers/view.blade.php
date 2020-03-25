@@ -107,10 +107,19 @@
                 </div>
             </div>
 
+
             <div class="profile-info-row">
-                <div class="profile-info-name">الحالة</div>
+                <div class="profile-info-name">نوع العدد المتاح</div>
                 <div class="profile-info-value">
-                    <span class="editable">{{ $offer->status ? "مفعل" : "غير مفعّل" }}</span>
+                    <span
+                        class="editable">{{ $offer->available_count_type == 'more_than_once' ? 'اكثر من مرة' : 'مرة واحدة' }}</span>
+                </div>
+            </div>
+
+            <div class="profile-info-row">
+                <div class="profile-info-name">تاريخ البداية</div>
+                <div class="profile-info-value">
+                    <span class="editable">{{ $offer->started_at }}</span>
                 </div>
             </div>
 
@@ -121,6 +130,12 @@
                 </div>
             </div>
 
+            <div class="profile-info-row">
+                <div class="profile-info-name">الحالة</div>
+                <div class="profile-info-value">
+                    <span class="editable">{{ $offer->status ? "مفعل" : "غير مفعّل" }}</span>
+                </div>
+            </div>
 
             <div class="profile-info-row">
                 <div class="profile-info-name">مقدم الخدمة</div>
@@ -129,12 +144,31 @@
                 </div>
             </div>
 
+            <div class="profile-info-row">
+                <div class="profile-info-name">الجنس</div>
+                <div class="profile-info-value">
+                    @if ($offer->gender == 'males')
+                        <span class="editable">رجال فقط</span>
+                    @elseif ($offer->gender == 'females')
+                        <span class="editable">نساء فقط</span>
+                    @else
+                        <span class="editable">رجال ونساء</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="profile-info-row">
+                <div class="profile-info-name">نوع الجهاز</div>
+                <div class="profile-info-value">
+                    <span class="editable">{{ $offer->device_type }}</span>
+                </div>
+            </div>
 
             <div class="profile-info-row">
                 <div class="profile-info-name">الافرع</div>
                 <div class="profile-info-value">
                     <ul>
-                        @foreach($offer['promocodebranches'] as $key => $branch)
+                        @foreach($offer['offerBranches'] as $key => $branch)
                             <li>
                                 <a href="{{ route('admin.branch.view', $branch->branch_id) }}">{{ getBranchById($branch->branch_id) }}</a>
                             </li>
@@ -172,8 +206,97 @@
         </div>
         <div class="space-12"></div>
 
+    </div>
+
+    <div class="col-md-6">
+        <label># المحتوى بالعربية #</label>
+        <ul>
+            @foreach($offer['contents'] as $key => $content)
+                <li>{{ $content->content_ar }}</li>
+            @endforeach
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <label># المحتوى بالإنجليزية #</label>
+        <ul>
+            @foreach($offer['contents'] as $key => $content)
+                <li>{{ $content->content_en }}</li>
+            @endforeach
+        </ul>
+    </div>
+
+    <div class="col-md-12">
+        <label># طرق الدفع #</label>
+        <ul>
+            @foreach($offer['paymentMethods'] as $key => $payment)
+                @if ($payment->id == 6)
+                    <li>
+                        <span>{{ $payment->name_ar }} </span>
+                        @if ($payment->pivot->payment_amount_type == 'custom')
+                            <span> # نوع المبلغ : مبلغ معين</span>
+                            <span> # المبلغ : {{ $payment->pivot->payment_amount }}</span>
+                        @else
+                            <span> # نوع المبلغ : المبلغ كامل</span>
+                        @endif
+
+                    </li>
+                @else
+                    <li>{{ $payment->name_ar }}</li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+
+    <div class="col-md-12">
+        <div class="page-header">
+            <h1><i class="menu-icon"></i># توقيتات الأفرع </h1>
+        </div>
+    </div>
+    <div class="col-md-12">
+
+        @foreach($offerBranchTimes as $key => $branch)
+            <h3># الفرع : {{ $branch['branch_name'] }}</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>اليوم</th>
+                        <th>من</th>
+                        <th>الى</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    @foreach($branch['days'] as $k => $day)
+                        <tr>
+                            @if ($day['day_code'] == "sat")
+                                <td>السبت</td>
+                            @elseif ($day['day_code'] == "sun")
+                                <td>الأحد</td>
+                            @elseif ($day['day_code'] == "mon")
+                                <td>الاثنين</td>
+                            @elseif ($day['day_code'] == "tue")
+                                <td>الثلاثاء</td>
+                            @elseif ($day['day_code'] == "wed")
+                                <td>الأربعاء</td>
+                            @elseif ($day['day_code'] == "thu")
+                                <td>الخميس</td>
+                            @else
+                                <td>الجمعة</td>
+                            @endif
+                            <td>{{ $day['start_from'] }}</td>
+                            <td>{{ $day['end_to'] }}
+                            </td>
+                        </tr>
+                    @endforeach
+
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
 
     </div>
+
     <div class="col-md-12">
         <div class="page-header">
             <h1><i class="menu-icon fa fa-user"></i> المستفادين من الكوبون </h1>

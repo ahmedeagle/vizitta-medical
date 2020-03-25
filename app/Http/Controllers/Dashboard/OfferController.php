@@ -311,7 +311,6 @@ class OfferController extends Controller
         return redirect()->route('admin.offers');
     }
 
-
     public function edit($id)
     {
         $data['offer'] = $this->getOfferByIdWithRelations($id);
@@ -497,7 +496,6 @@ class OfferController extends Controller
 
     public function destroy($id)
     {
-
         $offer = $this->getOfferById($id);
         if ($offer == null)
             return view('errors.404');
@@ -518,7 +516,15 @@ class OfferController extends Controller
         if ($offer == null)
             return view('errors.404');
         $beneficiaries = $this->getAllBeneficiaries($id);
-        return view('offers.view', compact('offer', 'beneficiaries'));
+
+        $offerBranchTimes = [];
+        foreach ($offer->offerBranches as $key => $value) {
+            $offerBranchTimes[$value->branch_id]['branch_name'] = Provider::find($value->branch_id)->name_ar;
+            $offerBranchTimes[$value->branch_id]['duration'] = $offer->branchTimes()->where('branch_id', $value->branch_id)->value('duration');
+            $offerBranchTimes[$value->branch_id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->branch_id)->get(['day_code', 'start_from', 'end_to']);
+        }
+//        dd($offerBranchTimes);
+        return view('offers.view', compact('offer', 'beneficiaries', 'offerBranchTimes'));
     }
 
     public function filters()

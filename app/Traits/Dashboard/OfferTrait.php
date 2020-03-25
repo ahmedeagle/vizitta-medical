@@ -24,7 +24,7 @@ trait OfferTrait
 
     public function getOfferByIdWithRelation($id)
     {
-        $offer = Offer::with('offerBranches', 'reservations')->find($id);
+        $offer = Offer::with('offerBranches', 'reservations', 'contents', 'paymentMethods', 'branchTimes')->find($id);
         if (!$offer) {
             return null;
         }
