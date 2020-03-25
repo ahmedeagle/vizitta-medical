@@ -72,7 +72,8 @@
                                                                  src="{{$notify -> notificationable -> logo}}"
                                                                  alt="photo">
 
-                                                            <span  style="color: #000;" class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
+                                                            <span style="color: #000;"
+                                                                  class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
                                                             <span class="">
                                                             {{$notify -> title_ar}}
@@ -110,8 +111,8 @@
                             </div>
                         </div><!-- /.tab-content -->
                     </div><!-- /.tabbable -->
-
-                    <!-- /section:pages/inbox -->
+                {!! $notifications ->appends(request()->input())->links('pagination.default') !!}
+                <!-- /section:pages/inbox -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
             <!-- PAGE CONTENT ENDS -->
