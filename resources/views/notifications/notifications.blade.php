@@ -2,6 +2,13 @@
 
 @section('title', 'مركز التنبيهات')
 
+@section('styles-after')
+    <style>
+        img {
+            width: 40px;
+        }
+    </style>
+    @stop
 @section('content')
 @section('breadcrumbs')
     {!! Breadcrumbs::render('notifications.center') !!}
