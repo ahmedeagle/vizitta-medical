@@ -56,9 +56,9 @@
                                                         <span class="time">{{date("Y M d H:i:s", strtotime($notify -> created_at))}}</span>
 
                                                         <span class="summary">
-                                                            <span class="text" {{$notify -> title_ar}}></span>
+                                                            {{$notify -> title_ar}}
                                                             <br>
-																		<span >
+																		<span class="text">
 																			{{$notify -> content_ar}}
 																		</span>
 																	</span>
