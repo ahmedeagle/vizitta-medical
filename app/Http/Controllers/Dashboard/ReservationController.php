@@ -210,6 +210,19 @@ class ReservationController extends Controller
     public function view($id)
     {
         try {
+
+
+            if (request('notification')) {
+                if (!in_array(request('status'), $list)) {
+                    $data['reservations'] = $this->getReservationByStatus();
+                } else {
+                    $status = request('status') ? request('status') : $status;
+                    $data['reservations'] = $this->getReservationByStatus($status);
+                }
+                return view('reservation.index', $data);
+            }
+
+
             //mark seen if ther is notification
             $reservation = $this->getReservationById($id);
             if ($reservation == null)

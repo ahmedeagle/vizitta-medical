@@ -41,7 +41,7 @@ return [
 
         'main' => [
             'salt' => 'your-salt-string',
-            'length' => 'your-length-integer',
+            'length' => '5',
         ],
 
         'alternative' => [
