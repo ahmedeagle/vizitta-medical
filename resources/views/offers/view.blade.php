@@ -43,13 +43,13 @@
             <div class="col-sm-12 center buttons">
                 <span class="btn btn-app btn-lg btn-primary no-hover">
                     <span class="line-height-1 bigger-170 white icon">
-                        <a href="{{ route('admin.promoCode.edit', $offer->id) }}">
+                        <a href="{{ route('admin.offers.edit', $offer->id) }}">
                             <i class="ace-icon fa fa-pencil white"></i>
                         </a>
                     </span>
                     <br>
                     <span class="line-height-1 smaller-90">
-                        <a class="white" href="{{ route('admin.promoCode.edit', $offer->id) }}">تعديل</a>
+                        <a class="white" href="{{ route('admin.offers.edit', $offer->id) }}">تعديل</a>
                     </span>
                 </span>
 

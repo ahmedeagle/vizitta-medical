@@ -165,23 +165,23 @@
 
 
 
-        {{--@can('show_promoCategories')
+        @can('show_promoCategories')
             <li class="{{ Request::is('mc33/offerCategories*') ? 'active' : '' }}">
                 <a href="{{ route('admin.offerCategories') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
-                    <span class="menu-text">أقسام العروض  </span>
+                    <span class="menu-text">أقسام العروض  الجديدة</span>
                 </a>
             </li>
-        @endcan--}}
+        @endcan
 
-        {{--@can('show_coupons')
+        @can('show_coupons')
             <li class="{{ Request::is('mc33/offers') ? 'active' : '' }}">
                 <a href="{{ route('admin.offers') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
-                    <span class="menu-text">العروض</span>
+                    <span class="menu-text">العروض الجديدة</span>
                 </a>
             </li>
-        @endcan--}}
+        @endcan
 
         @can('show_coupons')
             <li class="{{ Request::is('mc33/offers/filters*') ? 'active' : '' }}">
