@@ -613,7 +613,7 @@ Breadcrumbs::for('edit.offers', function ($trail) {
 // Home > Promo Codes > View
 Breadcrumbs::for('view.offers', function ($trail) {
     $trail->parent('offers');
-    $trail->push('تفاصيل عرض الخصم');
+    $trail->push('تفاصيل العرض');
 });
 
 #####################################################################
