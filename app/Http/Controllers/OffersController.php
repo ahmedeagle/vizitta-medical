@@ -230,12 +230,11 @@ class OffersController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $user = $this->auth('user-api');
+             $user = $this->auth('user-api');
             if (!$user) {
                 //return $this->returnError('D000', trans('messages.User not found'));
-                $this->getOfferForVisitors($request);
+              return   $this->getOfferForVisitors($request);
             }
-
             $orderBy = 'id';
             $conditions = [];
             if (isset($request->filter_id) && !empty($request->filter_id)) {
