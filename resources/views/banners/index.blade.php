@@ -10,7 +10,7 @@
 <div class="page-content">
     <div class="col-md-12">
         <div class="col-md-9 page-header">
-            <h1><i class="menu-icon fa fa-ambulance"></i> بنرات العروض </h1>
+            <h1><i class="menu-icon fa fa-picture-o"></i> بنرات العروض </h1>
         </div>
         <div class="col-md-3 top_action top_button">
             <a class="btn btn-white btn-info btn-lg btn-bold" href="{{ route('admin.offers.banners.add') }}">

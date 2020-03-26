@@ -54,7 +54,7 @@ class BannerController extends Controller
         if ($request->type = 'App\Models\OfferCategory') {
             $id = $request->category_id;
             $category = OfferCategory::find($id);
-            if (!$category) {
+            if (!$category && $id != 0  ) {  //0 means all categories
                 Flashy::error('القسم المختار غير موجود لدينا');
                 return redirect()->back()->withErrors($validator)->withInput($request->all());
             }
