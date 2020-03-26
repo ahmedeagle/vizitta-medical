@@ -51,7 +51,7 @@ class BannerController extends Controller
             $fileName = $this->uploadImage('copouns', $request->photo);
         }
 
-        if ($request->type = 'App\Models\OfferCategory') {
+        if ($request->type == 'App\Models\OfferCategory') {
             $id = $request->category_id;
             $category = OfferCategory::find($id);
             if (!$category && $id != 0  ) {  //0 means all categories

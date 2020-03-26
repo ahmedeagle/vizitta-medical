@@ -230,10 +230,10 @@ class OffersController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-             $user = $this->auth('user-api');
+            $user = $this->auth('user-api');
             if (!$user) {
                 //return $this->returnError('D000', trans('messages.User not found'));
-              return   $this->getOfferForVisitors($request);
+                return $this->getOfferForVisitors($request);
             }
             $orderBy = 'id';
             $conditions = [];
@@ -858,7 +858,7 @@ class OffersController extends Controller
                 if (isset($request->featured) && $request->featured == 1) {
 
                     if (!empty($conditions) && count($conditions) > 0) {
-                        $offers = PromoCode::where(function ($qq){
+                        $offers = PromoCode::where(function ($qq) {
                             $qq->where('general', 1);
                         })
                             ->where($conditions)
@@ -878,7 +878,7 @@ class OffersController extends Controller
                             ->selection()
                             ->get();
                     } else {
-                        $offers = PromoCode::where(function ($qq)  {
+                        $offers = PromoCode::where(function ($qq) {
                             $qq->where('general', 1);
                         })
                             ->featured()
@@ -962,7 +962,7 @@ class OffersController extends Controller
                         ->limit(25)
                         ->get();
                 } else {
-                    $offers = PromoCode::where(function ($qq)  {
+                    $offers = PromoCode::where(function ($qq) {
                         $qq->where('general', 1);
                     })->featured()
                         ->active()
@@ -983,7 +983,7 @@ class OffersController extends Controller
 
                 if (!empty($conditions) && count($conditions) > 0) {
                     // PromoCode::find(6) -> currentId();
-                    $offers = PromoCode::where(function ($qq)  {
+                    $offers = PromoCode::where(function ($qq) {
                         $qq->where('general', 1);
                     })->where($conditions)
                         ->active()
@@ -1062,6 +1062,25 @@ class OffersController extends Controller
         }
 
         return $this->returnError('E001', trans('messages.No offers founded'));
+    }
+
+
+    public
+    function banners(Request $request)
+    {
+        try {
+             $banners = $this->getBannersV2();
+            if (count($banners->toArray()) > 0) {
+                $banners->each(function ($banner) {
+                    $banner->type = $banner->type === 'App\Models\OfferCategory' ? 'category' : 'offer';
+                    return $banner;
+                });
+            }
+
+            return $this->returnData('banners', $banners);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
 }

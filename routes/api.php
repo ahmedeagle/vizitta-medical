@@ -49,6 +49,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('coupons/filters', 'GlobalController@getCouponsFilters');
         Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
         Route::post('offers/filters', 'OffersController@getOfferFilters');
+        Route::post('offers/banners', 'OffersController@banners');
     });
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');

@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\District;
 use App\Models\Doctor;
@@ -689,6 +690,21 @@ trait GlobalTrait
             ->orderBy('lft')
             ->get();
     }
+
+    public function getBannersV2()
+    {
+        $banners = Banner::query();
+        return $banners
+            ->select('id',
+                DB::raw('bannerable_id  as type_id'),
+                'photo',
+                DB::raw('bannerable_type AS type'),
+                'photo'
+            )
+            ->orderBy('id', 'DESC')
+            ->get();
+    }
+
 
     public function getTimerPromoCategoriesV2()
     {
