@@ -49,7 +49,7 @@
                 @if(isset($banners) &&  $banners -> count() > 0)
                     @foreach($banners as $banner)
                         <tr>
-                            <td><img style="width: 100px; height: 100px;" class="nav-user-photo" src="{{$banner  -> photo}}"></td>
+                            <td><img style="width: 100px; height: 100px;border-radius:50px;" class="nav-user-photo" src="{{$banner  -> photo}}"></td>
                             <td>
                                 @if($banner -> bannerable_type == 'App\Models\OfferCategory')
                                     اقسام
