@@ -66,10 +66,8 @@ Route::group(['prefix' => 'drawing', 'namespace' => 'Dashboard', 'middleware' =>
 
 Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['web', 'auth', 'ChangeLanguage']], function () {
 
-
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('notifications-center', 'NotificationsController@notificationCenter')->name('notification.center');
-
 
     // Insurance Company
     Route::group(['prefix' => 'insurance_company'], function () {
@@ -156,6 +154,13 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
 
     //  Start Offers Routes
     Route::group(['prefix' => 'offers'], function () {
+
+        Route::group(['prefix' => 'banners'], function () {
+            Route::get('/', 'BannerController@index')->name('admin.offers.banners');
+            Route::get('/add', 'BannerController@create')->name('admin.offers.banners.add');
+            Route::post('/add', 'BannerController@store')->name('admin.offers.banners.save');
+        });
+
         Route::get('/data', 'OfferController@getDataTable')->name('admin.offers.data');
         Route::get('/getDataTableOfferBranches/{promoId}', 'OfferController@getDataTableOfferBranches')->name('admin.offers.databranch');
 //        Route::get('/getDataTablePromoCodeDoctors/{promoId}', 'OfferController@getDataTablePromoCodeDoctors')->name('admin.promoCode.datadoctor');

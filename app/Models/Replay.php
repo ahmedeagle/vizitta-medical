@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Replay extends Model
 {
-	protected $table    ="ticket_replies";  
+	protected $table    ="ticket_replies";
     public $timestamps  = true;
-    protected $fillable = ['message','seen','FromUser','ticket_id'];
+    protected $fillable = ['message','seen','seenByUser','FromUser','ticket_id'];
     protected $hidden   = ['updated_at'];
-    
- 
+
+
     function ticket()
     {
         return $this->belongsTo('App\Models\Ticket');

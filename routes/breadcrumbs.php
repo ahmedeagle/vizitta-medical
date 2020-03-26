@@ -617,3 +617,14 @@ Breadcrumbs::for('view.offers', function ($trail) {
 });
 
 #####################################################################
+
+
+Breadcrumbs::for('banners', function ($trail) {
+    $trail->parent('offers');
+    $trail->push('بنرات العروض');
+});
+// Home > Promo Codes > View
+Breadcrumbs::for('banners.create', function ($trail) {
+    $trail->parent('banners');
+    $trail->push(' أضافه بانر عرض');
+});

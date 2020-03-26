@@ -9,6 +9,8 @@ use App\Models\InsuranceCompany;
 use App\Models\Manager;
 use App\Models\Nationality;
 use App\Models\Nickname;
+use App\Models\Offer;
+use App\Models\OfferCategory;
 use App\Models\PromoCodeCategory;
 use App\Models\Provider;
 use App\Models\ProviderType;
@@ -112,7 +114,17 @@ trait PublicTrait
 
     public function getAllCategoriesCollection()
     {
-        return PromoCodeCategory::select('id', 'name_ar','hastimer') -> get();
+        return PromoCodeCategory::select('id', 'name_ar', 'hastimer')->get();
+    }
+
+    public function getAllCategoriesCollectionV2()
+    {
+        return OfferCategory::select('id', 'name_ar', 'hastimer')->get();
+    }
+
+    public function getAllOffersCollectionV2()
+    {
+        return Offer::select('id', 'title_ar', 'photo')->get();
     }
 
     public function getAllActiveUsersWithCurrentOfferSelected($promoCode = null)
@@ -120,10 +132,10 @@ trait PublicTrait
 
         if ($promoCode != null) {
             return User::select('id',
-                 'name',
+                'name',
                 DB::raw('IF ((SELECT count(id) FROM user_promocode WHERE user_promocode.promocode_id = ' . $promoCode->id . ' AND user_promocode.user_id = users.id) > 0, 1, 0) as selected'))->get();
         } else {
-            return User::select('id','name',DB::raw('0 as selected'))->get();
+            return User::select('id', 'name', DB::raw('0 as selected'))->get();
         }
     }
 
@@ -135,15 +147,16 @@ trait PublicTrait
                 'hastimer',
                 DB::raw('IF ((SELECT count(id) FROM promocode_promocodescategory WHERE promocode_promocodescategory.promocode_id = ' . $promoCode->id . ' AND promocode_promocodescategory.category_id = promocodes_categories.id) > 0, 1, 0) as selected'))->get();
         } else {
-            return PromoCodeCategory::select('id','name_ar','hastimer',DB::raw('0 as selected')) -> get();
+            return PromoCodeCategory::select('id', 'name_ar', 'hastimer', DB::raw('0 as selected'))->get();
         }
     }
 
 
-
-    public function getAllActiveUsers(){
-        return User::active() -> pluck('name','id') -> toArray();
+    public function getAllActiveUsers()
+    {
+        return User::active()->pluck('name', 'id')->toArray();
     }
+
     public function getAllNicknames()
     {
         return Nickname::pluck('name_ar', 'id');
@@ -163,9 +176,9 @@ trait PublicTrait
     {
 
         if ($doctor != null) {
-            return InsuranceCompany::select('id','name_ar',DB::raw('IF ((SELECT count(id) FROM insurance_company_doctor WHERE insurance_company_doctor.doctor_id = ' . $doctor->id . ' AND insurance_company_doctor.insurance_company_id = insurance_companies.id) > 0, 1, 0) as selected'))->get();
+            return InsuranceCompany::select('id', 'name_ar', DB::raw('IF ((SELECT count(id) FROM insurance_company_doctor WHERE insurance_company_doctor.doctor_id = ' . $doctor->id . ' AND insurance_company_doctor.insurance_company_id = insurance_companies.id) > 0, 1, 0) as selected'))->get();
         } else {
-            return InsuranceCompany::select('id','name_ar',DB::raw('0 as selected'))->get();
+            return InsuranceCompany::select('id', 'name_ar', DB::raw('0 as selected'))->get();
         }
 
     }

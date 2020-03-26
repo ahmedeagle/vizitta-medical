@@ -205,8 +205,8 @@
         @endcan--}}
 
         @can('show_coupons')
-            <li class="{{ Request::is('mc33/promoCode/banner*') ? 'active' : '' }}">
-                <a href="{{ route('admin.promoCode.filters') }}">
+            <li class="{{ Request::is('mc33/offers/banners*') ? 'active' : '' }}">
+                <a href="{{ route('admin.offers.banners') }}">
                     <i class="menu-icon fa fa-filter fa-fw"></i>
                     <span class="menu-text"> بنرات العروض </span>
                 </a>
