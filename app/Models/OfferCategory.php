@@ -64,4 +64,6 @@ class OfferCategory extends Model
     {
         return ($val !== null ? $val : "");
     }
+
+
 }

@@ -46,21 +46,27 @@
             </tr>
             </thead>
             <tbod>
-                @if(isset($branches) &&  $branches -> count() > 0)
-                    @foreach($branches as $branch)
+                @if(isset($banners) &&  $banners -> count() > 0)
+                    @foreach($banners as $banner)
                         <tr>
-                            <td>{{$branch  -> name_ar}}</td>
-                            <td>{{$branch -> name_en}}</td>
-                            <td>{{$branch -> username}}</td>
-                            <td>{{$branch -> mobile}}</td>
-                            <td>{{$branch -> balance}}</td>
-                            <td>{{$branch -> city -> name_ar}}</td>
-                            <td>{{$branch -> district -> name_ar}}</td>
-                            <td>{{$branch -> provider -> name_ar}}</td>
-                            <td>{{$branch -> getProviderStatus()}}</td>
-                            <td>{{$branch -> created_at}}</td>
+                            <td><img style="width: 100px;" class="nav-user-photo" src="{{$banner  -> photo}}"></td>
                             <td>
-                                @include('branch.actions')
+                                @if($banner -> bannerable_type == 'App\Models\OfferCategory')
+                                    اقسام
+                                @else
+                                    عروض
+                                @endif
+                            </td>
+                            <td>
+                                @if($banner -> bannerable_type == 'App\Models\OfferCategory')
+                                    {{$banner -> bannerable -> name_ar }}
+                                @else
+                                    {{$banner -> bannerable -> title_ar }}
+                                @endif
+
+                            </td>
+                            <td>
+                                @include('banners.actions')
                             </td>
                         </tr>
 
@@ -72,76 +78,6 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade in" id="add_to_featured_Provider_Modal" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title"><span id="providerName"></span></h4>
-            </div>
-            <form action="{{Route('admin.branch.addTOFeatured')}}" method="Post">
-                {{csrf_field()}}
-                <div class="modal-body">
-                    <input onkeypress="return event.charCode >= 48" type="number" min="1" class="form-control"
-                           name="duration"
-                           placeholder="أدخل عدد أيام تثبت العياده "/>
-                    <input type="hidden" class="form-control" name="provider_id" id="providerId" value=""
-                           placeholder="  "/>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" style="margin-left: 10px;"
-                            class="add-btn-list btn btn-danger " data-dismiss="modal"> تراجع
-                    </button>
-                    <button type="submit" style="margin-left: 10px;"
-                            class="add-btn-list btn btn-success confirmAddProviderToFeatured"> اضافة
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 @stop
 
-@section('scripts')
-    <script>
-
-        $(document).ready(function () {
-            $('#branches-table').DataTable(
-                {
-                    "paging": false,
-                    "bInfo": false,
-                    "searching": false,
-                    "ordering": false
-                }
-            );
-        });
-
-
-        $(document).on('click', '.add_to_featured_provider', function (e) {
-            e.preventDefault();
-            $('#providerName').empty().text($(this).attr('data_provider_name'));
-            $('#providerId').val($(this).attr('data_provider_id'));
-            $('#add_to_featured_Provider_Modal').modal('toggle');
-        });
-
-        $(document).on('click', '.remove_from_featured_provider', function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                type: 'post',
-                url: "{{route('admin.branch.removeFromFeatured')}}",
-                data: {
-                    'provider_id': $(this).attr('data_provider_id'),
-                },
-                success: function (data) {
-                    $('.featured' + data.branchId).removeClass('remove_from_featured_provider').addClass('add_to_featured_provider');
-                    $('.featured' + data.branchId).removeClass("btn-warning").addClass('')
-                }, error: function () {
-                }
-            });
-        });
-
-    </script>
-@stop

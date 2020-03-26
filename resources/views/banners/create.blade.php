@@ -34,10 +34,10 @@
                 <div class="col-md-6">
                     <label class="radio-inline" style="user-select: none">
                         <input style="margin: -8px -19px 0 0 " type="radio" value="App\Models\OfferCategory" name="type"
-                               id="category"
-                            {{  old('category') == 'App\Models\OfferCategory' ? ' checked' : '' }} >
+                               id="category">
                         أقسام
                     </label>
+                    <small class="text-danger">{{ $errors->has('type') ? $errors->first('type') : '' }}</small>
                 </div>
                 <div class="col-md-6">
                     <label class="radio-inline" style="user-select: none">

@@ -159,6 +159,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
             Route::get('/', 'BannerController@index')->name('admin.offers.banners');
             Route::get('/add', 'BannerController@create')->name('admin.offers.banners.add');
             Route::post('/add', 'BannerController@store')->name('admin.offers.banners.save');
+            Route::get('/delete/{id}', 'BannerController@destroy')->name('admin.offers.banners.delete');
         });
 
         Route::get('/data', 'OfferController@getDataTable')->name('admin.offers.data');
