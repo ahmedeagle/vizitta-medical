@@ -47,6 +47,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::group(['prefix' => 'v2'], function () {
         Route::post('coupons/categories', 'GlobalController@getCouponsCategoriesV2');
         Route::post('coupons/filters', 'GlobalController@getCouponsFilters');
+        Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
+        Route::post('offers/filters', 'OffersController@getOfferFilters');
     });
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');
@@ -73,6 +75,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('records', 'UserController@getRecordsV2');
         });
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
+        Route::post('show-offer/details', 'OffersController@showOfferDetails');
         Route::post('offer/doctors', 'OffersController@doctors')->name('offer.doctors');
         Route::post('custom/pages', 'CustomPagesController@getUserPages')->name('user.custom.pages');
         Route::post('custom/page', 'CustomPagesController@getUserPage')->name('user.custom.page');
