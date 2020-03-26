@@ -169,7 +169,7 @@
             <li class="{{ Request::is('mc33/offerCategories*') ? 'active' : '' }}">
                 <a href="{{ route('admin.offerCategories') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
-                    <span class="menu-text">أقسام العروض  الجديدة</span>
+                    <span class="menu-text">أقسام العروض</span>
                 </a>
             </li>
         @endcan
@@ -178,7 +178,7 @@
             <li class="{{ Request::is('mc33/offers') ? 'active' : '' }}">
                 <a href="{{ route('admin.offers') }}">
                     <i class="menu-icon fa fa-gift fa-fw"></i>
-                    <span class="menu-text">العروض الجديدة</span>
+                    <span class="menu-text">العروض</span>
                 </a>
             </li>
         @endcan
