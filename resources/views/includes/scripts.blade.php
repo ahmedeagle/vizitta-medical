@@ -30,7 +30,7 @@
     });
 
 </script>
-<script src="{{asset('js/pusher/pusherNewReservation.js')}}"></script>
+<script src="{{asset('js/pusherNewReservation.js')}}"></script>
 
  <script>
     $(document).ready(function () {
