@@ -935,10 +935,8 @@ class UserController extends Controller
             'notification_id' => $notification->id
         ];
         //fire pusher  notification for admin  stop pusher for now
-        try {
+
             event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification*/
-        } catch (\Exception $ex) {
-        }
 
         return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
     }
