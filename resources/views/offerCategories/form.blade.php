@@ -20,7 +20,7 @@
 
 <div class="form-group has-float-label col-sm-6">
     {{ Form::select('parent_id', $parentCategories, (isset($category)) ? $category->parent_id : old('parent_id'), ['placeholder' => '--- اختر القسم الرئيسى ---',  'class' => 'form-control ' . ($errors->has('parent_id') ? 'redborder' : '') ]) }}
-    <label for="parent_id">القسم الرئيسى <span class="astric">*</span></label>
+    <label for="parent_id">القسم الرئيسى</label>
     <small class="text-danger">{{ $errors->has('parent_id') ? $errors->first('parent_id') : '' }}</small>
 </div>
 
