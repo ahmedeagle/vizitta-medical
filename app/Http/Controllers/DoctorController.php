@@ -1101,11 +1101,9 @@ class DoctorController extends Controller
 
 //            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
 
-
             $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
             $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
             $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
-
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
@@ -1128,9 +1126,12 @@ class DoctorController extends Controller
                 'notification_id' => $notification->id
             ];
             //fire pusher  notification for admin  stop pusher for now
-            event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+            try {
+                event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+            } catch (\Exception $ex) {
+                return $ex;
+            }
         } catch (\Exception $ex) {
-            return $this->returnData('reservation', $reserve);
         }
         return $this->returnData('reservation', $reserve);
     }
