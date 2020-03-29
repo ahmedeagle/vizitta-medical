@@ -17,4 +17,8 @@ class Replay extends Model
     {
         return $this->belongsTo('App\Models\Ticket');
     }
+
+    function scopeNew($query){
+        return $this -> where('seen','0');
+    }
 }

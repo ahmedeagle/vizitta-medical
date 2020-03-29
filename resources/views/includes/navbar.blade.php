@@ -80,69 +80,59 @@
                 </li>
 
 
-                <li class="purple">
+                <li class="purple dropdown-messages">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <i class="ace-icon fa fa-envelope-o icon-animated-bell"></i>
-                        <span class="badge badge-important">8</span>
+                        <span class="badge badge-important notif-count"
+                              data-count="{{\App\Models\Replay::new() -> where('FromUser','1') -> orWhere('FromUser','2') -> count()}}">{{\App\Models\Replay::new() -> where('FromUser','1') -> orWhere('FromUser','2') -> count()}}</span>
                     </a>
 
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
                         <li class="dropdown-header">
-                            <i class="ace-icon fa fa-exclamation-triangle"></i>
-                            8 Notifications
+                            <i class="ace-icon fa fa-bell"></i>
+                            الرسائل
                         </li>
 
-                        <li class="dropdown-content">
-                            <ul class="dropdown-menu dropdown-navbar navbar-pink">
-                                <li>
-                                    <a href="#">
-                                        <div class="clearfix">
-													<span class="pull-left">
-														<i class="btn btn-xs no-hover btn-pink fa fa-comment"></i>
-														New Comments
-													</span>
-                                            <span class="pull-right badge badge-info">+12</span>
-                                        </div>
-                                    </a>
-                                </li>
+                        <li class="dropdown-content scrollable-container">
+                            <ul class="dropdown-menu dropdown-navbar navbar-pink scrollable-container">
+                                @if(takeLastMessage(5))
+                                    @forelse(takeLastMessage(5) as $message)
+                                    <li data_message_id=""
+                                            @if($message -> seen =='0') style="background-color: #ececec61;" @endif>
+                                            <a href="
+                                              @if($message -> ticket -> actor_type ==2)   {{-- 2  ===> is user --}}
+                                            {{route('admin.user.message.view',$message -> ticket -> id)}}
+                                            @elseif($message -> ticket -> actor_type ==1)   {{-- 1  ===> is provider --}}
+                                            {{route('admin.provider.message.view',$message -> ticket -> id)}}
+                                            @else # @endif" class="clearfix">
 
-                                <li>
-                                    <a href="#">
-                                        <i class="btn btn-xs btn-primary fa fa-user"></i>
-                                        Bob just signed up as an editor ...
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a href="#">
-                                        <div class="clearfix">
-													<span class="pull-left">
-														<i class="btn btn-xs no-hover btn-success fa fa-shopping-cart"></i>
-														New Orders
+                                                <span class="msg-body">
+													<span class="msg-title">
+														<span
+                                                            class="blue">{{\Illuminate\Support\Str::limit($message -> ticket -> title,50)}}</span>
 													</span>
-                                            <span class="pull-right badge badge-success">+8</span>
-                                        </div>
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a href="#">
-                                        <div class="clearfix">
-													<span class="pull-left">
-														<i class="btn btn-xs no-hover btn-info fa fa-twitter"></i>
-														Followers
+													<span class="msg-time">
+														<i class="ace-icon fa fa-clock-o"></i>
+														<span>{{date("Y M d", strtotime($message -> created_at))}} </span>
+                                                        <i class="ace-icon fa fa-clock-o"></i>
+                                                        <span>  {{date("h:i A", strtotime($message -> created_at))}}</span>
 													</span>
-                                            <span class="pull-right badge badge-info">+11</span>
-                                        </div>
-                                    </a>
-                                </li>
+												</span>
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li style="padding: 20px">
+                                            لا يوجد  رسائل حتي اللحظة
+                                        </li>
+                                    @endforelse
+                                @endif
                             </ul>
                         </li>
 
                         <li class="dropdown-footer">
-                            <a href="#">
-                                See all notifications
-                                <i class="ace-icon fa fa-arrow-right"></i>
+                            <a href="{{route('notification.center')}}">
+                                عرض جميع  الرسائل
+                                <i class="ace-icon fa fa-arrow-left"></i>
                             </a>
                         </li>
                     </ul>

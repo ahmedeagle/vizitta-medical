@@ -39,6 +39,7 @@ class ProviderMessageController extends Controller
             $message = $this->getMessageById($id);
             if ($message == null)
                 return view('admin.errors.404');
+            $message->replays()->update(['seen' => '1']);
             $replies = $message->replays()->get();
             return view('message.provider.view', compact('message', 'replies'));
         } catch (\Exception $ex) {
