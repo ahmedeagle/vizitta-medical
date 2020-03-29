@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Traits;
+
 use App\Models\OfferCategory;
 use Illuminate\Support\Facades\DB;
 
 trait OfferTrait
 {
-    public function getPromoCategoriesV2()
+    public function getOfferCatsV2()
     {
-        $category = PromoCodeCategory::query();
+        $category = OfferCategory::query();
         return $category
             ->withOutTimer()
             ->select('id',
@@ -20,18 +21,23 @@ trait OfferTrait
             ->get();
     }
 
-    public function getTimerPromoCategoriesV2()
+    public function getTimerOfferCategoriesV2()
     {
-        $category = PromoCodeCategory::query();
+        $category = OfferCategory::query();
         return $category
             ->withTimer()
             ->select('id',
-                DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
+                DB::raw('name_' . $this->getCurrentLanguage() . ' as name'), 'photo',
                 'hours',
                 'minutes',
                 'seconds')
             ->orderBy('lft')
             ->get();
+    }
+
+    public function getCurrentLanguage()
+    {
+        return app()->getLocale();
     }
 
 }
