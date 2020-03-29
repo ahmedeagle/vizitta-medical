@@ -787,7 +787,7 @@ class DoctorController extends Controller
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
 
             $notification = GeneralNotification::create([
-                'title_ar' => 'حجز جديد لدي مقدم الخدمة ' .' '.  $providerName,
+                'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                 'title_en' => 'New reservation for ' . ' ' . $providerName,
                 'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                 'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
@@ -803,14 +803,13 @@ class DoctorController extends Controller
                 'reservation_id' => $reservation->id,
                 'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                 'photo' => $reserve->provider->logo,
-                'notification_id' =>  $notification -> id
+                'notification_id' => $notification->id
             ];
 
             //fire pusher  notification for admin  stop pusher for now
-             event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+            event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
-
-
+            return $this->returnData('reservation', $reserve);
         }
         return $this->returnData('reservation', $reserve);
     }
@@ -1110,8 +1109,28 @@ class DoctorController extends Controller
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
+            $notification = GeneralNotification::create([
+                'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
+                'title_en' => 'New reservation for ' . ' ' . $providerName,
+                'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'notificationable_type' => 'App\Models\Provider',
+                'notificationable_id' => $reservation->provider_id,
+                'data_id' => $reservation->id,
+                'type' => 1 //new reservation
+            ]);
+            $notify = [
+                'provider_name' => $providerName,
+                'reservation_no' => $reservation->reservation_no,
+                'reservation_id' => $reservation->id,
+                'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                'photo' => $reserve->provider->logo,
+                'notification_id' => $notification->id
+            ];
+            //fire pusher  notification for admin  stop pusher for now
+            event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
-
+            return $this->returnData('reservation', $reserve);
         }
         return $this->returnData('reservation', $reserve);
     }
