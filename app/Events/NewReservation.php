@@ -32,7 +32,7 @@ class NewReservation implements ShouldBroadcast
     public function __construct($notification = [])
     {
 
-        $this->title = $notification['provider_name'] . 'حجز جديد لدي مقدم الخدمة  ';
+        $this->title =  'حجز جديد لدي مقدم الخدمة  ' .' '.  $notification['provider_name'] .' ';
         $this->content = Str::limit($notification['content'], 70);
         $this->date = date("Y M d", strtotime(Carbon::now()));
         $this->time = date("h:i A", strtotime(Carbon::now()));
