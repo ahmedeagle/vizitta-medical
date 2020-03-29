@@ -10,6 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Str;
+use Vinkla\Hashids\Facades\Hashids;
 
 class NewReservation implements ShouldBroadcast
 {
@@ -40,7 +41,7 @@ class NewReservation implements ShouldBroadcast
         $this->photo = $notification['photo'];
         $this->reservation_no = $notification['reservation_no'];
         $this->reservation_id = $notification['reservation_id'];
-        $this->path = route('admin.reservation.view', $notification['reservation_id'])."?notification=".Vinkla\Hashids\Facades\Hashids::encode($notification['notification_id']);
+        $this->path = route('admin.reservation.view', $notification['reservation_id'])."?notification=". Hashids::encode($notification['notification_id']);
         $this->notification_id = $notification['notification_id'];
     }
 
