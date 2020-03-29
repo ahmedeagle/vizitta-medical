@@ -10,7 +10,7 @@ class OfferCategory extends Model
     protected $table = 'offers_categories';
     public $timestamps = true;
 
-    protected $fillable = ['name_en', 'name_ar', 'photo', 'hastimer', 'hours', 'minutes', 'seconds', 'timerexpired'];
+    protected $fillable = ['parent_id', 'name_en', 'name_ar', 'photo', 'hastimer', 'hours', 'minutes', 'seconds', 'timerexpired'];
 
     protected $hidden = ['created_at', 'updated_at', 'hastimer'];
 
@@ -50,6 +50,11 @@ class OfferCategory extends Model
         return $query->where('hastimer', 1)->where('timerexpired', 0);
     }
 
+    public function scopeParentCategories($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
     public function getHoursAttribute($val)
     {
         return ($val !== null ? $val : "");
@@ -65,5 +70,14 @@ class OfferCategory extends Model
         return ($val !== null ? $val : "");
     }
 
+    public function childCategories()
+    {
+        return $this->hasMany(OfferCategory::class, 'parent_id');
+    }
+
+    public function parentCategory()
+    {
+        return $this->belongsTo(OfferCategory::class, 'parent_id');
+    }
 
 }

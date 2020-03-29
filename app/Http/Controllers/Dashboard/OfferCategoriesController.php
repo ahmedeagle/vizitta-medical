@@ -25,19 +25,21 @@ class OfferCategoriesController extends Controller
 
     public function index()
     {
-        $categories = OfferCategory::select('id', 'name_ar', 'hours', 'minutes', 'seconds')->get();
+        $categories = OfferCategory::with('parentCategory')->select('id', 'name_ar', 'hours', 'minutes', 'seconds')->get();
         return view('offerCategories.index', compact('categories'));
     }
 
     public function add()
     {
-        return view('offerCategories.add');
+        $parentCategories = OfferCategory::parentCategories()->pluck('name_ar', 'id');
+        return view('offerCategories.add', compact('parentCategories'));
     }
 
     public function store(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
+            "parent_id" => "nullable|exists:offers_categories,id",
             "name_en" => "required|max:255",
             "name_ar" => "required|max:255",
             "photo" => "required|mimes:jpeg,bmp,jpg,png",
@@ -66,7 +68,8 @@ class OfferCategoriesController extends Controller
             if ($category == null)
                 return view('errors.404');
 
-            return view('offerCategories.edit', compact('category'));
+            $parentCategories = OfferCategory::parentCategories()->pluck('name_ar', 'id');
+            return view('offerCategories.edit', compact('category', 'parentCategories'));
         } catch (\Exception $ex) {
             return view('errors.404');
         }
@@ -77,6 +80,7 @@ class OfferCategoriesController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
+                "parent_id" => "nullable|exists:offers_categories,id",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "photo" => "sometimes|nullable|mimes:jpeg,bmp,jpg,png",

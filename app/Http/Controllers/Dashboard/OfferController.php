@@ -70,7 +70,7 @@ class OfferController extends Controller
     {
         $data['providers'] = $this->getAllMainActiveProviders();
         // $specifications = $this->getAllSpecifications();
-        $data['categories'] = $this->getAllCategoriesCollection();    // categories
+        $data['categories'] = $this->getAllOfferCategoriesCollection();    // categories
         $data['users'] = $this->getAllActiveUsers();
         $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
         $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected();

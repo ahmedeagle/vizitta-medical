@@ -171,6 +171,11 @@ trait OfferTrait
         }
     }
 
+    public function getAllOfferCategoriesCollection()
+    {
+        return OfferCategory::parentCategories()->select('id', 'name_ar', 'hastimer')->get();
+    }
+
     public function getActiveUsersWithCurrentOfferSelected($offer = null)
     {
         if ($offer != null) {
