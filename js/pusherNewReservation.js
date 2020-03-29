@@ -11,7 +11,7 @@ channel.bind('App\\Events\\NewReservation', function (data) {
     var existingNotifications = notifications.html();
     var avatar = Math.floor(Math.random() * (71 - 20 + 1)) + 20;
 
-    let newNotificationHtml = `<li data_notify_id="" style="background-color: #ececec61;">
+    let newNotificationHtml = `<li data_notify_id="`+data.notification_id+`"  style="background-color: #ececec61;">
 <a href="` + data.path + `" class="clearfix">
     <img src="` + data.photo + `" class="msg-photo"
     alt="Alex's Avatar">
