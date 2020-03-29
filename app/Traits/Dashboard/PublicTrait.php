@@ -119,7 +119,7 @@ trait PublicTrait
 
     public function getAllCategoriesCollectionV2()
     {
-        return OfferCategory::select('id', 'name_ar', 'hastimer')->get();
+        return OfferCategory::whereNull('parent_id')->select('id', 'name_ar', 'hastimer')->get();
     }
 
     public function getAllOffersCollectionV2()

@@ -149,6 +149,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::get('/reorderCategories', 'OfferCategoriesController@reorder')->name('admin.offerCategories.reorder');
         Route::post('/reorder', 'OfferCategoriesController@saveReorder')->name('admin.offerCategories.reorder.save');
         Route::post('/addToTimer', 'OfferCategoriesController@addToTimer')->name('admin.offerCategories.addToTimer');
+        Route::post('/subcategories', 'OfferCategoriesController@getSubcategories')->name('admin.offerCategories.subcategories');
     });
     //  End offer categories routes
 

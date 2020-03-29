@@ -696,10 +696,10 @@ trait GlobalTrait
         $banners = Banner::query();
         return $banners
             ->select('id',
-                DB::raw('bannerable_id  as type_id'),
                 'photo',
                 DB::raw('bannerable_type AS type'),
-                'photo'
+                DB::raw('bannerable_id  as type_id'),
+                'subCategory_id'
             )
             ->orderBy('id', 'DESC')
             ->get();

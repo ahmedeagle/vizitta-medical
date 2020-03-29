@@ -181,4 +181,25 @@ class OfferCategoriesController extends Controller
         }
         return 'success for ' . $count . " items";
     }
+
+    public function getSubcategories(Request $request)
+    {
+        $subcategories = OfferCategory::where('parent_id', $request->parent_id)->select('id', 'name_ar')->get();
+        if (isset($subcategories) && $subcategories->count() > 0) {
+            $view = view('offerCategories.loadsubcategories', compact('subcategories'))->renderSections();
+            return response()->json([
+                'status' => true,
+                'msg' => '',
+                'subcategories' => $view['main']
+            ]);
+        } else {
+            return response()->json([
+                'status' => true,
+                'msg' => '',
+                'subcategories' => ''
+            ]);
+        }
+
+    }
+
 }

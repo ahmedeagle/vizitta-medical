@@ -1069,14 +1069,13 @@ class OffersController extends Controller
     function banners(Request $request)
     {
         try {
-             $banners = $this->getBannersV2();
+            $banners = $this->getBannersV2();
             if (count($banners->toArray()) > 0) {
                 $banners->each(function ($banner) {
                     $banner->type = $banner->type === 'App\Models\OfferCategory' ? 'category' : 'offer';
                     return $banner;
                 });
             }
-
             return $this->returnData('banners', $banners);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());

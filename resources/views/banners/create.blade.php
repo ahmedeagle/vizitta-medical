@@ -4,7 +4,7 @@
 
 @section('styles')
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet"/>
     {!! Html::style('css/form.css') !!}
 @stop
 
@@ -53,7 +53,8 @@
         <br>
 
         <div class="form-group has-float-label col-sm-12" style="display: none" id="category_select">
-            <select name="category_id"  data-live-search="true" class='form-control js-example-basic-single ' {{$errors->has('category_id') ? 'redborder' : ''}}>
+            <select name="category_id" data-live-search="true" id="mainCategory"
+                    class='form-control js-example-basic-single ' {{$errors->has('category_id') ? 'redborder' : ''}}>
                 @if(isset($categories) && $categories -> count() > 0)
                     <option value="0">
                         شاشه كل الاقسام
@@ -65,8 +66,17 @@
                     @endforeach
                 @endif
             </select>
-            <label for="provider_id"> اختر قسم <span class="astric">*</span>  </label>
+            <label for="provider_id"> اختر قسم <span class="astric">*</span> </label>
             <small class="text-danger">{{ $errors->has('category_id') ? $errors->first('category_id') : '' }}</small>
+        </div>
+
+        <div class="form-group has-float-label col-sm-12 " style="display: none;" id="subCategory_container">
+            <select name="subcategory_id"  id="subCategory"
+                    class='appendsubcategories form-control ' {{$errors->has('subcategory_id') ? 'redborder' : ''}}>
+            </select>
+            <label for="branches"> الاقسام الفرعية </label>
+            <small
+                class="text-danger">{{ $errors->has('subcategory_id') ? $errors->first('subcategory_id') : '' }}</small>
         </div>
 
 
@@ -80,7 +90,7 @@
                     @endforeach
                 @endif
             </select>
-            <label for="provider_id"> احتر عرض </label>
+            <label for="provider_id"> أختر عرض </label>
             <small class="text-danger">{{ $errors->has('offer_id') ? $errors->first('offer_id') : '' }}</small>
         </div>
 
@@ -102,16 +112,19 @@
         $(document).ready(function () {
             if ($('#category').is(":checked")) {
                 $('#category_select').show();
+                $('#subCategory_container').show();
                 $('#offer_select').hide();
             }
             if ($('#offer').is(":checked")) {
                 $('#offer_select').show();
                 $('#category_select').hide();
+                $('#subCategory_container').hide();
             }
         });
         $(document).on('click', '#category', function () {
             if ($('#category').is(":checked")) {
                 $('#category_select').show();
+                $('#subCategory_container').show();
                 $('#offer_select').hide();
             }
         });
@@ -121,8 +134,27 @@
             if ($('#offer').is(":checked")) {
                 $('#offer_select').show();
                 $('#category_select').hide();
+                $('#subCategory_container').hide();
+
             }
         });
 
+        //get provider branches
+        $(document).on('change', '#mainCategory', function (e) {
+            e.preventDefault();
+            alert($(this).val());
+            $.ajax({
+                type: 'post',
+                url: "{{Route('admin.offerCategories.subcategories')}}",
+                data: {
+                    'parent_id': $(this).val(),
+                    //'_token'   :   $('meta[name="csrf-token"]').attr('content'),
+                },
+                success: function (data) {
+                    $('#subCategory_container').show();
+                    $('.appendsubcategories').empty().append(data.subcategories);
+                }
+            });
+        });
     </script>
 @stop

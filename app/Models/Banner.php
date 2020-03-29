@@ -8,7 +8,7 @@ class Banner extends Model
 {
     protected $table = 'banners';
     public $timestamps = true;
-    protected $fillable = ['photo', 'bannerable_type', 'bannerable_id'];
+    protected $fillable = ['photo', 'bannerable_type', 'bannerable_id', 'subCategory_id'];
     protected $hidden = ['created_at', 'updated_at', 'bannerable_type', 'bannerable_id'];
 
     public function getPhotoAttribute($val)
@@ -20,4 +20,5 @@ class Banner extends Model
     {
         return $this->morphTo();
     }
+
 }

@@ -33,6 +33,7 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             "type" => "required|in:App\Models\OfferCategory,App\Models\Offer",
             "offer_id" => "required",
@@ -54,14 +55,14 @@ class BannerController extends Controller
         if ($request->type == 'App\Models\OfferCategory') {
             $id = $request->category_id;
             $category = OfferCategory::find($id);
-            if (!$category && $id != 0  ) {  //0 means all categories
+            if (!$category && $id != 0) {  //0 means all categories screen
                 Flashy::error('القسم المختار غير موجود لدينا');
                 return redirect()->back()->withErrors($validator)->withInput($request->all());
             }
 
         } else {
             $id = $request->offer_id;
-             $offer = Offer::find($id);
+            $offer = Offer::find($id);
             if (!$offer) {
                 Flashy::error('العرض المختار غير موجود لدينا');
                 return redirect()->back()->withErrors($validator)->withInput($request->all());
@@ -71,12 +72,12 @@ class BannerController extends Controller
         Banner::create([
             'photo' => $fileName,
             'bannerable_type' => $request->type,
-            'bannerable_id' => $id
+            'bannerable_id' => $id,
+            'subCategory_id' => $request->subcategory_id
         ]);
 
         Flashy::success('تم إضافة البانر  بنجاح');
         return redirect()->route('admin.offers.banners');
-
     }
 
 
