@@ -2,7 +2,7 @@ var notificationsWrapper = $('.dropdown-notifications');
 var notificationsToggle = notificationsWrapper.find('a[data-toggle]');
 var notificationsCountElem = notificationsToggle.find('span[data-count]');
 var notificationsCount = parseInt(notificationsCountElem.data('count'));
-var notifications = notificationsWrapper.find('li.scrollable-container');
+var notifications = notificationsWrapper.find('ul.scrollable-container2php ');
 
 // Subscribe to the channel we specified in our Laravel Event
 var channel = pusher.subscribe('new-rate');
