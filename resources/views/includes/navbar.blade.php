@@ -84,7 +84,10 @@
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <i class="ace-icon fa fa-envelope-o icon-animated-bell"></i>
                         <span class="badge badge-important notif-count"
-                              data-count="{{\App\Models\Replay::new()->whereHas('ticket') -> where('FromUser','1') -> orWhere('FromUser','2') -> count()}}">{{\App\Models\Replay::new() -> whereHas('ticket')->where('FromUser','1') -> orWhere('FromUser','2') -> count()}}</span>
+                              data-count="">{{\App\Models\Replay::new() -> whereHas('ticket')->where(function ($q){
+                                        $q -> where('FromUser','1')
+                                         -> orWhere('FromUser','2');
+                              }) -> count()}}</span>
                     </a>
 
                     <ul class="dropdown-menu-left dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
