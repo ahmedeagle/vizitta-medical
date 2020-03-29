@@ -10,7 +10,27 @@ var channel = pusher.subscribe('new-reservation');
 channel.bind('App\\Events\\NewReservation', function (data) {
     var existingNotifications = notifications.html();
     var avatar = Math.floor(Math.random() * (71 - 20 + 1)) + 20;
-    var newNotificationHtml = `<a href="`+data.path+`"><div class="media"><div class="media-left"><span class="avatar avatar-sm avatar-online rounded-circle"> <img  style="height: 60px;" src="`+data.photo+`" class="img-circle" alt="50x50" style="width: 50px; height: 50px;" alt="avatar"><i></i></span> </div> <div class="media-body"><h6 class="media-heading">` + data.title + `</h6> <p class="notification-text font-small-3 text-muted">` + data.content + `</p><small style="direction: ltr;"><time class="media-meta text-muted" style="direction: ltr;">` + data.date + `</time><br>` + data.time + ` </small></div></div></a>`;
+
+let htmlContent =  `<li data_notify_id="" style="background-color: #ececec61;">
+<a href="`+data.path+`" class="clearfix">
+    <img src="`+data.photo+`" class="msg-photo"
+    alt="Alex's Avatar">
+        <span class="msg-body">
+        <span class="msg-title">
+        <span
+class="blue">` + data.title + `</span>
+    </span>
+    <span class="msg-time">
+        <i class="ace-icon fa fa-clock-o"></i>
+        <span>`+data.date+`</span>
+    <i class="ace-icon fa fa-clock-o"></i>
+        <span> `+data.time+`</span>
+    </span>
+    </span>
+    </a>
+    </li>`;
+
+    let newNotificationHtml = htmlContent;
     notifications.html(newNotificationHtml + existingNotifications);
     notificationsCount += 1;
     notificationsCountElem.attr('data-count', notificationsCount);
