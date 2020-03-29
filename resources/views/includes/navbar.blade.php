@@ -31,7 +31,7 @@
                         </li>
 
                         <li class="dropdown-content scrollable-container">
-                            <ul class="dropdown-menu dropdown-navbar navbar-pink">
+                            <ul class="dropdown-menu dropdown-navbar navbar-pink scrollable-container2">
                                 @if(takeLastNotifications(5))
                                     @forelse(takeLastNotifications(5) as $notify)
                                         <li data_notify_id="{{$notify -> id}}"
