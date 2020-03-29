@@ -182,6 +182,22 @@
             $('#branchTimeBox_' + data.id).remove();
         });
 
+        $('#parent_categories').on('select2:select', function (e) {
+            var data = e.params.data;
+            $('#child_categories').show();
+            console.log('data:::show:::', data);
+
+            var childCategories = $('#childCategories');
+            var body = ``;
+            childCategories.append(body);
+        });
+        $('#parent_categories').on('select2:unselect', function (e) {
+            var data = e.params.data;
+            $('#child_categories').hide();
+            console.log('data:::hide:::', data);
+        });
+
+
     </script>
 
 @stop

@@ -1,6 +1,6 @@
 <div class="form-group has-float-label col-sm-12" style="padding-bottom: 8px;">
-    <select name="category_ids[]" multiple="multiple" class='js-example-basic-multiple form-control '
-            . {{$errors->has('category_id') ? 'redborder' : ''}}>
+    <select id="parent_categories" name="category_ids[]" multiple="multiple"
+            class="js-example-basic-multiple form-control {{$errors->has('category_id') ? 'redborder' : ''}}">
         <optgroup label="أختر أقسام العرض">
             @if(isset($categories)&& $categories -> count() > 0 )
                 @foreach($categories as $category)
@@ -10,9 +10,13 @@
             @endif
         </optgroup>
     </select>
-    <label for="status">القسم <span class="astric">*</span></label>
+    <label for="status">القسم الرئيسى<span class="astric">*</span></label>
     <small
         class="text-danger">{{ $errors->has('category_ids')  or  $errors->has('category_ids.*') ? $errors->first('category_ids') : '' }}</small>
+</div>
+
+<div id="childCategories" class="form-group has-float-label col-sm-12" style="padding-bottom: 8px; display: none;">
+
 </div>
 
 <br>

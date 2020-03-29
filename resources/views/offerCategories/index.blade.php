@@ -30,6 +30,7 @@
             <tr>
                 <th>الإسم بالعربيه</th>
                 <th>الإسم بالإنجليزيه</th>
+                <th>القسم الأب</th>
                 <th>خاصية العد التنازلي</th>
                 <th>العمليات</th>
             </tr>
@@ -61,6 +62,12 @@
                 columns: [
                     {name: 'name_ar'},
                     {name: 'name_en'},
+                    {
+                        name: 'parentCategory.name_ar', render: function (data) {
+                            return (data === "N/A" ? '---' : data);
+                        },
+                        orderable: false
+                    },
                     {name: 'hastimer'},
                     {name: 'action', orderable: false, searchable: false}
                 ],
