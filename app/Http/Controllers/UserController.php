@@ -925,6 +925,21 @@ class UserController extends Controller
             'data_id' => $reservation->id,
             'type' => 2 //user rate provider and doctor
         ]);
+
+        $notify = [
+            'provider_name' =>  $MainProvider->name_ar,
+            'reservation_no' =>  $reservation->reservation_no,
+            'reservation_id' => $reservation->id,
+            'content' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
+            'photo' => $MainProvider->logo,
+            'notification_id' => $notification->id
+        ];
+        //fire pusher  notification for admin  stop pusher for now
+        try {
+            event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification*/
+        } catch (\Exception $ex) {
+        }
+
         return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
     }
 

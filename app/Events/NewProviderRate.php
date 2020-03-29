@@ -10,39 +10,39 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Str;
+use Vinkla\Hashids\Facades\Hashids;
 
-class NewNotification implements ShouldBroadcast
+class NewProviderRate implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $title;
-
     public $content;
-
     public $date;
     public $time;
     public $photo;
-    public $id;
     public $path;
-    public $coachId;
+    public $reservation_no;
+    public $reservation_id;
+    public $notification_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-
-    //user rate coach
     public function __construct($notification = [])
     {
-        $this->title = 'تقييم للكابتن ' . $notification['coach_name'];
+
+        $this->title = 'تقييم جديد لمقدم الخدمة  ' . ' ' . $notification['provider_name'].' ';
         $this->content = Str::limit($notification['content'], 70);
         $this->date = date("Y M d", strtotime(Carbon::now()));
         $this->time = date("h:i A", strtotime(Carbon::now()));
         $this->photo = $notification['photo'];
-        $this->id = $notification['notification_id'];
-        $this-> coachId = $notification['coach_id'];
-        $this -> path = route('admin.coaches.view',$notification['coach_id']);
+        $this->reservation_no = $notification['reservation_no'];
+        $this->reservation_id = $notification['reservation_id'];
+        $this->path = route('admin.comments')."?notification=".Hashids::encode($notification['notification_id']);
+        $this->notification_id = $notification['notification_id'];
     }
 
     /**
@@ -52,6 +52,6 @@ class NewNotification implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return ['new-notification'];
+        return ['new-rate'];
     }
 }

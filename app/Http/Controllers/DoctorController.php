@@ -1129,7 +1129,6 @@ class DoctorController extends Controller
             try {
                 event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
             } catch (\Exception $ex) {
-                return $ex;
             }
         } catch (\Exception $ex) {
         }
