@@ -5,9 +5,9 @@ var notificationsCount = parseInt(notificationsCountElem.data('count'));
 var notifications = notificationsWrapper.find('ul.scrollable-container2php ');
 
 // Subscribe to the channel we specified in our Laravel Event
-var channel = pusher.subscribe('new-rate');
+var channel = pusher.subscribe('user-edit-reservation');
 // Bind a function to a Event (the full Laravel class)
-channel.bind('App\\Events\\NewProviderRate', function (data) {
+channel.bind('App\\Events\\UserEditReservationTime', function (data) {
     var existingNotifications = notifications.html();
     var avatar = Math.floor(Math.random() * (71 - 20 + 1)) + 20;
 

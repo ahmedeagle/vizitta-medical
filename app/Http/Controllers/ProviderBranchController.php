@@ -684,6 +684,22 @@ class ProviderBranchController extends Controller
                     'data_id' => $reservation->id,
                     'type' => 4 //provider edit  reservation date
                 ]);
+
+
+                $notify = [
+                    'provider_name' =>  $mainProvider->name_ar,
+                    'reservation_no' =>  $reservation->reservation_no,
+                    'reservation_id' => $reservation->id,
+                    'content' => ' تعديل الحجز رقم ' . ' ' . $reservation->reservation_no,
+                    'photo' => $mainProvider->logo,
+                    'notification_id' => $notification->id
+                ];
+                //fire pusher  notification for admin  stop pusher for now
+                try {
+                    event(new \App\Events\ProviderEditReservationTime($notify));   // fire pusher new reservation  event notification*/
+                } catch (\Exception $ex) {
+                }
+
             } catch (\Exception $ex) {
 
             }

@@ -32,8 +32,10 @@
 </script>
 <script src="{{asset('js/pusherNewReservation.js')}}"></script>
 <script src="{{asset('js/pusherNewRate.js')}}"></script>
+<script src="{{asset('js/pusherUserEditReservationTime.js')}}"></script>
+<script src="{{asset('js/pusherProviderEditReservationTime.js')}}"></script>
 
- <script>
+<script>
     $(document).ready(function () {
 
         $('#loading').hide();
