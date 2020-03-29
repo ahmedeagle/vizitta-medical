@@ -674,6 +674,7 @@ class ProviderBranchController extends Controller
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
 
+
                 $notification = GeneralNotification::create([
                     'title_ar' => 'تعديل الحجز رقم  ' . ' ' . $reservation->reservation_no,
                     'title_en' => 'Update Reservation Date for reservation No:' . ' ' . $reservation->reservation_no,
@@ -685,7 +686,8 @@ class ProviderBranchController extends Controller
                     'type' => 4 //provider edit  reservation date
                 ]);
 
-
+                $provider = $reservation->provider; //branch
+                $mainProvider = Provider::where('id', $provider->provider_id)->first();
                 $notify = [
                     'provider_name' =>  $mainProvider->name_ar,
                     'reservation_no' =>  $reservation->reservation_no,
