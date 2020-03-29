@@ -806,7 +806,7 @@ class DoctorController extends Controller
             ];
 
             //fire pusher  notification for admin  stop pusher for now
-            // event(new \App\Events\NewReservation($notify));   // fire pusher message event notification*/
+             event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
 
 
