@@ -1,4 +1,5 @@
- {!! Html::script('bower_components/jquery/js/jquery.min.js') !!}
+<script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+{!! Html::script('bower_components/jquery/js/jquery.min.js') !!}
 {!! Html::script('bower_components/jquery-ui/js/jquery-ui.min.js') !!}
 {!! Html::script('bower_components/popper.js/js/popper.min.js') !!}
 {!! Html::script('bower_components/bootstrap/js/bootstrap.min.js') !!}
@@ -24,9 +25,14 @@
         }
     });
 
-</script>
+    var pusher = new Pusher('b0e07cc9a12d705c6b4d', {
+        encrypted: false
+    });
 
- <script>
+</script>
+<script src="{{asset('js/pusher/pusherNewReservation.js')}}"></script>
+
+<script>
     $(document).ready(function () {
 
         $('#loading').hide();
