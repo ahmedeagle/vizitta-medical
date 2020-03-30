@@ -35,7 +35,8 @@
     {{ Form::model($offer, ['route' => ['admin.offers.update' , $offer->id], 'class' => 'form', 'method' => 'PUT','files' => true]) }}
 
     <div class="form-group has-float-label col-sm-12" style="padding-bottom: 8px;">
-        <select name="category_ids[]" multiple="multiple" class='js-example-basic-multiple form-control '
+        <select id="parent_categories" name="category_ids[]" multiple="multiple"
+                class='js-example-basic-multiple form-control '
                 . {{$errors->has('category_id') ? 'redborder' : ''}}>
             <optgroup label="أختر أقسام العرض">
                 @if(isset($categories)&& $categories -> count() > 0 )
@@ -53,14 +54,17 @@
     <div id="childCategories">
         @if (count($categories) > 0)
             @foreach($categories as $category)
-                @foreach($category->childCategories as $key => $value)
+                @if ($category->selected == 1)
                     <div id="child-{{ $category->id }}" class="form-group has-float-label col-sm-6"
                          style="padding-bottom: 8px;">
                         <h3># {{ $category->name_ar }}: الاقسام الفرعية </h3>
-                        <input name="child_category_ids[]" type="checkbox" class="ace" {{ $value->selected == 1 ? 'checked' : '' }} value="{{ $value->id }}"><span
-                            class="lbl"> {{ $value->name_ar }} </span>
+                        @foreach($category->childCategories as $key => $value)
+                            <input name="child_category_ids[]" type="checkbox" class="ace"
+                                   {{ $value->selected == 1 ? 'checked' : '' }} value="{{ $value->id }}"><span
+                                class="lbl"> {{ $value->name_ar }} </span>
+                        @endforeach
                     </div>
-                @endforeach
+                @endif
             @endforeach
         @endif
     </div>
@@ -548,6 +552,35 @@
             var data = e.params.data;
             // console.log(data);
             $('#branchTimeBox_' + data.id).remove();
+        });
+
+        $('#parent_categories').on('select2:select', function (e) {
+            var data = e.params.data;
+            // console.log('data:::show:::', data);
+
+            $.ajax({
+                type: 'post',
+                url: "{{Route('admin.offers.getChildCatById')}}",
+                data: {
+                    'id': data.id
+                    //'_token'   :   $('meta[name="csrf-token"]').attr('content'),
+                },
+                success: function (res) {
+                    var childCategories = $('#childCategories');
+                    var body = `<div id="child-${data.id}" class="form-group has-float-label col-sm-6" style="padding-bottom: 8px;">
+                                    <h3># ${data.text}: الاقسام الفرعية </h3>`;
+                    for (let childCat of res.childCategories) {
+                        body += `<input name="child_category_ids[]" type="checkbox" class="ace" value="${childCat.id}"><span class="lbl"> ${childCat.name_ar} </span>`;
+                    }
+                    body += `</div>`;
+                    childCategories.append(body);
+                }
+            });
+
+        });
+        $('#parent_categories').on('select2:unselect', function (e) {
+            var data = e.params.data;
+            $('#child-' + data.id).remove();
         });
 
     </script>
