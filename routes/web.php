@@ -171,6 +171,7 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
         Route::get('/add', 'OfferController@add')->name('admin.offers.add')->middleware('permission:add_coupons');
         Route::post('/store', 'OfferController@store')->name('admin.offers.store')->middleware('permission:add_coupons');
         Route::post('/getprovider/branches', 'OfferController@getProviderBranches')->name('admin.offers.providerbranches');
+        Route::post('/getChildCatById', 'OfferController@getChildCatById')->name('admin.offers.getChildCatById');
 //        Route::post('/getbranch/doctors', 'OfferController@getBranchDoctors')->name('admin.promoCode.brancheDoctors');
         Route::get('/branches/{id}', 'OfferController@branches')->name('admin.offers.branches');
 //        Route::get('/doctors/{id}', 'OfferController@doctors')->name('admin.promoCode.doctors');
