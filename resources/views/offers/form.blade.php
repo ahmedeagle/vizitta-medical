@@ -15,10 +15,8 @@
         class="text-danger">{{ $errors->has('category_ids')  or  $errors->has('category_ids.*') ? $errors->first('category_ids') : '' }}</small>
 </div>
 
-<div id="childCategories" class="form-group has-float-label col-sm-12" style="padding-bottom: 8px; display: none;">
-
-</div>
-
+<div id="childCategories"></div>
+<div class="clearfix"></div>
 <br>
 
 <div class="form-group has-float-label col-sm-6">

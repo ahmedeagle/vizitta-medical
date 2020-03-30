@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Filter;
+use App\Models\OfferCategory;
 use App\Models\PaymentMethod;
 use App\Models\Reservation;
 use App\Models\User;
@@ -110,6 +111,18 @@ class OfferController extends Controller
         ]);
     }
 
+    public function getChildCatById(Request $request)
+    {
+        if (isset($request->id) && !empty($request->id))
+            $childCategories = OfferCategory::where('parent_id', $request->id)->get(['name_ar', 'id']);
+        else
+            $childCategories = null;
+
+        return response()->json([
+            'childCategories' => $childCategories,
+        ]);
+    }
+
 
     /*public function getBranchDoctors(Request $request)
     {
@@ -170,6 +183,8 @@ class OfferController extends Controller
             "started_at" => "required|date",
             "gender" => "required|in:all,males,females",
             "payment_method" => "required|array|min:1",
+            "child_category_ids" => "required|array|min:1",
+            "child_category_ids.*" => "required|exists:offers_categories,id",
 
         ];
 
@@ -200,7 +215,8 @@ class OfferController extends Controller
         $inputs['photo'] = $fileName;
         $offer = $this->createOffer($inputs);
 
-        $offer->categories()->attach($request->category_ids);
+        $offer->categories()->attach($request->child_category_ids);
+//        $offer->categories()->attach($request->category_ids);
 
         if ($request->has('branchIds')) {
             $branchIds = array_filter($request->branchIds, function ($val) {
@@ -323,7 +339,8 @@ class OfferController extends Controller
         $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected($data['offer']);
         $data['offerContents'] = $data['offer']->contents;
 
-//        dd($data['offer']->toArray());
+//        dd($data['categories']->toArray());
+
         return view('offers.edit', $data);
     }
 
@@ -351,6 +368,8 @@ class OfferController extends Controller
             "started_at" => "required|date",
             "gender" => "required|in:all,males,females",
             "payment_method" => "required|array|min:1",
+            "child_category_ids" => "required|array|min:1",
+            "child_category_ids.*" => "required|exists:offers_categories,id",
 
         ];
 
@@ -487,7 +506,8 @@ class OfferController extends Controller
             // $promoCode->users()->sync(User::active()-> pluck('id') -> toArray());
             $offer->update(['general' => 1]);
         }
-        $offer->categories()->sync($request->category_ids);
+        $offer->categories()->sync($request->child_category_ids);
+//        $offer->categories()->sync($request->category_ids);
 
         DB::commit();
         Flashy::success('تم تحديث الكوبون بنجاح');

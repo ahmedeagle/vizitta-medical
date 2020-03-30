@@ -55,6 +55,11 @@ class OfferCategory extends Model
         return $query->whereNull('parent_id');
     }
 
+    public function scopeChildCategories($query, $id = 0)
+    {
+        return $query->where('id', $id);
+    }
+
     public function getHoursAttribute($val)
     {
         return ($val !== null ? $val : "");

@@ -46,9 +46,26 @@
                 @endif
             </optgroup>
         </select>
-        <label for="status">القسم <span class="astric">*</span></label>
+        <label for="status">القسم الرئيسى<span class="astric">*</span></label>
         <small class="text-danger">{{ $errors->has('category_id') ? $errors->first('category_id') : '' }}</small>
     </div>
+
+    <div id="childCategories">
+        @if (count($categories) > 0)
+            @foreach($categories as $category)
+                @foreach($category->childCategories as $key => $value)
+                    <div id="child-{{ $category->id }}" class="form-group has-float-label col-sm-6"
+                         style="padding-bottom: 8px;">
+                        <h3># {{ $category->name_ar }}: الاقسام الفرعية </h3>
+                        <input name="child_category_ids[]" type="checkbox" class="ace" {{ $value->selected == 1 ? 'checked' : '' }} value="{{ $value->id }}"><span
+                            class="lbl"> {{ $value->name_ar }} </span>
+                    </div>
+                @endforeach
+            @endforeach
+        @endif
+    </div>
+    <div class="clearfix"></div>
+    <br>
 
     <div class="form-group has-float-label col-sm-6">
         {{ Form::text('title_ar', old('title_ar'), ['placeholder' => 'خصم كبير علي الحجوزات ',  'class' => 'form-control ' . ($errors->has('title_ar') ? 'redborder' : '') ]) }}

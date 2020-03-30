@@ -184,17 +184,31 @@
 
         $('#parent_categories').on('select2:select', function (e) {
             var data = e.params.data;
-            $('#child_categories').show();
-            console.log('data:::show:::', data);
+            // console.log('data:::show:::', data);
 
-            var childCategories = $('#childCategories');
-            var body = ``;
-            childCategories.append(body);
+            $.ajax({
+                type: 'post',
+                url: "{{Route('admin.offers.getChildCatById')}}",
+                data: {
+                    'id': data.id
+                    //'_token'   :   $('meta[name="csrf-token"]').attr('content'),
+                },
+                success: function (res) {
+                    var childCategories = $('#childCategories');
+                    var body = `<div id="child-${data.id}" class="form-group has-float-label col-sm-6" style="padding-bottom: 8px;">
+                                    <h3># ${data.text}: الاقسام الفرعية </h3>`;
+                    for (let childCat of res.childCategories) {
+                        body += `<input name="child_category_ids[]" type="checkbox" class="ace" value="${childCat.id}"><span class="lbl"> ${childCat.name_ar} </span>`;
+                    }
+                    body += `</div>`;
+                    childCategories.append(body);
+                }
+            });
+
         });
         $('#parent_categories').on('select2:unselect', function (e) {
             var data = e.params.data;
-            $('#child_categories').hide();
-            console.log('data:::hide:::', data);
+            $('#child-' + data.id).remove();
         });
 
 
