@@ -299,6 +299,33 @@
 
     <div class="col-md-12">
         <div class="page-header">
+            <h1><i class="menu-icon"></i># أقسام العرض </h1>
+        </div>
+    </div>
+    <div class="col-md-12">
+
+        @foreach($childCats as $key => $child)
+            <h3># القسم الرئيسى : {{ $child->parentCategory['name_ar'] }}</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>القسم الفرعى</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ $child->name_ar }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
+
+    </div>
+
+    <div class="col-md-12">
+        <div class="page-header">
             <h1><i class="menu-icon fa fa-user"></i> المستفادين من الكوبون </h1>
         </div>
     </div>

@@ -543,8 +543,15 @@ class OfferController extends Controller
             $offerBranchTimes[$value->branch_id]['duration'] = $offer->branchTimes()->where('branch_id', $value->branch_id)->value('duration');
             $offerBranchTimes[$value->branch_id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->branch_id)->get(['day_code', 'start_from', 'end_to']);
         }
-//        dd($offerBranchTimes);
-        return view('offers.view', compact('offer', 'beneficiaries', 'offerBranchTimes'));
+
+        $selectedChildCat = \Illuminate\Support\Facades\DB::table('offers_categories_pivot')
+            ->where('offer_id', $id)
+            ->pluck('category_id');
+        $childCats = OfferCategory::with('parentCategory')->whereIn('id', $selectedChildCat->toArray())->get(['id', 'parent_id', 'name_ar']);
+
+//        dd($childCats->toArray());
+
+        return view('offers.view', compact('offer', 'beneficiaries', 'offerBranchTimes', 'childCats'));
     }
 
     public function filters()
