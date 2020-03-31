@@ -12,11 +12,13 @@ class InsuranceCompanyResource extends ResourceCollection
         $result['data'] = $this->collection->transform(function ($data) {
             return [
                 'id' => $data->id,
-//                'name' => app()->getLocale() == 'ar' ? $data->name_ar : $data->name_en,
+                'name' => app()->getLocale() == 'ar' ? $data->name_ar : $data->name_en,
                 'name_ar' => $data->name_ar,
                 'name_en' => $data->name_en,
-//                'status' => $data->status == '1' ? __('main.active') : __('main.not_active'),
-                'status' => $data->status,
+                'status' => [
+                    'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                    'value' => $data->status,
+                ],
                 'image' => $data->image,
             ];
         });

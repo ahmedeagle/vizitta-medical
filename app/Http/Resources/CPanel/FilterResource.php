@@ -5,7 +5,7 @@ namespace App\Http\Resources\CPanel;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class CustomPageResource extends ResourceCollection
+class FilterResource extends ResourceCollection
 {
     public function toArray($request)
     {
@@ -13,16 +13,13 @@ class CustomPageResource extends ResourceCollection
             return [
                 'id' => $data->id,
                 'title' => app()->getLocale() == 'ar' ? $data->title_ar : $data->title_en,
-                'content' => app()->getLocale() == 'ar' ? $data->content_ar : $data->content_en,
+                'title_ar' => $data->title_ar,
+                'title_en' => $data->title_en,
+                'price' => $data->price,
                 'status' => [
-                    'name' => $data->status == 1 ? __('main.published') : __('main.un_published'),
+                    'name' => $data->status == 1 ? __('main.active') : __('main.not_active'),
                     'value' => $data->status,
                 ],
-                'provider' => [
-                    'name' => $data->provider == 1 ? __('main.yes') : __('main.no'),
-                    'value' => $data->status,
-                ],
-                'user' => $data->user == 1 ? __('main.yes') : __('main.no'),
             ];
         });
 

@@ -272,10 +272,10 @@ class ProviderController extends Controller
     {
         try {
             $provider = $this->getProviderById($request->id);
-            $provider->makeVisible(['application_percentage']);
             if ($provider == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
+            $provider->makeVisible(['application_percentage', 'application_percentage_bill']);
             $types = $this->getProviderTypes();
             $cities = $this->getCities();
             $districts = $this->getDistricts();

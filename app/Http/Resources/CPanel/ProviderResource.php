@@ -13,7 +13,10 @@ class ProviderResource extends ResourceCollection
             return [
                 'id' => $data->id,
                 'name' => app()->getLocale() == 'ar' ? $data->name_ar : $data->name_en,
-                'status' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                'status' => [
+                    'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                    'value' => $data->status,
+                ],
                 'username' => $data->username,
                 'mobile' => $data->mobile,
                 'application_percentage' => $data->application_percentage,
@@ -22,7 +25,10 @@ class ProviderResource extends ResourceCollection
                 'type' => app()->getLocale() == 'ar' ? $data->type->name_ar : $data->type->name_en,
                 'city' => app()->getLocale() == 'ar' ? $data->city->name_ar : $data->city->name_en,
                 'district' => app()->getLocale() == 'ar' ? $data->district->name_ar : $data->district->name_en,
-                'lottery' => $data->lottery == '1' ? __('main.yes') : __('main.no'),
+                'lottery' => [
+                    'name' => $data->lottery == '1' ? __('main.yes') : __('main.no'),
+                    'value' => $data->lottery,
+                ],
                 'created_at' => $data->created_at->format('Y-m-d'),
             ];
         });

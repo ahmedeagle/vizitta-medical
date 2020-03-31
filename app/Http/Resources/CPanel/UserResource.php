@@ -19,7 +19,10 @@ class UserResource extends ResourceCollection
                 'birth_date' => $data->birth_date,
                 'city' => app()->getLocale() == 'ar' ? $data->city->name_ar : $data->city->name_en,
                 'insuranceCompany' => app()->getLocale() == 'ar' ? $data->insuranceCompany->name_ar : $data->insuranceCompany->name_en,
-                'status' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                'status' => [
+                    'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                    'value' => $data->status,
+                ],
                 'created_at' => $data->created_at->format('Y-m-d'),
             ];
         });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CPanel;
 
+use App\Http\Resources\CPanel\FilterResource;
 use App\Models\Filter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,7 +13,8 @@ class OfferFilterController extends Controller
 
     public function index()
     {
-        $result = Filter::adminSelection()->paginate(PAGINATION_COUNT);
+        $filters = Filter::paginate(PAGINATION_COUNT);
+        $result = new FilterResource($filters);
         return response()->json(['status' => true, 'data' => $result]);
     }
 

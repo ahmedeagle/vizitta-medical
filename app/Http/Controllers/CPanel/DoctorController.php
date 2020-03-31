@@ -40,7 +40,7 @@ class DoctorController extends Controller
     public function show(Request $request)
     {
         try {
-            $doctor = $this->getDoctorById($request->id);
+            $doctor = $this->getDoctorDetailsById($request->id);
             if ($doctor == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
