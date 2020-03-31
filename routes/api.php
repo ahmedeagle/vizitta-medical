@@ -4,6 +4,7 @@ use App\Models\Provider;
 
 
 Route::get('/optimize', function () {
+
     exec('optimize:clear');
     return '<h1>Composer dump-autoload</h1>';
 });
@@ -75,6 +76,12 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('verify/phone', 'UserController@verifyPhone');
             Route::post('records', 'UserController@getRecordsV2');
         });
+
+
+        Route::group(['prefix' => 'v3'], function () {
+            Route::post('offers/{featured?}', 'OffersController@indexV2');
+        });
+
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
         Route::post('show-offer/details', 'OffersController@showOfferDetails');
         Route::post('offer/doctors', 'OffersController@doctors')->name('offer.doctors');

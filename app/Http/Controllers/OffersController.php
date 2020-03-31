@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Filter;
 use App\Models\Mix;
+use App\Models\Offer;
+use App\Models\OfferCategory;
 use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
 use App\Models\Specification;
@@ -222,7 +224,8 @@ class OffersController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "category_id" => "required",
+                "category_id" => "required|exists:offers_categories,id",
+                "subCategory_id" => "required",
             ]);
 
             if ($validator->fails()) {
@@ -235,8 +238,10 @@ class OffersController extends Controller
                 //return $this->returnError('D000', trans('messages.User not found'));
                 return $this->getOfferForVisitors($request);
             }
+
             $orderBy = 'id';
             $conditions = [];
+
             if (isset($request->filter_id) && !empty($request->filter_id)) {
                 $filter = Filter::find($request->filter_id);
                 if (!$filter)
@@ -262,115 +267,129 @@ class OffersController extends Controller
                 }
             }
 
-            // if 0 get all offer
-            if ($request->category_id != 0) {
-                $category = PromoCodeCategory::find($request->category_id);
-                if (!$category)
-                    return $this->returnError('E001', trans('messages.There is no category with this id'));
-                else {
+            $category = OfferCategory::find($request->category_id);
+            $categoryId = $category->id;
 
-                    if (isset($request->featured) && $request->featured == 1) {
+            // if 0 get all offer in this subCategory
+            if ($request->subCategory_id != 0) {
+                $subCategory = OfferCategory::whereNotNull('parent_id')->where('id', $request->subCategory_id)->first();
 
-                        if (!empty($conditions) && count($conditions) > 0) {
-                            $offers = PromoCode::where(function ($qq) use ($user) {
-                                $qq->where('general', 1)
-                                    ->orWhereHas('users', function ($qu) use ($user) {
-                                        $qu->where('users.id', $user->id);
-                                    });
-                            })
-                                ->where($conditions)
-                                ->featured()
-                                ->active()
-                                ->valid()
-                                ->with(['provider' => function ($q) {
-                                    $q->select('id', 'rate', 'logo', 'type_id',
-                                        DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                    $q->with(['type' => function ($q) {
-                                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                    }]);
-                                }])
-                                ->where('category_id', $category->id)
-                                ->orderBy($orderBy, 'DESC')
-                                ->limit(10)
-                                ->selection()
-                                ->get();
-                        } else {
-                            $offers = PromoCode::where(function ($qq) use ($user) {
-                                $qq->where('general', 1)
-                                    ->orWhereHas('users', function ($qu) use ($user) {
-                                        $qu->where('users.id', $user->id);
-                                    });
-                            })
-                                ->featured()
-                                ->active()
-                                ->valid()
-                                ->with(['provider' => function ($q) {
-                                    $q->select('id', 'rate', 'logo', 'type_id',
-                                        DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                    $q->with(['type' => function ($q) {
-                                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                    }]);
-                                }])
-                                ->where('category_id', $category->id)
-                                ->orderBy($orderBy, 'DESC')
-                                ->limit(10)
-                                ->selection()
-                                ->get();
-                        }
-
-                    } else {
-                        //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
-
-                        if (!empty($conditions) && count($conditions) > 0) {
-
-                            $offers = PromoCode::where(function ($qq) use ($user) {
-                                $qq->where('general', 1)
-                                    ->orWhereHas('users', function ($qu) use ($user) {
-                                        $qu->where('users.id', $user->id);
-                                    });
-                            })->active()
-                                ->valid()
-                                ->with(['provider' => function ($q) {
-                                    $q->select('id', 'rate', 'logo', 'type_id',
-                                        DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                    $q->with(['type' => function ($q) {
-                                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                    }]);
-                                }])
-                                ->where('category_id', $category->id)
-                                ->where($conditions)
-                                ->selection()
-                                ->orderBy($orderBy, 'DESC')
-                                ->paginate(10);
-                        } else {
-                            $offers = PromoCode::where(function ($qq) use ($user) {
-                                $qq->where('general', 1)
-                                    ->orWhereHas('users', function ($qu) use ($user) {
-                                        $qu->where('users.id', $user->id);
-                                    });
-                            })->active()
-                                ->valid()
-                                ->with(['provider' => function ($q) {
-                                    $q->select('id', 'rate', 'logo', 'type_id',
-                                        DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                    $q->with(['type' => function ($q) {
-                                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                    }]);
-                                }])
-                                ->where('category_id', $category->id)
-                                ->selection()
-                                ->orderBy($orderBy, 'DESC')
-                                ->paginate(10);
-                        }
-                    }
-                }
-
-            } else {
+                if (!$subCategory)
+                    return $this->returnError('E001', trans('messages.offer subcategory not found'));
+                $subCategoryId = $subCategory->id;
 
                 if (isset($request->featured) && $request->featured == 1) {
-
                     if (!empty($conditions) && count($conditions) > 0) {
+                        $offers = Offer::where(function ($qq) use ($user) {
+                            $qq->where('general', 1)
+                                ->orWhereHas('users', function ($qu) use ($user) {
+                                    $qu->where('users.id', $user->id);
+                                });
+                        })
+                            ->where($conditions)
+                            ->featured()
+                            ->active()
+                            ->valid()
+                            ->with(['provider' => function ($q) {
+                                $q->select('id', 'rate', 'logo', 'type_id',
+                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                                $q->with(['type' => function ($q) {
+                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                                }]);
+                            }])
+                            ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                                $q->where('offers_categories.id', $subCategoryId);
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('id', $categoryId);
+                                });
+                            })
+                            ->orderBy($orderBy, 'DESC')
+                            ->limit(10)
+                            ->selection()
+                            ->get();
+                    } else {
+                        $offers = Offer::where(function ($qq) use ($user) {
+                            $qq->where('general', 1)
+                                ->orWhereHas('users', function ($qu) use ($user) {
+                                    $qu->where('users.id', $user->id);
+                                });
+                        })
+                            ->featured()
+                            ->active()
+                            ->valid()
+                            ->with(['provider' => function ($q) {
+                                $q->select('id', 'rate', 'logo', 'type_id',
+                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                                $q->with(['type' => function ($q) {
+                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                                }]);
+                            }])
+                            ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                                $q->where('offers_categories.id', $subCategoryId);
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('id', $categoryId);
+                                });
+                            })
+                            ->orderBy($orderBy, 'DESC')
+                            ->limit(10)
+                            ->selection()
+                            ->get();
+                    }
+
+                } else { // get non featured offers
+                    //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
+                    if (!empty($conditions) && count($conditions) > 0) {
+
                         $offers = PromoCode::where(function ($qq) use ($user) {
+                            $qq->where('general', 1)
+                                ->orWhereHas('users', function ($qu) use ($user) {
+                                    $qu->where('users.id', $user->id);
+                                });
+                        })->active()
+                            ->valid()
+                            ->with(['provider' => function ($q) {
+                                $q->select('id', 'rate', 'logo', 'type_id',
+                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                                $q->with(['type' => function ($q) {
+                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                                }]);
+                            }])
+                            ->where('category_id', $category->id)
+                            ->where($conditions)
+                            ->selection()
+                            ->orderBy($orderBy, 'DESC')
+                            ->paginate(10);
+                    } else {
+                        $offers = Offer::where(function ($qq) use ($user) {
+                            $qq->where('general', 1)
+                                ->orWhereHas('users', function ($qu) use ($user) {
+                                    $qu->where('users.id', $user->id);
+                                });
+                        })
+                            ->active()
+                            ->valid()
+                            ->with(['provider' => function ($q) {
+                                $q->select('id', 'rate', 'logo', 'type_id',
+                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                                $q->with(['type' => function ($q) {
+                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                                }]);
+                            }])
+                            ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                                $q->where('offers_categories.id', $subCategoryId);
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('id', $categoryId);
+                                });
+                            })
+                            ->selection()
+                            ->orderBy($orderBy, 'DESC')
+                            ->paginate(10);
+                    }
+                }
+            } else {   // if the is no subcategory id  (i.e subCategory_id =0 )will get all offers  in main category
+                if (isset($request->featured) && $request->featured == 1) {
+                    if (!empty($conditions) && count($conditions) > 0) {
+                        $offers = Offer::where(function ($qq) use ($user) {
                             $qq->where('general', 1)
                                 ->orWhereHas('users', function ($qu) use ($user) {
                                     $qu->where('users.id', $user->id);
@@ -386,12 +405,17 @@ class OffersController extends Controller
                                 }]);
                             },])
                             ->where($conditions)
+                            ->whereHas('categories', function ($q) use ($categoryId) {
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('offers_categories.parent_id', $categoryId);
+                                });
+                            })
                             ->orderBy($orderBy, 'DESC')
                             ->selection()
                             ->limit(25)
                             ->get();
                     } else {
-                        $offers = PromoCode::where(function ($qq) use ($user) {
+                        $offers = Offer::where(function ($qq) use ($user) {
                             $qq->where('general', 1)
                                 ->orWhereHas('users', function ($qu) use ($user) {
                                     $qu->where('users.id', $user->id);
@@ -406,13 +430,17 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             },])
+                            ->whereHas('categories', function ($q) use ($categoryId) {
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('offers_categories.parent_id', $categoryId);
+                                });
+                            })
                             ->orderBy($orderBy, 'DESC')
                             ->selection()
                             ->limit(25)
                             ->get();
                     }
-                } else
-
+                } else {
                     if (!empty($conditions) && count($conditions) > 0) {
                         // PromoCode::find(6) -> currentId();
                         $offers = PromoCode::where(function ($qq) use ($user) {
@@ -434,7 +462,7 @@ class OffersController extends Controller
                             ->orderBy($orderBy, 'DESC')
                             ->paginate(10);
                     } else {
-                        $offers = PromoCode::where(function ($qq) use ($user) {
+                        $offers = Offer::where(function ($qq) use ($user) {
                             $qq->where('general', 1)
                                 ->orWhereHas('users', function ($qu) use ($user) {
                                     $qu->where('users.id', $user->id);
@@ -448,10 +476,16 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
+                            ->whereHas('categories', function ($q) use ($categoryId) {
+                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                    $qq->where('offers_categories.parent_id', $categoryId);
+                                });
+                            })
                             ->selection()
                             ->orderBy($orderBy, 'DESC')
                             ->paginate(10);
                     }
+                }
             }
 
             if (isset($request->featured) && $request->featured == 1) {
@@ -823,6 +857,8 @@ class OffersController extends Controller
     {
         $orderBy = 'id';
         $conditions = [];
+        $category = OfferCategory::find($request->category_id);
+        $categoryId = $category->id;
         if (isset($request->filter_id) && !empty($request->filter_id)) {
             $filter = Filter::find($request->filter_id);
             if (!$filter)
@@ -848,103 +884,122 @@ class OffersController extends Controller
             }
         }
 
-        // if 0 get all offer
-        if ($request->category_id != 0) {
-            $category = PromoCodeCategory::find($request->category_id);
-            if (!$category)
-                return $this->returnError('E001', trans('messages.There is no category with this id'));
-            else {
-
-                if (isset($request->featured) && $request->featured == 1) {
-
-                    if (!empty($conditions) && count($conditions) > 0) {
-                        $offers = PromoCode::where(function ($qq) {
-                            $qq->where('general', 1);
-                        })
-                            ->where($conditions)
-                            ->featured()
-                            ->active()
-                            ->valid()
-                            ->with(['provider' => function ($q) {
-                                $q->select('id', 'rate', 'logo', 'type_id',
-                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                $q->with(['type' => function ($q) {
-                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                }]);
-                            }])
-                            ->where('category_id', $category->id)
-                            ->orderBy($orderBy, 'DESC')
-                            ->limit(10)
-                            ->selection()
-                            ->get();
-                    } else {
-                        $offers = PromoCode::where(function ($qq) {
-                            $qq->where('general', 1);
-                        })
-                            ->featured()
-                            ->active()
-                            ->valid()
-                            ->with(['provider' => function ($q) {
-                                $q->select('id', 'rate', 'logo', 'type_id',
-                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                $q->with(['type' => function ($q) {
-                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                }]);
-                            }])
-                            ->where('category_id', $category->id)
-                            ->orderBy($orderBy, 'DESC')
-                            ->limit(10)
-                            ->selection()
-                            ->get();
-                    }
-
-                } else {
-                    //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
-
-                    if (!empty($conditions) && count($conditions) > 0) {
-
-                        $offers = PromoCode::where(function ($qq) {
-                            $qq->where('general', 1);
-                        })->active()
-                            ->valid()
-                            ->with(['provider' => function ($q) {
-                                $q->select('id', 'rate', 'logo', 'type_id',
-                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                $q->with(['type' => function ($q) {
-                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                }]);
-                            }])
-                            ->where('category_id', $category->id)
-                            ->where($conditions)
-                            ->selection()
-                            ->orderBy($orderBy, 'DESC')
-                            ->paginate(10);
-                    } else {
-                        $offers = PromoCode::where(function ($qq) {
-                            $qq->where('general', 1);
-                        })->active()
-                            ->valid()
-                            ->with(['provider' => function ($q) {
-                                $q->select('id', 'rate', 'logo', 'type_id',
-                                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                                $q->with(['type' => function ($q) {
-                                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                                }]);
-                            }])
-                            ->where('category_id', $category->id)
-                            ->selection()
-                            ->orderBy($orderBy, 'DESC')
-                            ->paginate(10);
-                    }
-                }
-            }
-
-        } else {
+        // if 0 get all offer in this subCategory
+        if ($request->subCategory_id != 0) {
+            $subCategory = OfferCategory::whereNotNull('parent_id')
+                ->where('id', $request->subCategory_id)
+                ->first();
+            if (!$subCategory)
+                return $this->returnError('E001', trans('messages.offer subcategory not found'));
+            $subCategoryId = $subCategory->id;
 
             if (isset($request->featured) && $request->featured == 1) {
-
                 if (!empty($conditions) && count($conditions) > 0) {
-                    $offers = PromoCode::where(function ($qq) {
+                    $offers = Offer::where(function ($qq) {
+                        $qq->where('general', 1);
+
+                    })
+                        ->where($conditions)
+                        ->featured()
+                        ->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                            $q->where('offers_categories.id', $subCategoryId);
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('id', $categoryId);
+                            });
+                        })
+                        ->orderBy($orderBy, 'DESC')
+                        ->limit(10)
+                        ->selection()
+                        ->get();
+                } else {
+                    $offers = Offer::where(function ($qq) {
+                        $qq->where('general', 1);
+                    })
+                        ->featured()
+                        ->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                            $q->where('offers_categories.id', $subCategoryId);
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('id', $categoryId);
+                            });
+                        })
+                        ->orderBy($orderBy, 'DESC')
+                        ->limit(10)
+                        ->selection()
+                        ->get();
+                }
+
+            } else { // get non featured offers
+                //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
+                if (!empty($conditions) && count($conditions) > 0) {
+
+                    $offers = Offer::where(function ($qq) {
+                        $qq->where('general', 1);
+
+                    })->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                            $q->where('offers_categories.id', $subCategoryId);
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('id', $categoryId);
+                            });
+                        })
+                        ->where($conditions)
+                        ->selection()
+                        ->orderBy($orderBy, 'DESC')
+                        ->paginate(10);
+                } else {
+                    $offers = Offer::where(function ($qq) {
+                        $qq->where('general', 1);
+                    })
+                        ->active()
+                        ->valid()
+                        ->with(['provider' => function ($q) {
+                            $q->select('id', 'rate', 'logo', 'type_id',
+                                DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                            $q->with(['type' => function ($q) {
+                                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                        }])
+                        ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                            $q->where('offers_categories.id', $subCategoryId);
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('id', $categoryId);
+                            });
+                        })
+                        ->selection()
+                        ->orderBy($orderBy, 'DESC')
+                        ->paginate(10);
+                }
+            }
+        } else {   // if the is no subcategory id  (i.e subCategory_id =0 )will get all offers  in main category
+            if (isset($request->featured) && $request->featured == 1) {
+                if (!empty($conditions) && count($conditions) > 0) {
+                    $offers = Offer::where(function ($qq) {
                         $qq->where('general', 1);
                     })->featured()
                         ->active()
@@ -957,12 +1012,17 @@ class OffersController extends Controller
                             }]);
                         },])
                         ->where($conditions)
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('offers_categories.id', $categoryId);
+                            });
+                        })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
                         ->limit(25)
                         ->get();
                 } else {
-                    $offers = PromoCode::where(function ($qq) {
+                    $offers = Offer::where(function ($qq) {
                         $qq->where('general', 1);
                     })->featured()
                         ->active()
@@ -974,18 +1034,27 @@ class OffersController extends Controller
                                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                             }]);
                         },])
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('offers_categories.id', $categoryId);
+                            });
+                        })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
                         ->limit(25)
                         ->get();
                 }
-            } else
-
+            } else {
                 if (!empty($conditions) && count($conditions) > 0) {
                     // PromoCode::find(6) -> currentId();
-                    $offers = PromoCode::where(function ($qq) {
+                    $offers = Offer::where(function ($qq) {
                         $qq->where('general', 1);
                     })->where($conditions)
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('offers_categories.id', $categoryId);
+                            });
+                        })
                         ->active()
                         ->valid()
                         ->with(['provider' => function ($q) {
@@ -999,10 +1068,15 @@ class OffersController extends Controller
                         ->orderBy($orderBy, 'DESC')
                         ->paginate(10);
                 } else {
-                    $offers = PromoCode::where(function ($qq) {
+                    $offers = Offer::where(function ($qq) {
                         $qq->where('general', 1);
                     })->active()
                         ->valid()
+                        ->whereHas('categories', function ($q) use ($categoryId) {
+                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
+                                $qq->where('offers_categories.parent_id', $categoryId);
+                            });
+                        })
                         ->with(['provider' => function ($q) {
                             $q->select('id', 'rate', 'logo', 'type_id',
                                 DB::raw('name_' . $this->getCurrentLang() . ' as name'));
@@ -1014,6 +1088,7 @@ class OffersController extends Controller
                         ->orderBy($orderBy, 'DESC')
                         ->paginate(10);
                 }
+            }
         }
 
         if (isset($request->featured) && $request->featured == 1) {
@@ -1062,6 +1137,7 @@ class OffersController extends Controller
         }
 
         return $this->returnError('E001', trans('messages.No offers founded'));
+
     }
 
 

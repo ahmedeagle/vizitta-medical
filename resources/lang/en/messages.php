@@ -270,6 +270,8 @@ return [
     'filter not found'  =>  'filter not found',
     'there are reservations need to be closed first'  => 'Sorry There Are Some Reservations need To be Closed first ',
     'invitation code not exist' => 'invitation code not exist' ,
-    'updated your reservation'   => 'updated your reservation'
+    'updated your reservation'   => 'updated your reservation',
+    'offer subcategory not found' => 'Offer Subcategory Not Found'
+
 
 ];

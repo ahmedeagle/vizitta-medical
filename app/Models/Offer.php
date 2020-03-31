@@ -130,6 +130,7 @@ class Offer extends Model
         return $this->belongsToMany('App\Models\OfferCategory', 'offers_categories_pivot', 'offer_id', 'category_id', 'id', 'id');
     }
 
+
     public function users()
     {
         return $this->belongsToMany('App\Models\User', 'user_offers', 'offer_id', 'user_id');

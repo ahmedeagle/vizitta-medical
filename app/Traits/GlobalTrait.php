@@ -13,6 +13,7 @@ use App\Models\Mix;
 use App\Models\City;
 use App\Models\Nationality;
 use App\Models\Nickname;
+use App\Models\OfferCategory;
 use App\Models\Token;
 use App\Models\Payment;
 use App\Models\PromoCodeCategory;
@@ -679,9 +680,10 @@ trait GlobalTrait
 
     public function getPromoCategoriesV2()
     {
-        $category = PromoCodeCategory::query();
+        $category = OfferCategory::query();
         return $category
             ->withOutTimer()
+            ->parentCategories()
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',
@@ -708,9 +710,10 @@ trait GlobalTrait
 
     public function getTimerPromoCategoriesV2()
     {
-        $category = PromoCodeCategory::query();
+        $category = OfferCategory::query();
         return $category
             ->withTimer()
+            ->whereNull('parent_id')
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',
