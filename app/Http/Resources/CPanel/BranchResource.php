@@ -17,9 +17,13 @@ class BranchResource extends ResourceCollection
                 'mobile' => $data->mobile,
                 'city' => app()->getLocale() == 'ar' ? $data->city->name_ar : $data->city->name_en,
                 'district' => app()->getLocale() == 'ar' ? $data->district->name_ar : $data->district->name_en,
-                'status' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                'status' => [
+                    'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                    'value' => $data->status,
+                ],
                 'balance' => $data->balance,
                 'main_provider' => app()->getLocale() == 'ar' ? $data->main_provider->name_ar : $data->main_provider->name_en,
+                'pinned' => $data->subscriptions->first() ? 1 : 0,
                 'created_at' => $data->created_at->format('Y-m-d'),
             ];
         });

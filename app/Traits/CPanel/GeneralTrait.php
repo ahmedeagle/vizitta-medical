@@ -6,13 +6,16 @@ use App\Http\Resources\CPanel\ProviderTypesResource;
 use App\Http\Resources\CPanel\CitiesResource;
 use App\Http\Resources\CPanel\DistrictsResource;
 use App\Http\Resources\CPanel\MainActiveProvidersResource;
+use App\Http\Resources\CPanel\SingleDoctorResource;
 use App\Http\Resources\CPanel\UserFavoriteDoctorsResource;
 use App\Http\Resources\CPanel\UserFavoriteProvidersResource;
 use App\Http\Resources\CPanel\UserRecordsResource;
 use App\Http\Resources\CPanel\UserReservationsResource;
+use App\Http\Resources\CPanel\SingleInsuranceCompanyResource;
 use App\Models\Brand;
 use App\Models\City;
 use App\Models\District;
+use App\Models\Doctor;
 use App\Models\Favourite;
 use App\Models\InsuranceCompany;
 use App\Models\Nationality;
@@ -55,6 +58,12 @@ trait GeneralTrait
     public function getDistricts()
     {
         $result = District::get();
+        return DistrictsResource::collection($result);
+    }
+
+    public function getDistrictsByCityId($cityId)
+    {
+        $result = District::where('city_id', $cityId)->get();
         return DistrictsResource::collection($result);
     }
 
@@ -122,6 +131,16 @@ trait GeneralTrait
         return $brand;
     }
 
+    public function getInsuranceCompanyById($id){
+        $company = InsuranceCompany::find($id);
+        return new SingleInsuranceCompanyResource($company);
+    }
+
+    public function getDoctorDetailsById($id)
+    {
+        $doctor = Doctor::find($id);
+        return new SingleDoctorResource($doctor);
+    }
 
 }
 

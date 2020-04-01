@@ -23,6 +23,15 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('/getDashboardStatistics', 'HomeController@index');
         Route::post('/search', 'HomeController@search');
 
+        ########### Start General Routes #################
+        Route::post('/all-cities-list', 'GeneralController@getAllCitiesList');
+        Route::post('/all-districts-list-by-city-id', 'GeneralController@getAllDistrictsListByCityId');
+        Route::post('/all-provider-types-list', 'GeneralController@getAllProviderTypesList');
+        Route::post('/all-doctors-nicknames-list', 'GeneralController@getAllDoctorsNicknamesList');
+        Route::post('/all-insurance-companies-list', 'GeneralController@getAllInsuranceCompaniesList');
+        Route::post('/all-providers-list', 'GeneralController@getAllProvidersList');
+        ########### End General Routes ###################
+
         ############## Start Insurance Company Routes ##############
         Route::prefix('insurance_company/')->group(function () {
             Route::post('/index', 'InsuranceCompanyController@index');

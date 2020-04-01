@@ -19,7 +19,10 @@ class DoctorResource extends ResourceCollection
                 'nationality' => app()->getLocale() == 'ar' ? $data->nationality->name_ar : $data->nationality->name_en,
                 'provider' => app()->getLocale() == 'ar' ? $data->provider->name_ar : $data->provider->name_en,
                 'price' => $data->price,
-                'status' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                'status' => [
+                    'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
+                    'value' => $data->status,
+                ],
             ];
         });
 

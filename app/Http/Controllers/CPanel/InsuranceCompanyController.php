@@ -29,7 +29,7 @@ class InsuranceCompanyController extends Controller
     public function show(Request $request)
     {
         try {
-            $company = $this->getCompanyById($request->id);
+            $company = $this->getInsuranceCompanyById($request->id);
             if ($company == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
             /*else
