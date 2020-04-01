@@ -75,15 +75,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('register', 'UserController@storeV2');
             Route::post('verify/phone', 'UserController@verifyPhone');
             Route::post('records', 'UserController@getRecordsV2');
-        });
-
-
-        Route::group(['prefix' => 'v3'], function () {
-            Route::post('offers/{featured?}', 'OffersController@indexV2');
+            Route::post('offer/details', 'OffersController@showV2');
         });
 
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
-        Route::post('show-offer/details', 'OffersController@showOfferDetails');
         Route::post('offer/doctors', 'OffersController@doctors')->name('offer.doctors');
         Route::post('custom/pages', 'CustomPagesController@getUserPages')->name('user.custom.pages');
         Route::post('custom/page', 'CustomPagesController@getUserPage')->name('user.custom.page');

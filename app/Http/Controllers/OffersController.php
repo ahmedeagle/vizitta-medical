@@ -912,9 +912,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->limit(10)
@@ -936,9 +934,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->limit(10)
@@ -964,10 +960,9 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
                         })
+
                         ->where($conditions)
                         ->selection()
                         ->orderBy($orderBy, 'DESC')
@@ -987,9 +982,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
                         })
                         ->selection()
                         ->orderBy($orderBy, 'DESC')
@@ -1013,15 +1006,15 @@ class OffersController extends Controller
                         },])
                         ->where($conditions)
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('offers_categories.id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
+
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
                         ->limit(25)
                         ->get();
                 } else {
+
                     $offers = Offer::where(function ($qq) {
                         $qq->where('general', 1);
                     })->featured()
@@ -1035,9 +1028,7 @@ class OffersController extends Controller
                             }]);
                         },])
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('offers_categories.id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
@@ -1051,9 +1042,8 @@ class OffersController extends Controller
                         $qq->where('general', 1);
                     })->where($conditions)
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('offers_categories.id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
+
                         })
                         ->active()
                         ->valid()
@@ -1073,9 +1063,8 @@ class OffersController extends Controller
                     })->active()
                         ->valid()
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                $qq->where('offers_categories.parent_id', $categoryId);
-                            });
+                            $q->where('parent_id',$categoryId);
+
                         })
                         ->with(['provider' => function ($q) {
                             $q->select('id', 'rate', 'logo', 'type_id',
@@ -1153,6 +1142,65 @@ class OffersController extends Controller
                 });
             }
             return $this->returnData('banners', $banners);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function showV2(Request $request, $allow_code = false, $proCode = 0)
+    {
+        try {
+            /* $user = $this->auth('user-api');
+             if (!$user) {
+                 return $this->returnError('D000', trans('messages.User not found'));
+             }*/
+            $validator = Validator::make($request->all(), [
+                "id" => "required|exists:offers,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $user = $this->auth('user-api');
+            $_offer = Offer::active()->with(['provider' => function ($q) {
+                $q->select('id', 'rate', 'logo', 'type_id',
+                    DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                $q->with(['type' => function ($q) {
+                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }, 'offerBranches' => function ($qq) {
+                $qq->select('*')->with(['branch' => function ($qqq) {
+                    $qqq->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                }]);
+            }
+            ])->selection();
+
+            $offer = $_offer->find($request->id);
+            if ($offer != null) unset($offer->provider_id);
+            unset($offer->available_count);
+            unset($offer->status);
+            unset($offer->created_at);
+            unset($offer->updated_at);
+            /* if ($offer->coupons_type_id == 1) {
+                 $offer->price = "0";
+             }*/
+            if ($offer->coupons_type_id == 2) {
+                $offer->discount = "0";
+                if (!$allow_code)
+                    $offer->code = "0";
+                else
+                    $offer->code = $proCode;
+            }
+
+            $offer->content = $offer->contents()->pluck('content_' . app()->getLocale() . ' as content');
+            event(new \App\Events\OfferWasVisitedV2($offer));   // fire increase countrt  event
+
+            return $this->returnData('offer', json_decode(json_encode($offer)));
+
+            // return $this->returnError('E001', trans('messages.No offer with this id'));
+
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
