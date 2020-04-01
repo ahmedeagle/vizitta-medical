@@ -33,7 +33,7 @@ class NotificationsController extends Controller
                 $q->with([$relation]);
             }])->where('type', $request->type)->select('*')->get();*/
 
-            $notifications = Notification::where('type', $request->type)->select('title', 'content', 'created_at')->paginate(PAGINATION_COUNT);
+            $notifications = Notification::where('type', $request->type)->select('id', 'title', 'content', 'created_at')->paginate(PAGINATION_COUNT);
             return response()->json(['status' => true, 'data' => $notifications]);
 
         } catch (\Exception $ex) {
@@ -64,7 +64,7 @@ class NotificationsController extends Controller
         $receivers = Notification::with(['recievers' => function ($q) use ($relation) {
             $q->select("*");
             $q->with([$relation]);
-        }])->find($request->notifyId);
+        }])->where('type', $request->type)->find($request->notifyId);
 
         if (!$receivers)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);

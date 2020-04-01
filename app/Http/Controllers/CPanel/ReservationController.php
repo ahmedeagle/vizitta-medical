@@ -11,6 +11,7 @@ use App\Models\Reason;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
 use App\Traits\Dashboard\ReservationTrait;
+use App\Traits\CPanel\GeneralTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,7 @@ use App\Http\Resources\CPanel\ReservationResource;
 
 class ReservationController extends Controller
 {
-    use ReservationTrait;
+    use ReservationTrait, GeneralTrait;
 
     public function index()
     {
@@ -148,7 +149,7 @@ class ReservationController extends Controller
     public function show(Request $request)
     {
         try {
-            $reservation = $this->getReservationById($request->id);
+            $reservation = $this->getReservationDetailsById($request->id);
             if ($reservation == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
