@@ -36,7 +36,7 @@ class BranchController extends Controller
     public function show(Request $request)
     {
 
-        $branch = $this->getProviderById($request->id);
+        $branch = $this->getProviderDetailsById($request->id);
         if ($branch == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 

@@ -131,7 +131,8 @@ trait GeneralTrait
         return $brand;
     }
 
-    public function getInsuranceCompanyById($id){
+    public function getInsuranceCompanyById($id)
+    {
         $company = InsuranceCompany::find($id);
         return new SingleInsuranceCompanyResource($company);
     }
@@ -140,6 +141,19 @@ trait GeneralTrait
     {
         $doctor = Doctor::find($id);
         return new SingleDoctorResource($doctor);
+    }
+
+    // Providers
+    public function getProviderDetailsById($id)
+    {
+        return Provider::with(['city', 'district'])->find($id);
+    }
+
+    public function getReservationDetailsById($id)
+    {
+        return Reservation::with(['doctor' => function ($q) {
+            $q->select('id', 'name_ar', 'name_en');
+        }, 'paymentMethod'])->find($id);
     }
 
 }
