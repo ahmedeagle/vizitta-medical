@@ -213,6 +213,13 @@
             </li>
         @endcan
 
+        <li class="{{ Request::is('mc33/offers/mainbanners*') ? 'active' : '' }}">
+            <a href="{{ route('admin.offers.mainbanners') }}">
+                <i class="menu-icon fa fa-picture-o fa-fw"></i>
+                <span class="menu-text"> بنرات العروض للرئيسي </span>
+            </a>
+        </li>
+
         @can('show_provider_messages')
             <li class="{{ Request::is('mc33/provider/message*') ? 'active' : '' }}">
                 <a href="{{ route('admin.provider.message') }}">

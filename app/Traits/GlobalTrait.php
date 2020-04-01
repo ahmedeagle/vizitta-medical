@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\Doctor;
 use App\Models\Filter;
 use App\Models\Manager;
+use App\Models\Mbanner;
 use App\Models\Message;
 use App\Models\Mix;
 use App\Models\City;
@@ -707,6 +708,18 @@ trait GlobalTrait
             ->get();
     }
 
+    public function getBanners()
+    {
+        $banners = Mbanner::query();
+        return $banners
+            ->select('id',
+                'photo',
+                DB::raw('bannerable_type AS type'),
+                DB::raw('bannerable_id  as type_id')
+             )
+            ->orderBy('id', 'DESC')
+            ->get();
+    }
 
     public function getTimerPromoCategoriesV2()
     {

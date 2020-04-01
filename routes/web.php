@@ -163,6 +163,15 @@ Route::group(['prefix' => 'mc33', 'namespace' => 'Dashboard', 'middleware' => ['
             Route::get('/delete/{id}', 'BannerController@destroy')->name('admin.offers.banners.delete');
         });
 
+
+        Route::group(['prefix' => 'mainbanners'], function () {
+            Route::get('/', 'MainBannerController@index')->name('admin.offers.mainbanners');
+            Route::get('/add', 'MainBannerController@create')->name('admin.offers.mainbanners.add');
+            Route::post('/add', 'MainBannerController@store')->name('admin.offers.mainbanners.save');
+            Route::get('/delete/{id}', 'MainBannerController@destroy')->name('admin.offers.mainbanners.delete');
+        });
+
+
         Route::get('/data', 'OfferController@getDataTable')->name('admin.offers.data');
         Route::get('/getDataTableOfferBranches/{promoId}', 'OfferController@getDataTableOfferBranches')->name('admin.offers.databranch');
 //        Route::get('/getDataTablePromoCodeDoctors/{promoId}', 'OfferController@getDataTablePromoCodeDoctors')->name('admin.promoCode.datadoctor');

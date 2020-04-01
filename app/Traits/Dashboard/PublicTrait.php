@@ -11,6 +11,7 @@ use App\Models\Nationality;
 use App\Models\Nickname;
 use App\Models\Offer;
 use App\Models\OfferCategory;
+use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
 use App\Models\Provider;
 use App\Models\ProviderType;
@@ -125,6 +126,11 @@ trait PublicTrait
     public function getAllOffersCollectionV2()
     {
         return Offer::select('id', 'title_ar', 'photo')->get();
+    }
+
+    public function getAllOffersCollection()
+    {
+        return PromoCode::select('id', 'title_ar', 'photo')->get();
     }
 
     public function getAllActiveUsersWithCurrentOfferSelected($promoCode = null)

@@ -45,12 +45,13 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::post('payment/methods', 'GlobalController@getPaymentMethods')->name('payment.methods');
     Route::post('specifications', 'GlobalController@getSpecifications')->name('specifications');
     Route::post('coupons/categories', 'GlobalController@getCouponsCategories')->name('couponsCategories');
+    Route::post('offers/banners', 'OffersController@banners');
     Route::group(['prefix' => 'v2'], function () {
         Route::post('coupons/categories', 'GlobalController@getCouponsCategoriesV2');
         Route::post('coupons/filters', 'GlobalController@getCouponsFilters');
         Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
         Route::post('offers/filters', 'OffersController@getOfferFilters');
-        Route::post('offers/banners', 'OffersController@banners');
+        Route::post('offers/banners', 'OffersController@bannersV2');
     });
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');
