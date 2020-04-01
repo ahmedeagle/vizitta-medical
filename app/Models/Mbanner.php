@@ -21,7 +21,6 @@ class Mbanner extends Model
         return $this->morphTo();
     }
 
-
     public function getTypeIdAttribute($val){
         return ($val !== null ? $val : "");
     }

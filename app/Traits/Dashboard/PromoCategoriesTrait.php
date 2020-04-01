@@ -18,7 +18,7 @@ trait PromoCategoriesTrait
         return Laratables::recordsOf(PromoCodeCategory::class, function ($query) {
             return $query->orderBy('lft');
         });
-     }
+    }
 
     public function createPromoCodeCategory($request)
     {
@@ -28,8 +28,10 @@ trait PromoCategoriesTrait
 
     public function updatePromoCodeCategory($promoCodeCategory, $request)
     {
-        $promoCodeCategory = $promoCodeCategory->update($request);
-        return $promoCodeCategory;
+        $promoCodeCategory->update($request);
+        //update its offers status
+        if (isset($promoCodeCategory->promoCodes) && count($promoCodeCategory->promoCodes) > 0)
+            $promoCodeCategory->promoCodes()->update(['status' => $request['status']]);
     }
 
     public static function getPromoCodeCategoryNameById($promoCodeCategory_id)

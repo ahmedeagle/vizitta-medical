@@ -41,6 +41,7 @@ class PromoCategoriesController extends Controller
             "name_en" => "required|max:255",
             "name_ar" => "required|max:255",
             "photo" => "required|mimes:jpeg,bmp,jpg,png",
+            "status" => "required|in:0,1"
         ]);
 
         if ($validator->fails()) {
@@ -80,6 +81,7 @@ class PromoCategoriesController extends Controller
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "photo" => "sometimes|nullable|mimes:jpeg,bmp,jpg,png",
+                "status" => "required|in:0,1"
             ]);
             if ($validator->fails()) {
                 Flashy::error('يوجد خطأ, الرجاء التأكد من إدخال جميع الحقول');
@@ -100,7 +102,8 @@ class PromoCategoriesController extends Controller
             Flashy::success('تم تعديل  القسم  بنجاح');
             return redirect()->route('admin.promoCategories');
         } catch (\Exception $ex) {
-            return view('errors.404');
+           // return view('errors.404');
+            return $ex;
         }
     }
 

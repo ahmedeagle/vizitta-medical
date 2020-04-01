@@ -659,6 +659,7 @@ trait GlobalTrait
         $query = '';
         //if ($timer == 1)// get all categories with countrt time down
         return $category
+            ->active()
             // ->withTimer()
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',

@@ -1,4 +1,4 @@
-<div id="sidebar" class="sidebar responsive ace-save-state">
+<div  class="sidebar responsive ace-save-state">
     <ul class="nav nav-list">
 
         <li class="{{ Request::is('mc33') ? 'active' : '' }}">

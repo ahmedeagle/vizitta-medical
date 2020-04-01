@@ -30,6 +30,7 @@
             <tr>
                 <th>الإسم بالعربيه</th>
                 <th>الإسم بالإنجليزيه</th>
+                <th>حالة القسم</th>
                 <th>خاصية العد التنازلي </th>
                 <th>العمليات</th>
             </tr>
@@ -61,6 +62,7 @@
                 columns: [
                     {name: 'name_ar'},
                     {name: 'name_en'},
+                    {name: 'status'},
                     {name: 'hastimer'},
                     {name: 'action', orderable: false, searchable: false}
                 ],
