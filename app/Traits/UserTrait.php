@@ -387,7 +387,7 @@ trait UserTrait
             }
         } else {
             $provider = $provider->select('id', 'rate', 'logo', 'longitude', 'latitude', 'type_id', 'street', 'address', 'city_id', 'district_id', 'provider_id', 'status',
-                DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw("'0' as distance"));
+                DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw("'0' as distance"),'has_home_visit');
             if ($rate == 1) {
                 $provider = $provider->orderBy('rate', 'DESC');
             }

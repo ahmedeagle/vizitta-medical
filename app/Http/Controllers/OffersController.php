@@ -912,7 +912,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->limit(10)
@@ -934,7 +934,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->limit(10)
@@ -960,9 +960,8 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
                         })
-
                         ->where($conditions)
                         ->selection()
                         ->orderBy($orderBy, 'DESC')
@@ -982,7 +981,7 @@ class OffersController extends Controller
                         }])
                         ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                             $q->where('offers_categories.id', $subCategoryId);
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
                         })
                         ->selection()
                         ->orderBy($orderBy, 'DESC')
@@ -1006,7 +1005,7 @@ class OffersController extends Controller
                         },])
                         ->where($conditions)
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
 
                         })
                         ->orderBy($orderBy, 'DESC')
@@ -1028,7 +1027,7 @@ class OffersController extends Controller
                             }]);
                         },])
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
@@ -1042,7 +1041,7 @@ class OffersController extends Controller
                         $qq->where('general', 1);
                     })->where($conditions)
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
 
                         })
                         ->active()
@@ -1063,7 +1062,7 @@ class OffersController extends Controller
                     })->active()
                         ->valid()
                         ->whereHas('categories', function ($q) use ($categoryId) {
-                            $q->where('parent_id',$categoryId);
+                            $q->where('parent_id', $categoryId);
 
                         })
                         ->with(['provider' => function ($q) {
@@ -1112,7 +1111,6 @@ class OffersController extends Controller
                     $offer->discount = "0";
                     $offer->code = "0";
                 }
-
             }
 
             $offers = json_decode($offers->toJson());
@@ -1150,10 +1148,7 @@ class OffersController extends Controller
     public function showV2(Request $request, $allow_code = false, $proCode = 0)
     {
         try {
-            /* $user = $this->auth('user-api');
-             if (!$user) {
-                 return $this->returnError('D000', trans('messages.User not found'));
-             }*/
+
             $validator = Validator::make($request->all(), [
                 "id" => "required|exists:offers,id",
             ]);

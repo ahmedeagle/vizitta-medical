@@ -178,7 +178,8 @@ trait SearchTrait
                 DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
                 //  DB::raw("'0' as doctor"),
                 DB::raw("'0' as price"),
-                DB::raw("0 as specification_id")
+                DB::raw("0 as specification_id"),
+                'has_home_visit'
 
             );
 
@@ -232,7 +233,8 @@ trait SearchTrait
                     DB::raw("'0' as distance"),
                     //  DB::raw("'0' as doctor"),
                     DB::raw("'0' as price"),
-                    DB::raw("0 as specification_id")
+                    DB::raw("0 as specification_id"),
+                    'has_home_visit'
                 );
 
 
@@ -409,7 +411,8 @@ trait SearchTrait
                         DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
                         //  DB::raw("'0' as doctor"),
                         DB::raw("'0' as price"),
-                        DB::raw("0 as specification_id")
+                        DB::raw("0 as specification_id"),
+                        'has_home_visit'
                     );
                     if ($request->rate == 1) {
                         $provider->orderBy('rate', 'DESC')->orderBy('distance', $request->order);
@@ -436,7 +439,10 @@ trait SearchTrait
                         DB::raw("'0' as distance"),
                         //  DB::raw("'0' as doctor"),
                         DB::raw("'0' as price"),
-                        DB::raw("0 as specification_id"));
+                        DB::raw("0 as specification_id"),
+                        'has_home_visit'
+                    );
+
                     if ($request->rate == 1) {
                         $provider->orderBy('rate', 'DESC');
                     } else

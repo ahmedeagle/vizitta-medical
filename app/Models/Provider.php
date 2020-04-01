@@ -33,7 +33,7 @@ class Provider extends Authenticatable implements JWTSubject
         'no_of_sms', 'status', 'activation', 'activation_code', 'activation_code', 'api_token', 'branch_no', 'paid_balance',
         'unpaid_balance', 'application_percentage', 'application_percentage_bill', 'balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
         'odoo_provider_id',
-        'android_device_hasCode', 'lottery', 'rate'];
+        'android_device_hasCode', 'lottery', 'rate', 'has_home_visit'];
 
     protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill', 'has_insurance', 'is_lottery', 'rate_count'];  // to append coulms to table virtual
 
@@ -270,6 +270,7 @@ class Provider extends Authenticatable implements JWTSubject
         return 1;
     }
 
+
     //is branch has doctors with insurance
     public function getHasInsuranceAttribute()
     {
@@ -364,7 +365,6 @@ class Provider extends Authenticatable implements JWTSubject
             $query->where('amount', '>', 0);
         });
     }
-
 
 
     public function generalNotifications()
