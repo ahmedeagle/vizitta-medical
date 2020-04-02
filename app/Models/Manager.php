@@ -21,7 +21,7 @@ class Manager extends Authenticatable  implements JWTSubject
 
     //ff//
     protected $hidden = [
-        'password', 'remember_token', 'api_token', 'id'
+        'password', 'remember_token', 'api_token',
     ];
 
     public function messages()

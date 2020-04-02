@@ -29,7 +29,7 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         try {
-
+//            dd($request->all());
             $settings = Mix::first();
             if (!$settings) {
                 return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
@@ -52,7 +52,7 @@ class SettingsController extends Controller
                 'home_image2' => $fileName2,
             ]);
 
-            $this->updateAgree($request);
+//            $this->updateAgree($request);
             return response()->json(['status' => true, 'msg' => __('main.settings_updated_successfully')]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);

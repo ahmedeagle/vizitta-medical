@@ -21,7 +21,7 @@ class UserCPanelController extends Controller
 
     public function index()
     {
-        $result = Manager::select('name_en', 'name_ar', 'mobile', 'email', 'created_at')->paginate(PAGINATION_COUNT);
+        $result = Manager::select('id', 'name_en', 'name_ar', 'mobile', 'email', 'created_at')->paginate(PAGINATION_COUNT);
         return response()->json(['status' => true, 'data' => $result]);
     }
 
