@@ -276,6 +276,7 @@ return [
     'cancel the reservation'  => 'بالغاء الحجز رقم',
     'You have new reservation no:'  => 'هناك حجز جديد برقم :',
     'updated your reservation'   => 'تحديث موعد الحجز الخاص بكم',
-    'offer subcategory not found' => 'القسم الفرعي غير موجود'
+    'offer subcategory not found' => 'القسم الفرعي غير موجود',
+    'branch not found'  => 'الفرع غير موجود لدينا'
 
 ];

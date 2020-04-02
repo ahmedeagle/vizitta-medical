@@ -52,6 +52,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
         Route::post('offers/filters', 'OffersController@getOfferFilters');
         Route::post('offers/banners', 'OffersController@bannersV2');
+
     });
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');
@@ -70,13 +71,16 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
 
-
         Route::group(['prefix' => 'v2'], function () {
-            Route::post('offers/{featured?}', 'OffersController@indexV2');
+            Route::group(['prefix' => 'offers'], function () {
+                Route::post('/', 'OffersController@indexV2');
+                Route::post('details', 'OffersController@showV2');
+                Route::post('available/times', 'OffersController@getAvailableTimes');
+            });
+
             Route::post('register', 'UserController@storeV2');
             Route::post('verify/phone', 'UserController@verifyPhone');
             Route::post('records', 'UserController@getRecordsV2');
-            Route::post('offer/details', 'OffersController@showV2');
         });
 
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
