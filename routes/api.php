@@ -9,6 +9,11 @@ Route::get('/optimize', function () {
     return '<h1>Composer dump-autoload</h1>';
 });
 
+Route::get('/test', function () {
+
+   \App\Models\Offer::find(8);
+});
+
 // Composer dump-autoload:
 Route::get('/composer-dump-autoload', function () {
     exec('composer dump-autoload');

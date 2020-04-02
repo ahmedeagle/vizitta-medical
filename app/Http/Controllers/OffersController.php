@@ -1254,7 +1254,7 @@ class OffersController extends Controller
 
 
             if ($offer != null) {
-                $day = $doctor->times()->where('day_code', $dayCode)->first();
+                $day = $offer -> $doctor->times()->where('day_code', $dayCode)->first();
                 $doctorTimesCount = $this->getDoctorTimePeriodsInDay($day, $dayCode, true);
                 $times = [];
                 $date = $request->date;
