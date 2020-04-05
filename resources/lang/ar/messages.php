@@ -258,6 +258,7 @@ return [
 
     'dear_service_provider' => 'عزيزي مقدم الخدمة ',
     'provider_have_new_reservation_from_MedicalCall' => 'لديك حجز جديد من مستفيدي تطبيق ميديكل كول يرجى تأكيد الطلب فوراً عبر منصة قبول الطلبات mcall.sa ',
+    'provider_have_new_service_reservation_from_MedicalCall' => 'لديك حجز خدمة جديد من مستفيدي تطبيق ميديكل كول يرجى تأكيد الطلب فوراً عبر منصة قبول الطلبات mcall.sa ',
     'your_reservation_has_been_accepted_from' => 'لقد تم قبول حجزك من ',
     'if_you_wish_to_change_reservations' => 'في حال الرغبة بتغيير الحجز أو الإلغاء يرجى التواصل مع خدمة العملاء 920035999',
 
@@ -284,7 +285,10 @@ return [
     'no service with this id' => 'لا يوجد خدمة بهذا الرقم',
     'The service can not be deleted'  => 'لا يمكن مسح الخدمة حيث ترتبط بحجوزات',
     'service deleted successfully'  => 'تم حذف الخدمة بتوقيتاتها بنجاح ',
-    'service updated successfully'  => 'تم تحديث الخدمة بنجاح '
+    'service updated successfully'  => 'تم تحديث الخدمة بنجاح ',
+    'This day is not in service days'  => 'هذا اليوم ليس من ايام الخدمة',
+    'New Service Reservation' =>  'حجز خدمة جديد',
+    'You have new service reservation' => 'لديكم حجز خدمة جديد',
 
 
 ];

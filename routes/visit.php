@@ -15,6 +15,19 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('delete', 'ServiceController@destroy');
         });
         ############## End Visits Routes ##############
+
+        ############### Banners Routes ##############
+        Route::prefix('banners')->group(function () {
+            Route::post('/', 'BannerController@index');
+            Route::post('store', 'BannerController@store');
+            Route::post('edit', 'BannerController@edit');
+            Route::post('update', 'BannerController@update');
+            Route::post('delete', 'BannerController@destroy');
+        });
+        ############### End Banners Routes ##############
+
     });
+
+
 });
 

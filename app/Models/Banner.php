@@ -21,4 +21,9 @@ class Banner extends Model
         return $this->morphTo();
     }
 
+    public function scopeSelection($query){
+
+        return $query -> select('id', 'photo', 'bannerable_type', 'bannerable_id');
+    }
+
 }

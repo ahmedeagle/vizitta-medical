@@ -26,7 +26,7 @@ trait ServicesTrait
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'provider' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        },'serviceType' => function ($q3) {
+        }, 'serviceType' => function ($q3) {
             $q3->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ]);
@@ -41,8 +41,48 @@ trait ServicesTrait
         );
 
         if ($id != null)
-             return $services->first();
+            return $services->first();
         else
             return $services->paginate(PAGINATION_COUNT);
     }
+
+
+    public function getServicesForEdit($id = null)
+    {
+        $services = Service::query();
+        $services = $services->with(['specification' => function ($q1) {
+            $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'branch' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'provider' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'serviceType' => function ($q3) {
+            $q3->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ]);
+
+        if ($id != null)
+            $services = $services->where('id', $id);
+        $services = $services->select(
+            'id',
+            'title_ar',
+            'title_en',
+            'information_ar',
+            'information_en',
+            'specification_id',
+            'provider_id',
+            'branch_id',
+            'type',
+            'rate',
+            'price',
+            'status',
+            'reservation_period'
+        );
+
+        if ($id != null)
+            return $services->first();
+        else
+            return $services->paginate(PAGINATION_COUNT);
+    }
+
 }

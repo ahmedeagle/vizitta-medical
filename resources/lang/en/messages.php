@@ -257,6 +257,7 @@ return [
 
     'dear_service_provider' => 'Dear service provider ',
     'provider_have_new_reservation_from_MedicalCall' => 'You have a new reservation from MedicalCall application recipients. Please confirm the request immediately through the mcall.sa application acceptance platform ',
+    'provider_have_new_service_reservation_from_MedicalCall' => 'You have a new service reservation from MedicalCall application recipients. Please confirm the request immediately through the mcall.sa application acceptance platform ',
     'your_reservation_has_been_accepted_from' => 'Your reservation has been accepted from ',
     'if_you_wish_to_change_reservations' => 'If you wish to change reservations or cancel, please contact customer service 920035999',
 
@@ -272,7 +273,9 @@ return [
     'invitation code not exist' => 'invitation code not exist' ,
     'updated your reservation'   => 'updated your reservation',
     'offer subcategory not found' => 'Offer Subcategory Not Found',
-    'branch not found'  => 'branch not found'
+    'branch not found'  => 'branch not found',
+    'New Service Reservation' =>  'New Service Reservation',
+    'You have new service reservation' => 'You have new service reservation',
 
 
 
