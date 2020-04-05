@@ -627,6 +627,17 @@ trait GlobalTrait
                 . "' AND  day_date = '" . Carbon::parse($fields['reservation']['day_date'])->format('Y-m-d')
                 . "') as reserved_times_found, ";
         }
+        if (isset($fields['service']) && is_array($fields['service']) && count($fields['service']) > 3) {
+            $query .= "(SELECT count(*) from reservations where service_id = '" . $fields['service']['service_id']
+                . "' AND  day_date = '" . Carbon::parse($fields['service']['day_date'])->format('Y-m-d')
+                . "' AND  from_time = '" . $fields['service']['from_time']
+                . "' AND  to_time = '" . $fields['service']['to_time']
+                . "' AND approved != '2') as service_found, ";
+            $query .= "(SELECT count(*) from reserved_times where service_id = '" . $fields['service']['service_id']
+                . "' AND  day_date = '" . Carbon::parse($fields['service']['day_date'])->format('Y-m-d')
+                . "') as reserved_times_found, ";
+        }
+
 
         $query .= "(SELECT 1) as counts";
         return \Illuminate\Support\Facades\DB::select('SELECT ' . $query . ' from dual;')[0];
@@ -717,7 +728,7 @@ trait GlobalTrait
                 'photo',
                 DB::raw('bannerable_type AS type'),
                 DB::raw('bannerable_id  as type_id')
-             )
+            )
             ->orderBy('id', 'DESC')
             ->get();
     }

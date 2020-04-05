@@ -176,7 +176,6 @@ class Doctor extends Model
     public function getAvailableTimeAttribute()
     {
         try {
-
             $days = $this->times;
             $match = $this->getMatchedDateToDays($days);
             if (!$match || $match['date'] == null)

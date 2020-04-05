@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PromoCode;
 use App\Models\People;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\Provider;
 use App\Models\Reservation;
@@ -32,32 +33,18 @@ class ServiceController extends Controller
     use GlobalTrait, DoctorTrait, PromoCodeTrait, OdooTrait, SMSTrait;
 
 
-    public function reserveTimeV2(Request $request)
+    public function reserveTime(Request $request)
     {
         $rules = [
-            "promocode" => "max:255",
-            "doctor_id" => "required|numeric",
-            "payment_method_id" => "required|numeric",
+            "service_id" => "required|numeric|exists:services,id",
+            "payment_method_id" => "required|numeric|exists:payment_methods,id",
             "day_date" => "required|date",
             "agreement" => "required|boolean",
             "from_time" => "required",
             "to_time" => "required",
-            "doctor_rate" => "numeric|min:0|max:5",
-            "provider_rate" => "numeric|min:0|max:5",
-            "use_insurance" => "boolean",
-            "name" => "max:255",
-            "birth_date" => "sometimes|nullable|date",
-            "for_me" => "required|boolean",
+            "address" => "required"
         ];
 
-        if ($request->use_insurance == 1 or $request->use_insurance == '1') {
-            $rules['insurance_company_id'] = 'required|exists:insurance_companies,id';
-            $rules['insurance_image'] = 'required';
-        }
-
-        if ($request->for_me == 0 or $request->for_me == '0') {
-            $rules['phone'] = 'required';
-        }
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -69,92 +56,42 @@ class ServiceController extends Controller
         $user = $this->auth('user-api');
         if ($user == null)
             return $this->returnError('E001', trans('messages.There is no user with this id'));
+        $validation = $this->validateFields(['service' => ['service_id' => $request->service_id, 'day_date' => $request->day_date, 'from_time' => $request->from_time, 'to_time' => $request->to_time]]);
+        try {
 
-        $validation = $this->validateFields(['doctor_id' => $request->doctor_id, 'payment_method_id' => $request->payment_method_id,
-            'reservation' => ['doctor_id' => $request->doctor_id, 'day_date' => $request->day_date, 'from_time' => $request->from_time, 'to_time' => $request->to_time]]);
+            DB::beginTransaction();
 
-        DB::beginTransaction();
+        } catch (\Exception $ex) {
+
+            DB::rollback();
+            return $this->returnError('D000', __('messages.sorry please try again later'));
+        }
+
+
         if (!$request->agreement)
             return $this->returnError('E006', trans('messages.Agreement is required'));
 
-        //$doctor = $this->findDoctor($request->doctor_id);
-        if (!$validation->doctor_found)
-            return $this->returnError('D000', trans('messages.No doctor with this id'));
-
-        //$paymentMethod = $this->getPaymentMethodByID($request->payment_method_id);
-        if (!$validation->payment_method_found)
-            return $this->returnError('D000', trans('messages.No payment method with this id'));
 
         if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
             ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
             return $this->returnError('D000', trans("messages.You can't reserve to a time passed"));
 
-        //$reservedDay = $this->getReservedDay($doctor->id, $request->day_date);
-        //  if($validation->reserved_times_found)
-        //    return $this->returnError('E001', trans('messages.All day times already reserved'));
-
-        //$hasReservation = $this->checkReservationInDate($request->doctor_id, $request->day_date, $request->from_time, $request->to_time);
-        if ($validation->reservation_found)
+        if ($validation->service_found)
             return $this->returnError('E001', trans('messages.This time is not available'));
 
-        $doctor = Doctor::with('times')->find($request->doctor_id);
-        $specification = $doctor->specification_id;
-        $promoCode = null;
-        $promo_id = null;
-
-        $reserveWithPrepaidCoupon = false;
-        if (isset($request->promocode)) {
-            $promoCode = $this->getPromoByCode($request->promocode, $doctor->id, $doctor->provider_id); // discount coupon
-            if ($promoCode) {
-
-                if (strtotime($request->day_date) > strtotime($promoCode->expired_at)) {
-                    return $this->returnError('E002', trans('messages.reservation_date_greater_than_coupon_expired_at') . '( ' . $promoCode->expired_at . ' )');
-                }
-
-                $promo_id = $promoCode->id;
-                if ($promoCode->available_count > 0) {
-                    $promoCode->update([
-                        'available_count' => ($promoCode->available_count - 1)
-                    ]);
-                } else {
-                    return $this->returnError('E002', trans('messages.exceeded the coupon limit'));
-                }
-            } else {  // prepaid coupon
-                $promoCode = $this->getPaidPromoByCode($request->promocode);
-                if (!$promoCode) {
-                    return $this->returnError('E002', trans('messages.PromoCode is invalid'));
-                }
-                $promo_id = $promoCode->offer_id;
-                // check if  coupon paid by login user or invite
-                $owner = $this->checkIfCoupounPaid($promoCode->offer_id, $user->id);
-                if (!$owner) {
-                    return $this->returnError('E002', trans('messages.you not Owner Of this coupon'));
-                }
-                $promo = PromoCode::find($promoCode->offer_id);
-                if ($promo) {
-                    if ($promo->available_count > 0) {
-                        $promo->update([
-                            'available_count' => ($promo->available_count - 1)
-                        ]);
-                    } else {
-                        return $this->returnError('E002', trans('messages.exceeded the coupon limit'));
-                    }
-                } else {
-                    return $this->returnError('E002', trans('messages.coupon not found'));
-                }
-                $reserveWithPrepaidCoupon = true;
-            }
-        }
+        $service = Service::with('times')->find($request->service_id);
+        $specification = $service->specification_id;
 
         $reservationDayName = date('l', strtotime($request->day_date));
+
         $rightDay = false;
         $timeOrder = 1;
         $last = false;
         $times = [];
         $day_code = substr(strtolower($reservationDayName), 0, 3);
-        foreach ($doctor->times as $time) {
+        foreach ($service->times as $time) {
             if ($time['day_code'] == $day_code) {
-                $times = $this->getDoctorTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
+                $times = $this->getServiceTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
                 foreach ($times as $key => $time) {
                     if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
                         && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
