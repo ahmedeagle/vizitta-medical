@@ -12,6 +12,7 @@ class DoctorResource extends ResourceCollection
         $result['data'] = $this->collection->transform(function ($data) {
             return [
                 'id' => $data->id,
+                'doctor_type' => $data->doctor_type,
                 'name' => app()->getLocale() == 'ar' ? $data->name_ar : $data->name_en,
                 'gender' => $data->gender == 1 ? __('main.male') : __('main.female'),
                 'nickname' => app()->getLocale() == 'ar' ? $data->nickname->name_ar : $data->nickname->name_en,

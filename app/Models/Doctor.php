@@ -127,12 +127,12 @@ class Doctor extends Model
 
     ########### Start Consultative Doctor Times ##########
 
-    public function ConsultativeTimes()
+    public function consultativeTimes()
     {
         return $this->hasMany('App\Models\ConsultativeDoctorTime', 'doctor_id', 'id')->orderBy('order');
     }
 
-    public function ConsultativeTimesCode()
+    public function consultativeTimesCode()
     {
         return $this->hasMany('App\Models\ConsultativeDoctorTime', 'doctor_id', 'id');
     }

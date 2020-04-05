@@ -8,8 +8,9 @@ class SingleDoctorResource extends JsonResource
 {
     public function toArray($request)
     {
-        return [
+        $result = [
             'id' => $this->id,
+            'doctor_type' => $this->doctor_type,
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'name_ar' => $this->name_ar,
             'name_en' => $this->name_en,
@@ -21,7 +22,6 @@ class SingleDoctorResource extends JsonResource
             'nickname' => app()->getLocale() == 'ar' ? $this->nickname->name_ar : $this->nickname->name_en,
             'specification' => app()->getLocale() == 'ar' ? $this->specification->name_ar : $this->specification->name_en,
             'nationality' => app()->getLocale() == 'ar' ? $this->nationality->name_ar : $this->nationality->name_en,
-            'provider' => app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en,
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
@@ -34,6 +34,14 @@ class SingleDoctorResource extends JsonResource
                 'value' => $this->status,
             ],
         ];
+
+        if ($this->doctor_type == 'clinic') {
+            $result['provider'] = app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en;
+        }
+        else{
+            $result['consultativeTimes'] = $this->consultativeTimes;
+        }
+        return $result;
     }
 
 }

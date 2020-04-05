@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\DoctorResource;
 use App\Mail\AcceptReservationMail;
+use App\Models\ConsultativeDoctorTime;
 use App\Models\ReservedTime;
 use App\Traits\Dashboard\DoctorTrait;
 use App\Traits\Dashboard\PublicTrait;
@@ -96,38 +97,33 @@ class DoctorController extends Controller
 
     public function store(Request $request)
     {
-
-        /*$times = [];
-        $times = $_COOKIE['working_hours'];
-        if (isset($_COOKIE['working_hours'])) {
-            $times = $_COOKIE['working_hours'];
-            $request->request->add(['working_days' => json_decode($times, true)]);
-        }*/
-
         try {
-            $validator = Validator::make($request->all(), [
+            $requestData = $request->all();
+            $rules = [
+                "doctor_type" => "required|in:clinic,consultative",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "gender" => "required|in:1,2",
-                "provider_id" => "required|numeric|exists:providers,id",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
                 "specification_id" => "required|numeric|exists:specifications,id",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
                 "price" => "required|numeric",
                 "status" => "required|in:0,1",
-                //  "insurance_companies"   => "required|array|min:1",
-                //"insurance_companies.*"   => "required",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
-            ]);
+            ];
 
+            if ($requestData['doctor_type'] == 'clinic') {
+                $rules["provider_id"] = "required|numeric|exists:providers,id";
+            } else {
+                if (isset($requestData['consultations_working_days'])) {
+                    $rules["consultations_working_days"] = "required|array|min:1";
+                }
+            }
 
-            /*if (isset($_COOKIE['working_hours'])) {
-                unset($_COOKIE['working_hours']);
-                setcookie('working_hours', null, -1, '/');
-            }*/
+            $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
@@ -141,10 +137,11 @@ class DoctorController extends Controller
             DB::beginTransaction();
             try {
 
-                $doctor = Doctor::create([
+                $doctorInfo = [
+                    "doctor_type" => $request->doctor_type,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    "provider_id" => $request->provider_id,
+                    "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
                     "photo" => $fileName,
@@ -155,15 +152,18 @@ class DoctorController extends Controller
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
                     "status" => true
-                ]);
+                ];
+                $doctor = Doctor::create($doctorInfo);
 
-                // Insurance company IDs
-                if ($request->has('insurance_companies') && is_array($request->insurance_companies)) {
-                    $insurance_companies_data = [];
-                    foreach ($request->insurance_companies as $company) {
-                        $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
+                if ($requestData['doctor_type'] == 'clinic') {
+                    // Insurance company IDs
+                    if ($request->has('insurance_companies') && is_array($request->insurance_companies)) {
+                        $insurance_companies_data = [];
+                        foreach ($request->insurance_companies as $company) {
+                            $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
+                        }
+                        $insurancs = InsuranceCompanyDoctor::insert($insurance_companies_data);
                     }
-                    $insurancs = InsuranceCompanyDoctor::insert($insurance_companies_data);
                 }
 
                 // working days
@@ -179,20 +179,32 @@ class DoctorController extends Controller
                         return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
                     }
 
-                    $working_days_data[] = [
-                        'provider_id' => $request->provider_id,
+                    $workingDays = [
                         'day_name' => strtolower($working_day['day']),
                         'day_code' => substr(strtolower($working_day['day']), 0, 3),
                         'from_time' => $from->format('H:i'),
                         'to_time' => $to->format('H:i'),
                         'order' => array_search(strtolower($working_day['day']), $days),
-                        'reservation_period' => $request->reservation_period];
+                        'reservation_period' => $request->reservation_period
+                    ];
+
+                    if ($requestData['doctor_type'] == 'clinic') {
+                        $workingDays['provider_id'] = $request->provider_id;
+                    }
+                    $working_days_data[] = $workingDays;
                 }
 
                 for ($i = 0; $i < count($working_days_data); $i++) {
                     $working_days_data[$i]['doctor_id'] = $doctor->id;
                 }
+
                 $times = DoctorTime::insert($working_days_data);
+
+                if ($requestData['doctor_type'] == 'consultative') {
+                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
+                        $times = ConsultativeDoctorTime::insert($working_days_data);
+                    }
+                }
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.doctor_added_successfully')]);
 
@@ -208,12 +220,7 @@ class DoctorController extends Controller
 
     public function edit(Request $request)
     {
-
-        /*if (isset($_COOKIE['working_hoursedit'])) {
-            setcookie('working_hoursedit', '', -1);
-        }*/
-
-        $doctor = $this->getDoctorById($request->id);
+        $doctor = Doctor::with('consultativeTimes')->find($request->id);
         $doctor->makeVisible(['specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id']);
         if ($doctor == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
@@ -255,35 +262,33 @@ class DoctorController extends Controller
 
     public function update(Request $request)
     {
-        /*$times = [];
-        if (isset($_COOKIE['working_hoursedit'])) {
-            $times = $_COOKIE['working_hoursedit'];
-            $request->request->add(['working_days' => json_decode($times, true)]);
-        }*/
-
         try {
-            $validator = Validator::make($request->all(), [
+            $requestData = $request->all();
+            $rules = [
+                "doctor_type" => "required|in:clinic,consultative",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "gender" => "required|in:1,2",
-                "provider_id" => "required|numeric|exists:providers,id",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
                 "specification_id" => "required|numeric|exists:specifications,id",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
                 "price" => "required|numeric",
                 "status" => "required|in:0,1",
-                //   "insurance_companies"   => "required|array|min:1",
-                //   "insurance_companies.*"   => "required",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
-            ]);
+            ];
 
-            /*if (isset($_COOKIE['working_hoursedit'])) {
-                unset($_COOKIE['working_hoursedit']);
-                setcookie('working_hoursedit', null, -1, '/');
-            }*/
+            if ($requestData['doctor_type'] == 'clinic') {
+                $rules["provider_id"] = "required|numeric|exists:providers,id";
+            } else {
+                if (isset($requestData['consultations_working_days'])) {
+                    $rules["consultations_working_days"] = "required|array|min:1";
+                }
+            }
+
+            $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
@@ -306,14 +311,19 @@ class DoctorController extends Controller
                     return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
                 }
 
-                $working_days_data[] = [
-                    'provider_id' => $request->provider_id,
+                $workingDays = [
                     'day_name' => strtolower($working_day['day']),
                     'day_code' => substr(strtolower($working_day['day']), 0, 3),
                     'from_time' => $from->format('H:i'),
                     'to_time' => $to->format('H:i'),
                     'order' => array_search(strtolower($working_day['day']), $days),
-                    'reservation_period' => $request->reservation_period];
+                    'reservation_period' => $request->reservation_period
+                ];
+
+                if ($requestData['doctor_type'] == 'clinic') {
+                    $workingDays['provider_id'] = $request->provider_id;
+                }
+                $working_days_data[] = $workingDays;
             }
 
             for ($i = 0; $i < count($working_days_data); $i++) {
@@ -328,21 +338,43 @@ class DoctorController extends Controller
             DB::beginTransaction();
 
             try {
-                $this->updateDoctor($doctor, $request);
-                $doctor->update([
-                    'photo' => $path
-                ]);
+                $doctorInfo = [
+                    "name_en" => $request->name_en,
+                    "name_ar" => $request->name_ar,
+                    "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
+                    "nickname_id" => $request->nickname_id,
+                    "gender" => $request->gender,
+                    "photo" => $path,
+                    "information_en" => $request->information_en,
+                    "information_ar" => $request->information_ar,
+                    "specification_id" => $request->specification_id,
+                    "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : null,
+                    "price" => $request->price,
+                    "reservation_period" => $request->reservation_period,
+                    "status" => $request->status
+                ];
+                $doctor->update($doctorInfo);
 
-                // Insurance company IDs
-                if ($request->has('insurance_companies') && is_array($request->insurance_companies) && !empty($request->insurance_companies)) {
-                    $doctor->insuranceCompanies()->sync($request->insurance_companies); // manay to many save only the new values and delete others from database
-                } else {
-                    // $doctor -> insuranceCompanies() -> delete();
-                    InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+                if ($requestData['doctor_type'] == 'clinic') {
+                    // Insurance company IDs
+                    if ($request->has('insurance_companies') && is_array($request->insurance_companies) && !empty($request->insurance_companies)) {
+                        $doctor->insuranceCompanies()->sync($request->insurance_companies); // manay to many save only the new values and delete others from database
+                    } else {
+                        // $doctor -> insuranceCompanies() -> delete();
+                        InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+                    }
                 }
 
                 $doctor->times()->delete();
                 $doctor->times()->insert($working_days_data);
+
+                if ($requestData['doctor_type'] == 'consultative') {
+                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
+                        $doctor->consultativeTimes()->delete();
+                        $doctor->consultativeTimes()->insert($working_days_data);
+                    }
+                }
+
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.doctor_updated_successfully')]);
 
@@ -460,7 +492,7 @@ class DoctorController extends Controller
         return array_values($unavaibledates);
     }
 
-    // api
+// api
     public function getDoctorAvailableTime(Request $request)
     {
         try {
@@ -497,7 +529,6 @@ class DoctorController extends Controller
             'content' => $view['main'],
         ]);
     }*/
-
 
     public function removeShiftTimes(Request $request)
     {
