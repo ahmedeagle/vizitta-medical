@@ -17,7 +17,7 @@ class Doctor extends Model
         'status' => 'integer',
     ];
 
-    protected $fillable = ['name_en', 'name_ar', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
+    protected $fillable = ['doctor_type', 'name_en', 'name_ar', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
         'provider_id', 'specification_id', 'nationality_id', 'price', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en','waiting_period'];
 
     protected $hidden = ['pivot', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
@@ -120,11 +120,24 @@ class Doctor extends Model
         return $this->hasMany('App\Models\DoctorTime', 'doctor_id', 'id')->orderBy('order');
     }
 
-
     public function TimesCode()
     {
         return $this->hasMany('App\Models\DoctorTime', 'doctor_id', 'id');
     }
+
+    ########### Start Consultative Doctor Times ##########
+
+    public function ConsultativeTimes()
+    {
+        return $this->hasMany('App\Models\ConsultativeDoctorTime', 'doctor_id', 'id')->orderBy('order');
+    }
+
+    public function ConsultativeTimesCode()
+    {
+        return $this->hasMany('App\Models\ConsultativeDoctorTime', 'doctor_id', 'id');
+    }
+
+    ########### End Consultative Doctor Times ##########
 
     public function favourites()
     {
