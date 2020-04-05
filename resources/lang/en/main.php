@@ -162,4 +162,12 @@ return [
     'filter_type_updated_successfully'                                  => 'Filter operation updated successfully',
     'filter_type_deleted_successfully'                                  => 'Filter operation deleted successfully',
 
+    'offer_category_added_successfully'                                 => 'Offer category added successfully',
+    'offer_category_updated_successfully'                               => 'Offer category updated successfully',
+    'offer_category_deleted_successfully'                               => 'Offer category deleted successfully',
+
+    'enter_all_validation_inputs'                                       => 'There is an error, please make sure to enter all fields',
+    'added_successfully'                                                => 'Added successfully',
+    'saved_successfully'                                                => 'Saved successfully',
+
 ];

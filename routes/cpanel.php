@@ -30,6 +30,9 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('/all-doctors-nicknames-list', 'GeneralController@getAllDoctorsNicknamesList');
         Route::post('/all-insurance-companies-list', 'GeneralController@getAllInsuranceCompaniesList');
         Route::post('/all-providers-list', 'GeneralController@getAllProvidersList');
+        Route::post('/all-branches-list', 'GeneralController@getAllBranchesList');
+        Route::post('/all-provider-branches-list/{id}', 'GeneralController@getAllProviderBranchesList');
+        Route::post('/all-specifications-list', 'GeneralController@getAllSpecificationsList');
         ########### End General Routes ###################
 
         ############## Start Insurance Company Routes ##############
@@ -332,6 +335,21 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/delete/{id}', "OfferFilterController@destroy");
         });
         ############## End Offers Filters Routes ##############
+
+        ############### Start Offers Categories Routes ##############
+        Route::prefix('offers-categories/')->group(function () {
+            Route::post('/index', "OfferCategoriesController@index");
+            Route::post("/create", "OfferCategoriesController@create");
+            Route::post("/store", "OfferCategoriesController@store");
+            Route::post('/edit/{id}', 'OfferCategoriesController@edit');
+            Route::post('/update/{id}', 'OfferCategoriesController@update');
+            Route::post('/delete/{id}', "OfferCategoriesController@destroy");
+            Route::post('/getTime/{id}', "OfferCategoriesController@getTime");
+            Route::post('/addToTimer', "OfferCategoriesController@addToTimer");
+            Route::post('/reorderCategories', "OfferCategoriesController@reorderCategories");
+            Route::post('/saveReorderCategories', "OfferCategoriesController@saveReorderCategories");
+        });
+        ############## End Offers Categories Routes ##############
 
 
     });

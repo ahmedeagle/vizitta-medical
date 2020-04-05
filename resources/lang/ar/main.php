@@ -162,4 +162,12 @@ return [
     'filter_type_updated_successfully'                                    => 'تم تحديث عملية الفلتره بنجاح',
     'filter_type_deleted_successfully'                                    => 'تم حذف عملية الفلتره بنجاح',
 
+    'offer_category_added_successfully'                                   => 'تم إضافة قسم عروض بنجاح',
+    'offer_category_updated_successfully'                                 => 'تم تحديث قسم عروض بنجاح',
+    'offer_category_deleted_successfully'                                 => 'تم حذف قسم عروض بنجاح',
+
+    'enter_all_validation_inputs'                                         => 'يوجد خطأ, الرجاء التأكد من إدخال جميع الحقول',
+    'added_successfully'                                                  => 'تمت الاضافة بنجاح',
+    'saved_successfully'                                                  => 'تم الحفظ بنجاح',
+
 ];

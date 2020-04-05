@@ -53,4 +53,22 @@ class GeneralController extends Controller
         return response()->json(['status' => true, 'data' => $result]);
     }
 
+    public function getAllBranchesList(Request $request)
+    {
+        $result = $this->getMainActiveBranches();
+        return response()->json(['status' => true, 'data' => $result]);
+    }
+
+    public function getAllProviderBranchesList(Request $request)
+    {
+        $result = $this->getMainActiveProviderBranches($request->id);
+        return response()->json(['status' => true, 'data' => $result]);
+    }
+
+    public function getAllSpecificationsList(Request $request)
+    {
+        $result = $this->apiGetAllSpecifications();
+        return response()->json(['status' => true, 'data' => $result]);
+    }
+
 }
