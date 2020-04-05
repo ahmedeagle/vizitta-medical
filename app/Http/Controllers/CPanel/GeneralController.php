@@ -53,4 +53,10 @@ class GeneralController extends Controller
         return response()->json(['status' => true, 'data' => $result]);
     }
 
+    public function getAllBranchesList(Request $request)
+    {
+        $result = $this->getMainActiveBranches();
+        return response()->json(['status' => true, 'data' => $result]);
+    }
+
 }

@@ -30,6 +30,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('/all-doctors-nicknames-list', 'GeneralController@getAllDoctorsNicknamesList');
         Route::post('/all-insurance-companies-list', 'GeneralController@getAllInsuranceCompaniesList');
         Route::post('/all-providers-list', 'GeneralController@getAllProvidersList');
+        Route::post('/all-branches-list', 'GeneralController@getAllBranchesList');
         ########### End General Routes ###################
 
         ############## Start Insurance Company Routes ##############

@@ -73,6 +73,12 @@ trait GeneralTrait
         return MainActiveProvidersResource::collection($result);
     }
 
+    public function getMainActiveBranches()
+    {
+        $result = Provider::where('status', true)->whereNotNull('provider_id')->get();
+        return MainActiveProvidersResource::collection($result);
+    }
+
     public function apiGetAllSpecifications()
     {
         return Specification::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
