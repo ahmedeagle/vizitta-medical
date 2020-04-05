@@ -112,7 +112,7 @@ trait DoctorTrait
         return $times;
     }
 
-    public function getDoctorTimePeriodsInDay($working_day, $day_code, $count = false)
+    public function getOfferTimePeriodsInDayByBranchId($working_day, $day_code, $count = false)
     {
         $times = [];
         $j = 0;
@@ -125,6 +125,29 @@ trait DoctorTrait
                 $times[$j]['day_code'] = $working_day['day_code'];
                 $times[$j]['day_name'] = $working_day['day_name'];
                 $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                $times[$j++]['time_duration'] = $working_day['time_duration'];
+            }
+        }
+        if ($count)
+            return count($times);
+        return $times;
+    }
+
+
+    public function getOfferTimePeriodsInDay($working_day, $day_code, $count = false)
+    {
+        $times = [];
+        $j = 0;
+        if ($working_day['day_code'] == $day_code) {
+            $from = strtotime($working_day['time_from']);
+            $to = strtotime($working_day['time_to']);
+            $diffInterval = ($to - $from) / 60;
+            $periodCount = $diffInterval / $working_day['duration'];
+            for ($i = 0; $i < round($periodCount); $i++) {
+                $times[$j]['day_code'] = $working_day['day_code'];
+                $times[$j]['day_name'] = $working_day['day_name'];
+                $times[$j]['from_time'] = Carbon::parse($working_day['time_from'])->addMinutes($working_day['duration'] * $i)->format('H:i');
                 $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
                 $times[$j++]['time_duration'] = $working_day['time_duration'];
             }

@@ -1244,7 +1244,7 @@ class OffersController extends Controller
             $date = $request->date;
             $offer = Offer::find($request->offer_id);
             $branch = Provider::whereNotNull('provider_id')->find($request->branch_id);
-            if(!$branch)
+            if (!$branch)
                 return $this->returnError('E001', trans('messages.No doctor with this id'));
 
             $d = new DateTime($date);
@@ -1252,10 +1252,9 @@ class OffersController extends Controller
             $days_name = ['saturday' => 'sat', 'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 'wednesday' => 'wed', 'thursday' => 'thu', 'friday' => 'fri'];
             $dayCode = $days_name[$day_name];
 
-
             if ($offer != null) {
-                $day = $offer -> $doctor->times()->where('day_code', $dayCode)->first();
-                $doctorTimesCount = $this->getDoctorTimePeriodsInDay($day, $dayCode, true);
+                $day = $offer->times()->where('branch_id', $branch -> id)->where('day_code', $dayCode)->first();
+                $doctorTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
                 $times = [];
                 $date = $request->date;
                 $doctorTimesCount = $this->getDoctorTimePeriodsInDay($day, $dayCode, true);

@@ -11,7 +11,8 @@ Route::get('/optimize', function () {
 
 Route::get('/test', function () {
 
-   \App\Models\Offer::find(8);
+    return \App\Models\Offer::find(8)->times->where('branch_id', 12);
+
 });
 
 // Composer dump-autoload:
@@ -57,7 +58,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
         Route::post('offers/filters', 'OffersController@getOfferFilters');
         Route::post('offers/banners', 'OffersController@bannersV2');
-
     });
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');

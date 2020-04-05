@@ -152,6 +152,11 @@ class Offer extends Model
             ->withPivot('day_code', 'duration', 'start_from', 'end_to');
     }
 
+    public function times()
+    {
+        return $this->hasMany('App\Models\OfferTime', 'offer_id', 'id');
+    }
+
     public function paymentMethods()
     {
         return $this->belongsToMany('App\Models\PaymentMethod', 'offer_payment_methods', 'offer_id', 'payment_method_id')
