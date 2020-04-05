@@ -333,6 +333,21 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Offers Filters Routes ##############
 
+        ############### Start Offers Categories Routes ##############
+        Route::prefix('offers-categories/')->group(function () {
+            Route::post('/index', "OfferCategoriesController@index");
+            Route::post("/create", "OfferCategoriesController@create");
+            Route::post("/store", "OfferCategoriesController@store");
+            Route::post('/edit/{id}', 'OfferCategoriesController@edit');
+            Route::post('/update/{id}', 'OfferCategoriesController@update');
+            Route::post('/delete/{id}', "OfferCategoriesController@destroy");
+            Route::post('/getTime/{id}', "OfferCategoriesController@getTime");
+            Route::post('/addToTimer', "OfferCategoriesController@addToTimer");
+            Route::post('/reorderCategories', "OfferCategoriesController@reorderCategories");
+            Route::post('/saveReorderCategories', "OfferCategoriesController@saveReorderCategories");
+        });
+        ############## End Offers Categories Routes ##############
+
 
     });
 
