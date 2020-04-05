@@ -214,6 +214,7 @@ class DoctorController extends Controller
         }*/
 
         $doctor = $this->getDoctorById($request->id);
+        $doctor->makeVisible(['specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id']);
         if ($doctor == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
         $providers = $this->getAllActiveBranches();
