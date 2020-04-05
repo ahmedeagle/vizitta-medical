@@ -16,7 +16,8 @@ class Reservation extends Model
 
     protected $fillable = ['reservation_no', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'use_insurance', 'promocode_id', 'order', 'provider_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'people_id', 'is_visit_doctor', 'bill_total', 'discount_type',
-        'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason'];
+        'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
+        'service_id', 'service_rate'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'people_id', 'discount_type', 'odoo_invoice_id', 'odoo_offer_id'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total'];
@@ -225,6 +226,11 @@ class Reservation extends Model
         if ($value == null)
             return '';
         return $value;
+    }
+
+    public function getDoctorIdAttribute($value)
+    {
+        return $value == null ? 0 : $value;
     }
 
 

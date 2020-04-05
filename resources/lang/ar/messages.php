@@ -128,7 +128,7 @@ return [
     "There is one incorrect insurance company id" => "هناك خطأ فى كود من أكواد شركات التأمين",
     "There are no nationalities found" => "لا يوجد جنسيات",
     "There is no nationality with this id" => "لا يوجد جنسيه بهذا الكود",
-    "There is one day with incorrect name" => "هناك يوجد بإسم خاطىء",
+    "There is one day with incorrect name" => "هناك أسم خطا بالايام",
     "Doctor added successfully" => "تم إضافة الطبيب بنجاح",
     "Doctor updated successfully" => "تم تعديل الطبيب بنجاح",
     "This doctor isn't in your branches" => "هذا الدكتور ليس فى فروعك",
@@ -277,6 +277,14 @@ return [
     'You have new reservation no:'  => 'هناك حجز جديد برقم :',
     'updated your reservation'   => 'تحديث موعد الحجز الخاص بكم',
     'offer subcategory not found' => 'القسم الفرعي غير موجود',
-    'branch not found'  => 'الفرع غير موجود لدينا'
+    'branch not found'  => 'الفرع غير موجود لدينا',
+    'reservation period required and must be numeric'  => 'لابد من ادخال مده الكشف وان يكون رقما وان تكون اكبر من 5 ',
+    'Service added successfully'  => 'تم اضافه الخدمة بنجاح',
+    'no services'  => 'لا يوجد خدمات حتي اللحظة',
+    'no service with this id' => 'لا يوجد خدمة بهذا الرقم',
+    'The service can not be deleted'  => 'لا يمكن مسح الخدمة حيث ترتبط بحجوزات',
+    'service deleted successfully'  => 'تم حذف الخدمة بتوقيتاتها بنجاح ',
+    'service updated successfully'  => 'تم تحديث الخدمة بنجاح '
+
 
 ];

@@ -24,7 +24,6 @@ class AuthController extends Controller
         if ($token = $this->guard()->attempt($credentials)) {
             return $this->respondWithToken($token);
         }
-
         return response()->json(['status' => false, 'error' => __('main.invalid_email_or_password')], 200);
     }
 

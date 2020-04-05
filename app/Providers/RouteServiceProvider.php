@@ -42,6 +42,9 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapCPanelRoutes();
 
+
+        $this->mapVisitRoutes();
+
         //
     }
 
@@ -82,6 +85,11 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path('routes/cpanel.php'));
     }
 
-
-
+    protected function mapVisitRoutes()
+    {
+        Route::prefix('api/v1/cpanel')
+            ->middleware('api')
+            ->namespace('App\Http\Controllers\CPanel')
+            ->group(base_path('routes/visit.php'));
+    }
 }

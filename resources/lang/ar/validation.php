@@ -257,7 +257,10 @@ return [
         'notify-type'  => 'نوع الإشعار',
         'gift_id'  => 'رقم الهدية',
         'waiting_period'  => 'مدة الانتظار',
-        'has_home_visit' => 'خدمة الزياره المنزليه'
+        'has_home_visit' => 'خدمة الزياره المنزليه',
+        'specification_id' => 'التخصص',
+        'service_id'   => ' رقم الخدمة',
+
 
     ],
 ];
