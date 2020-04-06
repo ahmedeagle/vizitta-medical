@@ -47,6 +47,6 @@ trait DoctorTrait
         if (!$doctor)
             return '--';
 
-        return $doctor->name_ar;
+        return $doctor-> {'name_'.app()->getLocale()};
     }
 }

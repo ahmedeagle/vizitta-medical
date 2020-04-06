@@ -28,7 +28,7 @@ trait SpecificationTrait
         $specification = Specification::find($specification_id);
         if(!$specification)
             return '--';
-        return $specification -> name_ar;
+        return $specification -> {'name_'.app()->getLocale()};
 
     }
 

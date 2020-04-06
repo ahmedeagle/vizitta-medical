@@ -288,7 +288,7 @@ class Reservation extends Model
     {
         $branch_id = $this->provider_id;
         $main_id = Provider::where('id', $branch_id)->value('provider_id');
-        $main_name = Provider::where('id', $main_id)->value('name_ar');
+        $main_name = Provider::where('id', $main_id)->value('name_'.app()->getLocale());
         return $main_name;
     }
 

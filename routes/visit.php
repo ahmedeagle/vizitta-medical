@@ -25,7 +25,6 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('delete', 'BannerController@destroy');
         });
         ############### End Banners Routes ##############
-
     });
 
 
