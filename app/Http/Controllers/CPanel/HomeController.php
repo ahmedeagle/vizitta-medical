@@ -27,6 +27,7 @@ class HomeController extends Controller
         $data['activeDoctorsCount'] = $this->getActiveDoctors(true);
         $data['activeUsersCount'] = $this->getActiveUsers(true);
         $data['allUsersCount'] = User::count();
+        $data['totalReservations'] = Reservation::count();
 
         $data['pendingReservations'] = Reservation::where('approved', 0)->count(); //pending reservations
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
