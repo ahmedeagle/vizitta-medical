@@ -37,13 +37,12 @@ class BannerController extends Controller
                     } elseif ($banner->type == 'App\Models\Offer') {
                         $type = 'offer';
                         $direct_type = 'عروض';
-                        $offer = Offer::find($banner->type_id)->first();
+                        $offer = Offer::find($banner->type_id);
                         $direct_to = @$offer->{'title_' . app()->getLocale()};
                     } else {
                         $type = 'none';
                         $direct_type = 'لا شي';
                         $direct_to = 'لا شي';
-
                     }
                     $banner->type = $type;
                     $banner->direct_type = $direct_type;
