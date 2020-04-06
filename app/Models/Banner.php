@@ -26,4 +26,8 @@ class Banner extends Model
         return $query -> select('id', 'photo', 'bannerable_type', 'bannerable_id');
     }
 
+
+    public function getTypeIdAttribute($val){
+        return ($val !== null ? $val : "");
+    }
 }

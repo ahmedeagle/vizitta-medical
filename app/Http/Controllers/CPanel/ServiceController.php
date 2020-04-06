@@ -48,6 +48,4 @@ class ServiceController extends Controller
 
         return $this->returnError('D000', __('messages.no services'));
     }
-
-
 }
