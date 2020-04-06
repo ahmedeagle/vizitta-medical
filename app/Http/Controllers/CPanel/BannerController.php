@@ -85,26 +85,16 @@ class BannerController extends Controller
                 if (empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) {
                     return $this->returnError('D000', __('messages.subcategory required'));
                 }
-
             }
 
                  //check if subcategory exists
             if ($request-> has('subcategory_id')) {
-
                 if ($request->subcategory_id != 0){
-                    $category = OfferCategory::whereNull('parent_id')->where('id', $request->category_id) -> first();
-                    if(!$category){
-                        return $this->returnError('D000', __('messages.category not found'));
+                    $subCategory = OfferCategory::whereNotNull('parent_id')->where('id', $request->category_id) -> first();
+                    if(!$subCategory){
+                        return $this->returnError('D000', __('messages.subcategory not found'));
                     }
-
-                return $this->returnError('D000', __('messages.category required'));
-            }
-
-            $id = $request->category_id;
-            $category = OfferCategory::find($id);
-            if (!$category && $id != 0) {  //0 means all categories screen
-                return $this->returnError('D000', __('messages.Category Not Found'));
-            }
+                }
         }
 
         if ($request->type == 'offer') {
