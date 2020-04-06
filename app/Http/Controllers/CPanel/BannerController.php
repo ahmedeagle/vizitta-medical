@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CPanel;
 use App\Models\Banner;
 use App\Models\Offer;
 use App\Models\OfferCategory;
+use App\Traits\CPanel\BannerTrait;
 use App\Traits\GlobalTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,25 +14,32 @@ use Flashy;
 
 class BannerController extends Controller
 {
-    use  GlobalTrait;
+    use  GlobalTrait, BannerTrait;
 
     public function index()
     {
         try {
-
-            $banners = Banner::selection()->paginate(PAGINATION_COUNT);
-            return $this->returnData('services', $banners);
+            $banners = $this->getBannersV2();
+            if (count($banners->toArray()) > 0) {
+                $banners->each(function ($banner) {
+                    $banner->type = $banner->type === 'App\Models\OfferCategory' ? 'category' : 'offer';
+                    return $banner;
+                });
+            }
+            return $this->returnData('banners', $banners);
         } catch (\Exception $ex) {
-            return $this->returnError('D000', __('messages.sorry please try again later'));
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
     public function create()
     {
-        $data = [];
-        $data['categories'] = $this->getAllCategoriesCollectionV2();
-        $data['offers'] = $this->getAllOffersCollectionV2();
-        return view('banners.create', $data);
+        try {
+            $categories = $this->getAllCategories();
+            return $this->returnData('categories', $categories);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
     public function store(Request $request)

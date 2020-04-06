@@ -1228,7 +1228,7 @@ class OffersController extends Controller
     }
 
     //get availbles  slot times by day
-    public function getAvailableTimes(Request $request)
+    /*public function getAvailableTimes(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -1236,6 +1236,7 @@ class OffersController extends Controller
                 "branch_id" => "required|exists:providers,id",
                 "date" => "required|date_format:Y-m-d",
             ]);
+
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -1289,6 +1290,6 @@ class OffersController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
-    }
+    }*/
 
 }

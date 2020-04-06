@@ -26,8 +26,8 @@ trait ServicesTrait
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'provider' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'serviceType' => function ($q3) {
-            $q3->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'types' => function ($q3) {
+            $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ]);
 
@@ -37,7 +37,7 @@ trait ServicesTrait
             'id',
             DB::raw('title_' . $this->getCurrentLang() . ' as title'),
             DB::raw('information_' . $this->getCurrentLang() . ' as information')
-            , 'specification_id', 'provider_id', 'branch_id', 'type', 'rate', 'price', 'status', 'reservation_period'
+            ,'specification_id', 'provider_id', 'branch_id', 'rate', 'price', 'home_price_duration','clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
         );
 
         if ($id != null)
@@ -56,9 +56,7 @@ trait ServicesTrait
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'provider' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'serviceType' => function ($q3) {
-            $q3->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }
+        }, 'types'
         ]);
 
         if ($id != null)
@@ -72,11 +70,12 @@ trait ServicesTrait
             'specification_id',
             'provider_id',
             'branch_id',
-            'type',
             'rate',
             'price',
+            'home_price_duration',
+            'clinic_price_duration',
             'status',
-            'reservation_period'
+            'reservation_period as clinic_reservation_period'
         );
 
         if ($id != null)

@@ -286,9 +286,9 @@ return [
     'The service can not be deleted'  => 'لا يمكن مسح الخدمة حيث ترتبط بحجوزات',
     'service deleted successfully'  => 'تم حذف الخدمة بتوقيتاتها بنجاح ',
     'service updated successfully'  => 'تم تحديث الخدمة بنجاح ',
-    'This day is not in service days'  => 'هذا اليوم ليس من ايام الخدمة',
+    'This day is not in service days'  => 'هذا اليوم او التوقيت ليس من ايام الخدمة',
     'New Service Reservation' =>  'حجز خدمة جديد',
     'You have new service reservation' => 'لديكم حجز خدمة جديد',
-
-
+    'sorry please try again later'   => 'عذرا حدث خطا ما يرجي المحاولة لاحقا شكرا لك ',
+    'if type is clinic price duration and  reservation period must be equal' => 'في حال كان النوع خدمه بالعياده لابد ان يكون مده الكشف تساوي مده التقسيم'
 ];

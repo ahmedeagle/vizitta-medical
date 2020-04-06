@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Mail;
 use Validator;
 use DB;
 use DateTime;
+use function foo\func;
 
 class ServiceController extends Controller
 {
@@ -36,119 +37,128 @@ class ServiceController extends Controller
 
     public function reserveTime(Request $request)
     {
-        $rules = [
-            "service_id" => "required|numeric|exists:services,id",
-            "payment_method_id" => "required|numeric|exists:payment_methods,id",
-            "day_date" => "required|date",
-            "agreement" => "required|boolean",
-            "from_time" => "required",
-            "to_time" => "required",
-            "address" => "required"
-        ];
+
+        try {
+            $rules = [
+                "service_id" => "required|numeric|exists:services,id",
+                "payment_method_id" => "required|numeric|exists:payment_methods,id",
+                "day_date" => "required|date",
+                "agreement" => "required|boolean",
+                "from_time" => "required",
+                "to_time" => "required",
+                "address" => "required",
+                "type" => "required|in:1,2",   // 1 -> home 2 -> clinic
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $user = $this->auth('user-api');
+            if ($user == null)
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            //$validation = $this->validateFields(['service' => ['service_id' => $request->service_id, 'day_date' => $request->day_date, 'from_time' => $request->from_time, 'to_time' => $request->to_time]]);
+
+            if (!$request->agreement)
+                return $this->returnError('E006', trans('messages.Agreement is required'));
 
 
-        $validator = Validator::make($request->all(), $rules);
+            if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
+                return $this->returnError('D000', trans("messages.You can't reserve to a time passed"));
 
-        if ($validator->fails()) {
-            $code = $this->returnCodeAccordingToInput($validator);
-            return $this->returnValidationError($code, $validator);
-        }
+            /*if ($validation->service_found)
+                return $this->returnError('E001', trans('messages.This time is not available'));*/
 
-        $user = $this->auth('user-api');
-        if ($user == null)
-            return $this->returnError('E001', trans('messages.There is no user with this id'));
-        $validation = $this->validateFields(['service' => ['service_id' => $request->service_id, 'day_date' => $request->day_date, 'from_time' => $request->from_time, 'to_time' => $request->to_time]]);
+            $service = Service::with('times')->find($request->service_id);
+            $specification = $service->specification_id;
+            $reservationDayName = date('l', strtotime($request->day_date));
 
-        if (!$request->agreement)
-            return $this->returnError('E006', trans('messages.Agreement is required'));
+            $rightDay = false;
+            $timeOrder = 1;
+            $last = false;
+            $times = [];
+            $day_code = substr(strtolower($reservationDayName), 0, 3);
 
-
-        if (strtotime($request->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-            ($request->day_date == Carbon::now()->format('Y-m-d') && strtotime($request->to_time) < strtotime(Carbon::now()->format('H:i:s'))))
-            return $this->returnError('D000', trans("messages.You can't reserve to a time passed"));
-
-        if ($validation->service_found)
-            return $this->returnError('E001', trans('messages.This time is not available'));
-
-        $service = Service::with('times')->find($request->service_id);
-        $specification = $service->specification_id;
-        $reservationDayName = date('l', strtotime($request->day_date));
-
-        $rightDay = false;
-        $timeOrder = 1;
-        $last = false;
-        $times = [];
-        $day_code = substr(strtolower($reservationDayName), 0, 3);
-
-        foreach ($service->times as $time) {
-            if ($time['day_code'] == $day_code) {
-                $times = $this->getServiceTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
-                foreach ($times as $key => $time) {
-                    if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
-                        && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
-                        $rightDay = true;
-                        $timeOrder = $key + 1;
-                        if (count($times) == ($key + 1))
-                            $last = true;
-                        break;
+            foreach ($service->times as $time) {
+                if ($time['day_code'] == $day_code) {
+                     $times = $this->getServiceTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
+                    foreach ($times as $key => $time) {
+                        if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
+                            && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
+                            $rightDay = true;
+                            $timeOrder = $key + 1;
+                            if (count($times) == ($key + 1))
+                                $last = true;
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        if (!$rightDay)
-            return $this->returnError('E001', trans('messages.This day is not in service days'));
+            if (!$rightDay)
+                return $this->returnError('E001', trans('messages.This day is not in service days'));
 
+            $reservationCode = $this->getRandomString(8);
 
-        $reservationCode = $this->getRandomString(8);
-
-        $reservation = Reservation::create([
-            "reservation_no" => $reservationCode,
-            "user_id" => $user->id,
-            "service_id" => $service->id,
-            "day_date" => date('Y-m-d', strtotime($request->day_date)),
-            "from_time" => date('H:i:s', strtotime($request->from_time)),
-            "to_time" => date('H:i:s', strtotime($request->to_time)),
-            "payment_method_id" => $request->payment_method_id,
-            "paid" => 0,
-            "provider_id" => $service->branch_id,
-            'order' => $timeOrder,
-            'price' => $request->price
-        ]);
-
-        $provider = Provider::find($service->provider_id);
-        $branch = Provider::find($service->branch_id);
-
-        if (!$provider)
-            return $this->returnError('E001', 'لا يوجد مقدم خدمه  للحجز');
-
-        $provider->makeVisible(['application_percentage_bill', 'application_percentage']);
-
-        if ($last) {
-            ReservedTime::create([
-                'service_id' => $service->id,
-                'day_date' => date('Y-m-d', strtotime($request->day_date))
+            $reservation = Reservation::create([
+                "reservation_no" => $reservationCode,
+                "user_id" => $user->id,
+                "service_id" => $service->id,
+                "day_date" => date('Y-m-d', strtotime($request->day_date)),
+                "from_time" => date('H:i:s', strtotime($request->from_time)),
+                "to_time" => date('H:i:s', strtotime($request->to_time)),
+                "payment_method_id" => $request->payment_method_id,
+                "paid" => 0,
+                "provider_id" => $service->branch_id,
+                'order' => $timeOrder,
+                'price' => $request->price
             ]);
-        }
 
-        $reserve = new \stdClass();
-        $reserve->reservation_no = $reservation->reservation_no;
-        $reserve->day_date = date('l', strtotime($request->day_date));
-        $reserve->code = date('l', strtotime($request->day_date));
-        $reserve->day_date = date('l', strtotime($request->day_date));
-        $reserve->reservation_date = date('Y-m-d', strtotime($request->day_date));
-        $reserve->price = $reservation->price;
-        $reserve->payment_method = $reservation->paymentMethod()->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->first();
-        $reserve->from_time = $reservation->from_time;
-        $reserve->to_time = $reservation->to_time;
-        $reserve->provider = Provider::providerSelection()->find($service->provider_id);
-        $reserve->branch = Provider::providerSelection()->find($service->branch_id);
+            $provider = Provider::find($service->provider_id);
+            $branch = Provider::find($service->branch_id);
 
-        if ($request->filled('latitude') && $request->filled('longitude')) {
-            $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
+            if (!$provider)
+                return $this->returnError('E001', 'لا يوجد مقدم خدمه  للحجز');
+
+            $provider->makeVisible(['application_percentage_bill', 'application_percentage']);
+
+            if ($last) {
+                ReservedTime::create([
+                    'service_id' => $service->id,
+                    'day_date' => date('Y-m-d', strtotime($request->day_date))
+                ]);
+            }
+
+            $reserve = new \stdClass();
+            $reserve->reservation_no = $reservation->reservation_no;
+            $reserve->day_date = date('l', strtotime($request->day_date));
+            $reserve->code = date('l', strtotime($request->day_date));
+            $reserve->day_date = date('l', strtotime($request->day_date));
+            $reserve->reservation_date = date('Y-m-d', strtotime($request->day_date));
+            $reserve->price = $reservation->price;
+            $reserve->payment_method = $reservation->paymentMethod()->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->first();
+            $reserve->from_time = $reservation->from_time;
+            $reserve->to_time = $reservation->to_time;
+            $reserve->provider = Provider::providerSelection()->find($service->provider_id);
+            $reserve->branch = Provider::providerSelection()->find($service->branch_id);
+
+            if ($request->filled('latitude') && $request->filled('longitude')) {
+                $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
+            }
+            $reserve->service = Service::with(['serviceType' => function($q){
+                $q -> select('id','type','name_'.app()->getLocale().' as name');
+            }])->select('id','title_'.app()->getLocale() .' as title')->find($request->service_id);
+            DB::commit();
+        } catch (\Exception $ex) {
+            DB::rollback();
+
+            return $ex;
+            //return $this->returnError('D000', __('messages.sorry please try again later'));
         }
-        $reserve->service = Reservation::find($reservation->id)->doctorInfo;
-        DB::commit();
 
         try {
             //push notification
@@ -189,7 +199,8 @@ class ServiceController extends Controller
         return $this->returnData('reservation', $reserve);
     }
 
-    protected function getRandomString($length)
+    protected
+    function getRandomString($length)
     {
         $characters = '0123456789';
         $string = '';

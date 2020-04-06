@@ -15,30 +15,46 @@ trait ServiceTrait
 {
 
 
-
     public function getServiceTimePeriodsInDay($working_day, $day_code, $count = false)
     {
         $times = [];
         $j = 0;
-        if ($working_day['day_code'] == $day_code) {
-            $from = strtotime($working_day['from_time']);
-            $to = strtotime($working_day['to_time']);
-            $diffInterval = ($to - $from) / 60;
-            $periodCount = $diffInterval / $working_day['time_duration'];
-            for ($i = 0; $i < round($periodCount); $i++) {
-                $times[$j]['day_code'] = $working_day['day_code'];
-                $times[$j]['day_name'] = $working_day['day_name'];
-                $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
-                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
-                $times[$j++]['time_duration'] = $working_day['time_duration'];
+
+
+            if ($working_day['day_code'] == $day_code) {
+                $from = strtotime($working_day['from_time']);
+                $to = strtotime($working_day['to_time']);
+                 $diffInterval = ($to - $from) / 60;   // dif in minute
+
+                if ( !isset($working_day['time_duration']) or $working_day['time_duration'] == 0 or $working_day['time_duration'] == null ) {
+                    $periodCount = $diffInterval / $diffInterval ;
+                    for ($i = 0; $i < round($periodCount); $i++) {
+                        $times[$j]['day_code'] = $working_day['day_code'];
+                        $times[$j]['day_name'] = $working_day['day_name'];
+                        $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * $i)->format('H:i');
+                        $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * ($i + 1))->format('H:i');
+                        $times[$j++]['time_duration'] = $diffInterval;
+                    }
+
+                }else{
+                    $periodCount = $diffInterval/$working_day['time_duration'];
+                    for ($i = 0; $i < round($periodCount); $i++) {
+                        $times[$j]['day_code'] = $working_day['day_code'];
+                        $times[$j]['day_name'] = $working_day['day_name'];
+                        $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                        $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                        $times[$j++]['time_duration'] = $working_day['time_duration'];
+                    }
+                }
             }
-        }
+
+
+
+
         if ($count)
             return count($times);
         return $times;
     }
-
-
 
     public function getDoctorTimesPeroids($working_days)
     {

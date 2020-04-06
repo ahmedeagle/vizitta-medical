@@ -16,7 +16,6 @@ class ReservedTime extends Model
         return $this->belongsTo('App\Models\Doctor', 'doctor_id')->select('id', 'name_' . app()->getLocale() . ' as name');
     }
 
-
     public function service()
     {
         return $this->belongsTo('App\Models\Service', 'service_id')->select('id', 'title_' . app()->getLocale() . ' as title');

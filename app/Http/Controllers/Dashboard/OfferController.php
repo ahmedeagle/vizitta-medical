@@ -23,6 +23,7 @@ class OfferController extends Controller
 {
     use OfferTrait, PublicTrait;
 
+
     public function getDataTable()
     {
         return $this->getAll();

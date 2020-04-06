@@ -283,7 +283,7 @@ class BranchController extends Controller
             "street" => "required",
             "status" => "required|in:0,1",
             "rate" => "numeric|min:1|max:5",
-             "has_home_visit"  => "required|in:0,1"
+            "has_home_visit"  => "required|in:0,1"
         ]);
 
         if ($validator->fails()) {
