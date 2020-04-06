@@ -360,7 +360,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post("/create", "OfferController@create");
             Route::post("/store", "OfferController@store");
             Route::post('/edit/{id}', 'OfferController@edit');
-//            Route::post('/update/{id}', 'OfferController@update');
+            Route::post('/update/{id}', 'OfferController@update');
+            Route::post('/show/{id}', 'OfferController@show');
         });
         ############## End Offers Routes ##############
 

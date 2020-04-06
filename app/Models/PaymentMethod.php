@@ -9,6 +9,6 @@ class PaymentMethod extends Model
     protected $table = 'payment_methods';
     public $timestamps = false;
 
-    protected $fillable = ['name_en', 'name_ar', 'status'];
+    protected $fillable = ['name_en', 'name_ar', 'status', 'flag'];
 
 }

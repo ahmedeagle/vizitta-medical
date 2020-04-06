@@ -542,7 +542,7 @@ class OfferController extends Controller
         foreach ($offer->offerBranches as $key => $value) {
             $offerBranchTimes[$value->branch_id]['branch_name'] = Provider::find($value->branch_id)->name_ar;
             $offerBranchTimes[$value->branch_id]['duration'] = $offer->branchTimes()->where('branch_id', $value->branch_id)->value('duration');
-            $offerBranchTimes[$value->branch_id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->branch_id)->get(['day_code', 'start_from', 'end_to']);
+            $offerBranchTimes[$value->branch_id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times_old.id')->groupBy('day_code')->where('branch_id', $value->branch_id)->get(['day_code', 'start_from', 'end_to']);
         }
 
         $selectedChildCat = \Illuminate\Support\Facades\DB::table('offers_categories_pivot')

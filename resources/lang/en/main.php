@@ -175,5 +175,7 @@ return [
 
     'offer_added_successfully'                                          => 'Offer added successfully',
     'offer_updated_successfully'                                        => 'Offer updated successfully',
+    'offer_deleted_successfully'                                        => 'Offer deleted successfully',
+    'offer_with_reservations_cannot_be_deleted'                         => 'Offer with reservations cannot be deleted',
 
 ];
