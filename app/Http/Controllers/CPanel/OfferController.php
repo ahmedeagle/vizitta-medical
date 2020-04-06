@@ -164,7 +164,7 @@ class OfferController extends Controller
 
         ####################################################################################################################
 
-        if (isset($request->payment_method) && !empty($request->payment_method)) {
+        /*if (isset($request->payment_method) && !empty($request->payment_method)) {
 
             $methods = [];
             foreach ($request->payment_method as $k => $v) {
@@ -179,7 +179,7 @@ class OfferController extends Controller
                 }
             }
             $offer->paymentMethods()->attach($methods);
-        }
+        }*/
 
         if (isset($request->offer_content) && !empty($request->offer_content)) {
             foreach ($request->offer_content['ar'] as $key => $value) {

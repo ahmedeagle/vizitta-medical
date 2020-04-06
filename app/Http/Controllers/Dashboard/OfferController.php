@@ -162,7 +162,7 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+//        dd($request->all());
         $rules = [
             "title_ar" => "required|max:255",
             "title_en" => "required|max:255",
