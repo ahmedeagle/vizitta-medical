@@ -53,16 +53,22 @@
                             <td>
                                 @if($banner -> bannerable_type == 'App\Models\OfferCategory')
                                     اقسام
-                                @else
+                                @elseif($banner -> bannerable_type === 'App\Models\Offer')
                                     عروض
+                                @else
+                                    ---
                                 @endif
+
                             </td>
                             <td>
                                 @if($banner -> bannerable_type === 'App\Models\OfferCategory')
                                     {{isset($banner -> bannerable -> name_ar)?  $banner -> bannerable -> name_ar : 'جميع الاقسام'}}
-                                @else
+                                @elseif($banner -> bannerable_type === 'App\Models\Offer')
                                     {{$banner -> bannerable -> title_ar }}
+                                @else
+                                    ---
                                 @endif
+
 
                             </td>
                             <td>

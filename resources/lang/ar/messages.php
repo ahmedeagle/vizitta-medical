@@ -290,5 +290,12 @@ return [
     'New Service Reservation' =>  'حجز خدمة جديد',
     'You have new service reservation' => 'لديكم حجز خدمة جديد',
     'sorry please try again later'   => 'عذرا حدث خطا ما يرجي المحاولة لاحقا شكرا لك ',
-    'if type is clinic price duration and  reservation period must be equal' => 'في حال كان النوع خدمه بالعياده لابد ان يكون مده الكشف تساوي مده التقسيم'
+    'if type is clinic price duration and  reservation period must be equal' => 'في حال كان النوع خدمه بالعياده لابد ان يكون مده الكشف تساوي مده التقسيم',
+    'Category Not Found'  => 'القسم المختار غير موجود لدينا',
+    'Offer Not Found'  => 'العرض غير موجود',
+    'Banner added successfully'  => 'تم اضافة البانر بنجاح',
+    'subcategory not found'  => 'القسم الفرعي للعرض غير موجود ',
+    'subcategory required'  => 'القسم الفرعي للعرض مطلوب',
+    'offer required'  => 'العرض مطلوب',
+    'offer not found'  => 'العرض غير موجود لدينا'
 ];

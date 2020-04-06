@@ -96,8 +96,6 @@ class HomeController extends Controller
             }
         }
 
-
-
         $data['mostBookingDoctor'] = Reservation::groupBy('doctor_id')
             ->orderBy('count', 'desc')
             ->limit(5)
