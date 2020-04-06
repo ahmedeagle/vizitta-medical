@@ -20,10 +20,13 @@ use App\Models\Favourite;
 use App\Models\InsuranceCompany;
 use App\Models\Nationality;
 use App\Models\Nickname;
+use App\Models\OfferCategory;
+use App\Models\PaymentMethod;
 use App\Models\Provider;
 use App\Models\ProviderType;
 use App\Models\Reservation;
 use App\Models\Specification;
+use App\Models\User;
 use App\Models\UserRecord;
 use Illuminate\Support\Facades\DB;
 
@@ -166,6 +169,30 @@ trait GeneralTrait
         return Reservation::with(['doctor' => function ($q) {
             $q->select('id', 'name_ar', 'name_en');
         }, 'paymentMethod'])->find($id);
+    }
+
+    public function getAllOfferParentCategoriesList()
+    {
+        return OfferCategory::parentCategories()->select(DB::raw('id, name_' . app()->getLocale() . ' as name, hastimer'))->get();
+    }
+
+    public function getAllActiveUsersList()
+    {
+        return User::active()->get(['id', 'name']);
+    }
+
+    public function getAllPaymentMethodWithSelectedList($offer = null)
+    {
+        if ($offer != null) {
+            return PaymentMethod::where('status', 1)->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.offer_id = ' . $offer->id . ' AND offer_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return PaymentMethod::where('status', 1)->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, 0 as selected'))->get();
+        }
+    }
+
+    public function getChildCategoriesListByParentCategory($id)
+    {
+        return OfferCategory::where('parent_id', $id)->get(['name_' . app()->getLocale() . ' as name', 'id']);
     }
 
 }

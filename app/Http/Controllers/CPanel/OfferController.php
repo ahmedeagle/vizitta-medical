@@ -1,12 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard;
+namespace App\Http\Controllers\CPanel;
 
+use App\Http\Resources\CPanel\MainActiveProvidersResource;
+use App\Http\Resources\CPanel\OffersResource;
+use App\Http\Resources\CPanel\OfferBranchesResource;
 use App\Models\Filter;
 use App\Models\OfferCategory;
 use App\Models\PaymentMethod;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Traits\CPanel\GeneralTrait;
 use App\Traits\Dashboard\PublicTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,150 +19,95 @@ use App\Models\Provider;
 //use App\Models\Doctor;
 use App\Models\Offer;
 use App\Models\OfferBranch;
-use Validator;
-use Flashy;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class OfferController extends Controller
 {
-    use OfferTrait, PublicTrait;
-
-    public function getDataTable()
-    {
-        return $this->getAll();
-    }
+    use OfferTrait, GeneralTrait, PublicTrait;
 
     public function index()
     {
-        return view('offers.index');
+        $offers = Offer::orderBy('expired_at', 'DESC')->paginate(PAGINATION_COUNT);
+        $result = new OffersResource($offers);
+        return response()->json(['status' => true, 'data' => $result]);
     }
 
     public function mostReserved()
     {
-        $reservations = Reservation::with(['coupon' => function ($qu) {
-            $qu->select('id', 'provider_id', DB::raw('title_' . app()->getLocale() . ' as title'), 'code', 'photo', 'price', 'price_after_discount');
-            $qu->with(['provider' => function ($q) {
-                $q->select('id', 'name_ar');
-            }]);
-        }])
-            ->whereNotNull('promocode_id')->groupBy('promocode_id')
-            ->orderBy('count', 'desc')
-            ->limit(10)
-            ->get(['promocode_id', DB::raw('count(promocode_id) as count')]);
+        try {
+            $reservations = Reservation::with(['coupon' => function ($qu) {
+                $qu->select('id', 'provider_id', DB::raw('title_' . app()->getLocale() . ' as title'), 'code', 'photo', 'price', 'price_after_discount');
+                $qu->with(['provider' => function ($q) {
+                    $q->select('id', 'name_ar');
+                }]);
+            }])
+                ->whereNotNull('promocode_id')->groupBy('promocode_id')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get(['promocode_id', DB::raw('count(promocode_id) as count')]);
 
-        return view('offers.mostreserved', compact('reservations'));
+            return response()->json(['status' => true, 'data' => $reservations]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
     }
 
-    public function getDataTableOfferBranches($offerId)
+    public function getOfferBranches(Request $request)
     {
         try {
-            return $this->getBranchTable($offerId);
+            $offerBranches = OfferBranch::where('offer_id', $request->id)->paginate(PAGINATION_COUNT);
+            $result = new OfferBranchesResource($offerBranches);
+            return response()->json(['status' => true, 'data' => $result]);
         } catch (\Exception $ex) {
-            return $ex;
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
 
-    /*public function getDataTablePromoCodeDoctors($promoId)
+    public function create()
     {
         try {
-            return $this->getDoctorTable($promoId);
+            $data['categories'] = $this->getAllOfferParentCategoriesList();    // parent categories
+            $data['users'] = $this->getAllActiveUsersList(); // active users list
+            $data['providers'] = $this->getMainActiveProviders(); // active providers list
+            $data['paymentMethods'] = $this->getAllPaymentMethodWithSelectedList(); // payment methods to checkboxes
+
+            return response()->json(['status' => true, 'data' => $data]);
         } catch (\Exception $ex) {
-            return view('errors.404');
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
-    }*/
-
-    public function add()
-    {
-        $data['providers'] = $this->getAllMainActiveProviders();
-        // $specifications = $this->getAllSpecifications();
-        $data['categories'] = $this->getAllOfferCategoriesCollection();    // categories
-        $data['users'] = $this->getAllActiveUsers();
-        $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
-        $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected();
-        return view('offers.add', $data);
     }
 
-    public function getProviderBranches(Request $request)
+    public function getProviderBranchesList(Request $request)
     {
-        $parent_id = 0;
-        if ($request->parent_id) {
-            $parent_id = $request->parent_id;
+        try {
+            $provider_id = $request->id ? $request->id : 0;
+
+            if (isset($request->couponId) && $request->couponId != null)
+                $branches = Provider::where('provider_id', $provider_id)->select('name_ar', 'id', 'provider_id', DB::raw('IF ((SELECT count(id) FROM offers_branches WHERE offers_branches.offer_id = ' . $request->couponId . ' AND providers.id = offers_branches.branch_id) > 0, 1, 0) as selected'))->get();
+            else
+                $branches = Provider::where('provider_id', $provider_id)->select('name_ar', 'id', 'provider_id', DB::raw('0 as selected'))->get();
+
+            $result = MainActiveProvidersResource::collection($branches);
+            return response()->json(['status' => true, 'data' => $result]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
-        /* $couponBranches =[];
-         if(isset($request -> couponId)){
-             $couponBranches = PromoCode_branch::where('promocodes_id',$request -> couponId) -> pulck('branch_id') -> toArray();
-         }*/
-
-        if (isset($request->couponId) && $request->couponId != null)
-            $branches = Provider::where('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('IF ((SELECT count(id) FROM offers_branches WHERE offers_branches.offer_id = ' . $request->couponId . ' AND providers.id = offers_branches.branch_id) > 0, 1, 0) as selected'))->get();
-        else
-            $branches = Provider::where('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('0 as selected'))->get();
-
-        $offerBranchTimes = [];
-        $offer = Offer::find($request->couponId);
-        if ($offer) {
-            foreach ($branches as $key => $value) {
-                $offerBranchTimes[$value->id]['branch_name'] = $value->name_ar;
-                $offerBranchTimes[$value->id]['duration'] = $offer->branchTimes()->where('branch_id', $value->id)->value('duration');
-                $offerBranchTimes[$value->id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->id)->get(['day_code', 'start_from', 'end_to']);
-            }
-        }
-
-        $view = view('includes.loadbranches', compact('branches'))->renderSections();
-        return response()->json([
-            'content' => $view['main'],
-            'offerBranchTimes' => $offerBranchTimes,
-        ]);
     }
 
-    public function getChildCatById(Request $request)
+    public function getChildCategoriesByParentId(Request $request)
     {
-        if (isset($request->id) && !empty($request->id))
-            $childCategories = OfferCategory::where('parent_id', $request->id)->get(['name_ar', 'id']);
-        else
-            $childCategories = null;
+        try {
+            if (isset($request->id) && !empty($request->id))
+                $childCategories = $this->getChildCategoriesListByParentCategory($request->id);
+            else
+                $childCategories = null;
 
-        return response()->json([
-            'childCategories' => $childCategories,
-        ]);
-    }
-
-
-    /*public function getBranchDoctors(Request $request)
-    {
-        $parent_id = [];
-        if ($request->branche_id && count($request->branche_id) > 0) {
-            $parent_id = $request->branche_id;
+            return response()->json(['status' => true, 'data' => $childCategories]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
-        if (isset($request->couponId) && $request->couponId != null)
-            $doctors = Doctor::whereIn('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('IF ((SELECT count(id) FROM promocodes_doctors WHERE promocodes_doctors.promocodes_id = ' . $request->couponId . ' AND doctors.id = promocodes_doctors.doctor_id) > 0, 1, 0) as selected'))->get();
-        else
-            $doctors = Doctor::whereIn('provider_id', $parent_id)->select('name_ar', 'id', 'provider_id', DB::raw('0 as selected'))->get();
-
-        $view = view('includes.loaddoctors', compact('doctors'))->renderSections();
-        return response()->json([
-            'content' => $view['main'],
-        ]);
-    }*/
-
-    public function branches($offerId)
-    {
-        return view('offers.branches')->with('offerId', $offerId);
     }
-
-    /*public function doctors($promoCodeId)
-    {
-
-         return  promoCode::where('id',$promoCodeId)-> with(['PromoCodeDoctors' => function($q){
-                $q -> select('*')
-                   ->with(['doctor' => function($qq){
-                     $qq -> select('id','name_ar') ;
-                   }]);
-          }]) -> get();
-
-        return view('promoCode.doctors')->with('promoCodeId', $promoCodeId);
-
-    }*/
 
     public function store(Request $request)
     {
@@ -185,38 +134,26 @@ class OfferController extends Controller
             "payment_method" => "required|array|min:1",
             "child_category_ids" => "required|array|min:1",
             "child_category_ids.*" => "required|exists:offers_categories,id",
-
         ];
-
-        /*if ($request->coupons_type_id == 1) {
-            $rules['discount'] = "required";
-            $rules['code'] = "required|unique:promocodes,code|max:255";
-        }
-
-        if ($request->coupons_type_id == 2) {
-            $rules['price'] = "required";
-            $rules['paid_coupon_percentage'] = "required";
-        }*/
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            Flashy::error($validator->errors()->first());
-            return redirect()->back()->withErrors($validator)->withInput($request->all());
+            $result = $validator->messages()->toArray();
+            return response()->json(['status' => false, 'error' => $result], 200);
         }
         $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
             'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
         $fileName = "";
         if (isset($request->photo) && !empty($request->photo)) {
-            $fileName = $this->uploadImage('copouns', $request->photo);
+            $fileName = $this->saveImage('copouns', $request->photo);
         }
 
         $inputs['photo'] = $fileName;
         $offer = $this->createOffer($inputs);
 
         $offer->categories()->attach($request->child_category_ids);
-//        $offer->categories()->attach($request->category_ids);
 
         if ($request->has('branchIds')) {
             $branchIds = array_filter($request->branchIds, function ($val) {
@@ -304,11 +241,6 @@ class OfferController extends Controller
                 $this->saveCouponBranchs($offer->id, $branchIds, $offer->provider_id);
             }
 
-            /*if ($request->has('doctorsIds')) {
-                // save doctors for  only previous branches
-                $this->saveCouponDoctors($offer->id, $doctorsIds, $offer->provider_id);
-            }*/
-
             $offer = Offer::find($offer->id);
             //allowed users to use this offer
             if (!empty($users) && count($users) > 0) {
@@ -386,15 +318,15 @@ class OfferController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            Flashy::error($validator->errors()->first());
-            return redirect()->back()->withErrors($validator)->withInput($request->all());
+            $result = $validator->messages()->toArray();
+            return response()->json(['status' => false, 'error' => $result], 200);
         }
         $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
             'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
         $fileName = $offer->photo;
         if (isset($request->photo) && !empty($request->photo)) {
-            $fileName = $this->uploadImage('copouns', $request->photo);
+            $fileName = $this->saveImage('copouns', $request->photo);
         }
         DB::beginTransaction();
 

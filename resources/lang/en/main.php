@@ -37,6 +37,9 @@ return [
     'published'                             => 'Published',
     'un_published'                          => 'Un Published',
 
+    'featured'                              => 'Featured',
+    'not_featured'                          => 'Not Featured',
+
     'settings_updated_successfully'         => 'Settings updated successfully',
 
     'insurance_company_added_successfully'                  => 'Insurance Company added successfully',

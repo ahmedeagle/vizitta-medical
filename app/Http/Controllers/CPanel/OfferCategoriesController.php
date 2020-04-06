@@ -168,7 +168,7 @@ class OfferCategoriesController extends Controller
 
     public function reorderCategories()
     {
-        $categories = OfferCategory::select('id', 'name_' . app()->getLocale() . ' as name')->orderBy('lft')->get();
+        $categories = OfferCategory::select('id', 'parent_id', 'name_' . app()->getLocale() . ' as name')->orderBy('lft')->get();
         return response()->json(['status' => true, 'data' => $categories]);
     }
 

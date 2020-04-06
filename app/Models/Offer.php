@@ -148,7 +148,7 @@ class Offer extends Model
 
     public function branchTimes()
     {
-        return $this->belongsToMany('App\Models\Provider', 'offers_branches_times', 'offer_id', 'branch_id')
+        return $this->belongsToMany('App\Models\Provider', 'offers_branches_times_old', 'offer_id', 'branch_id')
             ->withPivot('day_code', 'duration', 'start_from', 'end_to');
     }
 
