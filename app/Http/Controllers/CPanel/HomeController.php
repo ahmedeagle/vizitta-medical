@@ -58,26 +58,58 @@ class HomeController extends Controller
         $data['mostOffersBooking'] = Reservation::whereNotNull('promocode_id')->groupBy('promocode_id')
             ->orderBy('count', 'desc')
             ->limit(10)
-            ->get(['promocode_id', DB::raw('count(promocode_id) as count')]);
+            ->get(['promocode_id', DB::raw('count(promocode_id) as count')])
+            ->count();
 
         $data['mostBookingDay'] = Reservation::groupBy('day_date')
             ->orderBy('count', 'desc')
             ->limit(5)
             ->get(['day_date', DB::raw('count(day_date) as count')]);
 
+        if (isset($data['mostBookingDay']) && $data['mostBookingDay']->count() > 0) {
+            foreach ($data['mostBookingDay'] as $day) {
+                $day->day_name = __('messages.' . \App\Traits\Dashboard\ReservationTrait::getdayNameByDate($day['day_date']));
+                $day -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+            }
+        }
+
+
         $data['mostBookingHour'] = Reservation::groupBy('from_time')
             ->orderBy('count', 'desc')
             ->limit(5)->get(['from_time', 'to_time', DB::raw('count(from_time) as count')]);
+
+        if (isset($data['mostBookingHour']) && $data['mostBookingHour']->count() > 0) {
+            foreach ($data['mostBookingHour'] as $hour) {
+                $hour -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+            }
+        }
+
 
         $data['mostBookingProviders'] = Reservation::groupBy('provider_id')
             ->orderBy('count', 'desc')
             ->limit(5)
             ->get(['provider_id', DB::raw('count(provider_id) as count')]);
 
+        if (isset($data['mostBookingProviders']) && $data['mostBookingProviders']->count() > 0) {
+            foreach ($data['mostBookingProviders'] as $provider) {
+                $provider -> makeHidden(['for_me','branch_no','is_reported','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+            }
+        }
+
+
+
         $data['mostBookingDoctor'] = Reservation::groupBy('doctor_id')
             ->orderBy('count', 'desc')
             ->limit(5)
             ->get(['doctor_id', DB::raw('count(doctor_id) as count')]);
+
+        if (isset($data['mostBookingDoctor']) && $data['mostBookingDoctor']->count() > 0) {
+            foreach ($data['mostBookingDoctor'] as $doctor) {
+                $doctor-> name = \App\Traits\Dashboard\DoctorTrait::getDoctorNameById($doctor['doctor_id']);
+                $doctor -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+            }
+        }
+
 
         $specifications = Doctor::whereHas('reservations')
             ->groupBy('specification_id')
@@ -85,14 +117,16 @@ class HomeController extends Controller
             ->limit(5)
             ->get(['id as doctor_id', 'specification_id', DB::raw('count(specification_id) as count')]);
 
-        foreach ($specifications as $specification) {
-            $specification->makeVisible(['specification_id']);
-            $specification->makeHidden(['hide', 'doctor_id']);
+        if (isset($specifications) && $specifications->count() > 0) {
+            foreach ($specifications as $specification) {
+                $specification-> name = \App\Traits\Dashboard\SpecificationTrait::getSpecificationNameById($specification['specification_id']);
+                $specification -> makeHidden(['branch_name','available_time','hide','times','for_me','doctor_id','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+            }
         }
 
         $data['mostBookingSpecifications'] = $specifications;
 
-        return $this -> returnData('data',$data);
+        return $this->returnData('data', $data);
     }
 
     public function search(Request $request)
