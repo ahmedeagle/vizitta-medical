@@ -20,6 +20,7 @@ use App\Models\Favourite;
 use App\Models\InsuranceCompany;
 use App\Models\Nationality;
 use App\Models\Nickname;
+use App\Models\Offer;
 use App\Models\OfferCategory;
 use App\Models\PaymentMethod;
 use App\Models\Provider;
@@ -193,6 +194,61 @@ trait GeneralTrait
     public function getChildCategoriesListByParentCategory($id)
     {
         return OfferCategory::where('parent_id', $id)->get(['name_' . app()->getLocale() . ' as name', 'id']);
+    }
+
+    public function getOfferDetailsById($id)
+    {
+        $offer = Offer::with(['offerBranches' => function ($q) {
+            $q->wherehas('branch');
+            $q->with(['branch' => function ($qq) {
+                $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
+            }]);
+        }, 'reservations', 'paymentMethods'])->find($id);
+        if (!$offer) {
+            return null;
+        }
+        return $offer;
+    }
+
+    public function getOfferCategoriesWithSelected($offer = null)
+    {
+        if ($offer != null) {
+            $selectedChildCat = \Illuminate\Support\Facades\DB::table('offers_categories_pivot')
+                ->where('offer_id', $offer->id)
+                ->pluck('category_id');
+            $parents = OfferCategory::whereIn('id', $selectedChildCat->toArray())->pluck('parent_id');
+
+            $data = OfferCategory::whereNull('parent_id')
+                ->with(['childCategories' => function ($query) use ($offer) {
+                    $query->select('id', 'parent_id', 'name_ar',
+                        DB::raw('IF ((SELECT count(id) FROM offers_categories_pivot WHERE offers_categories_pivot.offer_id = ' . $offer->id . ' AND offers_categories_pivot.category_id = offers_categories.id) > 0, 1, 0) as selected'));
+                }])->select('id'
+                    , 'name_ar'
+                    , 'hastimer'
+                )->get();
+
+            foreach ($data as $key => $cat) {
+                if (in_array($cat->id, $parents->toArray()))
+                    $data[$key]['selected'] = 1;
+                else
+                    $data[$key]['selected'] = 0;
+            }
+
+            return $data;
+        } else {
+            return [];
+        }
+    }
+
+    public function getOfferActiveUsersWithSelected($offer = null)
+    {
+        if ($offer != null) {
+            return User::select('id',
+                'name',
+                DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return User::select('id', 'name', DB::raw('0 as selected'))->get();
+        }
     }
 
 }

@@ -358,8 +358,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post("/getChildCategoriesByParentId/{id}", "OfferController@getChildCategoriesByParentId");
             Route::post("/getProviderBranchesList/{id}", "OfferController@getProviderBranchesList");
             Route::post("/create", "OfferController@create");
-//            Route::post("/store", "OfferController@store");
-//            Route::post('/edit/{id}', 'OfferController@edit');
+            Route::post("/store", "OfferController@store");
+            Route::post('/edit/{id}', 'OfferController@edit');
 //            Route::post('/update/{id}', 'OfferController@update');
         });
         ############## End Offers Routes ##############

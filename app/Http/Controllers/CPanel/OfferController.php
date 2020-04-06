@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CPanel;
 use App\Http\Resources\CPanel\MainActiveProvidersResource;
 use App\Http\Resources\CPanel\OffersResource;
 use App\Http\Resources\CPanel\OfferBranchesResource;
+use App\Models\OfferTime;
 use App\Models\Filter;
 use App\Models\OfferCategory;
 use App\Models\PaymentMethod;
@@ -12,6 +13,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\Dashboard\PublicTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Traits\Dashboard\OfferTrait;
@@ -21,6 +23,7 @@ use App\Models\Offer;
 use App\Models\OfferBranch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Mockery\Exception;
 
 class OfferController extends Controller
 {
@@ -111,169 +114,179 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
-        $rules = [
-            "title_ar" => "required|max:255",
-            "title_en" => "required|max:255",
-            "available_count" => "sometimes|nullable|numeric",
-            "expired_at" => "required|after_or_equal:" . date('Y-m-d'),
-            "provider_id" => "required|exists:providers,id",
-            "status" => "required|in:0,1",
-            "photo" => "required|mimes:jpeg,bmp,jpg,png",
-            "category_ids" => "required|array|min:1",
-            "category_ids.*" => "required|exists:offers_categories,id",
-            "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
-            "paid_coupon_percentage" => "sometimes|nullable|min:0",
-            "discount" => "sometimes|nullable|min:0",
-            "price" => "required|min:0",
-            "price_after_discount" => "required|min:0",
+//        dd($request->all());
+        try {
+            $rules = [
+                "title_ar" => "required|max:255",
+                "title_en" => "required|max:255",
+                "available_count" => "sometimes|nullable|numeric",
+                "expired_at" => "required|after_or_equal:" . date('Y-m-d'),
+                "provider_id" => "required|exists:providers,id",
+                "status" => "required|in:0,1",
+//            "photo" => "required|mimes:jpeg,bmp,jpg,png",
+                "photo" => "required",
+//            "category_ids" => "required|array|min:1",
+//            "category_ids.*" => "required|exists:offers_categories,id",
+                "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
+                "paid_coupon_percentage" => "sometimes|nullable|min:0",
+                "discount" => "sometimes|nullable|min:0",
+                "price" => "required|min:0",
+                "price_after_discount" => "required|min:0",
 
-            "available_count_type" => "required|in:once,more_than_once",
-            "started_at" => "required|date",
-            "gender" => "required|in:all,males,females",
-            "payment_method" => "required|array|min:1",
-            "child_category_ids" => "required|array|min:1",
-            "child_category_ids.*" => "required|exists:offers_categories,id",
-        ];
+                "available_count_type" => "required|in:once,more_than_once",
+                "started_at" => "required|date",
+                "gender" => "required|in:all,males,females",
+                "payment_method" => "required|array|min:1",
+                "child_category_ids" => "required|array|min:1",
+                "child_category_ids.*" => "required|exists:offers_categories,id",
+            ];
 
-        $validator = Validator::make($request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
-            $result = $validator->messages()->toArray();
-            return response()->json(['status' => false, 'error' => $result], 200);
-        }
-        $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
-            'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+            $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
+                'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
 
-        $fileName = "";
-        if (isset($request->photo) && !empty($request->photo)) {
-            $fileName = $this->saveImage('copouns', $request->photo);
-        }
+            $fileName = "";
+            if (isset($request->photo) && !empty($request->photo)) {
+                $fileName = $this->saveImage('copouns', $request->photo);
+            }
 
-        $inputs['photo'] = $fileName;
-        $offer = $this->createOffer($inputs);
+            $inputs['photo'] = $fileName;
+            $offer = $this->createOffer($inputs);
 
-        $offer->categories()->attach($request->child_category_ids);
+            $offer->categories()->attach($request->child_category_ids);
 
-        if ($request->has('branchIds')) {
-            $branchIds = array_filter($request->branchIds, function ($val) {
-                return !empty($val);
-            });
-        }
+            if ($request->has('branchIds')) {
+                $branchIds = array_filter($request->branchIds, function ($val) {
+                    return !empty($val);
+                });
+            }
 
+            ####################################################################################################################
 
-        ####################################################################################################################
-
-        /*if (isset($request->payment_method) && !empty($request->payment_method)) {
-
-            $methods = [];
-            foreach ($request->payment_method as $k => $v) {
-                if ($v == 6) {
-                    $methods[$k]['payment_method_id'] = $v;
-                    $methods[$k]['payment_amount_type'] = $request->payment_amount_type;
-                    $methods[$k]['payment_amount'] = $request->payment_amount;
-                } else {
-                    $methods[$k]['payment_method_id'] = $v;
-                    $methods[$k]['payment_amount_type'] = null;
-                    $methods[$k]['payment_amount'] = null;
+            if (isset($request->payment_method) && !empty($request->payment_method)) {
+                foreach ($request->payment_method as $k => $method) {
+                    $offer->paymentMethods()->attach($method['payment_method_id'], ['payment_amount_type' => $method['payment_amount_type'], 'payment_amount' => $method['payment_amount']]);
                 }
             }
-            $offer->paymentMethods()->attach($methods);
-        }*/
 
-        if (isset($request->offer_content) && !empty($request->offer_content)) {
-            foreach ($request->offer_content['ar'] as $key => $value) {
-                if (!empty($value)) {
-                    $offer->contents()->create([
-                        'content_ar' => $value,
-                        'content_en' => $request->offer_content['en'][$key],
-                    ]);
-                }
-            }
-        }
-
-        if (isset($request->branchTimes) && !empty($request->branchTimes)) {
-            $branches = $request->branchTimes;
-            foreach ($branches as $branchId => $branch) {
-                foreach ($branch['days'] as $dayCode => $time) {
-                    $returnTimes = $this->splitTimes($time['from'], $time['to'], $branch['duration']);
-                    foreach ($returnTimes as $key => $value) {
-                        $offer->branchTimes()->attach($branchId, [
-                            'day_code' => $dayCode,
-                            'time_from' => $value['from'],
-                            'time_to' => $value['to'],
-                            'duration' => $branch['duration'],
-                            'start_from' => $time['from'],
-                            'end_to' => $time['to'],
+            if (isset($request->offer_content) && !empty($request->offer_content)) {
+                foreach ($request->offer_content['ar'] as $key => $value) {
+                    if (!empty($value)) {
+                        $offer->contents()->create([
+                            'content_ar' => $value,
+                            'content_en' => $request->offer_content['en'][$key],
                         ]);
                     }
                 }
             }
-        }
 
-        ####################################################################################################################
+            if (isset($request->branchTimes) && !empty($request->branchTimes)) {
+                // working days
+                $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                foreach ($request->branchTimes as $key => $branchTime) {
 
-        if (!isset($request->users)) {
-            if (!$request->filled('available_count')) {
-                Flashy::error("لابد من ادخال العدد المتاح للعرض");
-                return redirect()->back()->withErrors(['available_count' => 'لابد من ادخال العدد المتاح للعرض'])->withInput($request->all());
+                    foreach ($branchTime as $k => $working_day) {
+
+                        if (empty($working_day['from']) or empty($working_day['to'])) {
+                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                        }
+
+                        $from = Carbon::parse($working_day['from']);
+                        $to = Carbon::parse($working_day['to']);
+                        if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
+                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                        }
+
+                        $working_days_data = [
+                            'offer_id' => $offer->id,
+                            'branch_id' => $key,
+                            'day_name' => strtolower($working_day['day']),
+                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                            'from_time' => $from->format('H:i'),
+                            'to_time' => $to->format('H:i'),
+                            'order' => array_search(strtolower($working_day['day']), $days),
+                            'reservation_period' => $request->reservation_period
+                        ];
+
+                        $times = OfferTime::insert($working_days_data);
+                    }
+
+                }
             }
-        }
-        DB::beginTransaction();
-        $users = [];  // allowed users to use this offer
-        if ($request->has('users') && is_array($request->users)) {
-            $usersIds = array_filter($request->users, function ($val) {
-                return !empty($val);
-            });
-            //check if all ids exists in user table
-            $count = count($usersIds);
-            $usersIdCount = User::whereIn('id', $usersIds)->count('id');
-            if ($count != $usersIdCount) {
-                Flashy::error("بعض من المستخدمين غير موجودين لدينا");
-                return redirect()->back()->withErrors(['users' => 'بعض من المستخدمين غير موجودين لدينا'])->withInput($request->all());
+
+            ####################################################################################################################
+
+            if (!isset($request->users)) {
+                if (!$request->filled('available_count')) {
+                    return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                }
+            }
+            DB::beginTransaction();
+            $users = [];  // allowed users to use this offer
+            if ($request->has('users') && is_array($request->users)) {
+                $usersIds = array_filter($request->users, function ($val) {
+                    return !empty($val);
+                });
+                //check if all ids exists in user table
+                $count = count($usersIds);
+                $usersIdCount = User::whereIn('id', $usersIds)->count('id');
+                if ($count != $usersIdCount) {
+                    return response()->json(['status' => false, 'error' => __('main.oops_error')], 200);
+                }
+
+                $users = $usersIds;
             }
 
-            $users = $usersIds;
-        }
+            if ($offer->id) {
+                if ($request->has('branchIds')) {
+                    $this->saveCouponBranchs($offer->id, $branchIds, $offer->provider_id);
+                }
 
-        if ($offer->id) {
-            if ($request->has('branchIds')) {
-                $this->saveCouponBranchs($offer->id, $branchIds, $offer->provider_id);
+                $offer = Offer::find($offer->id);
+                //allowed users to use this offer
+                if (!empty($users) && count($users) > 0) {
+                    $offer->users()->attach($request->users);
+                    $offer->update(['general' => 0]);
+                } else {
+                    //all user can see offer
+                    //$offer->users()->attach(User::active() -> pluck('id') -> toArray());
+                    $offer->update(['general' => 1]);
+                }
             }
 
-            $offer = Offer::find($offer->id);
-            //allowed users to use this offer
-            if (!empty($users) && count($users) > 0) {
-                $offer->users()->attach($request->users);
-                $offer->update(['general' => 0]);
-            } else {
-                //all user can see offer
-                //$offer->users()->attach(User::active() -> pluck('id') -> toArray());
-                $offer->update(['general' => 1]);
-            }
+            DB::commit();
+
+            return response()->json(['status' => true, 'msg' => __('main.offer_added_successfully')]);
+
+        } catch (Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
-
-        DB::commit();
-
-        Flashy::success('تم إضافة الكوبون بنجاح');
-        return redirect()->route('admin.offers');
     }
 
     public function edit($id)
     {
-        $data['offer'] = $this->getOfferByIdWithRelations($id);
-        if ($data['offer'] == null)
-            return view('errors.404');
-        $data['providers'] = $this->getAllMainActiveProviders();
-        $data['categories'] = $this->getCategoriesWithCurrentOfferSelected($data['offer']);
-        $data['users'] = $this->getActiveUsersWithCurrentOfferSelected($data['offer']);
-        $data['featured'] = collect(['1' => 'غير مميز', '2' => 'مميز']);
-        $data['paymentMethods'] = $this->getAllPaymentMethodWithSelected($data['offer']);
-        $data['offerContents'] = $data['offer']->contents;
+        try {
+            $data['offer'] = $this->getOfferDetailsById($id);
+            if ($data['offer'] == null)
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            $data['providers'] = $this->getMainActiveProviders(); // active providers list
+            $data['categories'] = $this->getOfferCategoriesWithSelected($data['offer']);
+            $data['users'] = $this->getOfferActiveUsersWithSelected($data['offer']);
+            $data['paymentMethods'] = $this->getAllPaymentMethodWithSelectedList($data['offer']); // payment methods to checkboxes
+            $data['offerContents'] = $data['offer']->contents;
 
 //        dd($data['categories']->toArray());
 
-        return view('offers.edit', $data);
+            return response()->json(['status' => true, 'data' => $data]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
     }
 
     public function update($id, Request $request)
@@ -287,9 +300,10 @@ class OfferController extends Controller
             "expired_at" => "required|after_or_equal:" . date('Y-m-d'),
             "provider_id" => "required|exists:providers,id",
             "status" => "required|in:0,1",
-            "photo" => "sometimes|nullable|mimes:jpeg,bmp,jpg,png",
-            "category_ids" => "required|array|min:1",
-            "category_ids.*" => "required|exists:offers_categories,id",
+            "photo" => "sometimes|nullable",
+//            "photo" => "sometimes|nullable|mimes:jpeg,bmp,jpg,png",
+//            "category_ids" => "required|array|min:1",
+//            "category_ids.*" => "required|exists:offers_categories,id",
             "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
             "paid_coupon_percentage" => "sometimes|nullable|min:0",
             "discount" => "sometimes|nullable|numeric|min:0",
@@ -304,16 +318,6 @@ class OfferController extends Controller
             "child_category_ids.*" => "required|exists:offers_categories,id",
 
         ];
-
-        /*if ($request->coupons_type_id == 1) {
-            $rules['discount'] = "required";
-            $rules['code'] = "required|max:255|unique:promocodes,code," . $id;
-        }
-
-        if ($request->coupons_type_id == 2) {
-            //  $rules['price'] = "required";
-            $rules['paid_coupon_percentage'] = "required";
-        }*/
 
         $validator = Validator::make($request->all(), $rules);
 
