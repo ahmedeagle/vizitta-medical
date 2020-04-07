@@ -298,11 +298,10 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
+
                             ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                                 $q->where('offers_categories.id', $subCategoryId);
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('id', $categoryId);
-                                });
+                                $q->where('parent_id', $categoryId);
                             })
                             ->orderBy($orderBy, 'DESC')
                             ->limit(10)
@@ -327,9 +326,7 @@ class OffersController extends Controller
                             }])
                             ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                                 $q->where('offers_categories.id', $subCategoryId);
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('id', $categoryId);
-                                });
+                                $q->where('parent_id', $categoryId);
                             })
                             ->orderBy($orderBy, 'DESC')
                             ->limit(10)
@@ -355,7 +352,10 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
-                            ->where('category_id', $category->id)
+                            ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
+                                $q->where('offers_categories.id', $subCategoryId);
+                                $q->where('parent_id', $categoryId);
+                            })
                             ->where($conditions)
                             ->selection()
                             ->orderBy($orderBy, 'DESC')
@@ -378,9 +378,7 @@ class OffersController extends Controller
                             }])
                             ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                                 $q->where('offers_categories.id', $subCategoryId);
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('id', $categoryId);
-                                });
+                                $q->where('parent_id', $categoryId);
                             })
                             ->selection()
                             ->orderBy($orderBy, 'DESC')
@@ -407,9 +405,7 @@ class OffersController extends Controller
                             },])
                             ->where($conditions)
                             ->whereHas('categories', function ($q) use ($categoryId) {
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('offers_categories.parent_id', $categoryId);
-                                });
+                                $q->where('parent_id', $categoryId);
                             })
                             ->orderBy($orderBy, 'DESC')
                             ->selection()
@@ -432,9 +428,7 @@ class OffersController extends Controller
                                 }]);
                             },])
                             ->whereHas('categories', function ($q) use ($categoryId) {
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('offers_categories.parent_id', $categoryId);
-                                });
+                                $q->where('parent_id', $categoryId);
                             })
                             ->orderBy($orderBy, 'DESC')
                             ->selection()
@@ -450,6 +444,10 @@ class OffersController extends Controller
                                     $qu->where('users.id', $user->id);
                                 });
                         })->where($conditions)
+                            ->whereHas('categories', function ($q) use ($categoryId) {
+                                $q->where('parent_id', $categoryId);
+
+                            })
                             ->active()
                             ->valid()
                             ->with(['provider' => function ($q) {
@@ -470,6 +468,10 @@ class OffersController extends Controller
                                 });
                         })->active()
                             ->valid()
+                            ->whereHas('categories', function ($q) use ($categoryId) {
+                                $q->where('parent_id', $categoryId);
+
+                            })
                             ->with(['provider' => function ($q) {
                                 $q->select('id', 'rate', 'logo', 'type_id',
                                     DB::raw('name_' . $this->getCurrentLang() . ' as name'));
@@ -477,11 +479,7 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
-                            ->whereHas('categories', function ($q) use ($categoryId) {
-                                $q->whereHas('parentCategory', function ($qq) use ($categoryId) {
-                                    $qq->where('offers_categories.parent_id', $categoryId);
-                                });
-                            })
+
                             ->selection()
                             ->orderBy($orderBy, 'DESC')
                             ->paginate(10);
@@ -1007,7 +1005,6 @@ class OffersController extends Controller
                         ->where($conditions)
                         ->whereHas('categories', function ($q) use ($categoryId) {
                             $q->where('parent_id', $categoryId);
-
                         })
                         ->orderBy($orderBy, 'DESC')
                         ->selection()
