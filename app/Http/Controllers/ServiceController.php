@@ -55,7 +55,7 @@ class ServiceController extends Controller
                 $total_count = $services->total();
                 $per_page = PAGINATION_COUNT;
                 $services->getCollection()->each(function ($service) {
-                    //$service->makeHidden(['available_time', 'provider_id', 'branch_id']);
+                    $service->makeHidden(['available_time', 'provider_id', 'branch_id','hide']);
                     return $service;
                 });
 
