@@ -173,7 +173,9 @@ return [
     'added_successfully'                                                  => 'تمت الاضافة بنجاح',
     'saved_successfully'                                                  => 'تم الحفظ بنجاح',
 
-    'offer_added_successfully'                                            => 'تم إضافة عرض بنجاح',
-    'offer_updated_successfully'                                          => 'تم تحديث عرض بنجاح',
+    'offer_added_successfully'                                            => 'تم إضافة العرض بنجاح',
+    'offer_updated_successfully'                                          => 'تم تحديث العرض بنجاح',
+    'offer_deleted_successfully'                                          => 'تم حذف العرض بنجاح',
+    'offer_with_reservations_cannot_be_deleted'                           => 'لا يمكن حذف عرض مرتبط بحجوزات',
 
 ];
