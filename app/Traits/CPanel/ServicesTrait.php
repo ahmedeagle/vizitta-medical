@@ -59,6 +59,7 @@ trait ServicesTrait
         }, 'types'
         ]);
 
+
         if ($id != null)
             $services = $services->where('id', $id);
         $services = $services->select(

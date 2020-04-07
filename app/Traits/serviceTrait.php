@@ -11,17 +11,20 @@ use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Http\Request;
 
 trait ServiceTrait
 {
 
-    public function getServices($category_id)
+    public function getServices(Request $request)
     {
         $services = Service::query();
+        $queryStr = $request->queryStr;
+        $category_id = $request->id;
         $services = $services->with(['specification' => function ($q1) {
             $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($q2) {
-            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'provider_id');
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
         }, 'provider' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'types' => function ($q3) {
@@ -29,13 +32,19 @@ trait ServiceTrait
         }
         ]);
 
+        if (isset($request->queryStr)) {
+            $services->where(function ($q4) use ($queryStr) {
+                $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
+            });
+        }
+
         $services = $services->where('specification_id', $category_id)
             ->select(
-            'id',
-            DB::raw('title_' . $this->getCurrentLang() . ' as title'),
-            DB::raw('information_' . $this->getCurrentLang() . ' as information')
-            , 'specification_id', 'provider_id', 'branch_id', 'rate', 'price', 'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
-        );
+                'id',
+                DB::raw('title_' . $this->getCurrentLang() . ' as title'),
+                DB::raw('information_' . $this->getCurrentLang() . ' as information')
+                , 'specification_id', 'provider_id', 'branch_id', 'rate', 'price', 'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
+            );
 
         return $services->paginate(PAGINATION_COUNT);
     }

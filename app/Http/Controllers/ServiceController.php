@@ -45,7 +45,7 @@ class ServiceController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-            $services = $this->getServices($request -> id);
+            $services = $this->getServices($request);
 
             if (count($services) > 0) {
                 foreach ($services as $key => $service) {
