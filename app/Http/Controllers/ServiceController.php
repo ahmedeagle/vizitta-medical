@@ -34,6 +34,48 @@ class ServiceController extends Controller
 {
     use GlobalTrait, ServiceTrait, PromoCodeTrait, OdooTrait, SMSTrait;
 
+    public function index(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "id" => "required|exists:specifications,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $services = $this->getServices($request -> id);
+
+            if (count($services) > 0) {
+                foreach ($services as $key => $service) {
+                    $service->time = "";
+                    $days = $service->times;
+                }
+                $total_count = $services->total();
+                $per_page = PAGINATION_COUNT;
+                $services->getCollection()->each(function ($service) {
+                    //$service->makeHidden(['available_time', 'provider_id', 'branch_id']);
+                    return $service;
+                });
+
+                $services = json_decode($services->toJson());
+                $servicesJson = new \stdClass();
+                $servicesJson->current_page = $services->current_page;
+                $servicesJson->total_pages = $services->last_page;
+                $servicesJson->total_count = $total_count;
+                $servicesJson->per_page = $per_page;
+                $servicesJson->data = $services->data;
+
+                return $this->returnData('services', $servicesJson);
+            }
+
+            return $this->returnError('E001', trans('messages.No data founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     protected
     function getRandomString($length)
     {

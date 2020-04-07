@@ -50,6 +50,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::post('coupons/categories', 'GlobalController@getCouponsCategories')->name('couponsCategories');
     Route::post('offers/banners', 'OffersController@banners');
     Route::group(['prefix' => 'v2'], function () {
+        Route::post('specifications', 'GlobalController@getSpecificationsV2')->name('specifications');
         Route::post('coupons/categories', 'GlobalController@getCouponsCategoriesV2');
         Route::post('coupons/filters', 'GlobalController@getCouponsFilters');
         Route::post('offers/categories', 'GlobalController@getCouponsCategoriesV2');
@@ -73,6 +74,11 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('search', 'GlobalController@search')->name('search');
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
+
+
+        Route::group(['prefix' => 'services'],function (){
+            Route::post('/', 'ServiceController@index');
+        });
 
         Route::group(['prefix' => 'v2'], function () {
             Route::group(['prefix' => 'offers'], function () {

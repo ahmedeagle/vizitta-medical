@@ -129,6 +129,26 @@ class GlobalController extends Controller
         }
     }
 
+
+ public
+    function getSpecificationsV2(Request $request)
+    {
+        try {
+            if (isset($request->provider_id)) {
+                $provider = $this->checkProvider($request->provider_id);
+                if ($provider == null)
+                    return $this->returnError('D000', trans('messages.There is no provider with this id'));
+            }
+            $specifications = $this->getAllSpecificationsV2($request->provider_id);
+            if ($specifications && count($specifications) > 0)
+                return $this->returnData('specifications', $specifications);
+
+            return $this->returnError('E001', trans('messages.There is no specifications found'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     public
     function getCouponsFilters()
     {

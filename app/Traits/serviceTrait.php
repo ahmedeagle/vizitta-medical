@@ -7,6 +7,7 @@ use App\Models\DoctorTime;
 use App\Models\Payment;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
+use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use DB;
@@ -14,6 +15,30 @@ use DB;
 trait ServiceTrait
 {
 
+    public function getServices($category_id)
+    {
+        $services = Service::query();
+        $services = $services->with(['specification' => function ($q1) {
+            $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'branch' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'provider_id');
+        }, 'provider' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'types' => function ($q3) {
+            $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ]);
+
+        $services = $services->where('specification_id', $category_id)
+            ->select(
+            'id',
+            DB::raw('title_' . $this->getCurrentLang() . ' as title'),
+            DB::raw('information_' . $this->getCurrentLang() . ' as information')
+            , 'specification_id', 'provider_id', 'branch_id', 'rate', 'price', 'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
+        );
+
+        return $services->paginate(PAGINATION_COUNT);
+    }
 
     public function getServiceTimePeriodsInDay($working_day, $day_code, $count = false)
     {
@@ -21,34 +46,32 @@ trait ServiceTrait
         $j = 0;
 
 
-            if ($working_day['day_code'] == $day_code) {
-                $from = strtotime($working_day['from_time']);
-                $to = strtotime($working_day['to_time']);
-                 $diffInterval = ($to - $from) / 60;   // dif in minute
+        if ($working_day['day_code'] == $day_code) {
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
+            $diffInterval = ($to - $from) / 60;   // dif in minute
 
-                if ( !isset($working_day['time_duration']) or $working_day['time_duration'] == 0 or $working_day['time_duration'] == null ) {
-                    $periodCount = $diffInterval / $diffInterval ;
-                    for ($i = 0; $i < round($periodCount); $i++) {
-                        $times[$j]['day_code'] = $working_day['day_code'];
-                        $times[$j]['day_name'] = $working_day['day_name'];
-                        $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * $i)->format('H:i');
-                        $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * ($i + 1))->format('H:i');
-                        $times[$j++]['time_duration'] = $diffInterval;
-                    }
+            if (!isset($working_day['time_duration']) or $working_day['time_duration'] == 0 or $working_day['time_duration'] == null) {
+                $periodCount = $diffInterval / $diffInterval;
+                for ($i = 0; $i < round($periodCount); $i++) {
+                    $times[$j]['day_code'] = $working_day['day_code'];
+                    $times[$j]['day_name'] = $working_day['day_name'];
+                    $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * $i)->format('H:i');
+                    $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($diffInterval * ($i + 1))->format('H:i');
+                    $times[$j++]['time_duration'] = $diffInterval;
+                }
 
-                }else{
-                    $periodCount = $diffInterval/$working_day['time_duration'];
-                    for ($i = 0; $i < round($periodCount); $i++) {
-                        $times[$j]['day_code'] = $working_day['day_code'];
-                        $times[$j]['day_name'] = $working_day['day_name'];
-                        $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
-                        $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
-                        $times[$j++]['time_duration'] = $working_day['time_duration'];
-                    }
+            } else {
+                $periodCount = $diffInterval / $working_day['time_duration'];
+                for ($i = 0; $i < round($periodCount); $i++) {
+                    $times[$j]['day_code'] = $working_day['day_code'];
+                    $times[$j]['day_name'] = $working_day['day_name'];
+                    $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                    $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                    $times[$j++]['time_duration'] = $working_day['time_duration'];
                 }
             }
-
-
+        }
 
 
         if ($count)
@@ -81,9 +104,6 @@ trait ServiceTrait
         }
         return $times;
     }
-
-
-
 
     public function getOfferTimePeriodsInDay($working_day, $day_code, $count = false)
     {

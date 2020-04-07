@@ -654,10 +654,21 @@ trait GlobalTrait
                 });
             });
         }
+        return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+    }
 
-       /* return $specification->whereHas('doctors', function ($q) {
-            $q->whereHas('provider');
-        })->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();*/
+
+    public function getAllSpecificationsV2($provider_id = null)
+    {
+        $specification = Specification::query();
+        if ($provider_id != null) {
+            $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
+                $q->select('specification_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
+                    $qu->select('id')->from('providers')->where('provider_id', $provider_id)->orWhere('id', $provider_id);
+                });
+            });
+        }
+
 
         return $specification->whereIn('id', function ($q) {
             $q->select('specification_id')->from('doctors')->where('doctor_type','clinic')->whereIn('provider_id', function ($qu) {
@@ -666,6 +677,7 @@ trait GlobalTrait
         }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
 
     }
+
 
     public function getActiveFilters()
     {
