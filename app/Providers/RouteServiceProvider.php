@@ -45,6 +45,8 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapVisitRoutes();
 
+        $this->mapGeneralVisitsApiRoutes();
+
         //
     }
 
@@ -58,8 +60,8 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes()
     {
         Route::middleware('web')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/web.php'));
+            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
     }
 
     /**
@@ -72,9 +74,9 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes()
     {
         Route::middleware('api')
-             ->prefix('api')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/api.php'));
+            ->prefix('api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api.php'));
     }
 
     protected function mapCPanelRoutes()
@@ -92,4 +94,13 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace('App\Http\Controllers\CPanel')
             ->group(base_path('routes/visit.php'));
     }
+
+    protected function mapGeneralVisitsApiRoutes()
+    {
+        Route::middleware('api')
+            ->prefix('api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/global-visits-api.php'));
+    }
+
 }

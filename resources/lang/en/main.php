@@ -178,4 +178,6 @@ return [
     'offer_deleted_successfully'                                        => 'Offer deleted successfully',
     'offer_with_reservations_cannot_be_deleted'                         => 'Offer with reservations cannot be deleted',
 
+    'there_is_no_times_now'                                             => 'There is no times found',
+
 ];

@@ -178,4 +178,6 @@ return [
     'offer_deleted_successfully'                                          => 'تم حذف العرض بنجاح',
     'offer_with_reservations_cannot_be_deleted'                           => 'لا يمكن حذف عرض مرتبط بحجوزات',
 
+    'there_is_no_times_now'                                               => 'لا توجد توقيتات متاحة حالياً',
+
 ];
