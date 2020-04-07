@@ -341,7 +341,7 @@ class OffersController extends Controller
                     //return $this->returnError('E001', trans('messages.There featured  must be 1 or not present '));
                     if (!empty($conditions) && count($conditions) > 0) {
 
-                        $offers = PromoCode::where(function ($qq) use ($user) {
+                        $offers = Offer::where(function ($qq) use ($user) {
                             $qq->where('general', 1)
                                 ->orWhereHas('users', function ($qu) use ($user) {
                                     $qu->where('users.id', $user->id);
@@ -444,7 +444,7 @@ class OffersController extends Controller
                 } else {
                     if (!empty($conditions) && count($conditions) > 0) {
                         // PromoCode::find(6) -> currentId();
-                        $offers = PromoCode::where(function ($qq) use ($user) {
+                        $offers = Offer::where(function ($qq) use ($user) {
                             $qq->where('general', 1)
                                 ->orWhereHas('users', function ($qu) use ($user) {
                                     $qu->where('users.id', $user->id);

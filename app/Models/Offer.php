@@ -16,7 +16,7 @@ class Offer extends Model
         'status', 'started_at', 'expired_at', 'provider_id', 'photo', 'application_percentage',
         'featured', 'paid_coupon_percentage', 'general', 'visits', 'uses', 'price_after_discount', 'gender', 'device_type'
     ];
-    protected $hidden = ['visits', 'uses'];
+    protected $hidden = ['visits', 'uses','category_id','coupons_type_id'];
 
     public function offerBranches()
     {

@@ -654,7 +654,11 @@ trait GlobalTrait
                 });
             });
         }
-        return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+
+        return $specification->whereHas('doctors', function ($q) {
+            $q->whereHas('provider');
+        })->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+
     }
 
     public function getActiveFilters()
@@ -697,6 +701,22 @@ trait GlobalTrait
         return $category
             ->withOutTimer()
             ->parentCategories()
+            ->select('id',
+                DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
+                'hours',
+                'minutes',
+                'seconds')
+            ->orderBy('lft')
+            ->get();
+    }
+
+    public function getSubCategories($category_id)
+    {
+        $category = OfferCategory::query();
+        return $category
+            ->withOutTimer()
+            ->whereNotNull('parent_id')
+            ->where('parent_id',$category_id)
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',

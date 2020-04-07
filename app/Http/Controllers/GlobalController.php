@@ -203,6 +203,25 @@ class GlobalController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+    } public
+
+    function getOfferSubcategories(Request $request)
+    {
+        try {
+              $validator = Validator::make($request->all(), [
+                  "category_id" => "required|exists:offers_categories,id",
+              ]);
+              if ($validator->fails()) {
+                  $code = $this->returnCodeAccordingToInput($validator);
+                  return $this->returnValidationError($code, $validator);
+              }
+
+            $subCategories = $this->getSubCategories($request -> category_id);
+
+            return $this->returnData('data', $subCategories);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
     /* public

@@ -60,6 +60,8 @@ class Service extends Model
     }
 
 
+
+    //sat sun mon
     public function TimesCode()
     {
         return $this->hasMany('App\Models\ServiceTime', 'service_id', 'id');

@@ -4,15 +4,12 @@ use App\Models\Provider;
 
 
 Route::get('/optimize', function () {
-
     exec('optimize:clear');
     return '<h1>Composer dump-autoload</h1>';
 });
 
 Route::get('/test', function () {
-
     return \App\Models\Offer::find(8)->times->where('branch_id', 12);
-
 });
 
 // Composer dump-autoload:
@@ -55,7 +52,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::group(['prefix' => 'v2'], function () {
         Route::post('coupons/categories', 'GlobalController@getCouponsCategoriesV2');
         Route::post('coupons/filters', 'GlobalController@getCouponsFilters');
-        Route::post('offers/categories', 'OffersController@getOfferCategoriesV2');
+        Route::post('offers/categories', 'GlobalController@getCouponsCategoriesV2');
+        Route::post('offers/subcategory', 'GlobalController@getOfferSubcategories');
         Route::post('offers/filters', 'OffersController@getOfferFilters');
         Route::post('offers/banners', 'OffersController@bannersV2');
     });
@@ -111,7 +109,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('reserve', 'DoctorController@reserveTimeV2');
             });
         });
-
 
         // services routes
         Route::group(['prefix' => 'services', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
