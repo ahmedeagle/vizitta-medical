@@ -149,7 +149,7 @@ class BannerController extends Controller
         return $this->returnSuccessMessage(trans('messages.Banner added successfully'));
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
         try {
             $banner = Banner::find($id);
