@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServiceReservation;
 use App\Models\Service;
 use App\Traits\GlobalTrait;
 use App\Traits\SearchTrait;
@@ -22,8 +23,8 @@ class GlobalVisitsController extends Controller
 
     public function getClinicServiceAvailableTimes(Request $request)
     {
-        $requestData = $request->all();
         try {
+            $requestData = $request->all();
             $dayName = Str::lower(date('D', strtotime($requestData['reserve_day'])));
             $service = Service::find($requestData['service_id']);
             $serviceTimes = [];
@@ -62,6 +63,51 @@ class GlobalVisitsController extends Controller
         }
     }
 
+    public function reserveHomeClinicService(Request $request)
+    {
+        try {
+
+            $requestData = $request->all();
+            $rules = [
+                "service_id" => "required|numeric",
+                "day_date" => "required|date",
+                "from_time" => "required",
+                "to_time" => "required",
+                "price" => "required",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $service = Service::find($requestData['service_id']);
+//            dd($user = $this->auth('user-api'));
+            /*$user = $this->auth('user-api');
+            if ($user == null)
+                return $this->returnError('E001', trans('messages.There is no user with this id'));*/
+
+            $reservationCode = $this->getRandomString(8);
+            $reservation = ServiceReservation::create([
+                "reservation_no" => $reservationCode,
+//                "user_id" => $user->id,
+                "service_id" => $service->id,
+                "day_date" => date('Y-m-d', strtotime($requestData['day_date'])),
+                "from_time" => date('H:i:s', strtotime($requestData['from_time'])),
+                "to_time" => date('H:i:s', strtotime($requestData['to_time'])),
+                "paid" => 0,
+                "provider_id" => $service->provider_id,
+                'price' => (!empty($request->price) ? $requestData['price'] : $service->price),
+            ]);
+
+            return $this->returnData('reservation', $reservation);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     public function splitTimes($StartTime, $EndTime, $Duration = "30")
     {
         $returnArray = [];// Define output
@@ -83,5 +129,18 @@ class GlobalVisitsController extends Controller
         return $returnArray;
     }
 
+    protected function getRandomString($length)
+    {
+        $characters = '0123456789';
+        $string = '';
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+        }
+        $chkCode = ServiceReservation::where('reservation_no', $string)->first();
+        if ($chkCode) {
+            $this->getRandomString(8);
+        }
+        return $string;
+    }
 
 }
