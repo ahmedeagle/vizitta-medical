@@ -655,9 +655,15 @@ trait GlobalTrait
             });
         }
 
-        return $specification->whereHas('doctors', function ($q) {
+       /* return $specification->whereHas('doctors', function ($q) {
             $q->whereHas('provider');
-        })->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+        })->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();*/
+
+        return $specification->whereIn('id', function ($q) {
+            $q->select('specification_id')->from('doctors')->where('doctor_type','clinic')->whereIn('provider_id', function ($qu) {
+                $qu->select('id')->from('providers');
+            });
+        }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
 
     }
 
@@ -709,6 +715,7 @@ trait GlobalTrait
             ->orderBy('lft')
             ->get();
     }
+
 
     public function getSubCategories($category_id)
     {

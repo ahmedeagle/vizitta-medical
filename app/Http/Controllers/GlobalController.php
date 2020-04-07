@@ -134,7 +134,6 @@ class GlobalController extends Controller
     {
         try {
             $filters = $this->getActiveFilters();
-            if ($filters && count($filters) > 0)
                 return $this->returnData('filters', $filters);
             // return $this->returnError('E001', trans('messages.There is no filters found'));
         } catch (\Exception $ex) {
