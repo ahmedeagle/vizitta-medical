@@ -83,15 +83,14 @@ class GlobalVisitsController extends Controller
             }
 
             $service = Service::find($requestData['service_id']);
-//            dd($user = $this->auth('user-api'));
-            /*$user = $this->auth('user-api');
+            $user = $this->auth('user-api');
             if ($user == null)
-                return $this->returnError('E001', trans('messages.There is no user with this id'));*/
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
 
             $reservationCode = $this->getRandomString(8);
             $reservation = ServiceReservation::create([
                 "reservation_no" => $reservationCode,
-//                "user_id" => $user->id,
+                "user_id" => $user->id,
                 "service_id" => $service->id,
                 "day_date" => date('Y-m-d', strtotime($requestData['day_date'])),
                 "from_time" => date('H:i:s', strtotime($requestData['from_time'])),
