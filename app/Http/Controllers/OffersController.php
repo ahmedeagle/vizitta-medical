@@ -298,7 +298,6 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
-
                             ->whereHas('categories', function ($q) use ($subCategoryId, $categoryId) {
                                 $q->where('offers_categories.id', $subCategoryId);
                                 $q->where('parent_id', $categoryId);
@@ -479,7 +478,6 @@ class OffersController extends Controller
                                     $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                                 }]);
                             }])
-
                             ->selection()
                             ->orderBy($orderBy, 'DESC')
                             ->paginate(10);
@@ -1224,8 +1222,9 @@ class OffersController extends Controller
         }
     }
 
+
     //get availbles  slot times by day
-    /*public function getAvailableTimes(Request $request)
+    public function getAvailableTimes(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -1251,7 +1250,7 @@ class OffersController extends Controller
             $dayCode = $days_name[$day_name];
 
             if ($offer != null) {
-                $day = $offer->times()->where('branch_id', $branch -> id)->where('day_code', $dayCode)->first();
+                $day = $offer->times()->where('branch_id', $branch->id)->where('day_code', $dayCode)->first();
                 $doctorTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
                 $times = [];
                 $date = $request->date;
@@ -1287,6 +1286,6 @@ class OffersController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
-    }*/
+    }
 
 }

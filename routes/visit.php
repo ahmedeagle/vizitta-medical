@@ -26,17 +26,6 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('delete', 'BannerController@destroy');
         });
         ############### End Banners Routes ##############
-
-        ############### Banners Routes ##############
-        Route::prefix('banners/V2')->group(function () {
-            Route::post('/', 'BannersController@index');
-            Route::post('create', 'BannersController@create');
-            Route::post('store', 'BannersController@store');
-            Route::post('edit', 'BannersController@edit');
-            Route::post('update', 'BannersController@update');
-            Route::post('delete', 'BannersController@destroy');
-        });
-        ############### End Banners Routes ##############
     });
 
 

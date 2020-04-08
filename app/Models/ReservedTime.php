@@ -9,7 +9,7 @@ class ReservedTime extends Model
     protected $table = 'reserved_times';
     public $timestamps = false;
 
-    protected $fillable = ['doctor_id', 'day_date', 'service_id'];
+    protected $fillable = ['doctor_id', 'day_date', 'service_id', 'offer_id'];
 
     public function doctor()
     {
@@ -21,12 +21,23 @@ class ReservedTime extends Model
         return $this->belongsTo('App\Models\Service', 'service_id')->select('id', 'title_' . app()->getLocale() . ' as title');
     }
 
+
+    public function offer()
+    {
+        return $this->belongsTo('App\Models\Offer', 'offer_id')->select('id', 'title_' . app()->getLocale() . ' as title');
+    }
+
     public function getDoctorIdAttribute($value)
     {
         return $value == null ? 0 : $value;
     }
 
     public function getServiceIdAttribute($value)
+    {
+        return $value == null ? 0 : $value;
+    }
+
+    public function getOfferIdAttribute($value)
     {
         return $value == null ? 0 : $value;
     }
