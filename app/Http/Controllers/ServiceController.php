@@ -38,7 +38,8 @@ class ServiceController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "id" => "required|exists:specifications,id",
+                "category_id" => "required|exists:specifications,id",
+                "branch_id" => "required|exists:specifications,id",
             ]);
 
             if ($validator->fails()) {

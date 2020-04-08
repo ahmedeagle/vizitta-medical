@@ -20,7 +20,9 @@ trait ServiceTrait
     {
         $services = Service::query();
         $queryStr = $request->queryStr;
-        $category_id = $request->id;
+        $category_id = $request->category_id;
+        $branch_id = $request->branch_id;
+
         $services = $services->with(['specification' => function ($q1) {
             $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($q2) {
@@ -30,7 +32,7 @@ trait ServiceTrait
         }, 'types' => function ($q3) {
             $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
-        ]);
+        ])->where('branch_id',$branch_id);
 
         if (isset($request->queryStr)) {
             $services->where(function ($q4) use ($queryStr) {
