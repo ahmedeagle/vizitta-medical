@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Doctor;
 use App\Models\DoctorTime;
+use App\Models\OfferBranchTime;
 use App\Models\Payment;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
@@ -162,14 +163,14 @@ trait DoctorTrait
         $times = [];
         $j = 0;
         if ($working_day['day_code'] == $day_code) {
-            $from = strtotime($working_day['time_from']);
-            $to = strtotime($working_day['time_to']);
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
             $diffInterval = ($to - $from) / 60;
-            $periodCount = $diffInterval / $working_day['duration'];
+            $periodCount = $diffInterval / $working_day['time_duration'];
             for ($i = 0; $i < round($periodCount); $i++) {
                 $times[$j]['day_code'] = $working_day['day_code'];
                 $times[$j]['day_name'] = $working_day['day_name'];
-                $times[$j]['from_time'] = Carbon::parse($working_day['time_from'])->addMinutes($working_day['duration'] * $i)->format('H:i');
+                $times[$j]['from_time'] = Carbon::parse($working_day['time_from'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
                 $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
                 $times[$j++]['time_duration'] = $working_day['time_duration'];
             }
@@ -242,11 +243,59 @@ trait DoctorTrait
         return $times;
     }
 
+
+    public function getOfferTimePeriods($working_days)
+    {
+        $times = [];
+        $j = 0;
+        foreach ($working_days as $working_day) {
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
+            $diffInterval = ($to - $from) / 60;
+            $periodCount = $diffInterval / $working_day['time_duration'];
+            for ($i = 0; $i < round($periodCount); $i++) {
+                $times[$j]['day_code'] = $working_day['day_code'];
+                $times[$j]['day_name'] = $working_day['day_name'];
+                $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                $times[$j++]['time_duration'] = $working_day['time_duration'];
+            }
+        }
+        return $times;
+    }
+
+    public function getOfferTimesInDay($offerId,$branch_id, $dayName, $count = false)
+    {
+        // effect by date
+        $offerTimes = OfferBranchTime::query();
+        $offerTimes = $offerTimes->where('offer_id', $offerId)
+            ->where('branch_id',$branch_id)
+            ->whereRaw('LOWER(day_name) = ?', strtolower($dayName))
+            ->orderBy('created_at')->orderBy('order');
+
+        $times = $this->getOfferTimePeriods($offerTimes->get());
+        if ($count)
+            if (!empty($times) && is_array($times))
+                return count($times);
+            else
+                return 0;
+
+        return $times;
+    }
+
     public function getReservationInTime($doctorId, $date, $fromTime, $toTime)
     {
         // effect by date
         return Reservation::where('doctor_id', $doctorId)->where('day_date', $date)->where('from_time', $fromTime)->first();
     }
+
+    public function getOfferReservationInTime($offerId,$branchId, $date, $fromTime, $toTime)
+    {
+        // effect by date
+        return Reservation::where('offer_id', $offerId)->where('provider_id',$branchId)->where('day_date', $date)->where('from_time', $fromTime)->first();
+    }
+
+
 
     public function getNextDayNameDoctorExists($doctorId, $dayName)
     {
@@ -338,6 +387,46 @@ trait DoctorTrait
         $doctorTimes = $this->getDoctorTimesInDay($doctorId, $dayName);
         foreach ($doctorTimes as $key => $dTime) {
             $reservation = $this->getReservationInTime($doctorId, $timeDate, $dTime['from_time'], $dTime['to_time']);
+            if ($reservation != null)
+                continue;
+            else
+
+                $avTime = ['date' => $timeDate, 'day_name' => trans('messages.' . $dayName),
+                    'day_code' => trans('messages.' . $dayName . ' Code'), 'from_time' => $dTime['from_time'], 'to_time' => $dTime['to_time']];
+            array_push($getAllAvailableTime, $avTime);
+        }
+        return $getAllAvailableTime;
+
+    }
+
+
+    public function getOfferAvailableReservationInDate($offerId,$branchId, $dayDate, $count = false)
+    {
+        $reservation = Reservation::query();
+        if ($dayDate instanceof Carbon)
+            return $dayDate = date($dayDate->format('Y-m-d'));
+        $query = "(SELECT COUNT(*)  FROM reservations WHERE day_date = '" . $dayDate . "' and offer_id = '" . $offerId . "' and provider_id = '" . $branchId . "') as reservation,";
+        $query .= "(SELECT COUNT(*) FROM reserved_times rt WHERE rt.offer_id = '" . $offerId . "' and rt.day_date = '" . $dayDate . "' and rt.branch_id = '" . $branchId . "' ) as day_reserved";
+        $reservation = \Illuminate\Support\Facades\DB::select('SELECT ' . $query . ' FROM DUAL;')[0];
+
+        if ($reservation->day_reserved)
+            return -1;
+        else
+            return $reservation->reservation;
+
+    }
+
+    public function getAllOfferAvailableTime($offerId,$branchId, $timeCountInDay, $days, $timeDate, $count = 0)
+    {
+        // effect by date
+        $getAllAvailableTime = [];
+        if ($count > 60)
+            return new \stdClass();
+        $dayName = $this->getDayByCode($days[$count % count($days)]['day_code']);
+        $reservationsCount = $this->getOfferAvailableReservationInDate($offerId,$branchId, $timeDate, true);
+        $offerTimes = $this->getOfferTimesInDay($offerId,$branchId, $dayName);
+        foreach ($offerTimes as $key => $dTime) {
+            $reservation = $this->getOfferReservationInTime($offerId,$branchId, $timeDate, $dTime['from_time'], $dTime['to_time']);
             if ($reservation != null)
                 continue;
             else

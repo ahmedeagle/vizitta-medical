@@ -17,10 +17,12 @@ use App\Models\Payment;
 use App\Traits\GlobalTrait;
 use App\Traits\DoctorTrait;
 use App\Traits\OdooTrait;
+use App\Traits\OfferTrait;
 use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Validator;
+use DateTime;
 use DB;
 use Str;
 
@@ -28,7 +30,7 @@ use Illuminate\Validation\Rule;
 
 class OffersController extends Controller
 {
-    use  GlobalTrait, SMSTrait, DoctorTrait, OdooTrait;
+    use  GlobalTrait, OfferTrait, SMSTrait, DoctorTrait, OdooTrait;
 
     public function __construct()
     {
@@ -1249,13 +1251,14 @@ class OffersController extends Controller
             $days_name = ['saturday' => 'sat', 'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 'wednesday' => 'wed', 'thursday' => 'thu', 'friday' => 'fri'];
             $dayCode = $days_name[$day_name];
 
+
             if ($offer != null) {
                 $day = $offer->times()->where('branch_id', $branch->id)->where('day_code', $dayCode)->first();
                 $doctorTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
                 $times = [];
                 $date = $request->date;
-                $doctorTimesCount = $this->getDoctorTimePeriodsInDay($day, $dayCode, true);
-                $availableTime = $this->getAllAvailableTime($doctor->id, $doctorTimesCount, [$day], $date);
+                $offerTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
+                $availableTime = $this->getAllOfferAvailableTime($offer->id, $request->branch_id, $offerTimesCount, [$day], $date);
                 if (count((array)$availableTime))
                     array_push($times, $availableTime);
 
@@ -1265,10 +1268,10 @@ class OffersController extends Controller
                         $res = array_merge_recursive($time, $res);
                     }
                 }
-                $doctor->times = $res;
+                $offer->times = $res;
 
                 ########### Start To Get Doctor Times After The Current Time ############
-                $collection = collect($doctor->times);
+                $collection = collect($offer->times);
                 $filtered = $collection->filter(function ($value, $key) {
 
                     if (date('Y-m-d') == $value['date'])
@@ -1276,16 +1279,17 @@ class OffersController extends Controller
                     else
                         return $value;
                 });
-                $doctor->times = array_values($filtered->all());
+                $offer->times = array_values($filtered->all());
                 ########### End To Get Doctor Times After The Current Time ############
 
-                return $this->returnData('doctor', json_decode($doctor, true));
+                return $this->returnData('offer_available_times', $offer -> times);
             }
 
-            return $this->returnError('E001', trans('messages.No doctor with this id'));
+            return $this->returnError('E001', trans('messages.No Offer with this id'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
 
 }

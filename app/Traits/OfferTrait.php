@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\OfferCategory;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 trait OfferTrait
@@ -39,5 +40,8 @@ trait OfferTrait
     {
         return app()->getLocale();
     }
+
+
+
 
 }

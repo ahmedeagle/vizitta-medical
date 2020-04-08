@@ -276,7 +276,8 @@ return [
     'branch not found'  => 'branch not found',
     'New Service Reservation' =>  'New Service Reservation',
     'You have new service reservation' => 'You have new service reservation',
-
+    'No offer with this id'  => 'No offer with this id',
+    'No offer times found'   => 'No offer times found',
 
 
 ];

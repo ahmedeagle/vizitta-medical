@@ -9,7 +9,7 @@ class ReservedTime extends Model
     protected $table = 'reserved_times';
     public $timestamps = false;
 
-    protected $fillable = ['doctor_id', 'day_date', 'service_id', 'offer_id'];
+    protected $fillable = ['doctor_id', 'day_date', 'offer_id','branch_id'];
 
     public function doctor()
     {
@@ -38,6 +38,12 @@ class ReservedTime extends Model
     }
 
     public function getOfferIdAttribute($value)
+    {
+        return $value == null ? 0 : $value;
+    }
+
+
+    public function getBranchIdAttribute($value)
     {
         return $value == null ? 0 : $value;
     }

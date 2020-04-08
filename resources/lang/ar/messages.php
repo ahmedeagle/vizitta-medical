@@ -297,5 +297,7 @@ return [
     'subcategory not found'  => 'القسم الفرعي للعرض غير موجود ',
     'subcategory required'  => 'القسم الفرعي للعرض مطلوب',
     'offer required'  => 'العرض مطلوب',
-    'offer not found'  => 'العرض غير موجود لدينا'
+    'offer not found'  => 'العرض غير موجود لدينا',
+    'No offer with this id'  => 'لا يوجد عرض يهذا الرقم ',
+    'No offer times found'   => 'لا يوجد مواعيد متاحه',
 ];
