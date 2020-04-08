@@ -18,12 +18,12 @@ trait ServiceTrait
 
     public function getServices(Request $request)
     {
-        $services = Service::query();
+
         $queryStr = $request->queryStr;
         $category_id = $request->category_id;
         $branch_id = $request->branch_id;
 
-        $services = $services->with(['specification' => function ($q1) {
+       return  $services = Service::with(['specification' => function ($q1) {
             $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
@@ -32,22 +32,14 @@ trait ServiceTrait
         }, 'types' => function ($q3) {
             $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
-        ])->where('branch_id',$branch_id) ->where('specification_id', $category_id);
-
-       /* if (isset($request->queryStr)) {
-            $services->where(function ($q4) use ($queryStr) {
-                $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
-            });
-        }*/
-
-        $services->select(
+        ])->where('branch_id', $branch_id)->where('specification_id', $category_id)
+            ->select(
                 'id',
                 DB::raw('title_' . $this->getCurrentLang() . ' as title'),
                 DB::raw('information_' . $this->getCurrentLang() . ' as information')
                 , 'specification_id', 'provider_id', 'branch_id', 'rate', 'price', 'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
-            );
+            ) -> paginate(PAGINATION_COUNT)
 
-        return $services->paginate(PAGINATION_COUNT);
     }
 
     public function getServiceTimePeriodsInDay($working_day, $day_code, $count = false)
