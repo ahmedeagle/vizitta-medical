@@ -660,7 +660,7 @@ trait GlobalTrait
 
     public function getAllSpecificationsV2($provider_id = null)
     {
-        $specification = Specification::query();
+       /* $specification = Specification::query();
         if ($provider_id != null) {
             $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
                 $q->select('specification_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
@@ -674,7 +674,17 @@ trait GlobalTrait
             $q->select('specification_id')->from('doctors')->where('doctor_type','clinic')->whereIn('provider_id', function ($qu) {
                 $qu->select('id')->from('providers');
             });
-        }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+        }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();*/
+
+        $specification = Specification::query();
+        if ($provider_id != null) {
+            $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
+                $q->select('specification_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
+                    $qu->select('id')->from('providers')->where('provider_id', $provider_id)->orWhere('id', $provider_id);
+                });
+            });
+        }
+        return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
 
     }
 
