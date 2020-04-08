@@ -62,11 +62,11 @@ class ServiceController extends Controller
             }
             ])->where('branch_id', $branch_id)->where('specification_id', $category_id);
 
-            /* if (isset($request->queryStr)) {
-                 $services->where(function ($q4) use ($queryStr) {
+             if (isset($request->queryStr)) {
+                 $services =  $services->where(function ($q4) use ($queryStr) {
                      $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
                  });
-             }*/
+             }
 
             $services=   $services
                 ->select(

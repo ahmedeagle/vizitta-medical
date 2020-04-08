@@ -321,8 +321,8 @@ class BannersController extends Controller
                 if (!$service)
                     return $this->returnError('D000', trans("messages.no service with this id"));
 
-                if (count($service->reservations) > 0)
-                    return $this->returnError('D000', trans("messages.The service can not be deleted"));
+               /* if (count($service->reservations) > 0)
+                    return $this->returnError('D000', trans("messages.The service can not be deleted"));*/
 
                 $service->times()->delete();
                 $service->delete();
@@ -330,6 +330,7 @@ class BannersController extends Controller
                 DB::commit();
             } catch (\Exception $ex) {
                 DB::rollback();
+                return $this->returnError($ex->getCode(), $ex->getMessage());
             }
             return $this->returnSuccessMessage(trans('messages.service deleted successfully'));
         } catch (\Exception $ex) {
