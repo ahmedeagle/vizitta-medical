@@ -627,14 +627,16 @@ trait GlobalTrait
                 . "' AND  day_date = '" . Carbon::parse($fields['reservation']['day_date'])->format('Y-m-d')
                 . "') as reserved_times_found, ";
         }
-        if (isset($fields['service']) && is_array($fields['service']) && count($fields['service']) > 3) {
-            $query .= "(SELECT count(*) from reservations where service_id = '" . $fields['service']['service_id']
-                . "' AND  day_date = '" . Carbon::parse($fields['service']['day_date'])->format('Y-m-d')
-                . "' AND  from_time = '" . $fields['service']['from_time']
-                . "' AND  to_time = '" . $fields['service']['to_time']
-                . "' AND approved != '2') as service_found, ";
-            $query .= "(SELECT count(*) from reserved_times where service_id = '" . $fields['service']['service_id']
-                . "' AND  day_date = '" . Carbon::parse($fields['service']['day_date'])->format('Y-m-d')
+        if (isset($fields['offer']) && is_array($fields['offer']) && count($fields['offer']) > 3) {
+            $query .= "(SELECT count(*) from reservations where offer_id = '" . $fields['offer']['offer_id']
+                . "' AND  day_date = '" . Carbon::parse($fields['offer']['day_date'])->format('Y-m-d')
+                . "' AND  from_time = '" . $fields['offer']['from_time']
+                . "' AND  to_time = '" . $fields['offer']['to_time']
+                . "' AND  provider_id = '" . $fields['offer']['provider_id']
+                . "' AND approved != '2') as offer_found, ";
+            $query .= "(SELECT count(*) from reserved_times where offer_id = '" . $fields['offer']['offer_id']
+                . "' AND  day_date = '" . Carbon::parse($fields['offer']['day_date'] )->format('Y-m-d')
+                . "' AND  branch_id = '" .$fields['offer']['provider_id']
                 . "') as reserved_times_found, ";
         }
 

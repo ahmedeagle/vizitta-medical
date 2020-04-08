@@ -300,4 +300,5 @@ return [
     'offer not found'  => 'العرض غير موجود لدينا',
     'No offer with this id'  => 'لا يوجد عرض يهذا الرقم ',
     'No offer times found'   => 'لا يوجد مواعيد متاحه',
+    'This day is not in offer days'  => 'هذا اليوم ليس من ايام العرض الخاصه بالفرع',
 ];

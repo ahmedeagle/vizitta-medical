@@ -85,7 +85,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('/', 'OffersController@indexV2');
                 Route::post('details', 'OffersController@showV2');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
-                Route::post('reserve', 'DoctorController@reserveTimeV2');
+                Route::post('reserve', 'OffersController@reserveTime');
             });
 
             Route::post('register', 'UserController@storeV2');
