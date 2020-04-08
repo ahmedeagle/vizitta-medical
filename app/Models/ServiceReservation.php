@@ -9,15 +9,15 @@ class ServiceReservation extends Model
 {
     protected $table = 'service_reservations';
     public $timestamps = true;
-    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'service_rate', 'address'];
+    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'service_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'service_rate', 'address'];
     protected $forcedNullNumbers = [];
 
     protected $fillable = ['reservation_no', 'user_id', 'service_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
-        'approved', 'use_insurance', 'promocode_id', 'order', 'provider_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'people_id', 'is_visit_doctor', 'bill_total', 'discount_type',
-        'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
-        'service_id', 'service_rate', 'address'];
+        'approved', 'order', 'provider_id', 'branch_id', 'service_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
+        'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
+        'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'status'];
 
-    protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type', 'odoo_invoice_id', 'odoo_offer_id'];
+    protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total'];
 
     public function getIsReportedAttribute()
@@ -31,16 +31,6 @@ class ServiceReservation extends Model
     public function user()
     {
         return $this->belongsTo('App\Models\User', 'user_id')->withDefault(["name" => ""]);
-    }
-
-    public function promoCode()
-    {
-        return $this->belongsTo('App\Models\PromoCode', 'promocode_id')->withDefault(["name" => ""]);
-    }
-
-    public function coupon()
-    {
-        return $this->belongsTo('App\Models\PromoCode', 'promocode_id')->withDefault(["title" => ""]);
     }
 
     public function service()
@@ -58,6 +48,11 @@ class ServiceReservation extends Model
         return $this->belongsTo('App\Models\Provider', 'provider_id')->withDefault(["name" => ""]);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo('App\Models\Provider', 'branch_id')->whereNotNull('provider_id')->withDefault(["name" => ""]);
+    }
+
     public function branchId()
     {
         return $this->belongsTo('App\Models\Provider', 'provider_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id', 'address', 'street', 'latitude', 'longitude');
@@ -68,19 +63,14 @@ class ServiceReservation extends Model
         return $this->hasMany('App\Models\UserRecord', 'reservation_no')->withDefault(["name" => ""]);
     }
 
-    public function branch()
+    /*public function branch()
     {
         return $this->belongsTo('App\Models\Provider', 'provider_id')->withDefault(["name" => ""]);
-    }
+    }*/
 
     public function paymentMethod()
     {
         return $this->belongsTo('App\Models\PaymentMethod', 'payment_method_id')->withDefault(["name" => ""]);
-    }
-
-    public function people()
-    {
-        return $this->belongsTo('App\Models\People', 'people_id')->withDefault(["name" => ""]);
     }
 
     public function getApproved()
@@ -99,6 +89,21 @@ class ServiceReservation extends Model
             $result = 'مرفوض بواسطه المستخدم ';
         else
             $result = 'معلق';
+        return $result;
+    }
+
+    public function getStatus()
+    {
+        if ($this->status == 'pending')
+            $result = __('main.pending');
+        elseif ($this->status == 'confirmed')
+            $result = __('main.confirmed');
+        elseif ($this->status == 'done')
+            $result = __('main.done');
+        elseif ($this->status == 'canceled')
+            $result = __('main.canceled');
+        else
+            $result = __('main.not_found');
         return $result;
     }
 
@@ -153,18 +158,6 @@ class ServiceReservation extends Model
         if ($value == null)
             return '';
         return $value;
-    }
-
-    public function getDoctorRateAttribute($value)
-    {
-        if ($value == null)
-            return '';
-        return $value;
-    }
-
-    public function getDoctorIdAttribute($value)
-    {
-        return $value == null ? 0 : $value;
     }
 
     public function getServiceIdAttribute($value)

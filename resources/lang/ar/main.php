@@ -40,6 +40,11 @@ return [
     'featured'                              => 'مميز',
     'not_featured'                          => 'غير مميز',
 
+    'pending'                            => 'بإنتظار التأكيد',
+    'confirmed'                          => 'مؤكد',
+    'done'                               => 'تم الزيارة',
+    'canceled'                           => 'ملغى',
+
     'settings_updated_successfully'         => 'تم تحديث الإعدادات بنجاح',
 
     'insurance_company_added_successfully'                  => 'تم إضافة شركة التأمين بنجاح',

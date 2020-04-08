@@ -203,7 +203,7 @@ trait GeneralTrait
             $q->with(['branch' => function ($qq) {
                 $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
             }]);
-        }, 'reservations', 'paymentMethods'])->find($id);
+        }, 'reservations', 'paymentMethods' /*, 'offerBranchTimes'*/])->find($id);
         if (!$offer) {
             return null;
         }

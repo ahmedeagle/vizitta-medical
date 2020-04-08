@@ -40,6 +40,11 @@ return [
     'featured'                              => 'Featured',
     'not_featured'                          => 'Not Featured',
 
+    'pending'                            => 'Pending',
+    'confirmed'                          => 'Confirmed',
+    'done'                               => 'Done',
+    'canceled'                           => 'Canceled',
+
     'settings_updated_successfully'         => 'Settings updated successfully',
 
     'insurance_company_added_successfully'                  => 'Insurance Company added successfully',
