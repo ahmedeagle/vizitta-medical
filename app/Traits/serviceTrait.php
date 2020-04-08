@@ -23,25 +23,15 @@ trait ServiceTrait
         $category_id = $request->category_id;
         $branch_id = $request->branch_id;
 
-        $services = $services->with(['specification' => function ($q1) {
-            $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'branch' => function ($q2) {
-            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
-        }, 'provider' => function ($q2) {
-            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'types' => function ($q3) {
-            $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }
-        ])->where('branch_id',$branch_id);
+        $services = $services->where('branch_id',$branch_id) ->where('specification_id', $category_id);
 
-        if (isset($request->queryStr)) {
+       /* if (isset($request->queryStr)) {
             $services->where(function ($q4) use ($queryStr) {
                 $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
             });
-        }
+        }*/
 
-        $services = $services->where('specification_id', $category_id)
-            ->select(
+        $services->select(
                 'id',
                 DB::raw('title_' . $this->getCurrentLang() . ' as title'),
                 DB::raw('information_' . $this->getCurrentLang() . ' as information')
