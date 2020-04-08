@@ -76,7 +76,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
 
 
-        Route::group(['prefix' => 'services'],function (){
+        Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
         });
 
@@ -85,9 +85,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('/', 'OffersController@indexV2');
                 Route::post('details', 'OffersController@showV2');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
-                //Route::post('times', 'OffersController@getTimes');
-                //Route::post('times/dayCode', 'OffersController@getTimesAsArrayOfDayCodes');
-
+                Route::post('reserve', 'DoctorController@reserveTimeV2');
             });
 
             Route::post('register', 'UserController@storeV2');

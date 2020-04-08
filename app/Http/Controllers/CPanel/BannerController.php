@@ -118,7 +118,7 @@ class BannerController extends Controller
             if (empty($request->offer_id) or !is_numeric($request->offer_id)) {
                 return $this->returnError('D000', __('messages.offer required'));
             }
-            $offer = Offer::where('id', $request->offer_id);   // offer subcategory
+            $offer = Offer::where('id', $request->offer_id)->first();   // offer subcategory
             if (!$offer)
                 return $this->returnError('D000', __('messages.offer not found'));
         }
@@ -152,12 +152,12 @@ class BannerController extends Controller
     public function destroy(Request $request)
     {
         try {
-            $banner = Banner::find($id);
+            $banner = Banner::find($request->banner_id);
             if ($banner == null)
-                return view('errors.404');
+                return $this->returnError('D000', __('messages.banner not found'));
             $banner->delete();
-            Flashy::success('تم مسح البنر بنجاح');
-            return redirect()->route('admin.offers.banners');
+
+            return $this->returnSuccessMessage(trans('messages.Banner deleted successfully'));
         } catch (\Exception $ex) {
             return view('errors.404');
         }

@@ -62,9 +62,9 @@
                             </td>
                             <td>
                                 @if($banner -> bannerable_type === 'App\Models\OfferCategory')
-                                    {{isset($banner -> bannerable -> name_ar)?  $banner -> bannerable -> name_ar : 'جميع الاقسام'}}
+                                    {{isset($banner -> bannerable -> name_ar)?  @$banner -> bannerable -> name_ar : 'جميع الاقسام'}}
                                 @elseif($banner -> bannerable_type === 'App\Models\Offer')
-                                    {{$banner -> bannerable -> title_ar }}
+                                    {{@$banner -> bannerable -> title_ar }}
                                 @else
                                     ---
                                 @endif

@@ -9,6 +9,6 @@ use DB;
 trait BannerTrait
 {
       public function getAllCategories(){
-          return OfferCategory::select('id','name_'.app()->getLocale().' as name')-> get();
+          return OfferCategory::whereNull('parent_id')->select('id','name_'.app()->getLocale().' as name')-> get();
       }
 }
