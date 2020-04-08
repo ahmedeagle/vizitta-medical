@@ -685,7 +685,6 @@ trait GlobalTrait
             });
         }
         return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
-
     }
 
 
