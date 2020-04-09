@@ -205,7 +205,7 @@ class ServiceReservation extends Model
 
     public function scopeSelection($query)
     {
-        return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'service_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total', 'discount_type', 'rejection_reason');
+        return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'service_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'rejection_reason');
     }
 
     public function scopeTommorow($query)
@@ -358,5 +358,19 @@ class ServiceReservation extends Model
         else
             return
                 $val;
+    }
+
+    public function getRejectedReasonNotesAttribute($val)
+    {
+        if ($val === null)
+            return '';
+        else
+            return
+                $val;
+    }
+
+
+    public function type(){
+        return $this-> belongsTo('App\Models\ServiceType','service_type','id');
     }
 }
