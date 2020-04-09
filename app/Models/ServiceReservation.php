@@ -15,10 +15,10 @@ class ServiceReservation extends Model
     protected $fillable = ['reservation_no', 'user_id', 'service_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'order', 'provider_id', 'branch_id', 'service_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
-        'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'status'];
+        'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'status', 'rejected_reason_id', 'rejected_reason_notes'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
-    protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total'];
+    protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total',];
 
     public function getIsReportedAttribute()
     {
@@ -50,7 +50,8 @@ class ServiceReservation extends Model
 
     public function branch()
     {
-        return $this->belongsTo('App\Models\Provider', 'branch_id')->whereNotNull('provider_id')->withDefault(["name" => ""]);
+        return $this->belongsTo('App\Models\Provider', 'provider_id', 'provider_id')->withDefault(["name" => ""]);
+//        return $this->belongsTo('App\Models\Provider', 'branch_id')->whereNotNull('provider_id')->withDefault(["name" => ""]);
     }
 
     public function branchId()
@@ -104,6 +105,21 @@ class ServiceReservation extends Model
             $result = __('main.canceled');
         else
             $result = __('main.not_found');
+        return $result;
+    }
+
+    public function getRejectedReasonId()
+    {
+        if ($this->rejected_reason_id == 1)
+            $result = app()->getLocale() == 'ar' ? 'كنت أقوم بالتجربة فقط' : 'I was just experimenting';
+        elseif ($this->rejected_reason_id == 2)
+            $result = app()->getLocale() == 'ar' ? 'حجز مكرر' : 'Duplicate reservation';
+        elseif ($this->rejected_reason_id == 3)
+            $result = app()->getLocale() == 'ar' ? 'حجزت بالخطأ' : 'Booked by mistake';
+        elseif ($this->rejected_reason_id == 4)
+            $result = app()->getLocale() == 'ar' ? 'لم أعد أرغب بالموعد' : 'I no longer want the appointment';
+        else
+            $result = null;
         return $result;
     }
 
