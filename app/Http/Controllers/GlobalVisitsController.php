@@ -180,7 +180,7 @@ class GlobalVisitsController extends Controller
     {
         try {
             $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->paginate(10);
-            return $this->returnData('reservation', $serviceReservations);
+            return $this->returnData('reservations', $serviceReservations);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
