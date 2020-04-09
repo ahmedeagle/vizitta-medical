@@ -9,7 +9,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('/get-rejected-reasons-to-cancel-service', 'GlobalVisitsController@getRejectedReasons');
             Route::post('/reject-service-reservation', 'GlobalVisitsController@rejectServiceReservation');
 
-//            Route::post('/get-all-services-reservations', 'GlobalVisitsController@getAllServicesReservations');
+            Route::post('/get-all-services-reservations', 'GlobalVisitsController@getAllServicesReservations');
 
             Route::post('pay/get_checkout_id', 'GlobalVisitsController@get_checkout_id');
             Route::post('pay/check_payment_status', 'GlobalVisitsController@checkPaymentStatus');
@@ -17,7 +17,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
 
     });
-    Route::post('/services/get-all-services-reservations', 'GlobalVisitsController@getAllServicesReservations');
+//    Route::post('/services/get-all-services-reservations', 'GlobalVisitsController@getAllServicesReservations');
 
 });
 
