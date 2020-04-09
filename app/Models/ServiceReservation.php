@@ -18,7 +18,7 @@ class ServiceReservation extends Model
         'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'status', 'rejected_reason_id', 'rejected_reason_notes'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
-    protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total',];
+    protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
 
     public function getIsReportedAttribute()
     {
@@ -36,6 +36,11 @@ class ServiceReservation extends Model
     public function service()
     {
         return $this->belongsTo('App\Models\Service', 'service_id')->withDefault(["name" => ""]);
+    }
+
+    public function serviceTypes()
+    {
+        return $this->belongsToMany('App\Models\ServiceType', 'services_type_pivote', 'service_id', 'type_id', 'id', 'id');
     }
 
     public function mainProvider()
@@ -108,7 +113,7 @@ class ServiceReservation extends Model
         return $result;
     }
 
-    public function getRejectedReasonId()
+    public function getRejectedReasonTypeAttribute()
     {
         if ($this->rejected_reason_id == 1)
             $result = app()->getLocale() == 'ar' ? 'كنت أقوم بالتجربة فقط' : 'I was just experimenting';

@@ -11,7 +11,7 @@ class Filter extends Model
 
     protected $fillable = ['title_ar', 'title_en', 'operation', 'price','status'];
 
-    protected $hidden = ['created_at', 'updated_at','operation'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function scopeActive($query)
     {

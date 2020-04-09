@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ServiceReservationDetailsResource;
 use App\Http\Resources\SingleServiceReservationResource;
 use App\Models\GeneralNotification;
 use App\Models\Provider;
@@ -33,7 +34,7 @@ class GlobalVisitsController extends Controller
             $service = Service::find($requestData['service_id']);
             $serviceTimes = [];
 
-            if ($requestData['service_type'] == 'clinic') {
+            if ($requestData['service_type'] == 2) { // clinic
                 if ($service) {
                     $serviceTimes = $service->times()->whereNotNull('reservation_period')->where('day_code', $dayName)->get();
                 }
@@ -72,7 +73,7 @@ class GlobalVisitsController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
-                "service_type" => "required|in:clinic,home",
+                "service_type" => "required|in:1,2", // 1== home & 2 == clinic
                 "service_id" => "required|numeric",
                 "day_date" => "required|date",
                 "from_time" => "required",
@@ -187,8 +188,9 @@ class GlobalVisitsController extends Controller
                 $reservationsJson->total_pages = $serviceReservations->last_page;
                 $reservationsJson->total_count = $total_count;
                 $reservationsJson->data = $serviceReservations->data;
-                return $this->returnData('reservations', $reservationsJson);
             }
+            return $this->returnData('reservations', $reservationsJson);
+
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
@@ -242,6 +244,19 @@ class GlobalVisitsController extends Controller
             }
 
             return $this->returnData('reservation', $reservation);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function getServiceReservationDetails(Request $request)
+    {
+        try {
+//            $user = $this->auth('user-api');
+            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->find($request->id);
+            $result = new ServiceReservationDetailsResource($serviceReservations);
+            return $this->returnData('reservation', $result);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
