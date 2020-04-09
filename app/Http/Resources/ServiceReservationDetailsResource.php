@@ -39,6 +39,8 @@ class ServiceReservationDetailsResource extends JsonResource
                 'id' => $this->branch->id,
                 'name' => app()->getLocale() == 'ar' ? $this->branch->name_ar : $this->branch->name_en,
                 'parent_type' => $this->branch->parent_type->name,
+                'latitude' => $this->branch->latitude,
+                'longitude' => $this->branch->longitude,
             ],
 //            'payment_method' => [
 //                'id' => $this->payment_method->id,
