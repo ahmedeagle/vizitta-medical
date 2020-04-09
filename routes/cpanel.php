@@ -330,8 +330,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         ############### Start Services Reservations Routes ##############
         Route::prefix('services/reservations/')->group(function () {
             Route::post('/index', "ServicesReservationController@index");
-            Route::post('/show/{id}', 'ServicesReservationController@show');
-            Route::post('/delete/{id}', "ServicesReservationController@destroy");
+            Route::post('/delete', "ServicesReservationController@destroy");
             //Route::post('/changeStatus', 'ServicesReservationController@changeStatus');
             //Route::post('/rejection', 'ServicesReservationController@rejectReservation');
         });

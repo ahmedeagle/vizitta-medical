@@ -83,4 +83,27 @@ class ServicesReservationController extends Controller
 
     }
 
+
+
+    public function destroy(Request $request)
+    {
+        try {
+
+            $reservation = ServiceReservation::find($request->reservation_id);
+            if ($reservation == null)
+                return $this->returnError('E001', trans('messages.No Reservations founded'));
+
+            if ($reservation->approved) {
+                return $this->returnError('E001', trans('messages.Cannot delete approved reservation'));
+            } else {
+                $reservation->delete();
+                return $this->returnSuccessMessage('S000', trans('messages.Reservation deleted successfully'));
+            }
+        } catch (\Exception $ex) {
+            return $this->returnError('E001', $ex->getMessage());
+        }
+    }
+
+
+
 }
