@@ -101,13 +101,13 @@ class Service extends Model
 
     public function reservations()
     {
-        return $this->hasMany('App\Models\Reservation', 'service_id');
+        return $this->hasMany('App\Models\ServiceReservation', 'service_id');
     }
 
-    public function reservedTimes()
+ /*   public function reservedTimes()
     {
         return $this->hasMany('App\Models\ReservedTime', 'service_id');
-    }
+    }*/
 
     public function getPriceTypeAttribute($value)
     {

@@ -12,6 +12,8 @@ use App\Models\OfferCategory;
 use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
 use App\Models\Provider;
+use App\Models\Reservation;
+use App\Models\ReservedTime;
 use App\Models\Specification;
 use App\Models\User;
 use App\Models\Payment;
@@ -1305,7 +1307,7 @@ class OffersController extends Controller
                 "agreement" => "required|boolean",
                 "from_time" => "required",
                 "to_time" => "required",
-                "address" => "required",
+                //"address" => "required",
                 "provider_id" => "required|exists:providers,id",
                 //"type" => "required|in:1,2",
             ];
@@ -1320,6 +1322,7 @@ class OffersController extends Controller
             $user = $this->auth('user-api');
             if ($user == null)
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
+
             $validation = $this->validateFields(['offer' => ['provider_id' => $request->provider_id, 'offer_id' => $request->offer_id, 'day_date' => $request->day_date, 'from_time' => $request->from_time, 'to_time' => $request->to_time]]);
 
             if (!$request->agreement)
@@ -1350,7 +1353,7 @@ class OffersController extends Controller
 
             foreach ($offer->times as $time) {
                 if ($time['day_code'] == $day_code) {
-                    $times = $this->getOfferTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
+                      $times = $this->getOfferTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
                     foreach ($times as $key => $time) {
                         if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
                             && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
@@ -1413,9 +1416,7 @@ class OffersController extends Controller
             if ($request->filled('latitude') && $request->filled('longitude')) {
                 $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
             }
-            $reserve->service = Service::with(['serviceType' => function ($q) {
-                $q->select('id', 'type', 'name_' . app()->getLocale() . ' as name');
-            }])->select('id', 'title_' . app()->getLocale() . ' as title')->find($request->service_id);
+            $reserve->offer = Offer::select('id', 'title_' . app()->getLocale() . ' as title')->find($request->offer_id);
 
             DB::commit();
         } catch (\Exception $ex) {
@@ -1436,6 +1437,7 @@ class OffersController extends Controller
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb($branch, null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb($provider, null, 'new_reservation');  //main provider
+
             $notification = GeneralNotification::create([
                 'title_ar' => 'حجز  عرض جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                 'title_en' => 'New offer reservation for ' . ' ' . $providerName,
@@ -1456,10 +1458,12 @@ class OffersController extends Controller
             ];
             //fire pusher  notification for admin  stop pusher for now
             try {
-                event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                //event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
             } catch (\Exception $ex) {
+                return $ex;
             }
         } catch (\Exception $ex) {
+            return $ex;
         }
         return $this->returnData('reservation', $reserve);
     }

@@ -85,7 +85,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('/', 'OffersController@indexV2');
                 Route::post('details', 'OffersController@showV2');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
-                Route::post('reserve', 'OffersController@reserveTime');
+                Route::post('reserve', 'OffersController@reserveTime') -> middleware( ['CheckUserToken', 'CheckUserStatus']);
             });
 
             Route::post('register', 'UserController@storeV2');
@@ -136,6 +136,13 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('finished/reservations', 'UserController@getFinishedReserves')->name('user.finished.reservations');
             Route::post('points', 'UserController@getPoints')->name('user.points');
             Route::post('rate', 'UserController@userRating')->name('user.rate');
+
+            ################### services rate and update rate routes #################
+            Route::group(['prefix' => 'rate'],function (){
+                Route::post('service', 'UserController@userRatingService');
+             });
+            ################### End services rate routes #################
+
             Route::post('provider/rates', 'UserController@getProviderRate')->name('user.provider.rate');
             Route::post('favourite/doctors', 'UserController@getFavouriteDoctors')->name('user.favourite.doctors');
             Route::post('favourite/providers', 'UserController@getFavouriteProviders')->name('user.favourite.providers');

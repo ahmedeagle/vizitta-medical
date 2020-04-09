@@ -17,6 +17,7 @@ use App\Models\Point;
 use App\Models\Provider;
 use App\Models\ReportingType;
 use App\Models\ReservedTime;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\Reservation;
 use App\Models\UserToken;
@@ -927,8 +928,8 @@ class UserController extends Controller
         ]);
 
         $notify = [
-            'provider_name' =>  $MainProvider->name_ar,
-            'reservation_no' =>  $reservation->reservation_no,
+            'provider_name' => $MainProvider->name_ar,
+            'reservation_no' => $reservation->reservation_no,
             'reservation_id' => $reservation->id,
             'content' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
             'photo' => $MainProvider->logo,
@@ -939,6 +940,127 @@ class UserController extends Controller
             event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
         }
+
+        return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
+    }
+
+
+    public function userRatingService(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "reservation_id" => "required|numeric|exists:service_reservations,id",
+            "service_rate" => "required|numeric|min:0|max:5",
+            "provider_rate" => "required|numeric|min:0|max:5",
+            "rate_comment" => "required|string",
+            //"bill_photo" => "sometimes|nullable"
+        ]);
+
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+        $user = $this->auth('user-api');
+
+        if (!$user)
+            return $this->returnError('E001', trans("messages.User not found"));
+
+         $reservation = $this->getServiceReservationWithData($request->reservation_id, $user->id);
+
+        if (!$reservation)
+            return $this->returnError('E001', trans("messages.reservation not found"));
+
+        if ($reservation == null)
+            return $this->returnError('E001', trans('messages.No reservation with this id'));
+
+
+        // if not complete or reject
+        if ($reservation->approved != 3 && $reservation->approved != 2)
+            return $this->returnError('E001', trans('messages.reservation status not completed or rejected'));
+
+        $provider = $reservation->provider;
+        if ($provider == null)
+            return $this->returnError('E001', trans('messages.No provider with this id'));
+
+        $MainProvider = $provider->Provider;
+        if ($MainProvider == null)
+            return $this->returnError('E001', trans('messages.No provider with this id'));
+
+       /* // if this reservation has bill then ,user allow to upload total bill image to admin
+        if (($MainProvider->application_percentage > 0 or $MainProvider->application_percentage_bill > 0) && $reservation->promocode_id == null && $reservation->approved == 3) {//bill_photo
+            if ($request->filled('bill_photo')) {
+
+                $path = $this->saveImage('bills', $request->bill_photo);
+                $reservation->update([
+                    'bill_photo' => $path,
+                ]);
+
+                Bill::create([
+                    'reservation_id' => $reservation->id,
+                    'reservation_no' => $reservation->reservation_no,
+                    'photo' => $path
+                ]);
+            } else {
+                return $this->returnError('E001', trans('messages.please upload bill photo'));
+            }
+        }*/
+
+        // rate
+        $reservation->update([
+            'service_rate' => $request->service_rate,
+            'provider_rate' => $request->provider_rate,
+            'rate_comment' => $request->rate_comment,
+            'rate_date' => Carbon::now(),
+        ]);
+
+        // service rate
+         $service = Service::where('id', $reservation->service->id)->first();
+        if ($service) {
+            $sumAll = $service->reservations()->sum('service_rate');
+            $countRate = count($service->reservations);
+            if ($countRate > 0) {
+                $rate = $sumAll / $countRate;
+                $service->update([
+                    'rate' => $sumAll ? number_format($rate, 1) : 0
+                ]);
+            }
+        } else {
+            return $this->returnError('E001', trans('messages.No service with this id'));
+        }
+
+        $sumAll = $provider->reservations()->sum('provider_rate');
+        $countRate = count($provider->reservations);
+
+        if ($countRate > 0) {
+            $rate = $sumAll / $countRate;
+            $provider->update([
+                'rate' => $sumAll ? number_format($rate, 1) : 0
+            ]);
+        }
+
+        $notification = GeneralNotification::create([
+            'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar . ')',
+            'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar . ')',
+            'content_ar' => ' تقييم  جديد علي حجز خدمه رقم ' . ' ' . $reservation->reservation_no,
+            'content_en' => 'New rating for reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
+            'notificationable_type' => 'App\Models\Provider',
+            'notificationable_id' => $reservation->provider_id,
+            'data_id' => $reservation->id,
+            'type' => 6 //user rate provider and service
+        ]);
+
+        $notify = [
+            'provider_name' => $MainProvider->name_ar,
+            'reservation_no' => $reservation->reservation_no,
+            'reservation_id' => $reservation->id,
+            'content' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
+            'photo' => $MainProvider->logo,
+            'notification_id' => $notification->id
+        ];
+        //fire pusher  notification for admin  stop pusher for now
+        /*try {
+            event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification
+        } catch (\Exception $ex) {
+        }*/
 
         return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
     }
@@ -1058,8 +1180,8 @@ class UserController extends Controller
 
 
                 $notify = [
-                    'provider_name' =>  $mainProvider->name_ar,
-                    'reservation_no' =>  $reservation->reservation_no,
+                    'provider_name' => $mainProvider->name_ar,
+                    'reservation_no' => $reservation->reservation_no,
                     'reservation_id' => $reservation->id,
                     'content' => ' تعديل الحجز رقم ' . ' ' . $reservation->reservation_no,
                     'photo' => $mainProvider->logo,
@@ -1070,7 +1192,6 @@ class UserController extends Controller
                     event(new \App\Events\UserEditReservationTime($notify));   // fire pusher new reservation  event notification*/
                 } catch (\Exception $ex) {
                 }
-
 
 
             } catch (\Exception $ex) {
