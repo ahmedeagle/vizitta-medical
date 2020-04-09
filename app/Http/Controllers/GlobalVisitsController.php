@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ServiceReservationDetailsResource;
 use App\Http\Resources\SingleServiceReservationResource;
 use App\Models\GeneralNotification;
 use App\Models\Provider;
@@ -187,8 +188,9 @@ class GlobalVisitsController extends Controller
                 $reservationsJson->total_pages = $serviceReservations->last_page;
                 $reservationsJson->total_count = $total_count;
                 $reservationsJson->data = $serviceReservations->data;
-                return $this->returnData('reservations', $reservationsJson);
             }
+            return $this->returnData('reservations', $reservationsJson);
+
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
@@ -242,6 +244,19 @@ class GlobalVisitsController extends Controller
             }
 
             return $this->returnData('reservation', $reservation);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function getServiceReservationDetails(Request $request)
+    {
+        try {
+//            $user = $this->auth('user-api');
+            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->find($request->id);
+            $result = new ServiceReservationDetailsResource($serviceReservations);
+            return $this->returnData('reservation', $result);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
