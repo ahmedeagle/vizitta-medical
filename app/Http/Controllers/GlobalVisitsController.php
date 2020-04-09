@@ -78,8 +78,6 @@ class GlobalVisitsController extends Controller
                 "from_time" => "required",
                 "to_time" => "required",
                 "price" => "required",
-                "latitude" => "required",
-                "longitude" => "required",
             ];
             $validator = Validator::make($requestData, $rules);
 
@@ -179,8 +177,18 @@ class GlobalVisitsController extends Controller
     public function getAllServicesReservations(Request $request)
     {
         try {
-            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->paginate(10);
-            return $this->returnData('reservations', $serviceReservations);
+            $user = $this->auth('user-api');
+            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->where('user_id', $user->id)->paginate(10);
+            if (count($serviceReservations->toArray()) > 0) {
+                $total_count = $serviceReservations->total();
+                $serviceReservations = json_decode($serviceReservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $serviceReservations->current_page;
+                $reservationsJson->total_pages = $serviceReservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->data = $serviceReservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
