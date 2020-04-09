@@ -25,6 +25,7 @@ class SingleServiceReservationResource extends JsonResource
             'provider' => [
                 'id' => $this->provider->id,
                 'name' => app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en,
+                'logo' => $this->provider->logo,
             ],
             'branch' => [
                 'id' => $this->branch->id,
