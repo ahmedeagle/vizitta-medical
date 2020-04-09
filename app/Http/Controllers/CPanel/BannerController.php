@@ -8,6 +8,7 @@ use App\Models\OfferCategory;
 use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
 use App\Traits\CPanel\BannerTrait;
+use App\Traits\CPanel\OfferTrait;
 use App\Traits\GlobalTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -16,7 +17,7 @@ use Flashy;
 
 class BannerController extends Controller
 {
-    use  GlobalTrait, BannerTrait;
+    use  GlobalTrait,OfferTrait, BannerTrait;
 
     public function index()
     {
