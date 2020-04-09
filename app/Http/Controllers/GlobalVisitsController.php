@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SingleServiceReservationResource;
 use App\Models\GeneralNotification;
 use App\Models\Provider;
 use App\Models\Reservation;
@@ -123,7 +124,7 @@ class GlobalVisitsController extends Controller
                     $reserve->price = $reservation->price;
                     $reserve->from_time = $reservation->from_time;
                     $reserve->to_time = $reservation->to_time;
-                    $branch = ServiceReservation::find($reservation->id)->branchId;
+                    $branch = ServiceReservation::find($reservation->id)->branch_id;
 
                     $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
                     $reserve->branch = $branch;
@@ -164,7 +165,9 @@ class GlobalVisitsController extends Controller
                 } catch (\Exception $ex) {
                 }
 
-                return $this->returnData('reservation', $reservation);
+                $res = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->find($reservation->id);
+                $result = new SingleServiceReservationResource($res);
+                return $this->returnData('reservation', $result);
             }
             return $this->returnError('E001', trans('main.oops_error'));
 
@@ -176,12 +179,67 @@ class GlobalVisitsController extends Controller
     public function getAllServicesReservations(Request $request)
     {
         try {
-            $serviceReservations = ServiceReservation::get();
+            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->paginate(10);
             return $this->returnData('reservation', $serviceReservations);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    public function getRejectedReasons(Request $request)
+    {
+        if (app()->getLocale() == 'ar') {
+            $reasons = [
+                ['id' => 1, 'name' => 'كنت أقوم بالتجربة فقط',],
+                ['id' => 2, 'name' => 'حجز مكرر',],
+                ['id' => 3, 'name' => 'حجزت بالخطأ',],
+                ['id' => 4, 'name' => 'لم أعد أرغب بالموعد',]
+            ];
+        } else {
+            $reasons = [
+                ['id' => 1, 'name' => 'I was just experimenting',],
+                ['id' => 2, 'name' => 'Duplicate reservation',],
+                ['id' => 3, 'name' => 'Booked by mistake',],
+                ['id' => 4, 'name' => 'I no longer want the appointment',]
+            ];
+        }
+
+        return $this->returnData('reasons', $reasons);
+    }
+
+    public function rejectServiceReservation(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "reservation_id" => "required",
+                "rejected_reason_id" => "required",
+                "rejected_reason_notes" => "required",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $reservation = ServiceReservation::find($requestData['reservation_id']);
+
+            if ($reservation) {
+                $reservation->update([
+                    'status' => 'canceled',
+                    'rejected_reason_id' => $requestData['rejected_reason_id'],
+                    'rejected_reason_notes' => $requestData['rejected_reason_notes'],
+                ]);
+            }
+
+            return $this->returnData('reservation', $reservation);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 
     public function splitTimes($StartTime, $EndTime, $Duration = "30")
     {
