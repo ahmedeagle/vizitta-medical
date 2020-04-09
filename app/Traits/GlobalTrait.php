@@ -767,7 +767,7 @@ trait GlobalTrait
                 'subCategory_id'
             )
             ->orderBy('id', 'DESC')
-            ->get();
+            ->paginate(PAGINATION_COUNT);
     }
 
     public function getBanners()

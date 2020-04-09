@@ -53,8 +53,20 @@ class BannerController extends Controller
                     unset($banner->subCategory_id);
                     return $banner;
                 });
+
+                $total_count = $banners->total();
+
+                $banners = json_decode($banners->toJson());
+                $bannersJson = new \stdClass();
+                $bannersJson->current_page = $banners->current_page;
+                $bannersJson->total_pages = $banners->last_page;
+                $bannersJson->total_count = $total_count;
+                $bannersJson->per_page = PAGINATION_COUNT;
+                $bannersJson->data = $banners->data;
+
+
             }
-            return $this->returnData('banners', $banners);
+            return $this->returnData('banners', $bannersJson);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
