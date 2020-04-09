@@ -65,8 +65,9 @@ class BannerController extends Controller
         try {
             $obj = new \stdClass();
             $categories = $this->getAllCategories();
-            $obj -> $categories  = $categories;
+            $obj -> categories  = $categories;
             $offers = $this->getAllOffers();
+            $obj -> offers  = $categories;
             return $this->returnData('data', $obj);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
