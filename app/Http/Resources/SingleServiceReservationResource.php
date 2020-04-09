@@ -26,11 +26,11 @@ class SingleServiceReservationResource extends JsonResource
                 'id' => $this->provider->id,
                 'name' => app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en,
             ],
-//            'branch' => [
-//                'id' => $this->branch->id,
-//                'name' => app()->getLocale() == 'ar' ? $this->branch->name_ar : $this->branch->name_en,
-//                'parent_type' => $this->branch->parent_type->name,
-//            ],
+            'branch' => [
+                'id' => $this->branch->id,
+                'name' => app()->getLocale() == 'ar' ? $this->branch->name_ar : $this->branch->name_en,
+                'parent_type' => $this->branch->parent_type->name,
+            ],
 //            'payment_method' => [
 //                'id' => $this->payment_method->id,
 //                'name' => app()->getLocale() == 'ar' ? $this->payment_method->name_ar : $this->payment_method->name_en,
