@@ -38,6 +38,11 @@ class ServiceReservation extends Model
         return $this->belongsTo('App\Models\Service', 'service_id')->withDefault(["name" => ""]);
     }
 
+    public function serviceTypes()
+    {
+        return $this->belongsToMany('App\Models\ServiceType', 'services_type_pivote', 'service_id', 'type_id', 'id', 'id');
+    }
+
     public function mainProvider()
     {
         return $this->belongsTo('App\Models\Provider', 'provider_id', 'provider_id')->withDefault(["name" => ""]);

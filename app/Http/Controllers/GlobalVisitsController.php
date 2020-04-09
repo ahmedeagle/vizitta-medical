@@ -34,7 +34,7 @@ class GlobalVisitsController extends Controller
             $service = Service::find($requestData['service_id']);
             $serviceTimes = [];
 
-            if ($requestData['service_type'] == 'clinic') {
+            if ($requestData['service_type'] == 2) { // clinic
                 if ($service) {
                     $serviceTimes = $service->times()->whereNotNull('reservation_period')->where('day_code', $dayName)->get();
                 }
@@ -73,7 +73,7 @@ class GlobalVisitsController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
-                "service_type" => "required|in:clinic,home",
+                "service_type" => "required|in:1,2", // 1== home & 2 == clinic
                 "service_id" => "required|numeric",
                 "day_date" => "required|date",
                 "from_time" => "required",
