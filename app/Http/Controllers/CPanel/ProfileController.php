@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\BillResource;
 use App\Models\Bill;
+use App\Models\Manager;
 use App\Models\Mix;
 use App\Models\Point;
 use App\Models\User;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Mockery\Exception;
 use Illuminate\Support\Facades\Validator;
+use JWTAuth;
+
 
 class ProfileController extends Controller
 {
@@ -22,8 +25,12 @@ class ProfileController extends Controller
     public function edit(Request $request)
     {
         try {
-            $appData = $this->getAppData();
-            return response()->json(['status' => true, 'data' => $appData]);
+            $user = JWTAuth::parseToken()->authenticate();
+            if ($user) {
+                $appData = Manager::find($user->id)->makeVisible(['balance', 'unpaid_balance', 'paid_balance']);
+                return response()->json(['status' => true, 'data' => $appData]);
+            }
+            return response()->json(['status' => true, 'data' => []]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
