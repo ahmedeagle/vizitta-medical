@@ -54,4 +54,36 @@ class CommentsController extends Controller
         $report->delete();
         return response()->json(['status' => true, 'msg' => __('main.operation_done_successfully')]);
     }
+
+
+    public function update(Request $request)
+    {
+        $requestData = $request->only(['doctor_rate', 'provider_rate', 'reservation_id', 'rate_comment']);
+        try {
+            $validator = Validator::make($requestData, [
+                "doctor_rate" => "required|numeric|min:1|max:5",
+                "provider_rate" => "required|numeric|min:1|max:5",
+                "reservation_id" => "required|exists:reservations,id",
+                "rate_comment" => "required|max:200",
+            ]);
+
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+
+            $reservation = Reservation::find($request->reservation_id);
+            $reservation->update([
+                'doctor_rate' => $request->doctor_rate,
+                'provider_rate' => $request->provider_rate,
+                'rate_comment' => $request->rate_comment,
+            ]);
+
+            return response()->json(['status' => true, 'msg' => __('main.comment_rate_updated_successfully')]);
+
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
 }

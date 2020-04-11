@@ -185,4 +185,6 @@ return [
 
     'there_is_no_times_now'                                               => 'لا توجد توقيتات متاحة حالياً',
 
+    'comment_rate_updated_successfully'                                   => 'تم تعديل تقييم التعليق بنجاح',
+
 ];

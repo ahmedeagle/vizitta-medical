@@ -218,6 +218,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::prefix('comments/')->group(function () {
             Route::post('/index', 'CommentsController@index');
             Route::post('/delete/{id}', 'CommentsController@destroy');
+            Route::post('/update', 'CommentsController@update');
         });
         ############## End Comments Routes ##############
 

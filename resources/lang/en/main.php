@@ -185,4 +185,6 @@ return [
 
     'there_is_no_times_now'                                             => 'There is no times found',
 
+    'comment_rate_updated_successfully'                                 => 'Comment rate updated successfully',
+
 ];
