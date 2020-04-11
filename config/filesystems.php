@@ -51,61 +51,68 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
         'doctors' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/doctors/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/doctors/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
         'brands' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/brands/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/brands/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
 
         'generals' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/generals/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/generals/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
 
         'bills' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/bills/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/bills/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
 
         'insurance' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/insurance/',
-            'url' => env('APP_URL').'/',
+            'root' => base_path() . '/images/insurance/',
+            'url' => env('APP_URL') . '/',
             'visibility' => 'public',
         ],
 
         'providers' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/providers/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/providers/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
 
         'users' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/users/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/users/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
         'copouns' => [
             'driver' => 'local',
-            'root'   => base_path() . '/images/copouns/',
-            'url' => env('APP_URL').'/public',
+            'root' => base_path() . '/images/copouns/',
+            'url' => env('APP_URL') . '/public',
+            'visibility' => 'public',
+        ],
+
+        'managers' => [
+            'driver' => 'local',
+            'root' => base_path() . '/images/managers/',
+            'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
         ],
 

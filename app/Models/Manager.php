@@ -8,21 +8,26 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
 
-class Manager extends Authenticatable  implements JWTSubject
+class Manager extends Authenticatable implements JWTSubject
 {
-    use Notifiable ,HasRoles;
+    use Notifiable, HasRoles;
     protected $table = 'managers';
     protected $guard_name = ['web', 'manager-api'];
     public $timestamps = true;
 
     protected $fillable = ['name_en', 'name_ar', 'mobile', 'email', 'password', 'api_token',
-        'paid_balance', 'unpaid_balance','balance', 'app_price'
+        'paid_balance', 'unpaid_balance', 'balance', 'app_price', 'photo'
     ];
 
     //ff//
     protected $hidden = [
         'password', 'remember_token', 'api_token',
     ];
+
+    public function getPhotoAttribute($val)
+    {
+        return ($val != "" ? asset($val) : "");
+    }
 
     public function messages()
     {
@@ -41,7 +46,7 @@ class Manager extends Authenticatable  implements JWTSubject
 
     public function setPasswordAttribute($password)
     {
-        if ( !empty($password) ) {
+        if (!empty($password)) {
             $this->attributes['password'] = bcrypt($password);
         }
     }
@@ -51,7 +56,7 @@ class Manager extends Authenticatable  implements JWTSubject
         return view('admins.actions', compact('admin'))->render();
     }
 
-    public function laratablesCreatedAt( )
+    public function laratablesCreatedAt()
     {
         return Carbon::parse($this->created_at)->format('Y-m-d');
     }
