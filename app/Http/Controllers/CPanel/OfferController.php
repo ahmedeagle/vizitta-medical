@@ -281,6 +281,10 @@ class OfferController extends Controller
             $data['paymentMethods'] = $this->getAllPaymentMethodWithSelectedList($data['offer']); // payment methods to checkboxes
             $data['offerContents'] = $data['offer']->contents;
 
+            $data['offerBranchTimes'] = $this->_group_by($data['offer']->offerBranchTimes, 'branch_id');
+
+            unset($data['offer']['offerBranchTimes']);
+
             return response()->json(['status' => true, 'data' => $data]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
@@ -455,19 +459,17 @@ class OfferController extends Controller
 
             $data['beneficiaries'] = $this->getAllBeneficiaries($request->id);
 
-            $offerBranchTimes = [];
-            /*foreach ($offer->offerBranches as $key => $value) {
-                $offerBranchTimes[$value->branch_id]['branch_name'] = Provider::find($value->branch_id)->name_ar;
-                $offerBranchTimes[$value->branch_id]['duration'] = $offer->branchTimes()->where('branch_id', $value->branch_id)->value('duration');
-                $offerBranchTimes[$value->branch_id]['days'] = $offer->branchTimes()->orderBy('offers_branches_times.id')->groupBy('day_code')->where('branch_id', $value->branch_id)->get(['day_code', 'start_from', 'end_to']);
-            }*/
+            $data['offerBranchTimes'] = $this->_group_by($data['offer']->offerBranchTimes, 'branch_id');
 
             $selectedChildCat = \Illuminate\Support\Facades\DB::table('offers_categories_pivot')
                 ->where('offer_id', $request->id)
                 ->pluck('category_id');
             $data['childCats'] = OfferCategory::with('parentCategory')->whereIn('id', $selectedChildCat->toArray())->get(['id', 'parent_id', 'name_ar']);
 
-//        dd($childCats->toArray());
+            unset($data['offer']['offerBranchTimes']);
+            unset($data['offer']['branchTimes']);
+
+            //        dd($childCats->toArray());
 
             return response()->json(['status' => true, 'data' => $data]);
 
@@ -492,6 +494,15 @@ class OfferController extends Controller
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
+    }
+
+    function _group_by($inputArray, $key)
+    {
+        $result = [];
+        foreach ($inputArray as $val) {
+            $result[$val[$key]][] = $val;
+        }
+        return $result;
     }
 
 }
