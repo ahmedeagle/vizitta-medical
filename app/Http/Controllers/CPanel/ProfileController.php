@@ -55,7 +55,6 @@ class ProfileController extends Controller
 
 
             if (isset($requestData['photo']) && !empty($requestData['photo'])) {
-                dd(['image' => $requestData['photo']]);
                 $requestData['photo'] = $this->saveImage('managers', $requestData['photo']);
             }
 
