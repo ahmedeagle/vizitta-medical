@@ -46,7 +46,6 @@ class ProfileController extends Controller
             $validator = Validator::make($requestData, [
                 "mobile" => "required",
                 "email" => "required|email",
-                "photo" => "nullable"
             ]);
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
