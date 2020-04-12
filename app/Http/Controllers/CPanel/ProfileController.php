@@ -55,6 +55,8 @@ class ProfileController extends Controller
 
             if (isset($requestData['photo']) && !empty($requestData['photo'])) {
                 $requestData['photo'] = $this->saveImage('managers', $requestData['photo']);
+            } else {
+                unset($requestData['photo']);
             }
 
             $manager = Manager::find($user->id);
