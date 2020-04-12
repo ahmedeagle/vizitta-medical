@@ -17,7 +17,7 @@ use Flashy;
 
 class BannerController extends Controller
 {
-    use  GlobalTrait,OfferTrait, BannerTrait;
+    use  GlobalTrait, OfferTrait, BannerTrait;
 
     public function index()
     {
@@ -63,8 +63,6 @@ class BannerController extends Controller
                 $bannersJson->total_count = $total_count;
                 $bannersJson->per_page = PAGINATION_COUNT;
                 $bannersJson->data = $banners->data;
-
-
             }
             return $this->returnData('banners', $bannersJson);
         } catch (\Exception $ex) {
@@ -77,9 +75,9 @@ class BannerController extends Controller
         try {
             $obj = new \stdClass();
             $categories = $this->getAllCategories();
-            $obj -> categories  = $categories;
+            $obj->categories = $categories;
             $offers = $this->getAllOffers();
-            $obj -> offers  = $offers;
+            $obj->offers = $offers;
             return $this->returnData('data', $obj);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
@@ -177,6 +175,25 @@ class BannerController extends Controller
             return $this->returnSuccessMessage(trans('messages.Banner deleted successfully'));
         } catch (\Exception $ex) {
             return view('errors.404');
+        }
+    }
+
+    public function getOfferSubCategoriesByCatId(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "category_id" => "required|exists:offers_categories,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $subCategories = $this->getSubCategoriesByCatId($request -> category_id);
+            return $this->returnData('subCategories', $subCategories);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 }

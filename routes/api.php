@@ -80,12 +80,22 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('/', 'ServiceController@index');
         });
 
+        Route::group(['prefix' => 'consulting'], function () {
+            Route::post('doctors', 'ConsultingController@getConsultingDoctors');
+        });
+
+
         Route::group(['prefix' => 'v2'], function () {
             Route::group(['prefix' => 'offers'], function () {
                 Route::post('/', 'OffersController@indexV2');
                 Route::post('details', 'OffersController@showV2');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
-                Route::post('reserve', 'OffersController@reserveTime') -> middleware( ['CheckUserToken', 'CheckUserStatus']);
+                Route::post('reserve', 'OffersController@reserveTime')->middleware(['CheckUserToken', 'CheckUserStatus']);
+            });
+
+            Route::group(['prefix' => 'pay'], function () {
+                Route::post('get_checkout_id', 'DoctorController@get_checkout_id');
+                Route::post('check_payment_status', 'DoctorController@checkPaymentStatus');
             });
 
             Route::post('register', 'UserController@storeV2');
@@ -107,10 +117,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
         // doctor routes
         Route::group(['prefix' => 'doctor', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
+
             Route::post('reserve', 'DoctorController@reserveTime')->name('user.doctor.reserve');
             Route::post('reservation/update', 'DoctorController@UpdateReservationDateTime')->name('user.doctor.reservation.update');
-            Route::post('pay/get_checkout_id', 'DoctorController@get_checkout_id')->name('user.doctor.pay.checkout.id');
-            Route::post('pay/check_payment_status', 'DoctorController@checkPaymentStatus')->name('user.doctor.pay.checkout.id');
             Route::post('reservation/update/time', 'UserController@UpdateReservationDateTime')->name('user.update.reservation');
             Route::group(['prefix' => 'v2'], function () {
                 Route::post('reserve', 'DoctorController@reserveTimeV2');
@@ -138,9 +147,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('rate', 'UserController@userRating')->name('user.rate');
 
             ################### services rate and update rate routes #################
-            Route::group(['prefix' => 'rate'],function (){
+            Route::group(['prefix' => 'rate'], function () {
                 Route::post('service', 'UserController@userRatingService');
-             });
+            });
             ################### End services rate routes #################
 
             Route::post('provider/rates', 'UserController@getProviderRate')->name('user.provider.rate');

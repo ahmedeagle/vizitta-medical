@@ -21,9 +21,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/', 'BannerController@index');
             Route::post('create', 'BannerController@create');
             Route::post('store', 'BannerController@store');
-            Route::post('edit', 'BannerController@edit');
-            Route::post('update', 'BannerController@update');
             Route::post('delete', 'BannerController@destroy');
+            Route::post('getOfferSubcategories', 'BannerController@getOfferSubCategoriesByCatId');
         });
         ############### End Banners Routes ##############
     });
