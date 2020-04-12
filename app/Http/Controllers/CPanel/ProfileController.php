@@ -45,7 +45,8 @@ class ProfileController extends Controller
 
             $validator = Validator::make($requestData, [
                 "mobile" => "required",
-                "email" => "required|email"
+                "email" => "required|email",
+                "photo" => "nullable"
             ]);
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
@@ -54,6 +55,7 @@ class ProfileController extends Controller
 
 
             if (isset($requestData['photo']) && !empty($requestData['photo'])) {
+                dd(['image' => $requestData['photo']]);
                 $requestData['photo'] = $this->saveImage('managers', $requestData['photo']);
             }
 
@@ -61,6 +63,8 @@ class ProfileController extends Controller
 
             if (isset($requestData['password']))
                 $requestData['password'] = bcrypt($requestData['password']);
+
+            dd($manager->toArray(), $requestData);
 
             $manager->update($requestData);
 
