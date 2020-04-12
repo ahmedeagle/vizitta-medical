@@ -17,6 +17,12 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         });
 
+        Route::group(['prefix' => 'consulting'], function () {
+            Route::post('/get-consulting-categories', 'GlobalConsultingController@getConsultingCategories');
+            Route::post('/get-consulting-doctor-details', 'GlobalConsultingController@getConsultingDoctorDetails');
+            Route::post('/get-consulting-doctor-times', 'GlobalConsultingController@getConsultingDoctorTimes');
+        });
+
     });
 
 });
