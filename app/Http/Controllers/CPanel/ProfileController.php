@@ -63,8 +63,6 @@ class ProfileController extends Controller
             if (isset($requestData['password']))
                 $requestData['password'] = bcrypt($requestData['password']);
 
-            dd($manager->toArray(), $requestData);
-
             $manager->update($requestData);
 
             return response()->json(['status' => true, 'msg' => __('main.data_updated_successfully')]);
