@@ -47,7 +47,8 @@ trait OfferTrait
 
         return Reservation::with(['offer' => function ($q) {
             $q->select('id',
-                DB::raw('title_' . app()->getLocale() . ' as title')
+                DB::raw('title_' . app()->getLocale() . ' as title'),
+                'expired_at'
             );
         }, 'provider' => function ($que) {
             $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
