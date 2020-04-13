@@ -82,6 +82,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
+            Route::post('rates', 'ServiceController@getServiceRate');
         });
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
@@ -188,7 +189,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::group(['prefix' => 'v2'], function () {
             Route::post('doctors', 'ProviderController@getProviderDoctorsV2'); // get provider doctors
             Route::post('rates', 'UserController@getProviderRateV2'); // get provider doctors
-
         });
 
         Route::post('types', 'ProviderController@getProviderTypes')->name('provider.types');

@@ -1321,55 +1321,6 @@ class UserController extends Controller
         }
     }
 
-    public function getProviderRateV2(Request $request)
-    {
-        try {
-
-            $validator = Validator::make($request->all(), [
-                "provider_id" => "required|numeric",
-            ]);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-
-
-            $provider = Provider::find($request->provider_id);
-
-            if ($provider == null)
-                return $this->returnError('E001', trans('messages.Provider not found'));
-
-            if ($provider->provider_id == null)
-                return $this->returnError('D000', trans("messages.Your account isn't branch"));
-
-            $reservations = $provider->reservations()
-                ->with(['user' => function ($q) {
-                    $q->select('id', 'name', 'photo');
-                }])->select('id', 'user_id', 'doctor_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
-                // ->Where('doctor_rate', '!=', null)
-                //->Where('doctor_rate', '!=', 0)
-                ->Where('provider_rate', '!=', null)
-                ->Where('provider_rate', '!=', 0)
-                ->paginate(10);
-
-            if (count($reservations->toArray()) > 0) {
-                $total_count = $reservations->total();
-                $reservations = json_decode($reservations->toJson());
-                $rateJson = new \stdClass();
-                $rateJson->current_page = $reservations->current_page;
-                $rateJson->total_pages = $reservations->last_page;
-                $rateJson->total_count = $total_count;
-                $rateJson->data = $reservations->data;
-                return $this->returnData('rates', $rateJson);
-            }
-
-            $this->returnError('E001', trans('messages.No rates founded'));
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
-
 
 
     public function getPoints(Request $request)

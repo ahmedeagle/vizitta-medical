@@ -100,7 +100,7 @@ class BannerController extends Controller
         if ($request->type == 'category') {
 
             // 0 -> means all category of offers    otherwise mean offer category id
-            if (empty($request->category_id) or !is_numeric($request->category_id)) {
+            if ((empty($request->category_id) or !is_numeric($request->category_id) ) && ($request->category_id != 0)) {
                 return $this->returnError('D000', __('messages.category required'));
             }
 
@@ -111,7 +111,7 @@ class BannerController extends Controller
                     return $this->returnError('D000', __('messages.category not found'));
                 }
                 // required only if category_id  not equal 0  //i.e not all categories then we need subcategory of this category
-                if (empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) {
+                if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
                     return $this->returnError('D000', __('messages.subcategory required'));
                 }
             }
@@ -189,7 +189,7 @@ class BannerController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $subCategories = $this->getSubCategoriesByCatId($request -> category_id);
+            $subCategories = $this->getSubCategoriesByCatId($request->category_id);
             return $this->returnData('subCategories', $subCategories);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());

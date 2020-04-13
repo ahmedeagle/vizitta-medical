@@ -62,13 +62,13 @@ class ServiceController extends Controller
             }
             ])->where('branch_id', $branch_id)->where('specification_id', $category_id);
 
-             if (isset($request->queryStr)) {
-                 $services =  $services->where(function ($q4) use ($queryStr) {
-                     $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
-                 });
-             }
+            if (isset($request->queryStr)) {
+                $services = $services->where(function ($q4) use ($queryStr) {
+                    $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
+                });
+            }
 
-            $services=   $services
+            $services = $services
                 ->select(
                     'id',
                     DB::raw('title_' . $this->getCurrentLang() . ' as title'),
@@ -85,7 +85,7 @@ class ServiceController extends Controller
                 $total_count = $services->total();
                 $per_page = PAGINATION_COUNT;
                 $services->getCollection()->each(function ($service) {
-                    $service->makeHidden(['available_time', 'provider_id', 'branch_id','hide','clinic_reservation_period','time']);
+                    $service->makeHidden(['available_time', 'provider_id', 'branch_id', 'hide', 'clinic_reservation_period', 'time']);
                     return $service;
                 });
 
@@ -101,6 +101,53 @@ class ServiceController extends Controller
             }
 
             return $this->returnError('E001', trans('messages.No data founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public function getServiceRates(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "service_id" => "required|numeric|services",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $service = Service::find($request->service_id);
+
+            if ($service == null)
+                return $this->returnError('E001', trans('messages.Service not found'));
+
+            $reservations = $service->reservations()
+                ->with(['user' => function ($q) {
+                    $q->select('id', 'name', 'photo');
+                }])->select('id', 'user_id', 'service_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
+                ->WhereNotNull('provider_rate')
+                ->Where('provider_rate', '!=', 0)
+                ->WhereNotNull('service_rate')
+                ->Where('service_rate', '!=', 0)
+                ->paginate(10);
+
+            if (count($reservations->toArray()) > 0) {
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $rateJson = new \stdClass();
+                $rateJson->current_page = $reservations->current_page;
+                $rateJson->total_pages = $reservations->last_page;
+                $rateJson->total_count = $total_count;
+                $rateJson->per_page = PAGINATION_COUNT;
+                $rateJson->data = $reservations->data;
+                return $this->returnData('rates', $rateJson);
+            }
+
+            $this->returnError('E001', trans('messages.No rates founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

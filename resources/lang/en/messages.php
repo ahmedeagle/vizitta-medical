@@ -281,6 +281,8 @@ return [
     'there is no data found'  => 'There is no data found',
     'banner not found' => 'banner not found',
     'Banner deleted successfully' => 'Banner deleted successfully',
+    'Service not found' => 'Service Not Found',
+    'category required' =>  'category required'
 
 
 ];

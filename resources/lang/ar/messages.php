@@ -304,6 +304,8 @@ return [
     'there is no data found'  => 'لا توجد نتائج حتي اللحظة ',
     'banner not found' => 'البانر غير موجود',
     'Banner deleted successfully' => 'تم حذف البانر بنجاح ',
+    'Service not found' => 'الخدمة غير موجوده ',
+    'category required' => 'ألقسم الرئيسي مطلوب',
 
 
 ];
