@@ -126,7 +126,7 @@ class Reservation extends Model
     public function doctorInfo()
     {
 
-        return $this->belongsTo('App\Models\doctor', 'doctor_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'price', 'photo', 'rate');
+        return $this->belongsTo('App\Models\doctor', 'doctor_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'price', 'photo', 'rate','specification_id');
     }
 
     public function branchId()

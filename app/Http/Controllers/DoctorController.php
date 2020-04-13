@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PromoCode;
 use App\Models\People;
+use App\Models\Specification;
 use App\Models\User;
 use App\Models\Provider;
 use App\Models\Reservation;
@@ -1081,9 +1082,10 @@ class DoctorController extends Controller
         if ($request->filled('latitude') && $request->filled('longitude')) {
             $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
         }
-        $reserve->doctor = Reservation::with(['specifications' => function($q){
-            $q -> select('id','name_'.app()->getLocale().' as name');
-        }])->find($reservation->id)->doctorInfo;
+        $reserve->doctor = Reservation::find($reservation->id)->doctorInfo;
+
+
+        $reserve->specification = Specification::where('id',$reserve->doctor -> specification_id)->select('id','name_'.app()->getLocale().' as name') ->  first();
         $reserve->coupon = PromoCode::selection2()->find($reservation->promocode_id);
         if ($reserve->payment_method->id == 5)   // prepaid coupon
             $reserve->coupon->code = $promoCode->code;
