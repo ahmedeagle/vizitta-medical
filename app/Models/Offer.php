@@ -119,8 +119,7 @@ class Offer extends Model
         return $this->hasMany('\App\Models\Payment', 'offer_id');
     }
 
-    //removed coupon now has its  own category
-    public function specification()
+     public function specification()
     {
         return $this->belongsTo('App\Models\Specification', 'specification_id');
     }

@@ -45,24 +45,21 @@ trait OfferTrait
     public function getUserOffersReservations($userId)
     {
 
-        return Reservation::with(['commentReport' => function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        }, 'offer' => function ($q) {
-            $q->select('id', 'specification_id',
-                DB::raw('title_' . app()->getLocale() . ' as title'),
-                DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'),
-                DB::raw('information_' . app()->getLocale() . ' as information'))
-                ->with(['specification' => function ($qq) {
-                    $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
+        return Reservation::with(['offer' => function ($q) {
+            $q->select('id',
+                DB::raw('title_' . app()->getLocale() . ' as title')
+            );
         }, 'provider' => function ($que) {
             $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'paymentMethod' => function ($qu) {
-                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-            }])
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
             ->where('user_id', $userId)
+            ->whereNotNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
+            ->select('id', 'reservation_no','payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+                'rate_date')
             ->paginate(PAGINATION_COUNT);
     }
 

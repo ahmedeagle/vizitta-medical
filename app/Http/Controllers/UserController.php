@@ -778,6 +778,8 @@ class UserController extends Controller
                     $reservation->main_provider = $main_provider;
                 }
             }
+
+
             if (count($reservations->toArray()) > 0) {
                 $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());

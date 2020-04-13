@@ -76,21 +76,16 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('search', 'GlobalController@search')->name('search');
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
-
-
         Route::group(['prefix' => 'pay'], function () {
             Route::post('get_checkout_id', 'DoctorController@get_checkout_id');
             Route::post('check_payment_status', 'DoctorController@checkPaymentStatus');
         });
-
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
         });
-
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
         });
-
 
         Route::group(['prefix' => 'v2'], function () {
             Route::group(['prefix' => 'offers'], function () {
@@ -104,7 +99,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('verify/phone', 'UserController@verifyPhone');
             Route::post('records', 'UserController@getRecordsV2');
         });
-
         Route::post('offer/details', 'OffersController@show')->name('offer.show');
         Route::post('offer/doctors', 'OffersController@doctors')->name('offer.doctors');
         Route::post('custom/pages', 'CustomPagesController@getUserPages')->name('user.custom.pages');
@@ -145,7 +139,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('check/promocode', 'PromoCodeController@checkPromoCode')->name('user.check.promocode');
             Route::post('current/reservations', 'UserController@getCurrentReserves')->name('user.current.reservations');
             Route::post('finished/reservations', 'UserController@getFinishedReserves')->name('user.finished.reservations');
-            Route::post('offers/reservations', 'OffersController@getAllOffersReservations');
+            Route::post('offer/reservations', 'OffersController@getAllOffersReservations');
             Route::post('points', 'UserController@getPoints')->name('user.points');
             Route::post('rate', 'UserController@userRating')->name('user.rate');
 
