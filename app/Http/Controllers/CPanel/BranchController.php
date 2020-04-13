@@ -122,7 +122,8 @@ class BranchController extends Controller
                 "district_id" => "required|numeric|exists:districts,id",
                 "street" => "required",
                 "status" => "required|in:0,1",
-                "has_home_visit"  => "required|in:0,1"
+                "has_home_visit"  => "required|in:0,1",
+                "rate" => "numeric|min:1|max:5"
             ]);
 
             if ($validator->fails()) {
@@ -182,6 +183,7 @@ class BranchController extends Controller
                     'street' => trim($request->street),
                     'branch_no' => $request->branch_no,
                     "has_home_visit"  =>  $request->has_home_visit,
+                    "rate" =>  $request->rate,
                 ]);
 
                 if ($providerMod->id) {
@@ -263,7 +265,8 @@ class BranchController extends Controller
             "district_id" => "required|numeric|exists:districts,id",
             "street" => "required",
             "status" => "required|in:0,1",
-            "has_home_visit"  => "required|in:0,1"
+            "has_home_visit"  => "required|in:0,1",
+            "rate" => "numeric|min:1|max:5"
         ]);
 
         if ($validator->fails()) {

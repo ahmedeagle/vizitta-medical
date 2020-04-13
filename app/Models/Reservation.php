@@ -107,6 +107,12 @@ class Reservation extends Model
     }
 
 
+    public function offer()
+    {
+        return $this->belongsTo('App\Models\Offer', 'offer_id')->withDefault(["name" => ""]);
+    }
+
+
     public function mainProvider()
     {
         return $this->belongsTo('App\Models\Provider', 'provider_id', 'provider_id')->withDefault(["name" => ""]);

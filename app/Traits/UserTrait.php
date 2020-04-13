@@ -312,7 +312,7 @@ trait UserTrait
               //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
-            ->paginate(10);
+            ->paginate(PAGINATION_COUNT);
     }
 
     public function getFinishedReservations($id)
@@ -334,7 +334,7 @@ trait UserTrait
             ->where('user_id', $id)
             ->orderBy('day_date')
             ->orderBy('order')
-            ->paginate(10);
+            ->paginate(PAGINATION_COUNT);
     }
 
     public function getFavourDoctors($id)

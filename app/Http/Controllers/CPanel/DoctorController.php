@@ -111,6 +111,7 @@ class DoctorController extends Controller
                 "nationality_id" => "required|numeric|exists:nationalities,id",
                 "price" => "required|numeric",
                 "status" => "required|in:0,1",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
             ];
@@ -151,6 +152,7 @@ class DoctorController extends Controller
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
+                    "waiting_period" => $request->waiting_period,
                     "status" => true
                 ];
                 $doctor = Doctor::create($doctorInfo);
@@ -276,6 +278,7 @@ class DoctorController extends Controller
                 "nationality_id" => "required|numeric|exists:nationalities,id",
                 "price" => "required|numeric",
                 "status" => "required|in:0,1",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
             ];
@@ -351,6 +354,7 @@ class DoctorController extends Controller
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : null,
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
+                    "waiting_period" => $request->waiting_period,
                     "status" => $request->status
                 ];
                 $doctor->update($doctorInfo);

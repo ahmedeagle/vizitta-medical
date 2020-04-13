@@ -1337,13 +1337,13 @@ class OffersController extends Controller
                 return $this->returnError('E001', trans('messages.This time is not available'));
 
             $branch = Provider::find($request->provider_id);
-            $provider = Provider::find($branch -> provider_id);
+            $provider = Provider::find($branch->provider_id);
 
             $offer = Offer::with(['times' => function ($q) use ($branch) {
                 $q->where('branch_id', $branch->id);
             }])->find($request->offer_id);
 
-             $reservationDayName = date('l', strtotime($request->day_date));
+            $reservationDayName = date('l', strtotime($request->day_date));
 
             $rightDay = false;
             $timeOrder = 1;
@@ -1353,7 +1353,7 @@ class OffersController extends Controller
 
             foreach ($offer->times as $time) {
                 if ($time['day_code'] == $day_code) {
-                      $times = $this->getOfferTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
+                    $times = $this->getOfferTimePeriodsInDay($time, substr(strtolower($reservationDayName), 0, 3), false);
                     foreach ($times as $key => $time) {
                         if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
                             && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
@@ -1375,13 +1375,13 @@ class OffersController extends Controller
             $reservation = Reservation::create([
                 "reservation_no" => $reservationCode,
                 "user_id" => $user->id,
-                "offer_id" => $request -> offer_id,
+                "offer_id" => $request->offer_id,
                 "day_date" => date('Y-m-d', strtotime($request->day_date)),
                 "from_time" => date('H:i:s', strtotime($request->from_time)),
                 "to_time" => date('H:i:s', strtotime($request->to_time)),
                 "payment_method_id" => $request->payment_method_id,
                 "paid" => 0,
-                "provider_id" => $request -> provider_id,
+                "provider_id" => $request->provider_id,
                 'order' => $timeOrder,
                 'price' => $request->price
             ]);
@@ -1396,7 +1396,7 @@ class OffersController extends Controller
                 ReservedTime::create([
                     'offer_id' => $offer->id,
                     'day_date' => date('Y-m-d', strtotime($request->day_date)),
-                    'branch_id'  => $branch -> id
+                    'branch_id' => $branch->id
                 ]);
             }
 
@@ -1466,6 +1466,40 @@ class OffersController extends Controller
             return $ex;
         }
         return $this->returnData('reservation', $reserve);
+    }
+
+
+    public function getAllOffersReservations(Request $request)
+    {
+        try {
+            $user = $this->auth('user-api');
+            if (!$user)
+                return $this->returnError('D000', __('messages.user not found'));
+
+            $reservations = $this->getUserOffersReservations($user->id);
+
+            if (isset($reservations) && $reservations->count() > 0) {
+                foreach ($reservations as $key => $reservation) {
+                    $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
+                    $reservation->main_provider = $main_provider;
+                }
+            }
+
+            if (count($reservations->toArray()) > 0) {
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnError('E001', trans('messages.No reservations founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
     protected

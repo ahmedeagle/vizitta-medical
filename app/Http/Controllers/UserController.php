@@ -774,14 +774,10 @@ class UserController extends Controller
             if (isset($reservations) && $reservations->count() > 0) {
 
                 foreach ($reservations as $key => $reservation) {
-
                     $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
-
                     $reservation->main_provider = $main_provider;
                 }
             }
-
-
             if (count($reservations->toArray()) > 0) {
                 $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
@@ -797,6 +793,7 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
 
     public function getUserData(Request $request)
     {
