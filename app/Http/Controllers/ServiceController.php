@@ -12,6 +12,7 @@ use App\Models\PaymentMethod;
 use App\Models\PromoCode;
 use App\Models\People;
 use App\Models\Service;
+use App\Models\ServiceReservation;
 use App\Models\User;
 use App\Models\Provider;
 use App\Models\Reservation;
@@ -112,7 +113,7 @@ class ServiceController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                "service_id" => "required|numeric|services",
+                "service_id" => "required|numeric|exists:services,id",
             ]);
 
             if ($validator->fails()) {
@@ -125,10 +126,14 @@ class ServiceController extends Controller
             if ($service == null)
                 return $this->returnError('E001', trans('messages.Service not found'));
 
-            $reservations = $service->reservations()
+            $reservations = $service->
+            reservations()
                 ->with(['user' => function ($q) {
                     $q->select('id', 'name', 'photo');
-                }])->select('id', 'user_id', 'service_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
+                }, 'provider' => function ($qq) {
+                    $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'logo');
+                }])
+                ->select('id', 'user_id', 'service_rate', 'provider_rate', 'rate_date', 'rate_comment', 'provider_id', 'reservation_no')
                 ->WhereNotNull('provider_rate')
                 ->Where('provider_rate', '!=', 0)
                 ->WhereNotNull('service_rate')
@@ -136,6 +141,23 @@ class ServiceController extends Controller
                 ->paginate(10);
 
             if (count($reservations->toArray()) > 0) {
+
+                $reservations->getCollection()->each(function ($reservation) {
+                    $reservation->makeHidden(['provider_id', 'for_me', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type']);
+                    return $reservation;
+                });
+
+                $num_of_rates = ServiceReservation::where('service_id', $request->service_id)
+                    ->WhereNotNull('provider_rate')
+                    ->Where('provider_rate', '!=', 0)
+                    ->WhereNotNull('service_rate')
+                    ->Where('service_rate', '!=', 0)
+                    ->count('service_rate');
+
+                $num_of_visitors = ServiceReservation::where('service_id', $request->service_id)
+                    ->count();
+
+
                 $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
                 $rateJson = new \stdClass();
@@ -143,6 +165,9 @@ class ServiceController extends Controller
                 $rateJson->total_pages = $reservations->last_page;
                 $rateJson->total_count = $total_count;
                 $rateJson->per_page = PAGINATION_COUNT;
+                $rateJson->general_rate = $service -> rate;
+                $rateJson->num_of_rates = $num_of_rates;
+                $rateJson->num_of_visitors = $num_of_visitors;
                 $rateJson->data = $reservations->data;
                 return $this->returnData('rates', $rateJson);
             }

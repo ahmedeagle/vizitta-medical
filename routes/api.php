@@ -82,7 +82,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
-            Route::post('rates', 'ServiceController@getServiceRate');
+            Route::post('rates', 'ServiceController@getServiceRates');
         });
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
