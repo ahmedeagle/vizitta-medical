@@ -61,9 +61,12 @@ class GlobalConsultingController extends Controller
 
                 $doctorTimes = [];
 
-                if ($doctor->consultativeTimes) {
+                if (count($doctor->consultativeTimes) > 0)
                     $times = $doctor->consultativeTimes()->where('day_code', $dayName)->get();
+                else
+                    $times = $doctor->times()->where('day_code', $dayName)->get();
 
+                if ($times) {
                     foreach ($times as $key => $value) {
                         $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $requestData['reserve_duration']);
                         foreach ($splitTimes as $k => $v) {
@@ -79,10 +82,6 @@ class GlobalConsultingController extends Controller
                         }
 
                     }
-
-//                    dd(['consultativeTimes' => $times->toArray()]);
-                } else {
-//                    dd(['times'=> $doctor->times->toArray()]);
                 }
 
             }
