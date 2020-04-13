@@ -82,6 +82,14 @@ class ServiceController extends Controller
                 foreach ($services as $key => $service) {
                     $service->time = "";
                     $days = $service->times;
+                    $num_of_rates = ServiceReservation::where('service_id', $service->id)
+                        ->Where('service_rate', '!=', null)
+                        ->Where('service_rate', '!=', 0)
+                        ->Where('provider_rate', '!=', null)
+                        ->Where('provider_rate', '!=', 0)
+                        ->count();
+
+                    $service->num_of_rates = $num_of_rates;
                 }
                 $total_count = $services->total();
                 $per_page = PAGINATION_COUNT;
@@ -165,7 +173,7 @@ class ServiceController extends Controller
                 $rateJson->total_pages = $reservations->last_page;
                 $rateJson->total_count = $total_count;
                 $rateJson->per_page = PAGINATION_COUNT;
-                $rateJson->general_rate = $service -> rate;
+                $rateJson->general_rate = $service->rate;
                 $rateJson->num_of_rates = $num_of_rates;
                 $rateJson->num_of_visitors = $num_of_visitors;
                 $rateJson->data = $reservations->data;
