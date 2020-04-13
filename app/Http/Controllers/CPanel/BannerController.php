@@ -88,7 +88,7 @@ class BannerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "type" => "required|in:offer,category,none",
-            "photo" => "required|mimes:jpeg,jpg,png"
+            "photo" => "required"
 
         ]);
 
@@ -96,7 +96,6 @@ class BannerController extends Controller
             $code = $this->returnCodeAccordingToInput($validator);
             return $this->returnValidationError($code, $validator);
         }
-
 
         if ($request->type == 'category') {
 
