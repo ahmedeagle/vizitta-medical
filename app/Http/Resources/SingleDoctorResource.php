@@ -2,12 +2,16 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleDoctorResource extends JsonResource
 {
     public function toArray($request)
     {
+        $authUser = $this->auth('user-api');
+        $user = User::find($authUser->id);
+
         $result = [
             'id' => $this->id,
             'doctor_type' => $this->doctor_type,
@@ -19,6 +23,7 @@ class SingleDoctorResource extends JsonResource
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
+            'favourite' => $user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1,
         ];
 
         return $result;
