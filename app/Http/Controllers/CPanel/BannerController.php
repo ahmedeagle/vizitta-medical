@@ -119,7 +119,7 @@ class BannerController extends Controller
             //check if subcategory exists
             if ($request->has('subcategory_id')) {
                 if ($request->subcategory_id != 0) {
-                    $subCategory = OfferCategory::whereNotNull('parent_id')->where('id', $request->category_id)->first();
+                    $subCategory = OfferCategory::whereNotNull('parent_id')->where('id', $request->subcategory_id)->first();
                     if (!$subCategory) {
                         return $this->returnError('D000', __('messages.subcategory not found'));
                     }

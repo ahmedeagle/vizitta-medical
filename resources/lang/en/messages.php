@@ -278,7 +278,9 @@ return [
     'You have new service reservation' => 'You have new service reservation',
     'No offer with this id'  => 'No offer with this id',
     'No offer times found'   => 'No offer times found',
-    'there is no data found'  => 'There is no data found'
+    'there is no data found'  => 'There is no data found',
+    'banner not found' => 'banner not found',
+    'Banner deleted successfully' => 'Banner deleted successfully',
 
 
 ];
