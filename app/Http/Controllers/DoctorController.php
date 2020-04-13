@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Mail;
 use Validator;
 use DB;
 use DateTime;
+use function foo\func;
 
 class DoctorController extends Controller
 {
@@ -1080,7 +1081,9 @@ class DoctorController extends Controller
         if ($request->filled('latitude') && $request->filled('longitude')) {
             $reserve->branch->distance = (string)$this->getDistance($reserve->branch->latitude, $reserve->branch->longitude, $request->latitude, $request->longitude, 'K');
         }
-        $reserve->doctor = Reservation::find($reservation->id)->doctorInfo;
+        $reserve->doctor = Reservation::with(['specifications' => function($q){
+            $q -> select('id','name_'.app()->getLocale().' as name');
+        }])->find($reservation->id)->doctorInfo;
         $reserve->coupon = PromoCode::selection2()->find($reservation->promocode_id);
         if ($reserve->payment_method->id == 5)   // prepaid coupon
             $reserve->coupon->code = $promoCode->code;
