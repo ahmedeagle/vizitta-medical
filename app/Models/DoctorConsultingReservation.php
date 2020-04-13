@@ -18,7 +18,7 @@ class DoctorConsultingReservation extends Model
         'doctor_id', 'doctor_rate', 'address', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'discount_type'];
-    protected $appends = ['for_me', 'is_reported', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
+    protected $appends = ['for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
 
     public function getIsReportedAttribute()
     {
@@ -36,6 +36,26 @@ class DoctorConsultingReservation extends Model
     public function doctor()
     {
         return $this->belongsTo('App\Models\Doctor', 'doctor_id')->withDefault(["name" => ""]);
+    }
+
+    public function mainProvider()
+    {
+        return $this->belongsTo('App\Models\Provider', 'provider_id', 'provider_id')->withDefault(["name" => ""]);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo('App\Models\Provider', 'provider_id')->withDefault(["name" => ""]);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo('App\Models\Provider', 'provider_id', 'provider_id')->withDefault(["name" => ""]);
+    }
+
+    public function branchId()
+    {
+        return $this->belongsTo('App\Models\Provider', 'provider_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id', 'address', 'street', 'latitude', 'longitude');
     }
 
     public function records()
@@ -103,6 +123,31 @@ class DoctorConsultingReservation extends Model
         return 0;
     }
 
+    public function getBranchNameAttribute()
+    {
+        if ($this->provider_id == null || empty($this->provider_id))
+            return '';
+        else {
+            return Provider::find($this->provider_id)->getTranslatedName();
+        }
+    }
+
+    public function getBranchNoAttribute()
+    {
+        if ($this->provider_id == null || empty($this->provider_id))
+            return '';
+        else {
+            return Provider::find($this->provider_id)->branch_no;
+        }
+    }
+
+    public function getProviderRateAttribute($value)
+    {
+        if ($value == null)
+            return '';
+        return $value;
+    }
+
 
     public function getDoctorIdAttribute($value)
     {
@@ -153,6 +198,14 @@ class DoctorConsultingReservation extends Model
         }
         return $value;
     }*/
+
+    public function getMainproviderAttribute()
+    {
+        $branch_id = $this->provider_id;
+        $main_id = Provider::where('id', $branch_id)->value('provider_id');
+        $main_name = Provider::where('id', $main_id)->value('name_' . app()->getLocale());
+        return $main_name;
+    }
 
     public function getAdminValueFromReservationPriceTaxAttribute()
     {

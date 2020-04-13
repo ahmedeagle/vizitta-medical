@@ -11,6 +11,7 @@ use App\Models\ServiceReservation;
 use App\Models\Service;
 use App\Traits\GlobalTrait;
 use App\Traits\SearchTrait;
+use App\Traits\SMSTrait;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Auth;
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\DB;
 
 class GlobalVisitsController extends Controller
 {
-    use GlobalTrait, SearchTrait;
+    use GlobalTrait, SearchTrait, SMSTrait;
 
     public function getClinicServiceAvailableTimes(Request $request)
     {
