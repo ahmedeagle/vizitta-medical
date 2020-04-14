@@ -103,8 +103,7 @@ class ConsultingController extends Controller
 
             if (isset($reservations) && $reservations->count() > 0) {
                 foreach ($reservations as $key => $reservation) {
-                    $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
-                    $reservation->main_provider = $main_provider;
+                    $reservation -> makeHidden(['rejected_reason_type','reservation_total','for_me','is_reported','branch_name','branch_no','mainprovider','admin_value_from_reservation_price_Tax']);
                 }
             }
 
