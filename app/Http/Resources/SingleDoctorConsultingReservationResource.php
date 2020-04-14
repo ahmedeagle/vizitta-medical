@@ -22,7 +22,7 @@ class SingleDoctorConsultingReservationResource extends JsonResource
                 'name' => app()->getLocale() == 'ar' ? $this->doctor->name_ar : $this->doctor->name_en,
                 'price' => $this->doctor->price,
             ],
-            'paymentMethod' => [
+            'payment_method' => [
                 'id' => $this->paymentMethod->id,
                 'name' => app()->getLocale() == 'ar' ? $this->paymentMethod->name_ar : $this->paymentMethod->name_en,
             ],

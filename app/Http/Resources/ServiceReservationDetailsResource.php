@@ -44,10 +44,10 @@ class ServiceReservationDetailsResource extends JsonResource
                 'latitude' => $this->branch->latitude,
                 'longitude' => $this->branch->longitude,
             ],
-//            'payment_method' => [
-//                'id' => $this->payment_method->id,
-//                'name' => app()->getLocale() == 'ar' ? $this->payment_method->name_ar : $this->payment_method->name_en,
-//            ],
+            'payment_method' => [
+                'id' => $this->paymentMethod->id,
+                'name' => app()->getLocale() == 'ar' ? $this->paymentMethod->name_ar : $this->paymentMethod->name_en,
+            ],
         ];
 
         return $result;

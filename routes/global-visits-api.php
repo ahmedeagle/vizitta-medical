@@ -25,6 +25,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('/rate-consulting-doctor', 'GlobalConsultingController@rateConsultingDoctor');
         });
 
+        Route::group(['prefix' => 'medical-center'], function () {
+            Route::post('/store', 'GlobalConsultingController@addMedicalCenter');
+        });
+
     });
 
 });
