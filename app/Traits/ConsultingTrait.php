@@ -55,7 +55,7 @@ trait ConsultingTrait
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id','doctor_id','payment_method_id','total_price','hours_durationgit ')
+            ->select('id','doctor_id','payment_method_id','total_price','hours_duration')
             ->paginate(PAGINATION_COUNT);
     }
 
