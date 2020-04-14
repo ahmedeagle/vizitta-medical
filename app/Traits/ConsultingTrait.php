@@ -40,14 +40,14 @@ trait ConsultingTrait
     }
 
 
-    function getDiffBetweenTwoDate($startDate, $endDate, $formate = 'a')
+    function getDiffBetweenTwoDate($startDate, $endDate, $formate = 'i')
     {
         $fdate = $startDate;
         $tdate = $endDate;
         $datetime1 = new DateTime($fdate);
         $datetime2 = new DateTime($tdate);
         $interval = $datetime1->diff($datetime2);
-        $days = $interval->format('%a');
+        $days = $interval->format('%i');
         return $days;
     }
     public function getCurrentReservations($id)
