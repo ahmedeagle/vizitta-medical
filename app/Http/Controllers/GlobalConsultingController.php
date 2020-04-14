@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SingleDoctorConsultingReservationResource;
 use App\Http\Resources\SingleDoctorResource;
+use App\Http\Resources\SingleMedicalCenterResource;
 use App\Models\Doctor;
 use App\Models\DoctorConsultingReservation;
 use App\Models\GeneralNotification;
+use App\Models\MedicalCenter;
 use App\Models\Provider;
 use App\Models\Specification;
 use App\Models\User;
@@ -311,7 +313,45 @@ class GlobalConsultingController extends Controller
 
     public function addMedicalCenter(Request $request)
     {
-        dd($request->all());
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "name" => "required",
+                "branch_count" => "required",
+                "responsible_name" => "required",
+                "responsible_mobile" => "required",
+                "cities" => "required|array|min:0",
+                "specifications" => "required|array|min:0",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $user = $this->auth('user-api');
+            if ($user == null)
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+
+            $medicalData = $request->only(['name', 'branch_count', 'responsible_name', 'responsible_mobile']);
+            $medicalData['user_id'] = $user->id;
+
+            $medicalCenter = MedicalCenter::create($medicalData);
+
+            if ($medicalCenter) {
+                $medicalCenter->cities()->attach($requestData['cities']);
+                $medicalCenter->specifications()->attach($requestData['specifications']);
+
+                $result = new SingleMedicalCenterResource($medicalCenter);
+                return $this->returnData('medicalCenter', $result);
+            }
+
+            return $this->returnError('E001', trans('main.oops_error'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
     #################################### End to add medical center ######################################
