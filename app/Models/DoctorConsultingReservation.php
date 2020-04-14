@@ -75,6 +75,8 @@ class DoctorConsultingReservation extends Model
         elseif ($this->approved == '1')
             $result = __('main.confirmed');
         elseif ($this->approved == '2')
+            $result = __('main.canceled');
+        elseif ($this->approved == '3')
             $result = __('main.done');
         else
             $result = __('main.not_found');
