@@ -139,7 +139,7 @@ class ConsultingController extends Controller
     {
         try {
             $user = $this->auth('user-api');
-            $reservations = $this->getFinishedReservations($user->id);
+            $consultings = $this->getFinishedReservations($user->id);
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
                     $consulting->allow_chat = 0;
