@@ -168,7 +168,7 @@ class DoctorConsultingReservation extends Model
 
     public function scopeCurrent($query)
     {
-        return $query->whereIn('approved', [0, 1]);
+        return $query->whereIn('approved', ['0', '1']);
     }
 
 
@@ -191,7 +191,7 @@ class DoctorConsultingReservation extends Model
     public function scopeFinished($query)
     {
         return $query->where(function ($q) {
-            $q->where('approved', 2)->orwhere('approved', 3);
+            $q->where('approved', '2')->orwhere('approved', '3');
         });
     }
 
