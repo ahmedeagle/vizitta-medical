@@ -306,6 +306,7 @@ return [
     'Banner deleted successfully' => 'تم حذف البانر بنجاح ',
     'Service not found' => 'الخدمة غير موجوده ',
     'category required' => 'ألقسم الرئيسي مطلوب',
+    'No medical consulting founded' => 'لأ يوجد استشارات حتي اللحظة',
 
 
 ];

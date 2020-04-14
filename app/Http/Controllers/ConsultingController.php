@@ -102,7 +102,6 @@ class ConsultingController extends Controller
             $reservations = $this->getCurrentReservations($user->id);
 
             if (isset($reservations) && $reservations->count() > 0) {
-
                 foreach ($reservations as $key => $reservation) {
                     $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
                     $reservation->main_provider = $main_provider;
@@ -119,7 +118,7 @@ class ConsultingController extends Controller
                 $reservationsJson->data = $reservations->data;
                 return $this->returnData('reservations', $reservationsJson);
             }
-            return $this->returnError('E001', trans('messages.No reservations founded'));
+            return $this->returnError('E001', trans('messages.No medical consulting founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

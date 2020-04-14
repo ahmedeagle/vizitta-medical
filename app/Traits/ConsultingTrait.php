@@ -44,11 +44,9 @@ trait ConsultingTrait
         return DoctorConsultingReservation::current()
             ->with([
                 'doctor' => function ($q) {
-                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
+                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
-                }, 'provider' => function ($que) {
-                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar');
                 }, 'paymentMethod' => function ($qu) {
                     $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }])
@@ -57,6 +55,7 @@ trait ConsultingTrait
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
+            ->select('id','doctor_id','payment_method_id','total_price','hours_durationgit ')
             ->paginate(PAGINATION_COUNT);
     }
 
