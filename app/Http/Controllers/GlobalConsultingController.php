@@ -210,6 +210,45 @@ class GlobalConsultingController extends Controller
         }
     }
 
+    public function rateConsultingDoctor(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "doctor_id" => "required|numeric",
+                "rate" => "required",
+                "rate_comment" => "nullable",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $doctor = Doctor::find($requestData['doctor_id']);
+            $user = $this->auth('user-api');
+            if ($user == null)
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+
+            $check = $doctor->update([
+                "rate" => $requestData['rate'],
+                "rate_comment" => $requestData['rate_comment'],
+            ]);
+
+            if ($check) {
+                $doc = Doctor::find($requestData['doctor_id']);
+                $result = new SingleDoctorResource($doc);
+                return $this->returnData('doctor', $result);
+            }
+
+            return $this->returnError('E001', trans('main.oops_error'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     ##########################################################################
 
     public function getCurrentLang()

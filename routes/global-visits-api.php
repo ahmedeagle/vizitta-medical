@@ -22,6 +22,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('/get-consulting-doctor-details', 'GlobalConsultingController@getConsultingDoctorDetails');
             Route::post('/get-consulting-doctor-times', 'GlobalConsultingController@getConsultingDoctorTimes');
             Route::post('/reserve-consulting-doctor', 'GlobalConsultingController@reserveConsultingDoctor');
+            Route::post('/rate-consulting-doctor', 'GlobalConsultingController@rateConsultingDoctor');
         });
 
     });
