@@ -33,7 +33,9 @@ class GlobalConsultingController extends Controller
         try {
 
             $result = Specification::whereHas('doctors', function ($q) {
-                $q->where('doctor_type', 'consultative');
+                $q->where('doctor_type', 'consultative')->orWhere(function ($query) {
+                    $query->where('doctor_type', 'clinic')->where('is_consult', 1);
+                });
             })->get(['id', DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
             return $this->returnData('specifications', $result);
 
@@ -46,7 +48,7 @@ class GlobalConsultingController extends Controller
     {
         try {
             $requestData = $request->only(['doctor_id']);
-            $doctor = Doctor::where('doctor_type', 'consultative')->find($requestData['doctor_id']);
+            $doctor = Doctor::find($requestData['doctor_id']);
 
             $result = new SingleDoctorResource($doctor);
             return $this->returnData('doctor', $result);
@@ -108,8 +110,6 @@ class GlobalConsultingController extends Controller
                 "day_date" => "required|date",
                 "from_time" => "required",
                 "to_time" => "required",
-                "price" => "required",
-                "total_price" => "required",
                 "hours_duration" => "required",
             ];
             $validator = Validator::make($requestData, $rules);
@@ -125,6 +125,9 @@ class GlobalConsultingController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
             $reservationCode = $this->getRandomString(8);
+
+            $totalPrice = (floatval($doctor->price) * intval($requestData['hours_duration'])) / intval($doctor->reservation_period);
+
             $reservation = DoctorConsultingReservation::create([
                 "reservation_no" => $reservationCode,
                 "user_id" => $user->id,
@@ -134,7 +137,7 @@ class GlobalConsultingController extends Controller
                 "to_time" => date('H:i:s', strtotime($requestData['to_time'])),
                 "paid" => 0,
                 'price' => (!empty($requestData['price']) ? $requestData['price'] : $doctor->price),
-                'total_price' => empty($request->total_price) ? null : $request->total_price,
+                'total_price' => $totalPrice,
                 "payment_method_id" => $request->payment_method_id,
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
                 "provider_id" => empty($doctor->provider_id) ? null : $doctor->provider_id,
@@ -151,6 +154,7 @@ class GlobalConsultingController extends Controller
                     $reserve->code = $reservation->code;
                     $reserve->reservation_date = date('Y-m-d', strtotime($requestData['day_date']));
                     $reserve->price = $reservation->price;
+                    $reserve->total_price = $reservation->total_price;
                     $reserve->from_time = $reservation->from_time;
                     $reserve->to_time = $reservation->to_time;
                     $branch = DoctorConsultingReservation::find($reservation->id)->branch_id;
@@ -162,9 +166,9 @@ class GlobalConsultingController extends Controller
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)); // branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)->provider); // main  provider
 
-                    $providerName = Provider::find($service->provider_id)->provider->{'name_' . app()->getLocale()};
+                    $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
                     $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
-                    $this->sendSMS(Provider::find($service->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
+                    $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
 
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,7 @@ class SingleDoctorResource extends JsonResource
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
             'abbreviation' => app()->getLocale() == 'ar' ? $this->abbreviation_ar : $this->abbreviation_en,
+            'branch' => app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en,
             'nickname' => [
                 'id' => $this->nickname->id,
                 'name' => app()->getLocale() == 'ar' ? $this->nickname->name_ar : $this->nickname->name_en,
@@ -31,6 +33,14 @@ class SingleDoctorResource extends JsonResource
             'photo' => $this->photo,
             'favourite' => $user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1,
         ];
+
+        if (!empty($this->provider)) {
+            $mainProvider = Provider::whereNull('provider_id')->find($this->provider->provider_id);
+            $result['provider'] = $mainProvider ? ( app()->getLocale() == 'ar' ? $mainProvider->name_ar : $mainProvider->name_en ) : null;
+        }
+        else{
+            $result['provider'] = null;
+        }
 
         return $result;
     }
