@@ -215,7 +215,7 @@ class GlobalConsultingController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
-                "doctor_id" => "required|numeric",
+                "id" => "required|numeric", // Reservation ID
                 "rate" => "required",
                 "rate_comment" => "nullable",
             ];
@@ -226,18 +226,24 @@ class GlobalConsultingController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $doctor = Doctor::find($requestData['doctor_id']);
             $user = $this->auth('user-api');
             if ($user == null)
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
-            $check = $doctor->update([
-                "rate" => $requestData['rate'],
-                "rate_comment" => $requestData['rate_comment'],
-            ]);
+            $reservation = DoctorConsultingReservation::find($requestData['id']);
+            if ($reservation) {
 
-            if ($check) {
-                $doc = Doctor::find($requestData['doctor_id']);
+                $checkReservation = $reservation->update([
+                    "rate" => $requestData['rate'],
+                    "rate_comment" => $requestData['rate_comment'],
+                ]);
+
+                $doctor = Doctor::find($reservation->doctor_id);
+                $check = $doctor->update([
+                    "rate" => '',
+                ]);
+
+                $doc = Doctor::find($reservation->doctor_id);
                 $result = new SingleDoctorResource($doc);
                 return $this->returnData('doctor', $result);
             }
