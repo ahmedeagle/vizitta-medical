@@ -109,8 +109,8 @@ class ConsultingController extends Controller
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
-                    return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
-                    if ($consulting_start_date >= date('Y-m-d H:i:s')) {
+                    //return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
+                    if (date('Y-m-d H:i:s') >= $consulting_start_date) {
                         $consulting->allow_chat = 1;
                     } else {
                         $consulting->allow_chat = 0;
