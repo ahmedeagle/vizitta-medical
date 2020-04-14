@@ -231,16 +231,26 @@ class GlobalConsultingController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
             $reservation = DoctorConsultingReservation::find($requestData['id']);
+            $doctor = Doctor::find($reservation->doctor_id);
+
             if ($reservation) {
 
-                $checkReservation = $reservation->update([
-                    "rate" => $requestData['rate'],
+                $reservation->update([
+                    "doctor_rate" => $requestData['rate'],
                     "rate_comment" => $requestData['rate_comment'],
                 ]);
 
-                $doctor = Doctor::find($reservation->doctor_id);
-                $check = $doctor->update([
-                    "rate" => '',
+                $doctorReservationsCount = DoctorConsultingReservation::where('doctor_id', $reservation->doctor_id)->count();
+                $doctorReservationsSum = DoctorConsultingReservation::where('doctor_id', $reservation->doctor_id)->sum('doctor_rate');
+
+                if (floatval($doctorReservationsCount) != 0) {
+                    $doctorRate = floatval($doctorReservationsSum) / floatval($doctorReservationsCount);
+                } else {
+                    $doctorRate = 0;
+                }
+
+                $doctor->update([
+                    "rate" => $doctorRate,
                 ]);
 
                 $doc = Doctor::find($reservation->doctor_id);
