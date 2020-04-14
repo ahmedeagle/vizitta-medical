@@ -99,24 +99,26 @@ class ConsultingController extends Controller
     {
         try {
             $user = $this->auth('user-api');
-            $reservations = $this->getCurrentReservations($user->id);
+            $consultings = $this->getCurrentReservations($user->id);
 
-            if (isset($reservations) && $reservations->count() > 0) {
-                foreach ($reservations as $key => $reservation) {
-                    $reservation -> makeHidden(['rejected_reason_type','reservation_total','for_me','is_reported','branch_name','branch_no','mainprovider','admin_value_from_reservation_price_Tax']);
-                    $reservation ->doctor->makeHidden(['times']);
+            if (isset($consultings) && $consultings->count() > 0) {
+                foreach ($consultings as $key => $consulting) {
+                    $consulting->makeHidden(['rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->doctor->makeHidden(['times']);
+
                 }
             }
 
-            if (count($reservations->toArray()) > 0) {
-                $total_count = $reservations->total();
-                $reservations = json_decode($reservations->toJson());
-                $reservationsJson = new \stdClass();
-                $reservationsJson->current_page = $reservations->current_page;
-                $reservationsJson->total_pages = $reservations->last_page;
-                $reservationsJson->total_count = $total_count;
-                $reservationsJson->data = $reservations->data;
-                return $this->returnData('reservations', $reservationsJson);
+            if (count($consultings->toArray()) > 0) {
+                $total_count = $consultings->total();
+                $consultings = json_decode($consultings->toJson());
+                $consultingsJson = new \stdClass();
+                $consultingsJson->current_page = $consultings->current_page;
+                $consultingsJson->total_pages = $consultings->last_page;
+                $consultingsJson->total_count = $total_count;
+                $consultingsJson->per_page = PAGINATION_COUNT;
+                $consultingsJson->data = $consultings->data;
+                return $this->returnData('reservations', $consultingsJson);
             }
             return $this->returnError('E001', trans('messages.No medical consulting founded'));
         } catch (\Exception $ex) {
