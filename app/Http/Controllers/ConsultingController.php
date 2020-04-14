@@ -105,7 +105,15 @@ class ConsultingController extends Controller
                 foreach ($consultings as $key => $consulting) {
                     $consulting->makeHidden(['rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);
-
+                    $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
+                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                    $consulting->consulting_start_date = $consulting_start_date;
+                    $consulting->consulting_end_date = $consulting_end_date;
+                    if ($consulting_start_date >= date('Y-m-d H:i:s')) {
+                        $consulting->allow_chat = 1;
+                    } else {
+                        $consulting->allow_chat = 0;
+                    }
                 }
             }
 
