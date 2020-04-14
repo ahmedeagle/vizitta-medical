@@ -39,6 +39,17 @@ trait ConsultingTrait
         return $doctor->where('doctors.status', 1)->paginate(PAGINATION_COUNT);
     }
 
+
+    function getDiffBetweenTwoDate($startDate, $endDate, $formate = 'a')
+    {
+        $fdate = $startDate;
+        $tdate = $endDate;
+        $datetime1 = new DateTime($fdate);
+        $datetime2 = new DateTime($tdate);
+        $interval = $datetime1->diff($datetime2);
+        $days = $interval->format('%a');
+        return $days;
+    }
     public function getCurrentReservations($id)
     {
         return DoctorConsultingReservation::current()
