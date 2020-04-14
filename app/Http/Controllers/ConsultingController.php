@@ -78,7 +78,7 @@ class ConsultingController extends Controller
                 $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
                 $countRate = count($doctor->reservations);
                 $doctor->rate_count = $countRate;
-                $doctor->makeHidden(['rate_count', 'hide', 'available_time','reservations']);
+                $doctor->makeHidden(['rate_count', 'hide', 'available_time', 'reservations']);
                 return $doctor;
             });
 
@@ -95,5 +95,65 @@ class ConsultingController extends Controller
         return $this->returnError('E001', trans('messages.there is no data found'));
     }
 
+    public function getCurrentConsultingReserves(Request $request)
+    {
+        try {
+            $user = $this->auth('user-api');
+            $reservations = $this->getCurrentReservations($user->id);
+
+            if (isset($reservations) && $reservations->count() > 0) {
+
+                foreach ($reservations as $key => $reservation) {
+                    $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
+                    $reservation->main_provider = $main_provider;
+                }
+            }
+
+            if (count($reservations->toArray()) > 0) {
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnError('E001', trans('messages.No reservations founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function getFinishedConsultingReserves(Request $request)
+    {
+        try {
+            $user = $this->auth('user-api');
+            $reservations = $this->getFinishedReservations($user->id);
+
+            if (isset($reservations) && $reservations->count() > 0) {
+
+                foreach ($reservations as $key => $reservation) {
+                    $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
+                    $reservation->main_provider = $main_provider;
+                }
+            }
+
+
+            if (count($reservations->toArray()) > 0) {
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnError('E001', trans('messages.No reservations founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 
 }

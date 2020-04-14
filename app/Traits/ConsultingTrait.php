@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Doctor;
+use App\Models\DoctorConsultingReservation;
 use App\Models\Message;
 use App\Models\Ticket;
 use App\Models\Provider;
@@ -11,6 +12,7 @@ use App\Models\Reservation;
 use Carbon\Carbon;
 use DateTime;
 use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 trait ConsultingTrait
@@ -35,5 +37,43 @@ trait ConsultingTrait
             DB::raw('name_' . $this->getCurrentLang() . ' as name')
         );
         return $doctor->where('doctors.status', 1)->paginate(PAGINATION_COUNT);
+    }
+
+    public function getCurrentReservations($id)
+    {
+        return DoctorConsultingReservation::current()
+            ->with([
+                'doctor' => function ($q) {
+                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
+                        $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+                }, 'provider' => function ($que) {
+                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar');
+                }, 'paymentMethod' => function ($qu) {
+                    $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }])
+            ->where('user_id', $id)
+            //->where('day_date', '>=', Carbon::now()
+            //  ->format('Y-m-d'))
+            ->orderBy('day_date')
+            ->orderBy('order')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    public function getFinishedReservations($id)
+    {
+        return DoctorConsultingReservation::finished()->with(['doctor' => function ($q) {
+            $q->select('id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }]);
+        }, 'provider' => function ($que) {
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->where('user_id', $id)
+            ->orderBy('day_date')
+            ->orderBy('order')
+            ->paginate(PAGINATION_COUNT);
     }
 }

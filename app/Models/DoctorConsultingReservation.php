@@ -186,10 +186,12 @@ class DoctorConsultingReservation extends Model
         return $query->whereDate('day_date', Carbon::tomorrow());
     }
 
-    /*public function scopeFinished($query)
+    public function scopeFinished($query)
     {
-        return $query->orwhere('approved', 2)->orwhere('approved', 3);
-    }*/
+        return $query->where(function ($q) {
+            $q->orwhere('approved', 2)->orwhere('approved', 3);
+        });
+    }
 
     /*public function getPriceAttribute($value)
     {

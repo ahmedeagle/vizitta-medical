@@ -86,6 +86,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
+            Route::group(['middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
+                Route::post('current/reservations', 'ConsultingController@getCurrentConsultingReserves');
+                Route::post('finish/reservations', 'ConsultingController@getFinishedConsultingReserves');
+            });
         });
 
         Route::group(['prefix' => 'v2'], function () {
