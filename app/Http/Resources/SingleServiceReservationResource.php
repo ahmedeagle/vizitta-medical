@@ -32,7 +32,7 @@ class SingleServiceReservationResource extends JsonResource
                 'name' => app()->getLocale() == 'ar' ? $this->branch->name_ar : $this->branch->name_en,
                 'parent_type' => $this->branch->parent_type->name,
             ],
-            'paymentMethod' => [
+            'payment_method' => [
                 'id' => $this->paymentMethod->id,
                 'name' => app()->getLocale() == 'ar' ? $this->paymentMethod->name_ar : $this->paymentMethod->name_en,
             ],

@@ -307,5 +307,14 @@ class GlobalConsultingController extends Controller
         return $string;
     }
 
+    #################################### Start to add medical center ######################################
+
+    public function addMedicalCenter(Request $request)
+    {
+        dd($request->all());
+    }
+
+    #################################### End to add medical center ######################################
+
 
 }
