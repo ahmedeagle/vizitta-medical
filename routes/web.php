@@ -44,6 +44,11 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
 
     Route::get('test', function () {
 
+
+        $fdate = '2020-04-14 13:00:00';
+
+
+
         return Hashids::encode(275);
 
         return Carbon::now()->format('Y-m-d');
