@@ -12,6 +12,7 @@ use App\Models\Service;
 use App\Traits\GlobalTrait;
 use App\Traits\SearchTrait;
 use App\Traits\SMSTrait;
+use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Auth;
@@ -263,6 +264,99 @@ class GlobalVisitsController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    ################################# Start rate provider in offer reservation ############################
+
+    public function rateOfferReservation(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "id" => "required|numeric", // Reservation ID
+                "provider_rate" => "required",
+                "rate_comment" => "nullable",
+                "bill_photo" => "sometimes|nullable",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $user = $this->auth('user-api');
+            if ($user == null)
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+
+            $reservation = Reservation::find($requestData['id']);
+            $provider = Provider::find($reservation->provider_id);
+            $MainProvider = $provider->Provider;
+
+            if ($MainProvider == null)
+                return $this->returnError('E001', trans('messages.No provider with this id'));
+
+            if ($reservation) {
+
+                $bill_photo_path = isset($requestData['bill_photo']) && !empty($requestData['bill_photo']) ? $this->saveImage('bills', $requestData['bill_photo']) : null;
+                $reservation->update([
+                    "provider_rate" => $requestData['provider_rate'],
+                    "rate_comment" => $requestData['rate_comment'],
+                    'rate_date' => Carbon::now(),
+                    "bill_photo" => $bill_photo_path,
+                ]);
+
+                $query = Reservation::where('provider_id', $reservation->provider_id);
+
+                $providerReservationsCount = $query->count();
+                $providerReservationsSum = $query->sum('provider_rate');
+
+                if (floatval($providerReservationsCount) != 0) {
+                    $providerRate = floatval($providerReservationsSum) / floatval($providerReservationsCount);
+                } else {
+                    $providerRate = 0;
+                }
+
+                $provider->update([
+                    "rate" => $providerRate,
+                ]);
+
+                $notification = GeneralNotification::create([
+                    'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar . ')',
+                    'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar . ')',
+                    'content_ar' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
+                    'content_en' => 'New rating for reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
+                    'notificationable_type' => 'App\Models\Provider',
+                    'notificationable_id' => $reservation->provider_id,
+                    'data_id' => $reservation->id,
+                    'type' => 2 //user rate provider and doctor
+                ]);
+
+                $notify = [
+                    'provider_name' => $MainProvider->name_ar,
+                    'reservation_no' => $reservation->reservation_no,
+                    'reservation_id' => $reservation->id,
+                    'content' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
+                    'photo' => $MainProvider->logo,
+                    'notification_id' => $notification->id
+                ];
+                //fire pusher  notification for admin  stop pusher for now
+                try {
+                    event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification*/
+                } catch (\Exception $ex) {
+                }
+
+                return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
+
+            }
+
+            return $this->returnError('E001', trans('main.oops_error'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    ################################# End rate provider in offer reservation ############################
 
 
     public function splitTimes($StartTime, $EndTime, $Duration = "30")

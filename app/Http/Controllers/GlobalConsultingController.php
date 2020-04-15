@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Traits\GlobalTrait;
 use App\Traits\SearchTrait;
 use App\Traits\SMSTrait;
+use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Auth;
@@ -240,6 +241,7 @@ class GlobalConsultingController extends Controller
                 $reservation->update([
                     "doctor_rate" => $requestData['rate'],
                     "rate_comment" => $requestData['rate_comment'],
+                    'rate_date' => Carbon::now(),
                 ]);
 
                 $doctorReservationsCount = DoctorConsultingReservation::where('doctor_id', $reservation->doctor_id)->count();
@@ -255,9 +257,11 @@ class GlobalConsultingController extends Controller
                     "rate" => $doctorRate,
                 ]);
 
-                $doc = Doctor::find($reservation->doctor_id);
+                return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
+
+                /*$doc = Doctor::find($reservation->doctor_id);
                 $result = new SingleDoctorResource($doc);
-                return $this->returnData('doctor', $result);
+                return $this->returnData('doctor', $result);*/
             }
 
             return $this->returnError('E001', trans('main.oops_error'));
