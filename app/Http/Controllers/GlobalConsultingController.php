@@ -99,12 +99,17 @@ class GlobalConsultingController extends Controller
 
             ########### Start To Get Times After The Current Time ############
             $collection = collect($doctorTimes);
-            $filtered = $collection->filter(function ($value, $key) {
+            $dayDate = $requestData['day_date'];
 
-//                $checkTime = DoctorConsultingReservation::whereNotBetween('from_time', [$value['from_time'], $value['to_time']])->count();
-//                dd($checkTime);
+            $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
 
-                return strtotime($value['from_time']) >= strtotime(date('H:i:s'));
+                // Check if this time is reserved before or not
+                $checkTime = DoctorConsultingReservation::where('day_date', $dayDate)
+                    ->where('from_time', $value['from_time'])
+                    ->where('to_time', $value['to_time'])
+                    ->first();
+
+                return strtotime($value['from_time']) >= strtotime(date('H:i:s')) && is_null($checkTime);
             });
             $docTimes = array_values($filtered->all());
             ########### End To Get Times After The Current Time ############

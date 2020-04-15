@@ -67,8 +67,17 @@ class GlobalVisitsController extends Controller
 
                 ########### Start To Get Times After The Current Time ############
                 $collection = collect($serviceTimes);
-                $filtered = $collection->filter(function ($value, $key) {
-                    return strtotime($value['from_time']) >= strtotime(date('H:i:s'));
+                $dayDate = $requestData['reserve_day'];
+
+                $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
+
+                    // Check if this time is reserved before or not
+                    $checkTime = ServiceReservation::where('day_date', $dayDate)
+                        ->where('from_time', $value['from_time'])
+                        ->where('to_time', $value['to_time'])
+                        ->first();
+
+                    return strtotime($value['from_time']) >= strtotime(date('H:i:s')) && is_null($checkTime);
                 });
                 $serTimes = array_values($filtered->all());
                 ########### End To Get Times After The Current Time ############
