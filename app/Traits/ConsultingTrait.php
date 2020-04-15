@@ -82,7 +82,7 @@ trait ConsultingTrait
             ->where('user_id', $id)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
-            ->orderBy('day_date','DESC')
+            ->orderBy('id','DESC')
             ->orderBy('order')
             ->select('id', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
             ->paginate(PAGINATION_COUNT);
