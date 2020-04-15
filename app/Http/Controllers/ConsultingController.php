@@ -180,7 +180,7 @@ class ConsultingController extends Controller
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
                      $consulting -> mins =$this->getDiffBetweenTwoDate($consulting_start_date);
-                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $consulting->hours_duration)) {
+                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate($consulting_start_date) <= $consulting->hours_duration)) {
                         $consulting->allow_chat = 1;
                     } else {
                         $consulting->allow_chat = 0;

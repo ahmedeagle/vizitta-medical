@@ -70,22 +70,28 @@ class ChattingController extends Controller
         }
 
         try {
-
             ##############check if chat is exist and start before###############
             $chatId = 0;
-
-            ########if not exist store it###############################
-            $chat = Chat::create([
-                'title' => $request->title ? $request->title : "",
-                'chatable_id' => $user->id,
-                'chatable_type' => ($request->actor_type == 1) ? 'App\Models\User' : 'App\Models\Doctor',
-                'message_no' => $this->getRandomUniqueNumberChatting(8),
-                'consulting_id' => $user->consulting_id,
-            ]);
-
+            $checkIfChatExists = Chat::where('consulting_id', $request->consulting_id)
+                ->where('chatable_id', $user->id)
+                ->where('solved', 0)
+                ->first();
+            #############if not exist store it###############################
+            if (!$checkIfChatExists) {
+                $chat = Chat::create([
+                    'title' => $request->title ? $request->title : "",
+                    'chatable_id' => $user->id,
+                    'chatable_type' => ($request->actor_type == 1) ? 'App\Models\User' : 'App\Models\Doctor',
+                    'message_no' => $this->getRandomUniqueNumberChatting(8),
+                    'consulting_id' => $user->consulting_id,
+                ]);
+                $chatId = $chat->id;
+            } else {
+                $chatId = $checkIfChatExists->id;
+            }
             ##############then get previous messages as response#############
-            $chatData = Chat::find($chat->id);
-            $chatMessages = ChatReplay::where('chat_id', $chat->id)->paginate(PAGINATION_COUNT);
+            $chatData = Chat::find($chatId);
+            $chatMessages = ChatReplay::where('chat_id', $chatId)->paginate(PAGINATION_COUNT);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
