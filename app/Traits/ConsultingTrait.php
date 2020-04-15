@@ -47,8 +47,8 @@ trait ConsultingTrait
         $datetime1 = new DateTime($fdate);
         $datetime2 = new DateTime($tdate);
         $interval = $datetime1->diff($datetime2);
-        $days = $interval->format('%i');
-        return $days;
+        $minutes = $interval->format('%i');
+        return $minutes;
     }
 
     public function getCurrentReservations($id)
