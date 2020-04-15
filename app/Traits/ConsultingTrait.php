@@ -42,8 +42,8 @@ trait ConsultingTrait
 
     function getDiffBetweenTwoDate($startDate, $endDate)
     {
-        $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $startDate);
-        $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $endDate);
+        $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $startDate,'Asia/Riyadh');
+        $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $endDate,'Asia/Riyadh');
         $diff_in_minutes = $to->diffInMinutes($from);
         return $diff_in_minutes; // Output: 20
     }
