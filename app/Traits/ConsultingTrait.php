@@ -45,7 +45,7 @@ trait ConsultingTrait
         $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $startDate,'Asia/Riyadh');
         $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $endDate,'Asia/Riyadh');
         $diff_in_minutes = $to->diffInMinutes($from);
-        return $diff_in_minutes; // Output: 20
+        return $diff_in_minutes;
     }
 
     public function getCurrentReservations($id)
@@ -82,7 +82,7 @@ trait ConsultingTrait
             ->where('user_id', $id)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
-            ->orderBy('day_date')
+            ->orderBy('day_date','DESC')
             ->orderBy('order')
             ->select('id', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
             ->paginate(PAGINATION_COUNT);
