@@ -90,6 +90,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('current/reservations', 'ConsultingController@getCurrentConsultingReserves');
                 Route::post('finish/reservations', 'ConsultingController@getFinishedConsultingReserves');
                 Route::post('reservations', 'ConsultingController@getConsultingReserves');
+                Route::group(['prefix' => 'chatting'], function () {
+                    Route::post('start', 'ChattingController@startChatting');
+                });
             });
         });
 

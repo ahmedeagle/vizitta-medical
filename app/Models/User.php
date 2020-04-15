@@ -78,6 +78,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->morphMany('App\Models\Ticket', 'actor_id', 'ticketable');
     }
 
+    public function chats()
+    {
+        return $this->morphMany('\App\Models\Chat', 'chatable');
+    }
+
     public function favourites()
     {
         return $this->hasMany('App\Models\Favourite', 'user_id');
