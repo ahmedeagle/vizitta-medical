@@ -33,6 +33,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('/rate-offer-reservation', 'GlobalVisitsController@rateOfferReservation');
         });
 
+        Route::group(['prefix' => 'reporting'], function () {
+            Route::post('/service-rate', 'GlobalVisitsController@reportService');
+        });
+
     });
 
 });

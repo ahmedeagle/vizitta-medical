@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ServiceReservationDetailsResource;
 use App\Http\Resources\SingleServiceReservationResource;
+use App\Models\CommentReport;
 use App\Models\GeneralNotification;
 use App\Models\Provider;
+use App\Models\ReportingType;
 use App\Models\Reservation;
 use App\Models\ServiceReservation;
 use App\Models\Service;
@@ -61,8 +63,18 @@ class GlobalVisitsController extends Controller
                 }
             }
 
-            if ($serviceTimes)
-                return $this->returnData('times', $serviceTimes);
+            if ($serviceTimes) {
+
+                ########### Start To Get Times After The Current Time ############
+                $collection = collect($serviceTimes);
+                $filtered = $collection->filter(function ($value, $key) {
+                    return strtotime($value['from_time']) >= strtotime(date('H:i:s'));
+                });
+                $serTimes = array_values($filtered->all());
+                ########### End To Get Times After The Current Time ############
+
+                return $this->returnData('times', $serTimes);
+            }
 
             return $this->returnError('E001', trans('main.there_is_no_times_now'));
         } catch (\Exception $ex) {
@@ -357,6 +369,44 @@ class GlobalVisitsController extends Controller
     }
 
     ################################# End rate provider in offer reservation ############################
+
+    ################################# Start report service rate ############################
+
+    public function reportService(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "reservation_no" => "required|max:191",
+            "reporting_type_id" => "required",
+            "report_comment" => "sometimes|nullable",
+        ]);
+
+        $user = $this->auth('user-api');
+        if ($user == null)
+            return $this->returnError('E001', trans("messages.User not found"));
+
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
+        $reservation = ServiceReservation::where('reservation_no', $request->reservation_no)->first();
+        if ($reservation == null)
+            return $this->returnError('D000', trans('messages.No reservation with this number'));
+
+        $reporting_type = ReportingType::find($request->reporting_type_id);
+        if ($reporting_type == null)
+            return $this->returnError('D000', trans('messages.No reporting type with this id'));
+
+        CommentReport::create([
+            'user_id' => $user->id,
+            'reservation_no' => $request->reservation_no,
+            'reporting_type_id' => $request->reporting_type_id,
+            'report_comment' => $request->report_comment,
+        ]);
+        return $this->returnSuccessMessage(trans('messages.Comment Reported  successfully'));
+    }
+
+    ################################# End report service rate ############################
 
 
     public function splitTimes($StartTime, $EndTime, $Duration = "30")

@@ -8,7 +8,7 @@ class CommentReport extends Model
 {
     protected $table = 'comments_report';
 
-    protected $fillable = ['reservation_no', 'reporting_type_id', 'provider_id', 'user_id'];
+    protected $fillable = ['reservation_no', 'reporting_type_id', 'report_comment', 'provider_id', 'user_id'];
 
     protected $hidden = ['created_at', 'updated_at','laravel_through_key'];
 

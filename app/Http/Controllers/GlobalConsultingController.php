@@ -97,7 +97,19 @@ class GlobalConsultingController extends Controller
 
             }
 
-            return $this->returnData('times', $doctorTimes);
+            ########### Start To Get Times After The Current Time ############
+            $collection = collect($doctorTimes);
+            $filtered = $collection->filter(function ($value, $key) {
+
+//                $checkTime = DoctorConsultingReservation::whereNotBetween('from_time', [$value['from_time'], $value['to_time']])->count();
+//                dd($checkTime);
+
+                return strtotime($value['from_time']) >= strtotime(date('H:i:s'));
+            });
+            $docTimes = array_values($filtered->all());
+            ########### End To Get Times After The Current Time ############
+
+            return $this->returnData('times', $docTimes);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
