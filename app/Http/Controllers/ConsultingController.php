@@ -180,8 +180,8 @@ class ConsultingController extends Controller
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
                     //return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
-                    $consulting -> from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $startDate);
-                    $consulting -> to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $endDate);
+                    $consulting -> from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $consulting_start_date);
+                    $consulting -> to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $consulting_end_date);
 
                     $consulting -> mins =$this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date);
                     if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $consulting->hours_duration)) {
