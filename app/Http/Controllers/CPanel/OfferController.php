@@ -23,6 +23,7 @@ use App\Models\Offer;
 use App\Models\OfferBranch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Mockery\Exception;
 
 class OfferController extends Controller
@@ -147,6 +148,30 @@ class OfferController extends Controller
                 $result = $validator->messages()->toArray();
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
+
+            $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+            // working times validation
+            if (isset($request->branchTimes) && !empty($request->branchTimes)) {
+                foreach ($request->branchTimes as $key => $branchInfo) {
+                    if (count($branchInfo['day_times']) > 0) {
+                        foreach ($branchInfo['day_times'] as $k => $working_day) {
+
+                            if (empty($working_day['from']) or empty($working_day['to'])) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_from_or_to')], 200);
+                            }
+
+                            $from = Carbon::parse($working_day['from']);
+                            $to = Carbon::parse($working_day['to']);
+                            if (!in_array(Str::ucfirst($working_day['day']), $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
+                                return response()->json(['status' => false, 'error' => __('main.reservation_period_greater_than_from_and_to')], 200);
+                            }
+                        }
+                    }
+
+                }
+            }
+
             $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
                 'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
@@ -186,22 +211,13 @@ class OfferController extends Controller
             }
 
             if (isset($request->branchTimes) && !empty($request->branchTimes)) {
-                // working days
-                $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
                 foreach ($request->branchTimes as $key => $branchInfo) {
 
                     if (count($branchInfo['day_times']) > 0) {
                         foreach ($branchInfo['day_times'] as $k => $working_day) {
 
-                            if (empty($working_day['from']) or empty($working_day['to'])) {
-                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                            }
-
                             $from = Carbon::parse($working_day['from']);
                             $to = Carbon::parse($working_day['to']);
-                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
-                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                            }
 
                             $working_days_data = [
                                 'offer_id' => $offer->id,
@@ -329,6 +345,30 @@ class OfferController extends Controller
                 $result = $validator->messages()->toArray();
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
+
+            $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+            // working times validation
+            if (isset($request->branchTimes) && !empty($request->branchTimes)) {
+                foreach ($request->branchTimes as $key => $branchInfo) {
+                    if (count($branchInfo['day_times']) > 0) {
+                        foreach ($branchInfo['day_times'] as $k => $working_day) {
+
+                            if (empty($working_day['from']) or empty($working_day['to'])) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_from_or_to')], 200);
+                            }
+
+                            $from = Carbon::parse($working_day['from']);
+                            $to = Carbon::parse($working_day['to']);
+                            if (!in_array(Str::ucfirst($working_day['day']), $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
+                                return response()->json(['status' => false, 'error' => __('main.reservation_period_greater_than_from_and_to')], 200);
+                            }
+                        }
+                    }
+
+                }
+            }
+
             $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
                 'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
@@ -370,24 +410,14 @@ class OfferController extends Controller
             }
 
             if (isset($request->branchTimes) && !empty($request->branchTimes)) {
-                // working days
-                $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
                 $offer->times()->delete();
-
                 foreach ($request->branchTimes as $key => $branchInfo) {
 
                     if (count($branchInfo['day_times']) > 0) {
                         foreach ($branchInfo['day_times'] as $k => $working_day) {
 
-                            if (empty($working_day['from']) or empty($working_day['to'])) {
-                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                            }
-
                             $from = Carbon::parse($working_day['from']);
                             $to = Carbon::parse($working_day['to']);
-                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
-                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                            }
 
                             $working_days_data = [
                                 'offer_id' => $offer->id,

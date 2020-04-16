@@ -187,4 +187,7 @@ return [
 
     'comment_rate_updated_successfully'                                   => 'تم تعديل تقييم التعليق بنجاح',
 
+    'enter_from_or_to'                                                    => 'ادخل الوقت من او الى',
+    'reservation_period_greater_than_from_and_to'                         => 'مدة الحجز اكبر من الفرق بين الوقت من و الى',
+
 ];

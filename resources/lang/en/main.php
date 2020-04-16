@@ -14,11 +14,11 @@ return [
     'oops_error'                            => 'Oops, There is a problem, Please try again !!',
 
     'invalid_email_or_password'             => 'Invalid e-mail or password',
-    'successfully_logged_out'               => 'You have been succesfully logged out',
+    'successfully_logged_out'               => 'You have been successfully logged out',
     'error_logged_out'                      => 'Sorry, the user cannot be logged out!',
     'token_or_email_is_incorrect'           => 'Token or Email is incorrect',
     'password_successfully_changed'         => 'Password Successfully Changed, you can login now !',
-    'email_not_found'                       => 'Email doesn\'t found on our database',
+    'email_not_found'                       => 'Email does not found on our database',
     'reset_email_sent_successfully'         => 'Reset Email is send successfully, please check your inbox.',
     'image_ext_not_supported'               => 'Invalid image extension.',
 
@@ -186,5 +186,8 @@ return [
     'there_is_no_times_now'                                             => 'There is no times found',
 
     'comment_rate_updated_successfully'                                 => 'Comment rate updated successfully',
+
+    'enter_from_or_to'                                                  => 'Enter From Or To Time',
+    'reservation_period_greater_than_from_and_to'                       => 'Reservation period greater than the difference between from to time',
 
 ];
