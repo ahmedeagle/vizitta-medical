@@ -128,7 +128,7 @@ class OfferController extends Controller
 //              "category_ids" => "required|array|min:1",
 //              "category_ids.*" => "required|exists:offers_categories,id",
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
-                "paid_coupon_percentage" => "sometimes|nullable|min:0",
+//                "paid_coupon_percentage" => "sometimes|nullable|min:0",
                 "discount" => "sometimes|nullable|min:0",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
@@ -148,7 +148,7 @@ class OfferController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
             $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
-                'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
+                'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
             $fileName = "";
             if (isset($request->photo) && !empty($request->photo)) {
@@ -188,32 +188,34 @@ class OfferController extends Controller
             if (isset($request->branchTimes) && !empty($request->branchTimes)) {
                 // working days
                 $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                foreach ($request->branchTimes as $key => $branchTime) {
+                foreach ($request->branchTimes as $key => $branchInfo) {
 
-                    foreach ($branchTime as $k => $working_day) {
+                    if (count($branchInfo['day_times']) > 0) {
+                        foreach ($branchInfo['day_times'] as $k => $working_day) {
 
-                        if (empty($working_day['from']) or empty($working_day['to'])) {
-                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            if (empty($working_day['from']) or empty($working_day['to'])) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            }
+
+                            $from = Carbon::parse($working_day['from']);
+                            $to = Carbon::parse($working_day['to']);
+                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            }
+
+                            $working_days_data = [
+                                'offer_id' => $offer->id,
+                                'branch_id' => $branchInfo['branch_id'],
+                                'day_name' => strtolower($working_day['day']),
+                                'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                                'from_time' => $from->format('H:i'),
+                                'to_time' => $to->format('H:i'),
+                                'order' => array_search(strtolower($working_day['day']), $days),
+                                'reservation_period' => $branchInfo['reservation_period']
+                            ];
+
+                            $times = OfferTime::insert($working_days_data);
                         }
-
-                        $from = Carbon::parse($working_day['from']);
-                        $to = Carbon::parse($working_day['to']);
-                        if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
-                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                        }
-
-                        $working_days_data = [
-                            'offer_id' => $offer->id,
-                            'branch_id' => $key,
-                            'day_name' => strtolower($working_day['day']),
-                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
-                            'from_time' => $from->format('H:i'),
-                            'to_time' => $to->format('H:i'),
-                            'order' => array_search(strtolower($working_day['day']), $days),
-                            'reservation_period' => $request->reservation_period
-                        ];
-
-                        $times = OfferTime::insert($working_days_data);
                     }
 
                 }
@@ -307,7 +309,7 @@ class OfferController extends Controller
 //            "category_ids" => "required|array|min:1",
 //            "category_ids.*" => "required|exists:offers_categories,id",
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
-                "paid_coupon_percentage" => "sometimes|nullable|min:0",
+//                "paid_coupon_percentage" => "sometimes|nullable|min:0",
                 "discount" => "sometimes|nullable|numeric|min:0",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
@@ -328,7 +330,7 @@ class OfferController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
             $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
-                'application_percentage', 'featured', 'paid_coupon_percentage', 'price_after_discount', 'gender', 'device_type');
+                'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
             $fileName = $offer->photo;
             if (isset($request->photo) && !empty($request->photo)) {
@@ -372,32 +374,34 @@ class OfferController extends Controller
                 $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
                 $offer->times()->delete();
 
-                foreach ($request->branchTimes as $key => $branchTime) {
+                foreach ($request->branchTimes as $key => $branchInfo) {
 
-                    foreach ($branchTime as $k => $working_day) {
+                    if (count($branchInfo['day_times']) > 0) {
+                        foreach ($branchInfo['day_times'] as $k => $working_day) {
 
-                        if (empty($working_day['from']) or empty($working_day['to'])) {
-                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            if (empty($working_day['from']) or empty($working_day['to'])) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            }
+
+                            $from = Carbon::parse($working_day['from']);
+                            $to = Carbon::parse($working_day['to']);
+                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $branchInfo['reservation_period']) {
+                                return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
+                            }
+
+                            $working_days_data = [
+                                'offer_id' => $offer->id,
+                                'branch_id' => $branchInfo['branch_id'],
+                                'day_name' => strtolower($working_day['day']),
+                                'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                                'from_time' => $from->format('H:i'),
+                                'to_time' => $to->format('H:i'),
+                                'order' => array_search(strtolower($working_day['day']), $days),
+                                'reservation_period' => $branchInfo['reservation_period']
+                            ];
+
+                            $times = OfferTime::insert($working_days_data);
                         }
-
-                        $from = Carbon::parse($working_day['from']);
-                        $to = Carbon::parse($working_day['to']);
-                        if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
-                            return response()->json(['status' => false, 'error' => __('main.enter_all_validation_inputs')], 200);
-                        }
-
-                        $working_days_data = [
-                            'offer_id' => $offer->id,
-                            'branch_id' => $key,
-                            'day_name' => strtolower($working_day['day']),
-                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
-                            'from_time' => $from->format('H:i'),
-                            'to_time' => $to->format('H:i'),
-                            'order' => array_search(strtolower($working_day['day']), $days),
-                            'reservation_period' => $request->reservation_period
-                        ];
-
-                        $times = OfferTime::insert($working_days_data);
                     }
 
                 }
