@@ -103,6 +103,8 @@ class DoctorController extends Controller
                 "doctor_type" => "required|in:clinic,consultative",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
+                "username" => "required|string|max:100|unique:doctors,username",
+                "password" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "gender" => "required|in:1,2",

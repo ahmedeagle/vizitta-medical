@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Traits\DoctorTrait;
 use App\Traits\GlobalTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Doctor extends Model
+class Doctor extends Authenticatable implements JWTSubject
 {
-    use DoctorTrait, GlobalTrait;
+    use DoctorTrait, GlobalTrait, Notifiable;
     protected $table = 'doctors';
     public $timestamps = true;
     protected $forcedNullStrings = ['photo', 'information_en', 'information_ar'];
@@ -17,7 +20,7 @@ class Doctor extends Model
         'status' => 'integer',
     ];
 
-    protected $fillable = ['doctor_type', 'is_consult', 'name_en', 'name_ar', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
+    protected $fillable = ['doctor_type', 'is_consult', 'name_en', 'name_ar', 'username', 'password', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
         'provider_id', 'specification_id', 'nationality_id', 'price', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en', 'waiting_period'];
 
     protected $hidden = ['pivot', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
@@ -212,6 +215,23 @@ class Doctor extends Model
     public function getWaitingPeriodAttribute($val)
     {
         return ($val !== null ? $val : "");
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    public function setPasswordAttribute($password)
+    {
+        if (!empty($password)) {
+            $this->attributes['password'] = bcrypt($password);
+        }
     }
 
 

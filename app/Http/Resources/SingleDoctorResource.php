@@ -36,11 +36,14 @@ class SingleDoctorResource extends JsonResource
 
         if (!empty($this->provider)) {
             $mainProvider = Provider::whereNull('provider_id')->find($this->provider->provider_id);
-            $result['provider'] = $mainProvider ? ( app()->getLocale() == 'ar' ? $mainProvider->name_ar : $mainProvider->name_en ) : null;
-        }
-        else{
+            $result['provider'] = $mainProvider ? (app()->getLocale() == 'ar' ? $mainProvider->name_ar : $mainProvider->name_en) : null;
+        } else {
             $result['provider'] = null;
         }
+
+        $res = !is_null($this->consultativeTimes) && count($this->consultativeTimes) > 0 ? $this->consultativeTimes() : $this->times();
+        $res = $res->distinct()->get(['day_code', 'day_name'])->makeHidden(['time_duration']);
+        $result['times'] = $res;
 
         return $result;
     }

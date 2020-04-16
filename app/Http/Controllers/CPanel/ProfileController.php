@@ -62,7 +62,7 @@ class ProfileController extends Controller
             $manager = Manager::find($user->id);
 
             if (isset($requestData['password']))
-                $requestData['password'] = bcrypt($requestData['password']);
+                $requestData['password'] = $request->password;
 
             $manager->update($requestData);
 

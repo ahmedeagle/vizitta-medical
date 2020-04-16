@@ -67,6 +67,11 @@ return [
             'provider' => 'providers',
         ],
 
+        'doctor-api' => [
+            'driver' => 'jwt',
+            'provider' => 'doctors',
+        ],
+
         'user' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -104,6 +109,11 @@ return [
         'providers' => [
          'driver' => 'eloquent',
          'model' => App\Models\Provider::class,
+        ],
+
+        'doctors' => [
+         'driver' => 'eloquent',
+         'model' => App\Models\Doctor::class,
         ],
 
         'managers' => [
