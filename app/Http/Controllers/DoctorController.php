@@ -355,7 +355,7 @@ class DoctorController extends Controller
             if ($doctor == null)
                 return $this->returnError('E001', trans('messages.No doctor with this id'));
 
-            $times = $this->getDoctorTimesPeroids($doctor->times);
+            $times = $this->getOfferTimePeriods($doctor->times);
             if (count($times) > 0) {
                 return $this->returnData('times', $times);
             }

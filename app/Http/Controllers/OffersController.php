@@ -1547,4 +1547,29 @@ class OffersController extends Controller
     }
 
 
+    public function getTimes(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "offer_id" => "required|numeric|exists:offers,id",
+                "branch_id" => "required|numeric|exists:providers,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $doctor = Doctor::with('times')->find($request->id);
+            if ($doctor == null)
+                return $this->returnError('E001', trans('messages.No doctor with this id'));
+
+            $times = $this->getDoctorTimesPeroids($doctor->times);
+            if (count($times) > 0) {
+                return $this->returnData('times', $times);
+            }
+            return $this->returnError('E001', trans('messages.No doctor times found'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 }

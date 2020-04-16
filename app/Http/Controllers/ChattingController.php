@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\ChatReplay;
-use App\Models\Doctor;
-use App\Traits\ChattingTrait;
+ use App\Traits\ChattingTrait;
 use App\Traits\GlobalTrait;
 use Illuminate\Http\Request;
 use Validator;
@@ -147,7 +146,7 @@ class ChattingController extends Controller
 
             if ($message_type == 'file') {
                 $replay -> message = asset($replay -> message);
-            } 
+            }
 
             DB::commit();
             return $this->returnData('message',$replay,trans('messages.Reply send successfully'));

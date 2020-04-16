@@ -328,6 +328,19 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         ############## End Reservations Routes ##############
 
 
+        ############### Start Offers Reservations Routes ##############
+        Route::prefix('offers/reservations/')->group(function () {
+            Route::post('/index', "offersReservationController@index");
+            Route::post('/show/{id}', 'offersReservationController@show');
+            Route::post('/edit/{id}', 'offersReservationController@edit');
+            Route::post('/update', 'offersReservationController@update');
+            Route::post('/delete/{id}', "offersReservationController@destroy");
+            Route::post('/changeStatus', 'offersReservationController@changeStatus');
+            Route::post('/rejection', 'offersReservationController@rejectReservation');
+        });
+        ############## End Offers Reservations Routes ##############
+
+
         ############### Start Services Reservations Routes ##############
         Route::prefix('services/reservations/')->group(function () {
             Route::post('/index', "ServicesReservationController@index");
@@ -346,6 +359,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/delete/{id}', "OfferFilterController@destroy");
         });
         ############## End Offers Filters Routes ##############
+
 
         ############### Start Offers Categories Routes ##############
         Route::prefix('offers-categories/')->group(function () {
