@@ -19,10 +19,7 @@ trait GlobalOfferTrait
     {
 
         return Reservation::with(['commentReport', 'offer' => function ($g) {
-            $g->select('id', DB::raw('title_' . app()->getLocale() . ' as title'), 'photo')
-                ->with([ 'specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
+            $g->select('id', DB::raw('title_' . app()->getLocale() . ' as title'), 'photo');
         }, 'rejectionResoan' => function ($rs) {
             $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
         }, 'paymentMethod' => function ($qu) {
@@ -44,10 +41,5 @@ trait GlobalOfferTrait
             ->first();
     }
 
-    public function getReservationDetailsById($id)
-    {
-        return Reservation::with(['doctor' => function ($q) {
-            $q->select('id', 'name_ar', 'name_en');
-        }, 'paymentMethod'])->find($id);
-    }
+
 }
