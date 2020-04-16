@@ -84,7 +84,6 @@ class ServicesReservationController extends Controller
     }
 
 
-
     public function destroy(Request $request)
     {
         try {
@@ -105,5 +104,58 @@ class ServicesReservationController extends Controller
     }
 
 
+    public function changeStatus(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_id" => "required|max:255",
+                "status" => "required|in:1,2"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $reservation_id = $request->reservation_id;
+            $status = $request->status;
+            $rejection_reason = $request->reason;
+
+            $reservation = ServiceReservation::where('id', $reservation_id)->with('user')->first();
+
+            if ($reservation == null)
+                return $this->returnError('E001', trans('messages.No reservation with this number'));
+            if ($reservation->approved == 1) {
+                return $this->returnError('E001', trans('messages.Reservation already approved'));
+            }
+
+            if ($reservation->approved == 2) {
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+            }
+
+            if ($status != 2 && $status != 1) {
+                return $this->returnError('E001', trans('messages.status must be 1 or 2'));
+            } else {
+
+                if ($status == 2) {
+                    if ($rejection_reason == null) {
+                        return $this->returnError('E001', trans('messages.please enter rejection reason'));
+                    }
+                }
+//                $this->changerReservationStatus($reservation, $status);
+
+                $reservation->update([
+                    'approved' => $status,
+                    'rejection_reason' => $rejection_reason
+                ]);
+
+
+                return $this->returnError('E001', trans('messages.reservation status changed successfully'));
+            }
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 
 }
