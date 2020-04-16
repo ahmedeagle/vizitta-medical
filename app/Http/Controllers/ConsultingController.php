@@ -179,7 +179,7 @@ class ConsultingController extends Controller
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
-                     $consulting -> mins =$this->getDiffBetweenTwoDate($consulting_start_date);
+                    $consulting->mins = $this->getDiffBetweenTwoDate($consulting_start_date);
                     if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate($consulting_start_date) <= $consulting->hours_duration)) {
                         $consulting->allow_chat = 1;
                     } else {
@@ -201,7 +201,7 @@ class ConsultingController extends Controller
                 $consultingsJson->data = $consultings->data;
                 return $this->returnData('reservations', $consultingsJson);
             }
-            return $this->returnError('E001', trans('messages.No medical consulting founded'));
+            return $this->returnError('E001', trans('messages.No data founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

@@ -635,8 +635,8 @@ trait GlobalTrait
                 . "' AND  provider_id = '" . $fields['offer']['provider_id']
                 . "' AND approved != '2') as offer_found, ";
             $query .= "(SELECT count(*) from reserved_times where offer_id = '" . $fields['offer']['offer_id']
-                . "' AND  day_date = '" . Carbon::parse($fields['offer']['day_date'] )->format('Y-m-d')
-                . "' AND  branch_id = '" .$fields['offer']['provider_id']
+                . "' AND  day_date = '" . Carbon::parse($fields['offer']['day_date'])->format('Y-m-d')
+                . "' AND  branch_id = '" . $fields['offer']['provider_id']
                 . "') as reserved_times_found, ";
         }
 
@@ -662,21 +662,21 @@ trait GlobalTrait
 
     public function getAllSpecificationsV2($provider_id = null)
     {
-       /* $specification = Specification::query();
-        if ($provider_id != null) {
-            $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
-                $q->select('specification_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
-                    $qu->select('id')->from('providers')->where('provider_id', $provider_id)->orWhere('id', $provider_id);
-                });
-            });
-        }
+        /* $specification = Specification::query();
+         if ($provider_id != null) {
+             $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
+                 $q->select('specification_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
+                     $qu->select('id')->from('providers')->where('provider_id', $provider_id)->orWhere('id', $provider_id);
+                 });
+             });
+         }
 
 
-        return $specification->whereIn('id', function ($q) {
-            $q->select('specification_id')->from('doctors')->where('doctor_type','clinic')->whereIn('provider_id', function ($qu) {
-                $qu->select('id')->from('providers');
-            });
-        }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();*/
+         return $specification->whereIn('id', function ($q) {
+             $q->select('specification_id')->from('doctors')->where('doctor_type','clinic')->whereIn('provider_id', function ($qu) {
+                 $qu->select('id')->from('providers');
+             });
+         }) ->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();*/
 
         $specification = Specification::query();
         if ($provider_id != null) {
@@ -746,7 +746,7 @@ trait GlobalTrait
         return $category
             ->withOutTimer()
             ->whereNotNull('parent_id')
-            ->where('parent_id',$category_id)
+            ->where('parent_id', $category_id)
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',
@@ -858,6 +858,17 @@ trait GlobalTrait
         $filename = time() . '_' . $folder . '.png';
         $path = 'images/' . $folder . '/' . $filename;
         file_put_contents($path, $data);
+        return 'images/' . $folder . '/' . $filename;
+    }
+
+    public function saveFile($folder, $photo)
+    {
+
+        $file_extension = $photo -> getClientOriginalExtension();
+        $filename = time() . '_' . $folder . '.' . $file_extension;
+        $path = 'images/' . $folder;
+        $photo->move($path, $filename);
+
         return 'images/' . $folder . '/' . $filename;
     }
 

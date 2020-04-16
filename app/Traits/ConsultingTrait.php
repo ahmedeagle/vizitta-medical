@@ -44,7 +44,7 @@ trait ConsultingTrait
     {
         $end = Carbon::parse($ConsultingDate, 'Asia/Riyadh');
         $now = Carbon::now('Asia/Riyadh');
-        return $length = $now->diffInMinutes();
+        return $length = $now->diffInMinutes($end);
     }
 
     public function getCurrentReservations($id)

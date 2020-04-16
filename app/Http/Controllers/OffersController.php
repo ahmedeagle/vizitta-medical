@@ -8,6 +8,7 @@ use App\Models\Filter;
 use App\Models\GeneralNotification;
 use App\Models\Mix;
 use App\Models\Offer;
+use App\Models\OfferBranchTime;
 use App\Models\OfferCategory;
 use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
@@ -1482,7 +1483,7 @@ class OffersController extends Controller
                 foreach ($reservations as $key => $reservation) {
                     $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
                     $reservation->main_provider = $main_provider ? $main_provider : '';
-                    $reservation -> makeHidden(['for_me','branch_no','is_reported','admin_value_from_reservation_price_Tax','reservation_total','comment_report']);
+                    $reservation->makeHidden(['for_me', 'branch_no', 'is_reported', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report']);
                 }
             }
 
@@ -1516,6 +1517,33 @@ class OffersController extends Controller
             $this->getRandomString(8);
         }
         return $string;
+    }
+
+
+    public function getTimesAsArrayOfDayCodes(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "offer_id" => "required|numeric|exists:offers,id",
+                "branch_id" => "required|numeric|exists:providers,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $times = OfferBranchTime::where('offer_id', $request->offer_id)
+                ->where('branch_id', $request->branch_id)
+                ->pluck('day_code');
+
+            if (count($times) > 0)
+                return $this->returnData('timesCodes', $times);
+            else
+                return $this->returnData('timesCodes', $times, trans('messages.no times for offers'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
 

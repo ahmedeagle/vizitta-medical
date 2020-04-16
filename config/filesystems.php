@@ -75,6 +75,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'chats' => [
+            'driver' => 'local',
+            'root' => base_path() . '/images/chats/',
+            'url' => env('APP_URL') . '/public',
+            'visibility' => 'public',
+        ],
+
         'bills' => [
             'driver' => 'local',
             'root' => base_path() . '/images/bills/',

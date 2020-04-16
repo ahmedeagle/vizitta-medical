@@ -92,6 +92,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('reservations', 'ConsultingController@getConsultingReserves');
                 Route::group(['prefix' => 'chatting'], function () {
                     Route::post('start', 'ChattingController@startChatting');
+                    Route::post('send', 'ChattingController@sendMessage');
                 });
             });
         });
@@ -100,6 +101,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::group(['prefix' => 'offers'], function () {
                 Route::post('/', 'OffersController@indexV2');
                 Route::post('details', 'OffersController@showV2');
+                Route::post('times/dayCode', 'OffersController@getTimesAsArrayOfDayCodes');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
                 Route::post('reserve', 'OffersController@reserveTime')->middleware(['CheckUserToken', 'CheckUserStatus']);
             });

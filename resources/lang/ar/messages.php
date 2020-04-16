@@ -307,6 +307,6 @@ return [
     'Service not found' => 'الخدمة غير موجوده ',
     'category required' => 'ألقسم الرئيسي مطلوب',
     'No medical consulting founded' => 'لأ يوجد استشارات حتي اللحظة',
-
-
+    'cannot replay for this converstion' => 'cannot replay for this converstion',
+    'no times for offers' => 'لا يوجد توقيتات متاحه الان'
 ];

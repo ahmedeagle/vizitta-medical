@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Observers\TicketObserver;
-use App\Observers\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +17,7 @@ class Chat extends Model
         return Carbon::parse($this->created_at)->format('H:i Y-m-d');
     }
 
-    public function ticketable()
+    public function chatable()
     {
         return $this->morphTo();
     }

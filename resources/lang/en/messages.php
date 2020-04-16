@@ -284,5 +284,6 @@ return [
     'Service not found' => 'Service Not Found',
     'category required' => 'category required',
     'No medical consulting founded' => 'No medical consulting founded',
+    'no times for offers' => 'No times for this offer'
 
 ];
