@@ -23,7 +23,7 @@ class Doctor extends Authenticatable implements JWTSubject
     protected $fillable = ['doctor_type', 'is_consult', 'name_en', 'name_ar', 'username', 'password', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
         'provider_id', 'specification_id', 'nationality_id', 'price', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en', 'waiting_period'];
 
-    protected $hidden = ['pivot', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
+    protected $hidden = ['pivot', 'password', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
     protected $appends = ['available_time', 'hide'];
 
     public static function laratablesCustomAction($doctor)

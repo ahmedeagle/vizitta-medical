@@ -13,11 +13,14 @@ use Illuminate\Http\Request;
 use App\Models\Doctor;
 use App\Models\InsuranceCompanyDoctor;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use App\Models\DoctorTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use JWTAuth;
 
 class DoctorController extends Controller
 {
@@ -144,6 +147,8 @@ class DoctorController extends Controller
                     "doctor_type" => $request->doctor_type,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
+                    'username' => trim($request->username),
+                    'password' => $request->password,
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
@@ -272,6 +277,8 @@ class DoctorController extends Controller
                 "doctor_type" => "required|in:clinic,consultative",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
+                "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id',
+                "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "gender" => "required|in:1,2",
@@ -346,6 +353,7 @@ class DoctorController extends Controller
                 $doctorInfo = [
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
+                    'username' => trim($request->username),
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
@@ -359,6 +367,11 @@ class DoctorController extends Controller
                     "waiting_period" => $request->waiting_period,
                     "status" => $request->status
                 ];
+
+                if (isset($request->password) && !empty($request->password)) {
+                    $doctorInfo['password'] = $request->password;
+                }
+
                 $doctor->update($doctorInfo);
 
                 if ($requestData['doctor_type'] == 'clinic') {
@@ -546,6 +559,48 @@ class DoctorController extends Controller
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
 
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->only('username', 'password');
+
+        if ($token = $this->guard()->attempt($credentials)) {
+            return $this->respondWithToken($token);
+        }
+        return response()->json(['status' => false, 'error' => __('main.invalid_email_or_password')], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            return response()->json(['status' => true, 'message' => __('main.successfully_logged_out')], 200);
+        } catch (JWTException $exception) {
+            return response()->json([
+                'success' => false,
+                'error' => __('main.error_logged_out'),
+            ], 200);
+        }
+    }
+
+    public function refresh()
+    {
+        return $this->respondWithToken($this->guard()->refresh());
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'status' => true,
+            'access_token' => $token,
+            'user' => $this->guard()->user(),
+        ]);
+    }
+
+    public function guard()
+    {
+        return Auth::guard('doctor-api');
     }
 
 }
