@@ -331,7 +331,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         ############### Start Offers Reservations Routes ##############
         Route::prefix('offers/reservations/')->group(function () {
             Route::post('/index', "offersReservationController@index");
-            Route::post('/show/{id}', 'offersReservationController@show');
+            Route::post('/show', 'offersReservationController@show');
             Route::post('/edit/{id}', 'offersReservationController@edit');
             Route::post('/update', 'offersReservationController@update');
             Route::post('/delete/{id}', "offersReservationController@destroy");

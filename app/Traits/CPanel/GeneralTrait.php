@@ -167,8 +167,10 @@ trait GeneralTrait
 
     public function getReservationDetailsById($id)
     {
-        return Reservation::with(['doctor' => function ($q) {
-            $q->select('id', 'name_ar', 'name_en');
+        return Reservation::with(['offer' => function ($q) {
+            $q->select('id',
+                DB::raw('title_' . app()->getLocale() . ' as title'),
+                'expired_at');
         }, 'paymentMethod'])->find($id);
     }
 
@@ -203,7 +205,7 @@ trait GeneralTrait
             $q->with(['branch' => function ($qq) {
                 $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
             }]);
-        }, 'reservations', 'paymentMethods' , 'offerBranchTimes'])->find($id);
+        }, 'reservations', 'paymentMethods', 'offerBranchTimes'])->find($id);
         if (!$offer) {
             return null;
         }
