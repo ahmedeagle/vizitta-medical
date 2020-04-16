@@ -18,7 +18,7 @@ class CheckDoctorToken
     {
         $user = null;
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            $user = auth('doctor-api')->userOrFail();
         } catch (\Exception $e) {
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
                 return response()->json(['success' => false, 'msg' => 'INVALID_TOKEN'], 200);
