@@ -41,7 +41,7 @@ class AuthController extends Controller
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
-            return response()->json(['status' => true, 'message' => __('main.succesfully_logged_out')], 200);
+            return response()->json(['status' => true, 'message' => __('main.successfully_logged_out')], 200);
         } catch (JWTException $exception) {
             return response()->json([
                 'success' => false,

@@ -14,7 +14,7 @@ return [
     'oops_error'                            => 'Oops, There is a problem, Please try again !!',
 
     'invalid_email_or_password'             => 'Invalid e-mail or password',
-    'succesfully_logged_out'                => 'You have been succesfully logged out',
+    'successfully_logged_out'               => 'You have been succesfully logged out',
     'error_logged_out'                      => 'Sorry, the user cannot be logged out!',
     'token_or_email_is_incorrect'           => 'Token or Email is incorrect',
     'password_successfully_changed'         => 'Password Successfully Changed, you can login now !',

@@ -14,7 +14,7 @@ return [
     'oops_error'                            => 'حدث خطأ ما, يرجى المحاولة لاحقاً !!',
 
     'invalid_email_or_password'             => 'خطأ فى البريد الإلكترونى أو كلمة المرور',
-    'succesfully_logged_out'                => 'تم تسجيل الخروج بنجاح',
+    'successfully_logged_out'               => 'تم تسجيل الخروج بنجاح',
     'error_logged_out'                      => 'عفواً, لا يمكنك تسجيل الخروج الآن !',
     'token_or_email_is_incorrect'           => 'البريد الإلكترونى أو رمز التحقق غير صالح',
     'password_successfully_changed'         => 'تم تغيير كلمة المرور بنجاح, يمكنك تسجيل الدخول الآن !',

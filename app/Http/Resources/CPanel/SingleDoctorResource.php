@@ -14,6 +14,7 @@ class SingleDoctorResource extends JsonResource
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'name_ar' => $this->name_ar,
             'name_en' => $this->name_en,
+            'username' => $this->username,
             'information_ar' => $this->information_ar,
             'information_en' => $this->information_en,
             'abbreviation_ar' => $this->abbreviation_ar,
