@@ -14,7 +14,7 @@ class SingleServiceReservationResource extends JsonResource
             'day_date' => $this->day_date,
             'from_time' => $this->from_time,
             'to_time' => $this->to_time,
-            'status' => $this->status,
+            'approved' => $this->approved,
             'price' => $this->price,
             'total_price' => $this->total_price,
             'service' => [

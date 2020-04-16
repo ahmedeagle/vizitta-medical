@@ -15,7 +15,7 @@ class ServiceReservation extends Model
     protected $fillable = ['reservation_no', 'user_id', 'service_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'order', 'provider_id', 'branch_id', 'service_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
-        'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'status', 'rejected_reason_id', 'rejected_reason_notes'];
+        'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
@@ -81,6 +81,21 @@ class ServiceReservation extends Model
 
     public function getApproved()
     {
+        if ($this->approved == '0')
+            $result = __('main.pending');
+        elseif ($this->approved == '1')
+            $result = __('main.confirmed');
+        elseif ($this->approved == '2')
+            $result = __('main.canceled');
+        elseif ($this->approved == '3')
+            $result = __('main.done');
+        else
+            $result = __('main.not_found');
+        return $result;
+    }
+
+    /* public function getApproved()
+    {
         if ($this->approved == 1)
             $result = 'موافق عليه';
         elseif ($this->approved == 2 && $this->rejection_reason != null && $this->rejection_reason != "" && $this->rejection_reason != 0)
@@ -96,9 +111,9 @@ class ServiceReservation extends Model
         else
             $result = 'معلق';
         return $result;
-    }
+    }*/
 
-    public function getStatus()
+    /*public function getStatus()
     {
         if ($this->status == 'pending')
             $result = __('main.pending');
@@ -111,7 +126,7 @@ class ServiceReservation extends Model
         else
             $result = __('main.not_found');
         return $result;
-    }
+    }*/
 
     public function getRejectedReasonTypeAttribute()
     {
@@ -375,7 +390,8 @@ class ServiceReservation extends Model
     }
 
 
-    public function type(){
-        return $this-> belongsTo('App\Models\ServiceType','service_type','id');
+    public function type()
+    {
+        return $this->belongsTo('App\Models\ServiceType', 'service_type', 'id');
     }
 }

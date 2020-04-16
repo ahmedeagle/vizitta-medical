@@ -260,7 +260,7 @@ class GlobalVisitsController extends Controller
 
             if ($reservation) {
                 $reservation->update([
-                    'status' => 'canceled',
+                    'approved' => 2, // canceled
                     'rejected_reason_id' => $requestData['rejected_reason_id'],
                     'rejected_reason_notes' => $requestData['rejected_reason_notes'],
                 ]);
