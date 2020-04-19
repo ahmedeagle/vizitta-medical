@@ -353,7 +353,7 @@ class offersReservationController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|max:255",
-                "status" => "required|in:1,2"
+                "status" => "required|in:1,2" // 1 approved 2 reject
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -368,11 +368,11 @@ class offersReservationController extends Controller
 
             if ($reservation == null)
                 return $this->returnError('E001', trans('messages.No reservation with this number'));
-            if ($reservation->approved == 1) {
+            if ($reservation->approved == 1 && $request -> status == 1) {
                 return $this->returnError('E001', trans('messages.Reservation already approved'));
             }
 
-            if ($reservation->approved == 2) {
+            if ($reservation->approved == 2 && $request -> status == 2) {
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
             }
 

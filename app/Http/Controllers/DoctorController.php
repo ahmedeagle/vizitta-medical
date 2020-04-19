@@ -109,6 +109,7 @@ class DoctorController extends Controller
                 $fileName = $this->saveImage('doctors', $request->photo);
             }
 
+
             $doctor = Doctor::create([
                 "name_en" => $request->name_en,
                 "name_ar" => $request->name_ar,
