@@ -851,28 +851,6 @@ class UserController extends Controller
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }])->where('id', $reservation_id)
-            ->select("id",
-                "reservation_no",
-                "offer_id",
-                "day_date",
-                "from_time",
-                "to_time",
-                "doctor_rate",
-                "provider_rate",
-                "offer_rate",
-                "approved",
-                "use_insurance",
-                "promocode_id",
-                "provider_id",
-                "rejection_reason",
-                "user_rejection_reason",
-                "price",
-                "rate_comment",
-                "rate_date",
-                "address",
-                "for_me",
-                "branch_name",
-                "mainprovider")
             ->first();
     }
 
