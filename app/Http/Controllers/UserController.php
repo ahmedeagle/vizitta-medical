@@ -811,6 +811,25 @@ class UserController extends Controller
             if ($reservation == null)
                 return $this->returnError('E001', trans('messages.No reservation with this number'));
 
+
+            $reservation->makeHidden(['offer_id', 'last_day_date',
+                'last_from_time',
+                'last_day_date',
+                'last_to_time',
+                'paid',
+                'promocode_id',
+                'order',
+                'rejection_reason',
+                'is_visit_doctor',
+                'bill_total',
+                'branch_no',
+                'admin_value_from_reservation_price_Tax',
+                'admin_value_from_reservation_price_Tax',
+                'reservation_total',
+                'comment_report'
+            ]);
+            $reservation->doctor -> makeHidden(['times']);
+
             return $this->returnData('reservation', $reservation);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
