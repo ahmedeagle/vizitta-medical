@@ -6,6 +6,7 @@ use App\Models\Reason;
 use App\Traits\Dashboard\PublicTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RefusalReasonsController extends Controller
@@ -82,6 +83,19 @@ class RefusalReasonsController extends Controller
 
             $reason->delete();
             return response()->json(['status' => true, 'msg' => __('main.refusal_reason_deleted_successfully')]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
+    public function getRefusalReasonsList(Request $request)
+    {
+        try {
+            $reasons = Reason::get(['id', DB::raw('name_' . app()->getLocale() . ' as name')]);
+            if ($reasons == null)
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            return response()->json(['status' => true, 'data' => $reasons]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
