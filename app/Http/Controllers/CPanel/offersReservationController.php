@@ -386,7 +386,7 @@ class offersReservationController extends Controller
                     }
                 }
                 $this->changerReservationStatus($reservation, $status);
-                return $this->returnError('E001', trans('messages.reservation status changed successfully'));
+                return $this->returnSuccessMessage('E001', trans('messages.reservation status changed successfully'));
             }
 
         } catch (\Exception $ex) {
