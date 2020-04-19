@@ -236,6 +236,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/edit/{id}', 'RefusalReasonsController@edit');
             Route::post('/update/{id}', 'RefusalReasonsController@update');
             Route::post('/delete/{id}', "RefusalReasonsController@destroy");
+            Route::post('/getRefusalReasonsList', "RefusalReasonsController@getRefusalReasonsList");
         });
         ############## End Refusal Reasons Routes ##############
 
