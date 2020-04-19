@@ -310,6 +310,7 @@ trait UserTrait
             ->where('user_id', $id)
             //->where('day_date', '>=', Carbon::now()
               //  ->format('Y-m-d'))
+            ->whereNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
             ->paginate(PAGINATION_COUNT);
@@ -332,6 +333,7 @@ trait UserTrait
                 $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'people'])
             ->where('user_id', $id)
+            ->whereNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
             ->paginate(PAGINATION_COUNT);
