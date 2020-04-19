@@ -287,7 +287,7 @@ return [
     'no times for offers' => 'No times for this offer',
     'reservation cannot delete' =>  'reservation cannot delete',
     'reservation deleted successfully' => 'reservation deleted successfully',
-    'reservation status changed successfully'  =>'reservation status changed successfully'
-
+    'reservation status changed successfully'  =>'reservation status changed successfully',
+    'Cannot delete approved reservation'  => 'Cannot delete approved or canceled reservation',
 
 ];

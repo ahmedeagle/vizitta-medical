@@ -313,5 +313,6 @@ return [
     'reservation deleted successfully' => ' تم حذف الحجز بنجاح ',
     'please enter rejection reason'  => 'من فضلك ادخل سبب الرفض اولا ',
     'reservation status changed successfully'  => 'تم تغيير حاله الحجز بنجاح',
+    'Cannot delete approved reservation'  => 'لا يمكنك حذف حجز موافق عليه او ملغى',
 
 ];
