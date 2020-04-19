@@ -25,6 +25,7 @@ class BranchResource extends ResourceCollection
                 'main_provider' => app()->getLocale() == 'ar' ? $data->main_provider->name_ar : $data->main_provider->name_en,
                 'pinned' => $data->subscriptions->first() ? 1 : 0,
                 'created_at' => $data->created_at->format('Y-m-d'),
+                'show_delete' => $data->reservations->count() > 0 || $data->doctors->count() > 0 ? 0 : 1,
             ];
         });
 
