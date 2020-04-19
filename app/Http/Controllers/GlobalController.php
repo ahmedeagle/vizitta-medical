@@ -217,7 +217,8 @@ class GlobalController extends Controller
             {
                 $timerCategories->each(function ($timerCategory) {
 
-                   // $categoryAllowTimeInMinutes = ($timerCategory -> hours * 60) + ($timerCategory -> minutes) + ()
+                    $categoryAllowTimeInMinutes = ($timerCategory -> hours * 60) + ($timerCategory -> minutes) + ($timerCategory -> seconds > 0 ?  ($timerCategory -> seconds / 60) : 0);
+                        $timerCategory -> mins = $timerCategory;
                      return $timerCategory;
                 });
             }
