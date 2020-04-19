@@ -368,11 +368,11 @@ class offersReservationController extends Controller
 
             if ($reservation == null)
                 return $this->returnError('E001', trans('messages.No reservation with this number'));
-            if ($reservation->approved == 1 && $request -> status == 1) {
+            if ($reservation->approved == 1 && $request->status == 1) {
                 return $this->returnError('E001', trans('messages.Reservation already approved'));
             }
 
-            if ($reservation->approved == 2 && $request -> status == 2) {
+            if ($reservation->approved == 2 && $request->status == 2) {
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
             }
 
@@ -386,7 +386,7 @@ class offersReservationController extends Controller
                     }
                 }
                 $this->changerReservationStatus($reservation, $status);
-                return $this->returnSuccessMessage('E001', trans('messages.reservation status changed successfully'));
+                return $this->returnSuccessMessage(trans('messages.reservation status changed successfully'));
             }
 
         } catch (\Exception $ex) {
