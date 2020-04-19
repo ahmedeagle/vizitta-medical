@@ -341,7 +341,7 @@ class offersReservationController extends Controller
                 return $this->returnError('E001', trans('messages.reservation cannot delete'));
             }
             $reservation->delete();
-            return $this->returnSuccessMessage('E001', trans('messages.reservation deleted successfully'));
+            return $this->returnSuccessMessage(trans('messages.reservation deleted successfully'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

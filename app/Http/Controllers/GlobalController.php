@@ -213,6 +213,15 @@ class GlobalController extends Controller
             $categories = $this->getPromoCategoriesV2();
             $timerCategories = $this->getTimerPromoCategoriesV2();
 
+            if(isset($timerCategories) &&  $timerCategories -> count() > 0)
+            {
+                $timerCategories->each(function ($timerCategory) {
+
+                    $categoryAllowTimeInMinutes =
+                     return $timerCategory;
+                });
+            }
+
             $obj = new \stdClass();
             $obj->price_less = $price_less;
             $obj->categories = $categories;
