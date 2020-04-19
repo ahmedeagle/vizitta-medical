@@ -222,7 +222,6 @@ class GlobalController extends Controller
                      return $timerCategory;
                 });
             }
-
             $obj = new \stdClass();
             $obj->price_less = $price_less;
             $obj->categories = $categories;

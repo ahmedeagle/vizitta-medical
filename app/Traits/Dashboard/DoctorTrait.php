@@ -45,7 +45,7 @@ trait DoctorTrait
     {
         $doctor = Doctor::find($doctor_id);
         if (!$doctor)
-            return '--';
+            return '';
 
         return $doctor-> {'name_'.app()->getLocale()};
     }
