@@ -103,18 +103,18 @@ class ServicesReservationController extends Controller
         }
     }
 
-
+    ##################### Start change service reservation status ########################
     public function changeStatus(Request $request)
     {
 
         try {
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|max:255",
-                "status" => "required|in:1,2"
+                "status" => "required|in:1,2" // 1 == confirmed && 2 == canceled
             ]);
             if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
             }
 
             $reservation_id = $request->reservation_id;
@@ -124,38 +124,41 @@ class ServicesReservationController extends Controller
             $reservation = ServiceReservation::where('id', $reservation_id)->with('user')->first();
 
             if ($reservation == null)
-                return $this->returnError('E001', trans('messages.No reservation with this number'));
+                return response()->json(['success' => false, 'error' => __('messages.No reservation with this number')], 200);
             if ($reservation->approved == 1) {
-                return $this->returnError('E001', trans('messages.Reservation already approved'));
+                return response()->json(['success' => false, 'error' => __('messages.Reservation already approved')], 200);
             }
 
             if ($reservation->approved == 2) {
-                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+                return response()->json(['success' => false, 'error' => __('messages.Reservation already rejected')], 200);
             }
 
             if ($status != 2 && $status != 1) {
-                return $this->returnError('E001', trans('messages.status must be 1 or 2'));
+                return response()->json(['success' => false, 'error' => __('messages.status must be 1 or 2')], 200);
             } else {
 
                 if ($status == 2) {
                     if ($rejection_reason == null) {
-                        return $this->returnError('E001', trans('messages.please enter rejection reason'));
+                        return response()->json(['success' => false, 'error' => __('messages.please enter rejection reason')], 200);
                     }
                 }
-//                $this->changerReservationStatus($reservation, $status);
 
-                $reservation->update([
+                $data = [
                     'approved' => $status,
-                    'rejection_reason' => $rejection_reason
-                ]);
+                ];
 
+                if (!empty($rejection_reason))
+                    $data['rejection_reason'] = $rejection_reason;
 
-                return $this->returnError('E001', trans('messages.reservation status changed successfully'));
+                $reservation->update($data);
+
+                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);
             }
 
         } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
+    ##################### End change service reservation status ########################
 
 }
