@@ -26,7 +26,5 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############### End Banners Routes ##############
     });
-
-
 });
 
