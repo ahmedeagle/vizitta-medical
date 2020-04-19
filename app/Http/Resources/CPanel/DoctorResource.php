@@ -24,6 +24,7 @@ class DoctorResource extends ResourceCollection
                     'name' => $data->status == '1' ? __('main.active') : __('main.not_active'),
                     'value' => $data->status,
                 ],
+                'show_delete' => $data->reservations->count() > 0 || $data->doctorConsultingReservations->count() > 0 ? 0 : 1,
             ];
         });
 

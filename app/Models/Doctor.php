@@ -167,6 +167,11 @@ class Doctor extends Authenticatable implements JWTSubject
         return $this->hasMany('App\Models\Reservation', 'doctor_id');
     }
 
+    public function doctorConsultingReservations()
+    {
+        return $this->hasMany('App\Models\DoctorConsultingReservation', 'doctor_id');
+    }
+
     public function reservedTimes()
     {
         return $this->hasMany('App\Models\ReservedTime', 'doctor_id');
