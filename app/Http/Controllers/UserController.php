@@ -796,6 +796,87 @@ class UserController extends Controller
         }
     }
 
+    public
+    function ReservationDetails(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_id" => "required|exists:reservations,id"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $reservation = $this->getReservationByNoWihRelation($request->reservation_id);
+            if ($reservation == null)
+                return $this->returnError('E001', trans('messages.No reservation with this number'));
+
+            return $this->returnData('reservation', $reservation);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    protected function getReservationByNoWihRelation($reservation_id)
+    {
+        return Reservation::with(['doctor' => function ($g) {
+            $g->select('id', 'nickname_id', 'specification_id', 'nationality_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                ->with(['nickname' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        },
+            'offer' => function ($qu) {
+                $qu->select('id', DB::raw('title_' . app()->getLocale() . ' as title'), 'photo', 'price', 'price_after_discount');
+            }
+            , 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_company_id', 'insurance_image', 'mobile')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }, 'provider' => function ($qq) {
+                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                    ->with(['provider' => function ($g) {
+                        $g->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                            ->with(['type' => function ($gu) {
+                                $gu->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                            }]);
+                    }]);
+            }, 'people' => function ($p) {
+                $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }])->where('id', $reservation_id)
+            ->select("id",
+                "reservation_no",
+                "offer_id",
+                "day_date",
+                "from_time",
+                "to_time",
+                "doctor_rate",
+                "provider_rate",
+                "offer_rate",
+                "approved",
+                "use_insurance",
+                "promocode_id",
+                "provider_id",
+                "rejection_reason",
+                "user_rejection_reason",
+                "price",
+                "rate_comment",
+                "rate_date",
+                "address",
+                "for_me",
+                "branch_name",
+                "mainprovider")
+            ->first();
+    }
+
+
     public function getUserData(Request $request)
     {
         try {
@@ -962,7 +1043,7 @@ class UserController extends Controller
         if (!$user)
             return $this->returnError('E001', trans("messages.User not found"));
 
-         $reservation = $this->getServiceReservationWithData($request->reservation_id, $user->id);
+        $reservation = $this->getServiceReservationWithData($request->reservation_id, $user->id);
 
         if (!$reservation)
             return $this->returnError('E001', trans("messages.reservation not found"));
@@ -983,24 +1064,24 @@ class UserController extends Controller
         if ($MainProvider == null)
             return $this->returnError('E001', trans('messages.No provider with this id'));
 
-       /* // if this reservation has bill then ,user allow to upload total bill image to admin
-        if (($MainProvider->application_percentage > 0 or $MainProvider->application_percentage_bill > 0) && $reservation->promocode_id == null && $reservation->approved == 3) {//bill_photo
-            if ($request->filled('bill_photo')) {
+        /* // if this reservation has bill then ,user allow to upload total bill image to admin
+         if (($MainProvider->application_percentage > 0 or $MainProvider->application_percentage_bill > 0) && $reservation->promocode_id == null && $reservation->approved == 3) {//bill_photo
+             if ($request->filled('bill_photo')) {
 
-                $path = $this->saveImage('bills', $request->bill_photo);
-                $reservation->update([
-                    'bill_photo' => $path,
-                ]);
+                 $path = $this->saveImage('bills', $request->bill_photo);
+                 $reservation->update([
+                     'bill_photo' => $path,
+                 ]);
 
-                Bill::create([
-                    'reservation_id' => $reservation->id,
-                    'reservation_no' => $reservation->reservation_no,
-                    'photo' => $path
-                ]);
-            } else {
-                return $this->returnError('E001', trans('messages.please upload bill photo'));
-            }
-        }*/
+                 Bill::create([
+                     'reservation_id' => $reservation->id,
+                     'reservation_no' => $reservation->reservation_no,
+                     'photo' => $path
+                 ]);
+             } else {
+                 return $this->returnError('E001', trans('messages.please upload bill photo'));
+             }
+         }*/
 
         // rate
         $reservation->update([
@@ -1011,7 +1092,7 @@ class UserController extends Controller
         ]);
 
         // service rate
-         $service = Service::where('id', $reservation->service->id)->first();
+        $service = Service::where('id', $reservation->service->id)->first();
         if ($service) {
             $sumAll = $service->reservations()->sum('service_rate');
             $countRate = count($service->reservations);
@@ -1319,7 +1400,6 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
-
 
 
     public function getPoints(Request $request)

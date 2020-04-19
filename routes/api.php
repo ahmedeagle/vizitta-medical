@@ -151,6 +151,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('check/promocode', 'PromoCodeController@checkPromoCode')->name('user.check.promocode');
             Route::post('current/reservations', 'UserController@getCurrentReserves')->name('user.current.reservations');
             Route::post('finished/reservations', 'UserController@getFinishedReserves')->name('user.finished.reservations');
+            Route::post('reservation/details', 'UserController@ReservationDetails');
             Route::post('offer/reservations', 'OffersController@getAllOffersReservations');
             Route::post('points', 'UserController@getPoints')->name('user.points');
             Route::post('rate', 'UserController@userRating')->name('user.rate');
