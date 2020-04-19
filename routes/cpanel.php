@@ -211,6 +211,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/receivers/{notifyId}/{type}', "NotificationsController@getReceivers");
             Route::post("/create/{type}", "NotificationsController@create");
             Route::post("/store", "NotificationsController@store");
+            Route::post("/getHeaderNotifications", "NotificationsController@getHeaderNotifications");
+            Route::post("/readNotification", "NotificationsController@readNotification");
         });
         ############## End Notifications Routes ##############
 

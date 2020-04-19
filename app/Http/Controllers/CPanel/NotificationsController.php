@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\NotificationReceiversResource;
+use App\Models\GeneralNotification;
 use App\Models\Notification;
 use App\Models\Provider;
 use App\Models\Reciever;
@@ -193,4 +194,46 @@ class NotificationsController extends Controller
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
+
+    ################### Start to get un read notifications ##############################
+    public function getHeaderNotifications(Request $request)
+    {
+        try {
+            $query = GeneralNotification::query();
+
+            if ($request->type == 'read')
+                $sql = $query->where('seen', '1');
+            elseif ($request->type == 'unread')
+                $sql = $query->where('seen', '0');
+            else
+                $sql = $query;
+
+            $notifications = $sql->selection()->addSelect('id', 'seen')->paginate(PAGINATION_COUNT);
+            return response()->json(['status' => true, 'data' => $notifications]);
+
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+    ################### End to get un read notifications ##############################
+
+    ################### Start to read notification ##############################
+    public function readNotification(Request $request)
+    {
+        try {
+            $notification = GeneralNotification::find($request->id);
+
+            if (!$notification)
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            if ($notification->seen == '0')
+                $notification->update(['seen' => '1']);
+
+            return response()->json(['status' => true, 'msg' => __('main.read_notification_successfully')]);
+
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+    ################### End to read notification ##############################
 }
