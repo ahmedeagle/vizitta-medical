@@ -30,6 +30,7 @@ class ProviderResource extends ResourceCollection
                     'value' => $data->lottery,
                 ],
                 'created_at' => $data->created_at->format('Y-m-d'),
+                'show_delete' => $data->branches->count() > 0 ? 0 : 1,
             ];
         });
 
