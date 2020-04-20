@@ -208,7 +208,7 @@ class NotificationsController extends Controller
             else
                 $sql = $query;
 
-            $notifications = $sql->selection()->addSelect('id', 'seen')->paginate(PAGINATION_COUNT);
+            $notifications = $sql->selection()->addSelect('id', 'seen', 'data_id')->paginate(PAGINATION_COUNT);
             return response()->json(['status' => true, 'data' => $notifications]);
 
         } catch (\Exception $ex) {
