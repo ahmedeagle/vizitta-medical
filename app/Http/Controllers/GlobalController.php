@@ -440,7 +440,7 @@ class GlobalController extends Controller
                     $result->distance = (string)number_format($result->distance * 1.609344, 2);
                     //check if branch has doctors
                     $result->has_doctors = $result->doctors()->count() > 0 ? 1 : 0;
-                    $result->has_home_services = $result->clinicServices()->count() > 0 ? 1 : 0;
+                    $result->has_home_services = $result->homeServices()->count() > 0 ? 1 : 0;
                     $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
                     /* //nearest  availble time date
                      if ($result->doctor == '1') {
