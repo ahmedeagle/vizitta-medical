@@ -17,7 +17,7 @@ class SingleDoctorResource extends JsonResource
             $user = User::find($authUser->id);
 
         $result = [
-           // 'id' => $this->id,
+            'id' => $this->id,
             'doctor_type' => $this->doctor_type,
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
