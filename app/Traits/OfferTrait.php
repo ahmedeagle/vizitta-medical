@@ -65,4 +65,27 @@ trait OfferTrait
     }
 
 
+    public function getUserOffersReservationByReservationId($reservation_id)
+    {
+
+        return Reservation::with(['offer' => function ($q) {
+            $q->select('id',
+                DB::raw('title_' . app()->getLocale() . ' as title'),
+                'expired_at'
+            );
+        }, 'provider' => function ($que) {
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->where('user_id', $userId)
+            ->whereNotNull('offer_id')
+            ->orderBy('day_date')
+            ->orderBy('order')
+            ->select('id', 'reservation_no','payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+                'rate_date')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+
 }
