@@ -464,7 +464,7 @@ class UserController extends Controller
                         $user->update([
                             'mobile' => $request->mobile ? $request->mobile : $user->mobile,
                             'status' => 0,
-                            'gender' => $request->gender,
+                            'genderg' => $request->gender,
                             'activation_code' => $activationCode,
                             'name' => trim($request->name),
                             'city_id' => $request->city_id ? $request->city_id : $user->city_id,
@@ -1471,6 +1471,9 @@ class UserController extends Controller
                 $providers->getCollection()->each(function ($provider) {
                     $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
                     $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
+                    $provider->has_doctors = $provider->doctors()->count() > 0 ? 1 : 0;
+                    $provider->has_home_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
+                    $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
                     return $provider;
                 });
 
