@@ -248,13 +248,21 @@ class GlobalController extends Controller
                     //category allowed time in seconds
                     $timerCategory->timeInseconds = ($timerCategory->hours * 60 * 60) + ($timerCategory->minutes * 60) + $timerCategory->seconds;
                     //dif between now and category create in minutes
-                    $timerCategory->difInSeconds = $this->getDiffBetweenTwoDateInSeconds(date('Y-m-d H:i:s'), $timerCategory->created_at);
-
+                    $timerCategory->difInSeconds = $this->getDiffBetweenTwoDatee($timerCategory->created_at, 's');
                     //if category allow time finished
-                    if ($timerCategory->difInSeconds > $timerCategory->seconds) {
-                        $timerCategory->tt = gmdate("H:i:s", 0);
-                    } else
-                        $timerCategory->tt = gmdate("H:i:s", $timerCategory->difInMiuntes);
+                    if ($timerCategory->difInSeconds > $timerCategory->timeInseconds) {
+                        $timerCategory->hours = 0;
+                        $timerCategory->minutes = 0;
+                        $timerCategory->seconds = 0;
+                    } else {
+                        //return $timerCategory->a1 = gmdate("H", $timerCategory->difInSeconds);
+                        $timerCategory->difHours = $this->getDiffBetweenTwoDatee($timerCategory->created_at, 'H');
+                        $timerCategory->difMinutes = gmdate("i", $timerCategory->difInSeconds);
+                        $timerCategory->difSeconds = gmdate("s", $timerCategory->difInSeconds);
+                        $timerCategory->hours = $timerCategory->hours - $timerCategory->difHours > 0 ? $timerCategory->hours - $timerCategory->difHours : 0;
+                        $timerCategory->minutes = $timerCategory->minutes - $timerCategory->difMinutes > 0 ? $timerCategory->minutes - $timerCategory->difMinutes : 0;
+                        $timerCategory->seconds = $timerCategory->seconds - $timerCategory->difSeconds > 0 ? $timerCategory->seconds - $timerCategory->difSeconds : 0;
+                    }
                 }
             }
 
@@ -779,11 +787,14 @@ class GlobalController extends Controller
         }
     }
 
-    private function getDiffBetweenTwoDateInSeconds(string $date, $consulting_start_date)
+    private function getDiffBetweenTwoDatee($created_at, $format)
     {
-        $end = Carbon::parse($consulting_start_date, 'Asia/Riyadh');
+        $end = Carbon::parse($created_at, 'Asia/Riyadh');
         $now = Carbon::now('Asia/Riyadh');
-        return $length = $now->diffInSeconds($end);
+        if ($format == 's')
+            return $seconds = $now->diffInSeconds($end);
+        else
+            return $seconds = $now->diffInHours($end);
     }
 
 }
