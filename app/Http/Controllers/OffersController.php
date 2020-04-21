@@ -562,7 +562,7 @@ class OffersController extends Controller
             if (!$user)
                 return $this->returnError('D000', __('messages.user not found'));
 
-           return  $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
+            $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
 
             if ($reservation_details) {
                 $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
@@ -574,7 +574,7 @@ class OffersController extends Controller
             } else
                 return $this->returnError('E001', trans('messages.No reservations founded'));
         } catch (\Exception $ex) {
-             return $this->returnError($ex->getCode(), $ex->getMessage());
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
