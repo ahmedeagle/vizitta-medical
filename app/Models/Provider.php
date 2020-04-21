@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use DB;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use function foo\func;
 
 class Provider extends Authenticatable implements JWTSubject
 {
@@ -35,7 +36,13 @@ class Provider extends Authenticatable implements JWTSubject
         'odoo_provider_id',
         'android_device_hasCode', 'lottery', 'rate', 'has_home_visit'];
 
-    protected $appends = ['is_branch', 'hide', 'parent_type', 'adminprices', 'provider_has_bill', 'has_insurance', 'is_lottery', 'rate_count'];  // to append coulms to table virtual
+    protected $appends = ['is_branch', 'hide',
+        'parent_type', 'adminprices',
+        'provider_has_bill',
+        'has_insurance',
+        'is_lottery',
+        'rate_count',
+    ];  // to append coulms to table virtual
 
     protected $hidden = [
         'created_at', 'password' /*, 'city_id', 'type_id', 'district_id'*/, 'updated_at', 'no_of_sms', 'activation', 'device_token', 'web_token', 'application_percentage', 'application_percentage_bill',
@@ -375,6 +382,25 @@ class Provider extends Authenticatable implements JWTSubject
     {
         return $this->hasMany('App\Models\Provider', 'provider_id', 'id');
     }
+
+    public function services()
+    {
+        return $this->hasMany('App\Models\Service', 'branch_id', 'id');
+    }
+
+    public function homeServices()
+    {
+        return $this->hasMany('App\Models\Service', 'branch_id', 'id')->whereHas('types', function ($q) {
+            $q->where('services_type.id',1);
+        });    }
+
+    public function clinicServices()
+    {
+        return $this->hasMany('App\Models\Service', 'branch_id', 'id')->whereHas('types', function ($q) {
+            $q->where('services_type.id',2);
+        });
+    }
+
 }
 
 

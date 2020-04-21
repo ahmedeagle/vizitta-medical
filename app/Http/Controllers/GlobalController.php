@@ -131,7 +131,7 @@ class GlobalController extends Controller
     }
 
 
- public
+    public
     function getSpecificationsV2(Request $request)
     {
         try {
@@ -155,7 +155,7 @@ class GlobalController extends Controller
     {
         try {
             $filters = $this->getActiveFilters();
-                return $this->returnData('filters', $filters);
+            return $this->returnData('filters', $filters);
             // return $this->returnError('E001', trans('messages.There is no filters found'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
@@ -214,20 +214,18 @@ class GlobalController extends Controller
             $categories = $this->getPromoCategoriesV2();
             $timerCategories = $this->getTimerPromoCategoriesV2();
 
-            if(isset($timerCategories) &&  $timerCategories -> count() > 0)
-            {
-                foreach($timerCategories as $timerCategory){
-                     //category allowed time in seconds
-                    $timerCategory -> timeInseconds = ($timerCategory -> hours * 60 * 60) + ($timerCategory -> minutes * 60) + $timerCategory -> seconds ;
-                      //dif between now and category create in minutes
-                    $timerCategory -> difInSeconds = $this->getDiffBetweenTwoDateInSeconds(date('Y-m-d H:i:s'), $timerCategory -> created_at);
+            if (isset($timerCategories) && $timerCategories->count() > 0) {
+                foreach ($timerCategories as $timerCategory) {
+                    //category allowed time in seconds
+                    $timerCategory->timeInseconds = ($timerCategory->hours * 60 * 60) + ($timerCategory->minutes * 60) + $timerCategory->seconds;
+                    //dif between now and category create in minutes
+                    $timerCategory->difInSeconds = $this->getDiffBetweenTwoDateInSeconds(date('Y-m-d H:i:s'), $timerCategory->created_at);
 
                     //if category allow time finished
-                    if($timerCategory -> difInSeconds  > $timerCategory -> seconds)
-                    {
-                        $timerCategory -> tt = gmdate("H:i:s",  0);
-                    }else
-                    $timerCategory -> tt = gmdate("H:i:s",  $timerCategory -> difInMiuntes);
+                    if ($timerCategory->difInSeconds > $timerCategory->seconds) {
+                        $timerCategory->tt = gmdate("H:i:s", 0);
+                    } else
+                        $timerCategory->tt = gmdate("H:i:s", $timerCategory->difInMiuntes);
                 }
             }
 
@@ -238,26 +236,26 @@ class GlobalController extends Controller
 
             return $this->returnData('data', $obj);
         } catch (\Exception $ex) {
-           // return $this->returnError($ex->getCode(), $ex->getMessage());
+            // return $this->returnError($ex->getCode(), $ex->getMessage());
             return $ex;
         }
-    } public
+    }
 
-
+    public
 
 
     function getOfferSubcategories(Request $request)
     {
         try {
-              $validator = Validator::make($request->all(), [
-                  "category_id" => "required|exists:offers_categories,id",
-              ]);
-              if ($validator->fails()) {
-                  $code = $this->returnCodeAccordingToInput($validator);
-                  return $this->returnValidationError($code, $validator);
-              }
+            $validator = Validator::make($request->all(), [
+                "category_id" => "required|exists:offers_categories,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
 
-            $subCategories = $this->getSubCategories($request -> category_id);
+            $subCategories = $this->getSubCategories($request->category_id);
 
             return $this->returnData('data', $subCategories);
         } catch (\Exception $ex) {
@@ -440,6 +438,10 @@ class GlobalController extends Controller
                 $results->getCollection()->each(function ($result) use ($request) {
                     $result->favourite = count($result->favourites) > 0 ? 1 : 0;
                     $result->distance = (string)number_format($result->distance * 1.609344, 2);
+                    //check if branch has doctors
+                    $result->has_doctors = $result->doctors()->count() > 0 ? 1 : 0;
+                    $result->has_home_services = $result->clinicServices()->count() > 0 ? 1 : 0;
+                    $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
                     /* //nearest  availble time date
                      if ($result->doctor == '1') {
                          $doctor = Doctor::find($result->id);
@@ -449,6 +451,7 @@ class GlobalController extends Controller
                          } else
                              $result->times = [];
                      }*/
+
                     unset($result->favourites);
                     return $result;
                 });
