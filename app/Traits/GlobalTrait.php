@@ -689,6 +689,19 @@ trait GlobalTrait
         return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
     }
 
+    public function getAllServiceSpecificationsV2($provider_id = null)
+    {
+        $specification = Specification::query();
+        if ($provider_id != null) {
+            $specification = $specification->whereIn('id', function ($q) use ($provider_id) {
+                $q->select('specification_id')->from('services')->whereIn('provider_id', function ($qu) use ($provider_id) {
+                    $qu->select('id')->from('providers')->where('provider_id', $provider_id)->orWhere('id', $provider_id);
+                });
+            });
+        }
+        return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
+    }
+
 
     public function getActiveFilters()
     {
@@ -866,7 +879,7 @@ trait GlobalTrait
     public function saveFile($folder, $photo)
     {
 
-        $file_extension = $photo -> getClientOriginalExtension();
+        $file_extension = $photo->getClientOriginalExtension();
         $filename = time() . '_' . $folder . '.' . $file_extension;
         $path = 'images/' . $folder;
         $photo->move($path, $filename);
