@@ -689,7 +689,6 @@ trait GlobalTrait
         return $specification->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->orderBy('name_ar')->get();
     }
 
-
     public function getActiveFilters()
     {
         $specification = Filter::active()->selection()->orderBy('id', 'DESC')->get();
@@ -866,7 +865,7 @@ trait GlobalTrait
     public function saveFile($folder, $photo)
     {
 
-        $file_extension = $photo -> getClientOriginalExtension();
+        $file_extension = $photo->getClientOriginalExtension();
         $filename = time() . '_' . $folder . '.' . $file_extension;
         $path = 'images/' . $folder;
         $photo->move($path, $filename);

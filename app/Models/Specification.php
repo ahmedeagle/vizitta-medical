@@ -29,5 +29,10 @@ class Specification extends Model
         return $this->hasMany('App\Models\Doctor', 'specification_id', 'id');
     }
 
+    public function services()
+    {
+        return $this->hasMany('App\Models\Service', 'specification_id', 'id');
+    }
+
 
 }

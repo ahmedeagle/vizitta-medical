@@ -151,6 +151,35 @@ class GlobalController extends Controller
     }
 
     public
+    function getServiceSpecificationsV2(Request $request)
+    {
+        try {
+            if (isset($request->provider_id)) {
+                $provider = $this->checkProvider($request->provider_id);
+                if ($provider == null)
+                    return $this->returnError('D000', trans('messages.There is no provider with this id'));
+            }
+
+            $provider_id = $request->provider_id;
+            if (!empty($provider_id)) {
+                $result = Specification::whereHas('services', function ($q) use ($provider_id) {
+                    $q->where('branch_id', $provider_id);
+                })->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+
+            } else {
+                $result = Specification::has('services')->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+            }
+
+            if ($result && count($result) > 0)
+                return $this->returnData('specifications', $result);
+
+            return $this->returnError('E001', trans('messages.There is no specifications found'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public
     function getCouponsFilters()
     {
         try {
