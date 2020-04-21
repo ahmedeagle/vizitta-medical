@@ -574,6 +574,7 @@ class OffersController extends Controller
             } else
                 return $this->returnError('E001', trans('messages.No reservations founded'));
         } catch (\Exception $ex) {
+            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
