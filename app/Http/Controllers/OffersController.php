@@ -562,7 +562,7 @@ class OffersController extends Controller
             if (!$user)
                 return $this->returnError('D000', __('messages.user not found'));
 
-            $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
+           return  $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
 
             if ($reservation_details) {
                 $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
