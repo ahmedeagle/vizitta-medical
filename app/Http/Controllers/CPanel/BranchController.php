@@ -58,6 +58,7 @@ class BranchController extends Controller
         $result['allReservationCount'] = $allReservationCount;
         $result['acceptanceReservationCount'] = $acceptanceReservationCount;
         $result['refusedReservationCount'] = $refusedReservationCount;
+        $result['branch']['show_delete'] = $branch->reservations->count() > 0 || $branch->doctors->count() > 0 ? 0 : 1;
 
         return response()->json(['status' => true, 'data' => $result]);
     }
@@ -122,7 +123,7 @@ class BranchController extends Controller
                 "district_id" => "required|numeric|exists:districts,id",
                 "street" => "required",
                 "status" => "required|in:0,1",
-                "has_home_visit"  => "required|in:0,1",
+                "has_home_visit" => "required|in:0,1",
                 "rate" => "numeric|min:1|max:5"
             ]);
 
@@ -182,8 +183,8 @@ class BranchController extends Controller
                     'device_token' => '',
                     'street' => trim($request->street),
                     'branch_no' => $request->branch_no,
-                    "has_home_visit"  =>  $request->has_home_visit,
-                    "rate" =>  $request->rate,
+                    "has_home_visit" => $request->has_home_visit,
+                    "rate" => $request->rate,
                 ]);
 
                 if ($providerMod->id) {
@@ -265,7 +266,7 @@ class BranchController extends Controller
             "district_id" => "required|numeric|exists:districts,id",
             "street" => "required",
             "status" => "required|in:0,1",
-            "has_home_visit"  => "required|in:0,1",
+            "has_home_visit" => "required|in:0,1",
             "rate" => "numeric|min:1|max:5"
         ]);
 
@@ -403,8 +404,7 @@ class BranchController extends Controller
             $featuredBranch = FeaturedBranch::where('branch_id', $request->provider_id)->first();
             if ($featuredBranch) {
                 $featuredBranch->delete();
-            }
-            else{
+            } else {
                 return response()->json(['success' => false, 'error' => __('main.the_clinic_is_not_really_installed')], 200);
             }
             return response()->json(['status' => true, 'data' => ['branchId' => $request->provider_id], 'msg' => __('main.the_clinic_was_successfully_uninstalled')]);

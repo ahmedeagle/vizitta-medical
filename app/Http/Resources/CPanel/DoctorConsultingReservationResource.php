@@ -5,7 +5,7 @@ namespace App\Http\Resources\CPanel;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ReservationResource extends ResourceCollection
+class DoctorConsultingReservationResource extends ResourceCollection
 {
     public function toArray($request)
     {
@@ -16,20 +16,17 @@ class ReservationResource extends ResourceCollection
                 'day_date' => $data->day_date,
                 'from_time' => $data->from_time,
                 'to_time' => $data->to_time,
-                'provider_id' => $data->provider_id,
+                'paid' => $data->paid,
                 'approved' => $data->approved,
                 'price' => $data->price,
-                'bill_total' => $data->bill_total,
-                'rejection_reason' => $data->rejection_reason,
-                'for_me' => $data->for_me,
-                'branch_no' => $data->branch_no,
-                'is_reported' => $data->is_reported,
-                'mainprovider' => $data->mainprovider,
-                'admin_value_from_reservation_price_Tax' => $data->admin_value_from_reservation_price_Tax,
-                'reservation_total' => $data->reservation_total,
-                'branch_name' => $data->branch_name,
+                'total_price' => $data->total_price,
+
+                'provider_name' => $data->provider == null ? null : (app()->getLocale() == 'ar' ? $data->provider->name_ar : $data->provider->name_en),
+                'branch_name' => $data->branch == null ? null : (app()->getLocale() == 'ar' ? $data->branch->name_ar : $data->branch->name_en),
+
                 'doctor_name' => app()->getLocale() == 'ar' ? $data->doctor->name_ar : $data->doctor->name_en,
                 'user_name' => $data->user->name,
+                'show_delete' => $data->approved == 0 || $data->approved == 2 ? 1 : 0,
             ];
         });
 

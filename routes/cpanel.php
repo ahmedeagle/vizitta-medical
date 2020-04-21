@@ -211,6 +211,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/receivers/{notifyId}/{type}', "NotificationsController@getReceivers");
             Route::post("/create/{type}", "NotificationsController@create");
             Route::post("/store", "NotificationsController@store");
+            Route::post("/getHeaderNotifications", "NotificationsController@getHeaderNotifications");
+            Route::post("/readNotification", "NotificationsController@readNotification");
         });
         ############## End Notifications Routes ##############
 
@@ -350,6 +352,15 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             //Route::post('/rejection', 'ServicesReservationController@rejectReservation');
         });
         ############## End Services Reservations Routes ##############
+
+        ############### Start Doctor Consulting Reservations Routes ##############
+        Route::prefix('doctor-consulting/reservations/')->group(function () {
+            Route::post('/index', "DoctorConsultingReservationController@index");
+            Route::post('/delete', "DoctorConsultingReservationController@destroy");
+            Route::post('/changeStatus', 'DoctorConsultingReservationController@changeStatus');
+            Route::post('/getReservationDetails', 'DoctorConsultingReservationController@getReservationDetails');
+        });
+        ############## End Doctor Consulting Reservations Routes ##############
 
         ############### Start Offers Filters Routes ##############
         Route::prefix('offers-filters/')->group(function () {

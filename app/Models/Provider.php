@@ -370,6 +370,11 @@ class Provider extends Authenticatable implements JWTSubject
     {
         return $this->morphMany('\App\Models\GeneralNotification', 'notificationable');
     }
+
+    public function branches()
+    {
+        return $this->hasMany('App\Models\Provider', 'provider_id', 'id');
+    }
 }
 
 

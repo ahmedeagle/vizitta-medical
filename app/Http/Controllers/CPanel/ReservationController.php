@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CPanel;
 
+use App\Http\Resources\CPanel\ProviderResource;
 use App\Mail\AcceptReservationMail;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
@@ -33,15 +34,16 @@ class ReservationController extends Controller
 
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
-                $data['reservations'] = $this->getReservationByStatus();
+                $data['reservations'] = new ReservationResource($this->getReservationByStatus());
             } else {
                 $status = request('status') ? request('status') : $status;
-                $data['reservations'] = $this->getReservationByStatus($status);
+                $data['reservations'] = new ReservationResource($this->getReservationByStatus($status));
+
             }
             return response()->json(['status' => true, 'data' => $data]);
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
-            $data['reservations'] = Reservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+            $res = Reservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
@@ -63,9 +65,12 @@ class ReservationController extends Controller
                     });
                 })->orderBy('day_date', 'DESC')
                 ->paginate(10);
+
+            $data['reservations'] = new ReservationResource($res);
+
         } else {
-            $data['reservations'] = Reservation::orderBy('day_date', 'DESC')
-                ->paginate(10);
+            $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
+                ->paginate(10));
         }
         return response()->json(['status' => true, 'data' => $data]);
     }

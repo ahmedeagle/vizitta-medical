@@ -189,5 +189,6 @@ return [
 
     'enter_from_or_to'                                                  => 'Enter From Or To Time',
     'reservation_period_greater_than_from_and_to'                       => 'Reservation period greater than the difference between from to time',
+    'read_notification_successfully'                                    => 'Read notification successfully',
 
 ];

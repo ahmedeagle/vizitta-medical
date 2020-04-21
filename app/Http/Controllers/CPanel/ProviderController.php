@@ -71,6 +71,7 @@ class ProviderController extends Controller
         $result['allReservationCount'] = $allReservationCount;
         $result['acceptanceReservationCount'] = $acceptanceReservationCount;
         $result['refusedReservationCount'] = $refusedReservationCount;
+        $result['provider']['show_delete'] = $provider->branches->count() > 0 ? 0 : 1;
 
         return response()->json(['status' => true, 'data' => $result]);
     }
