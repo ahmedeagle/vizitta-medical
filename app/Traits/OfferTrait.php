@@ -78,8 +78,7 @@ trait OfferTrait
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
-            ->where('user_id', $userId)
-            ->whereNotNull('offer_id')
+             ->whereNotNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
             ->select('id', 'reservation_no', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
