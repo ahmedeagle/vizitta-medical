@@ -26,16 +26,38 @@ class DoctorController extends Controller
 {
     use DoctorTrait, PublicTrait, GeneralTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         $queryStr = '';
-        if (request('queryStr')) {
-            $queryStr = request('queryStr');
+        if ($request->queryStr) {
+            $queryStr = $request->queryStr;
         }
 
-        $doctors = Doctor::where(function ($q) use ($queryStr) {
+        $sqlQuery = Doctor::where(function ($q) use ($queryStr) {
             return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
-        })->paginate(PAGINATION_COUNT);
+        });
+
+        $type = $request->type;
+
+        if ($type == 'clinic') {
+            $doctors = $sqlQuery->where(function ($q) {
+                $q->where('doctor_type', 'clinic')->where('is_consult', '0');
+            })->paginate(PAGINATION_COUNT);
+        } elseif ($type == 'consultative') {
+            $doctors = $sqlQuery->where(function ($q) {
+                $q->where('doctor_type', 'consultative');
+            })->paginate(PAGINATION_COUNT);
+        } elseif ($type == 'both') {
+            $doctors = $sqlQuery->where(function ($q) {
+                $q->where('doctor_type', 'clinic')->where('is_consult', '1');
+            })->paginate(PAGINATION_COUNT);
+        } else {
+            $doctors = $sqlQuery->paginate(PAGINATION_COUNT);
+        }
+
+        /*$doctors = Doctor::where(function ($q) use ($queryStr) {
+            return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
+        })->paginate(PAGINATION_COUNT);*/
 
         $result = new DoctorResource($doctors);
         return response()->json(['status' => true, 'data' => $result]);
