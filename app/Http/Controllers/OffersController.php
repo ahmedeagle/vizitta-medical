@@ -562,28 +562,17 @@ class OffersController extends Controller
             if (!$user)
                 return $this->returnError('D000', __('messages.user not found'));
 
-            $reservations = $this->getUserOffersReservations($user->id);
+            $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
 
-            if (isset($reservations) && $reservations->count() > 0) {
-                foreach ($reservations as $key => $reservation) {
-                    $main_provider = Provider::where('id', $reservation->provider['provider_id'])->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))->first();
-                    $reservation->main_provider = $main_provider ? $main_provider : '';
-                    $reservation->makeHidden(['for_me', 'branch_no', 'is_reported', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report']);
-                }
-            }
-
-            if (count($reservations->toArray()) > 0) {
-                $total_count = $reservations->total();
-                $reservations = json_decode($reservations->toJson());
-                $reservationsJson = new \stdClass();
-                $reservationsJson->current_page = $reservations->current_page;
-                $reservationsJson->total_pages = $reservations->last_page;
-                $reservationsJson->per_page = PAGINATION_COUNT;
-                $reservationsJson->total_count = $total_count;
-                $reservationsJson->data = $reservations->data;
-                return $this->returnData('reservations', $reservationsJson);
-            }
-            return $this->returnError('E001', trans('messages.No reservations founded'));
+            if ($reservation_details) {
+                $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
+                    ->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))
+                    ->first();
+                $reservation_details->main_provider = $main_provider ? $main_provider : '';
+                $reservation_details->makeHidden(['for_me', 'branch_no', 'is_reported', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report']);
+                return $this->returnData('reservation_details', $reservation_details);
+            } else
+                return $this->returnError('E001', trans('messages.No reservations founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

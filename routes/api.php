@@ -106,6 +106,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('times/dayCode', 'OffersController@getTimesAsArrayOfDayCodes');
                 Route::post('available/times', 'OffersController@getAvailableTimes');
                 Route::post('reserve', 'OffersController@reserveTime')->middleware(['CheckUserToken', 'CheckUserStatus']);
+                Route::post('reservation-details', 'OffersController@getReservationDetails')->middleware(['CheckUserToken', 'CheckUserStatus']);
             });
 
             Route::post('register', 'UserController@storeV2');

@@ -59,7 +59,7 @@ trait OfferTrait
             ->whereNotNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'reservation_no','payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+            ->select('id', 'reservation_no', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
                 'rate_date')
             ->paginate(PAGINATION_COUNT);
     }
@@ -82,9 +82,10 @@ trait OfferTrait
             ->whereNotNull('offer_id')
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'reservation_no','payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+            ->select('id', 'reservation_no', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
                 'rate_date')
-            ->paginate(PAGINATION_COUNT);
+            ->where('id', '$reservation_id')
+            ->first();
     }
 
 
