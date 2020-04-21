@@ -14,11 +14,11 @@ class SingleMedicalCenterResource extends JsonResource
             'branch_count' => $this->branch_count,
             'responsible_name' => $this->responsible_name,
             'responsible_mobile' => $this->responsible_mobile,
-            'user' => [
+          /*  'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'photo' => $this->user->photo,
-            ],
+            ],*/
             'cities' => $this->cities,
             'specifications' => $this->specifications,
         ];
