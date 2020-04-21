@@ -12,7 +12,7 @@ class OfferCategory extends Model
 
     protected $fillable = ['parent_id', 'name_en', 'name_ar', 'photo', 'hastimer', 'hours', 'minutes', 'seconds', 'timerexpired'];
 
-    protected $hidden = ['created_at', 'updated_at', 'hastimer'];
+    protected $hidden = ['updated_at', 'hastimer'];
 
 
     protected static function boot()

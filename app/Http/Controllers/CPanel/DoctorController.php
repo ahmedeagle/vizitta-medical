@@ -566,8 +566,10 @@ class DoctorController extends Controller
         $credentials = $request->only('username', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
+           // $request
             return $this->respondWithToken($token);
         }
+
         return response()->json(['status' => false, 'error' => __('main.invalid_email_or_password')], 200);
     }
 

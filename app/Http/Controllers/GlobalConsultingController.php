@@ -34,14 +34,12 @@ class GlobalConsultingController extends Controller
     public function getConsultingCategories(Request $request)
     {
         try {
-
             $result = Specification::whereHas('doctors', function ($q) {
                 $q->where('doctor_type', 'consultative')->orWhere(function ($query) {
                     $query->where('doctor_type', 'clinic')->where('is_consult', 1);
                 });
             })->get(['id', DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
             return $this->returnData('specifications', $result);
-
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
@@ -351,12 +349,12 @@ class GlobalConsultingController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $user = $this->auth('user-api');
+           /* $user = $this->auth('user-api');
             if ($user == null)
-                return $this->returnError('E001', trans('messages.There is no user with this id'));
+                return $this->returnError('E001', trans('messages.There is no user with this id'));*/
 
             $medicalData = $request->only(['name', 'branch_count', 'responsible_name', 'responsible_mobile']);
-            $medicalData['user_id'] = $user->id;
+           // $medicalData['user_id'] = $user->id;
 
             $medicalCenter = MedicalCenter::create($medicalData);
 

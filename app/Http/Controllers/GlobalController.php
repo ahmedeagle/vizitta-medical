@@ -15,6 +15,7 @@ use App\Models\Specification;
 use App\Models\Subscribtion;
 use App\Traits\GlobalTrait;
 use App\Traits\SearchTrait;
+use Carbon\Carbon;
 use Freshbitsweb\Laratables\Laratables;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -215,13 +216,21 @@ class GlobalController extends Controller
 
             if(isset($timerCategories) &&  $timerCategories -> count() > 0)
             {
-                $timerCategories->each(function ($timerCategory) {
+                foreach($timerCategories as $timerCategory){
+                     //category allowed time in seconds
+                    $timerCategory -> timeInseconds = ($timerCategory -> hours * 60 * 60) + ($timerCategory -> minutes * 60) + $timerCategory -> seconds ;
+                      //dif between now and category create in minutes
+                    $timerCategory -> difInSeconds = $this->getDiffBetweenTwoDateInSeconds(date('Y-m-d H:i:s'), $timerCategory -> created_at);
 
-                    $categoryAllowTimeInMinutes = ($timerCategory -> hours * 60) + ($timerCategory -> minutes) + ($timerCategory -> seconds > 0 ?  ($timerCategory -> seconds / 60) : 0);
-                        $timerCategory -> mins = $timerCategory;
-                     return $timerCategory;
-                });
+                    //if category allow time finished
+                    if($timerCategory -> difInSeconds  > $timerCategory -> seconds)
+                    {
+                        $timerCategory -> tt = gmdate("H:i:s",  0);
+                    }else
+                    $timerCategory -> tt = gmdate("H:i:s",  $timerCategory -> difInMiuntes);
+                }
             }
+
             $obj = new \stdClass();
             $obj->price_less = $price_less;
             $obj->categories = $categories;
@@ -229,9 +238,13 @@ class GlobalController extends Controller
 
             return $this->returnData('data', $obj);
         } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
+           // return $this->returnError($ex->getCode(), $ex->getMessage());
+            return $ex;
         }
     } public
+
+
+
 
     function getOfferSubcategories(Request $request)
     {
@@ -732,6 +745,13 @@ class GlobalController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+    }
+
+    private function getDiffBetweenTwoDateInSeconds(string $date, $consulting_start_date)
+    {
+        $end = Carbon::parse($consulting_start_date, 'Asia/Riyadh');
+        $now = Carbon::now('Asia/Riyadh');
+        return $length = $now->diffInSeconds($end);
     }
 
 }

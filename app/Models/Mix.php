@@ -142,4 +142,13 @@ class Mix extends Model
         return ($val !== null ? $val : "");
     }
 
+    public function getConsultingTextAttribute($val)
+    {
+        return ($val !== null ? $val : "");
+    }
+
+    public function getConsultingPhotoAttribute($val)
+    {
+        return ($val !== null ? $val : "");
+    }
 }

@@ -793,7 +793,9 @@ trait GlobalTrait
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',
                 'minutes',
-                'seconds')
+                'seconds',
+                'created_at'
+            )
             ->orderBy('lft')
             ->get();
     }

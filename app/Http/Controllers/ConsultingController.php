@@ -6,6 +6,7 @@ use App\Mail\AcceptReservationMail;
 use App\Mail\RejectReservationMail;
 use App\Models\CommentReport;
 use App\Models\Doctor;
+use App\Models\Mix;
 use App\Models\PromoCode;
 use App\Models\Reason;
 use App\Models\Ticket;
@@ -166,6 +167,14 @@ class ConsultingController extends Controller
         }
     }
 
+    public function getConsultingIfo(Request $request)
+    {
+        $setting = Mix::select('consulting_text', 'consulting_photo')->first();
+        if (!$setting)
+            return $this->returnError('E001', trans('messages.No data founded'));
+        return $this->returnData('consulting_info', $setting);
+
+    }
 
     public function getConsultingReserves(Request $request)
     {
