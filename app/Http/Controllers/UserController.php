@@ -828,7 +828,7 @@ class UserController extends Controller
                 'reservation_total',
                 'comment_report'
             ]);
-            $reservation->doctor -> makeHidden(['times']);
+            $reservation->doctor->makeHidden(['times']);
 
             return $this->returnData('reservation', $reservation);
         } catch (\Exception $ex) {
@@ -858,7 +858,7 @@ class UserController extends Controller
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'provider' => function ($qq) {
-                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude','longitude')
+                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude')
                     ->with(['provider' => function ($g) {
                         $g->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'))
                             ->with(['type' => function ($gu) {
@@ -1011,8 +1011,11 @@ class UserController extends Controller
             'photo' => $MainProvider->logo,
             'notification_id' => $notification->id
         ];
-        //fire pusher  notification for admin  stop pusher for now
+
+
         try {
+            ########### admin firebase push notifications ##############################
+            (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(4);
             event(new \App\Events\NewProviderRate($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
         }
@@ -1262,14 +1265,11 @@ class UserController extends Controller
                     'notification_id' => $notification->id
                 ];
                 //fire pusher  notification for admin  stop pusher for now
-                try {
-                    event(new \App\Events\UserEditReservationTime($notify));   // fire pusher new reservation  event notification*/
-                } catch (\Exception $ex) {
-                }
+                ########### admin firebase push notifications ##############################
+                (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(3);
 
-
+                event(new \App\Events\UserEditReservationTime($notify));   // fire pusher new reservation  event notification*/
             } catch (\Exception $ex) {
-
             }
             return $this->returnSuccessMessage(trans('messages.Reservation updated successfully'));
         } catch (\Exception $ex) {

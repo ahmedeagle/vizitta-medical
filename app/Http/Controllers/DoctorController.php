@@ -170,13 +170,13 @@ class DoctorController extends Controller
                 $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
 
                 $doctor->time = $availableTime;
-                $countRate =  $countRate = Doctor::find($request->id)->reservations()
+                $countRate = $countRate = Doctor::find($request->id)->reservations()
                     ->Where('doctor_rate', '!=', null)
                     ->Where('doctor_rate', '!=', 0)
                     ->Where('provider_rate', '!=', null)
                     ->Where('provider_rate', '!=', 0)
                     ->count();
-                 $doctor->rate_count = $countRate;
+                $doctor->rate_count = $countRate;
                 $doctor->working_days = $days;
                 if (isset($request->user_id) && $request->user_id != 0) {
                     $favouriteDoctor = $this->getDoctorFavourite($doctor->id, $request->user_id);
@@ -805,9 +805,6 @@ class DoctorController extends Controller
                 'type' => 1 //new doctor reservation
             ]);
 
-            ####################### admin firebase push notifications ##############################
-            (new \App\Http\Controllers\NotificationController(['title' => $notification -> title_ar,  'body' => $notification -> content_ar]))->sendAdminWeb(1);
-
             $notify = [
                 'provider_name' => $providerName,
                 'reservation_no' => $reservation->reservation_no,
@@ -817,11 +814,19 @@ class DoctorController extends Controller
                 'notification_id' => $notification->id
             ];
 
+        } catch (\Exception $ex) {
+            return $ex;
+        }
+
+
+        try {
             //fire pusher  notification for admin  stop pusher for now
+            ####################### admin firebase push notifications ##############################
+            (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(1);
             event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
-            return $this->returnData('reservation', $reserve);
         }
+
         return $this->returnData('reservation', $reserve);
     }
 
@@ -1094,7 +1099,7 @@ class DoctorController extends Controller
         $reserve->doctor = Reservation::find($reservation->id)->doctorInfo;
 
 
-        $reserve->specification = Specification::where('id',$reserve->doctor -> specification_id)->select('id','name_'.app()->getLocale().' as name') ->  first();
+        $reserve->specification = Specification::where('id', $reserve->doctor->specification_id)->select('id', 'name_' . app()->getLocale() . ' as name')->first();
         $reserve->coupon = PromoCode::selection2()->find($reservation->promocode_id);
         if ($reserve->payment_method->id == 5)   // prepaid coupon
             $reserve->coupon->code = $promoCode->code;
@@ -1121,7 +1126,6 @@ class DoctorController extends Controller
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
- //           (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendAdminWeb(1); //branch
             $notification = GeneralNotification::create([
                 'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                 'title_en' => 'New reservation for ' . ' ' . $providerName,
