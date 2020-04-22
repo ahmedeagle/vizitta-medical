@@ -96,9 +96,9 @@ trait SearchTrait
 
         // filter by offers
         if (isset($request->branch_has_offers) && $request->branch_has_offers != 0) {
-            $provider = $provider->whereHas('offers', function ($que) {
-                $que -> valide()->where('status',1);
-             });
+            $provider = $provider->whereIn('id', function ($que) {
+                $que->select('branch_id')->from('offers_branches');
+            });
         }
 
         //  Name
