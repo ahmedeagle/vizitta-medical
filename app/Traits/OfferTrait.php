@@ -74,7 +74,7 @@ trait OfferTrait
                 'expired_at'
             );
         }, 'provider' => function ($que) {
-            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude','longitude');
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
