@@ -29,6 +29,11 @@ class Manager extends Authenticatable implements JWTSubject
         return ($val != "" ? asset($val) : "");
     }
 
+    public function adminWebTokens()
+    {
+        return $this->hasMany('App\Models\AdminWebToken', 'admin_id', 'id');
+    }
+
     public function messages()
     {
         return $this->hasMany('App\Models\Message', 'manager_id', 'id');
