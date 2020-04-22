@@ -1113,6 +1113,7 @@ class DoctorController extends Controller
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
+ //           (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendAdminWeb(1); //branch
             $notification = GeneralNotification::create([
                 'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                 'title_en' => 'New reservation for ' . ' ' . $providerName,
