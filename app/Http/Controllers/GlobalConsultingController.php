@@ -191,14 +191,14 @@ class GlobalConsultingController extends Controller
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
                     $notification = GeneralNotification::create([
-                        'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
-                        'title_en' => 'New reservation for ' . ' ' . $providerName,
-                        'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                        'title_ar' => 'حجز استشارة جديد لدي مقدم الخدمة ' . ' ' . $providerName,
+                        'title_en' => 'New consulting reservation for ' . ' ' . $providerName,
+                        'content_ar' => 'هناك حجز استشارة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                         'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                         'notificationable_type' => 'App\Models\Provider',
                         'notificationable_id' => $reservation->provider_id,
                         'data_id' => $reservation->id,
-                        'type' => 1 //new reservation
+                        'type' => 7 // new consulting reservation
                     ]);
                     $notify = [
                         'provider_name' => $providerName,
@@ -273,10 +273,6 @@ class GlobalConsultingController extends Controller
                 ]);
 
                 return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
-
-                /*$doc = Doctor::find($reservation->doctor_id);
-                $result = new SingleDoctorResource($doc);
-                return $this->returnData('doctor', $result);*/
             }
 
             return $this->returnError('E001', trans('main.oops_error'));
