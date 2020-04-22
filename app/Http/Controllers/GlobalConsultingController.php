@@ -272,6 +272,17 @@ class GlobalConsultingController extends Controller
                     "rate" => $doctorRate,
                 ]);
 
+                $notification = GeneralNotification::create([
+                    'title_ar' => 'تقييم استشاره  ' . ' ' . '(' . $doctor->name_ar . ')',
+                    'title_en' => 'New rating for ' . ' ' . '(' . $doctor->name_ar . ')',
+                    'content_ar' => ' تقييم استشاره على الحجز رقم ' . ' ' . $reservation->reservation_no,
+                    'content_en' => 'New rating for consulting reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctor->name_ar . ' )',
+                    'notificationable_type' => 'App\Models\Doctor',
+                    'notificationable_id' => $reservation->doctor_id,
+                    'data_id' => $reservation->id,
+                    'type' => 8 //user rate consulting doctor
+                ]);
+
                 return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
             }
 
@@ -345,12 +356,12 @@ class GlobalConsultingController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-           /* $user = $this->auth('user-api');
-            if ($user == null)
-                return $this->returnError('E001', trans('messages.There is no user with this id'));*/
+            /* $user = $this->auth('user-api');
+             if ($user == null)
+                 return $this->returnError('E001', trans('messages.There is no user with this id'));*/
 
             $medicalData = $request->only(['name', 'branch_count', 'responsible_name', 'responsible_mobile']);
-           // $medicalData['user_id'] = $user->id;
+            // $medicalData['user_id'] = $user->id;
 
             $medicalCenter = MedicalCenter::create($medicalData);
 
