@@ -1000,7 +1000,7 @@ class UserController extends Controller
             'notificationable_type' => 'App\Models\Provider',
             'notificationable_id' => $reservation->provider_id,
             'data_id' => $reservation->id,
-            'type' => 2 //user rate provider and doctor
+            'type' => 4  //user rate provider and doctor
         ]);
 
         $notify = [
@@ -1241,8 +1241,6 @@ class UserController extends Controller
                     ->sendProviderWeb($mainProvider, $reservation->reservation_no, 'update_reservation');
 
                 // (new \App\Http\Controllers\NotificationController(['title'=>__('messages.Reservation Status'), 'body'=>__('messages.The branch').$provider->getTranslatedName().__('messages.updated your reservation')]))->sendUser($reservation->user);
-
-
                 $notification = GeneralNotification::create([
                     'title_ar' => 'تعديل الحجز رقم  ' . ' ' . $reservation->reservation_no,
                     'title_en' => 'Update Reservation Date for reservation No:' . ' ' . $reservation->reservation_no,
@@ -1251,7 +1249,7 @@ class UserController extends Controller
                     'notificationable_type' => 'App\Models\Provider',
                     'notificationable_id' => $reservation->provider_id,
                     'data_id' => $reservation->id,
-                    'type' => 3 //user edit  reservation date
+                    'type' => 3 //user edit doctor reservation date
                 ]);
 
 

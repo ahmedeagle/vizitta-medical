@@ -14,7 +14,7 @@ class NotificationController extends Controller
     protected $body;
     protected const API_ACCESS_KEY_PROVIDER = 'AAAAaPb2xeE:APA91bETQPIQYimxzzR9zIs-NbVcrz-AKKT1iDFqoMtJJ-Kpy57OoUvqPzo99Fcxf8D7YfWCtMOUByPESe9m74uUAvPX6dV6EDUSHQQO7qakkk_ZfZdo_Q2Zge7Ilajl9TY5U_lNfjMy';
     protected const API_ACCESS_KEY_USER = 'AAAAc1Y3kCA:APA91bGJNpIGQQo2LeIbiGzcNZQyITAbyR9zHQXkFKGifEj9cLdvaOy3n8YV8_vLzMPRrY0kUJm2634OUjApRf7PTJ4aj8PHRfZKgyy_05-0JxI7S_5AQ6IMEB9QF_HfG2fybbehpxQL';
-
+    protected const API_ACCESS_KEY_ADMIN = 'AAAAc1Y3kCA:APA91bGJNpIGQQo2LeIbiGzcNZQyITAbyR9zHQXkFKGifEj9cLdvaOy3n8YV8_vLzMPRrY0kUJm2634OUjApRf7PTJ4aj8PHRfZKgyy_05-0JxI7S_5AQ6IMEB9QF_HfG2fybbehpxQL';
     private const fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     //
@@ -84,22 +84,22 @@ class NotificationController extends Controller
               $this->sendProviderWebBrowser($notify);*/
     }
 
-    public function sendProviderWeb(Provider $notify, $reservation_no = null,$type='new_reservation')
+    public function sendProviderWeb(Provider $notify, $reservation_no = null, $type = 'new_reservation')
     {
         if ($reservation_no != null) {
             $notification = [
                 'title' => $this->title,
                 'body' => $this->body,
                 "reservation_no" => $reservation_no,
-                "type" =>$type
+                "type" => $type
             ];
         } else {
 
             $notification = [
                 'title' => $this->title,
                 'body' => $this->body,
-                "type" =>$type
-             ];
+                "type" => $type
+            ];
         }
 
         $notificationData = new \stdClass();
@@ -113,6 +113,26 @@ class NotificationController extends Controller
         ];
         return $this->sendFCM($fcmNotification, 'provider');
 
+    }
+
+
+    public function sendAdminWeb($type)
+    {
+        $notification = [
+            'title' => $this->title,
+            'body' => $this->body,
+            "type" => $type
+        ];
+        $tokenList = AdminWebToken::pluck('token')->toArray();
+        $notificationData = new \stdClass();
+        $notificationData->notification = $notification;
+        // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];
+        $fcmNotification = [
+            'registration_ids' => $tokenList,
+            //'to' => $notify->web_token,//'/topics/alldevices',// $User->device_token, //single token
+            'data' => $notificationData
+        ];
+        return $this->sendFCM($fcmNotification, 'admin');
     }
 
 
@@ -140,11 +160,13 @@ class NotificationController extends Controller
       }*/
 
 
-    private function sendFCM($fcmNotification, $type = 'user')
+    private
+    function sendFCM($fcmNotification, $type = 'user')
     {
-
         if ($type == 'provider') {
             $key = self::API_ACCESS_KEY_PROVIDER;
+        } elseif ($type == 'admin') {
+            $key = self::API_ACCESS_KEY_ADMIN;
         } else {
             $key = self::API_ACCESS_KEY_USER;
         }
@@ -166,7 +188,8 @@ class NotificationController extends Controller
         return $result;
     }
 
-    public function setData(Array $data)
+    public
+    function setData(Array $data)
     {
         $this->device_token = $data['device_token'];
         $this->title = $data['title'];

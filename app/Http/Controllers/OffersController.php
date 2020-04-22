@@ -1482,8 +1482,12 @@ class OffersController extends Controller
                 'notificationable_type' => 'App\Models\Provider',
                 'notificationable_id' => $reservation->provider_id,
                 'data_id' => $reservation->id,
-                'type' => 1 //new reservation
+                'type' => 2 //new offer reservation
             ]);
+
+            ####################### admin firebase push notifications ##############################
+            (new \App\Http\Controllers\NotificationController(['title' => $notification -> title_ar,  'body' => $notification -> content_ar]))->sendAdminWeb(2);
+
             $notify = [
                 'provider_name' => $providerName,
                 'reservation_no' => $reservation->reservation_no,

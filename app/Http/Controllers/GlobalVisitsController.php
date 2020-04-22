@@ -349,7 +349,7 @@ class GlobalVisitsController extends Controller
                     'notificationable_type' => 'App\Models\Provider',
                     'notificationable_id' => $reservation->provider_id,
                     'data_id' => $reservation->id,
-                    'type' => 5 //user rate provider and doctor
+                    'type' => 5 //user rate  offer provider and doctor
                 ]);
 
                 $notify = [
