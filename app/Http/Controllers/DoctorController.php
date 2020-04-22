@@ -170,8 +170,13 @@ class DoctorController extends Controller
                 $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
 
                 $doctor->time = $availableTime;
-                $countRate = count($doctor->reservations);
-                $doctor->rate_count = $countRate;
+                $countRate =  $countRate = Doctor::find($request->id)->reservations()
+                    ->Where('doctor_rate', '!=', null)
+                    ->Where('doctor_rate', '!=', 0)
+                    ->Where('provider_rate', '!=', null)
+                    ->Where('provider_rate', '!=', 0)
+                    ->count();
+                 $doctor->rate_count = $countRate;
                 $doctor->working_days = $days;
                 if (isset($request->user_id) && $request->user_id != 0) {
                     $favouriteDoctor = $this->getDoctorFavourite($doctor->id, $request->user_id);
