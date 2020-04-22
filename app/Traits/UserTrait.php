@@ -299,7 +299,7 @@ trait UserTrait
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
                 }, 'provider' => function ($que) {
-                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar');
+                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar','latitude', 'longitude');
                 }, 'coupon' => function ($qu) {
                     $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price','price_after_discount');
                 }
@@ -323,7 +323,7 @@ trait UserTrait
                 $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
         }, 'provider' => function ($que) {
-            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude', 'longitude');
         }, 'coupon' => function ($qu) {
             $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price','price_after_discount');
         }
