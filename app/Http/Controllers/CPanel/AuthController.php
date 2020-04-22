@@ -21,7 +21,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-        $adminWebToken = $request->only('web_token');
+        $adminWebToken = $request->web_token;
 
         if ($token = $this->guard()->attempt($credentials)) {
 
@@ -54,6 +54,14 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
+            $adminWebToken = $request->only('web_token');
+
+            $admin = $this->guard()->user();
+            $webToken = AdminWebToken::where('token', $adminWebToken)->where('admin_id', $admin->id)->first();
+            if ($webToken) {
+                $webToken->delete();
+            }
+
             JWTAuth::invalidate(JWTAuth::getToken());
             return response()->json(['status' => true, 'message' => __('main.successfully_logged_out')], 200);
         } catch (JWTException $exception) {
