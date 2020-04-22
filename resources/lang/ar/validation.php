@@ -251,6 +251,8 @@ return [
 
         'commercial_ar'  => 'الاسم التجاري بالعربى',
         'commercial_en'  => 'الاسم التجاري بالإنجليزي',
+        'abbreviation_ar'  => 'نبذه بالعربى',
+        'abbreviation_en'  => 'نبذه بالإنجليزي',
         'district_id'  => 'الحى',
         'application_percentage'  => 'نسبة التطبيق علي الكشف',
         'image'  => 'الصورة',

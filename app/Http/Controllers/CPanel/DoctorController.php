@@ -132,6 +132,8 @@ class DoctorController extends Controller
                 "password" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
+                "abbreviation_ar" => "required|max:255",
+                "abbreviation_en" => "required|max:255",
                 "gender" => "required|in:1,2",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
                 "specification_id" => "required|numeric|exists:specifications,id",
@@ -177,6 +179,10 @@ class DoctorController extends Controller
                     "photo" => $fileName,
                     "information_en" => $request->information_en,
                     "information_ar" => $request->information_ar,
+
+                    "abbreviation_ar" => $request->abbreviation_ar,
+                    "abbreviation_en" => $request->abbreviation_en,
+
                     "specification_id" => $request->specification_id,
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                     "price" => $request->price,
@@ -303,6 +309,8 @@ class DoctorController extends Controller
                 "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
+                "abbreviation_ar" => "required|max:255",
+                "abbreviation_en" => "required|max:255",
                 "gender" => "required|in:1,2",
                 "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
                 "specification_id" => "required|numeric|exists:specifications,id",
@@ -382,6 +390,8 @@ class DoctorController extends Controller
                     "photo" => $path,
                     "information_en" => $request->information_en,
                     "information_ar" => $request->information_ar,
+                    "abbreviation_ar" => $request->abbreviation_ar,
+                    "abbreviation_en" => $request->abbreviation_en,
                     "specification_id" => $request->specification_id,
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : null,
                     "price" => $request->price,
@@ -588,7 +598,7 @@ class DoctorController extends Controller
         $credentials = $request->only('username', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
-           // $request
+            // $request
             return $this->respondWithToken($token);
         }
 
