@@ -299,7 +299,7 @@ trait UserTrait
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
                 }, 'provider' => function ($que) {
-                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar','latitude', 'longitude');
+                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar','providers.latitude', 'providers.longitude');
                 }, 'coupon' => function ($qu) {
                     $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price','price_after_discount');
                 }

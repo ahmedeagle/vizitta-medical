@@ -858,7 +858,7 @@ class UserController extends Controller
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'provider' => function ($qq) {
-                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude','longitude')
                     ->with(['provider' => function ($g) {
                         $g->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'))
                             ->with(['type' => function ($gu) {
