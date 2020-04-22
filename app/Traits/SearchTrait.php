@@ -23,7 +23,6 @@ trait SearchTrait
         $queryStr = $request->queryStr;
         $query = Provider::query();
 
-
         $provider = $query->whereDoesntHave('subscriptions')
             ->with(['type' => function ($q) {
                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -88,11 +87,18 @@ trait SearchTrait
               });*/
         }
 
-        // Insurance Companies
+        // filter by Insurance Companies
         if (isset($request->branch_has_insurance) && $request->branch_has_insurance != 0) {
             $provider = $provider->whereHas('doctors', function ($que) use ($request) {
                 $que->whereHas('manyInsuranceCompanies');
             });
+        }
+
+        // filter by offers
+        if (isset($request->branch_has_offers) && $request->branch_has_offers != 0) {
+            $provider = $provider->whereHas('offers', function ($que) {
+                $que -> valide()->where('status',1);
+             });
         }
 
         //  Name
