@@ -2177,7 +2177,7 @@ class ProviderController extends Controller
                         $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
                         $doctor->time = $availableTime;
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
-                       return  $countRate = Doctor::find($doctor->id)->reservations()
+                        $countRate = Doctor::find($doctor->id)->reservations()
                             ->Where('doctor_rate', '!=', null)
                             ->Where('doctor_rate', '!=', 0)
                             ->Where('provider_rate', '!=', null)
