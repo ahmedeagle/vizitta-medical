@@ -39,7 +39,7 @@ class ServiceController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "category_id" => "required|exists:specifications,id",
+                "category_id" => "required",
                 "branch_id" => "required|exists:providers,id",
             ]);
 
@@ -61,7 +61,11 @@ class ServiceController extends Controller
             }, 'types' => function ($q3) {
                 $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }
-            ])->where('branch_id', $branch_id)->where('specification_id', $category_id);
+            ])->where('branch_id', $branch_id);
+
+            if ($category_id != 0)
+                $services = $services->where('specification_id', $category_id);
+
 
             if (isset($request->queryStr)) {
                 $services = $services->where(function ($q4) use ($queryStr) {
