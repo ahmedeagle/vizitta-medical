@@ -162,14 +162,14 @@ class GlobalVisitsController extends Controller
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->provider_id), null, 'new_reservation'); //branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->provider_id)->provider, null, 'new_reservation');  //main provider
                     $notification = GeneralNotification::create([
-                        'title_ar' => 'حجز جديد لدي مقدم الخدمة ' . ' ' . $providerName,
-                        'title_en' => 'New reservation for ' . ' ' . $providerName,
-                        'content_ar' => 'هناك حجز جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                        'title_ar' => 'حجز خدمة جديد لدي مقدم الخدمة ' . ' ' . $providerName,
+                        'title_en' => 'New service reservation for ' . ' ' . $providerName,
+                        'content_ar' => 'هناك حجز خدمة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                         'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
                         'notificationable_type' => 'App\Models\Provider',
                         'notificationable_id' => $reservation->provider_id,
                         'data_id' => $reservation->id,
-                        'type' => 1 //new reservation
+                        'type' => 6 // new service reservation
                     ]);
                     $notify = [
                         'provider_name' => $providerName,
@@ -344,12 +344,12 @@ class GlobalVisitsController extends Controller
                 $notification = GeneralNotification::create([
                     'title_ar' => 'تقييم جديد لمقدم الخدمه  ' . ' ' . '(' . $MainProvider->name_ar . ')',
                     'title_en' => 'New rating for ' . ' ' . '(' . $MainProvider->name_ar . ')',
-                    'content_ar' => ' تقييم  جديد علي الحجز رقم ' . ' ' . $reservation->reservation_no,
-                    'content_en' => 'New rating for reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
+                    'content_ar' => ' تقييم  جديد علي الحجز بعرض رقم ' . ' ' . $reservation->reservation_no,
+                    'content_en' => 'New rating for offer reservation No: ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $MainProvider->name_ar . ' )',
                     'notificationable_type' => 'App\Models\Provider',
                     'notificationable_id' => $reservation->provider_id,
                     'data_id' => $reservation->id,
-                    'type' => 2 //user rate provider and doctor
+                    'type' => 5 //user rate provider and doctor
                 ]);
 
                 $notify = [
