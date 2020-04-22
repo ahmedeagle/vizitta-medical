@@ -208,8 +208,11 @@ class GlobalConsultingController extends Controller
                         'photo' => $reserve->provider->logo,
                         'notification_id' => $notification->id
                     ];
+
                     //fire pusher  notification for admin  stop pusher for now
                     try {
+                        ########### admin firebase push notifications ##############################
+                        (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(7);
                         event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
                     } catch (\Exception $ex) {
                     }
@@ -282,6 +285,23 @@ class GlobalConsultingController extends Controller
                     'data_id' => $reservation->id,
                     'type' => 8 //user rate consulting doctor
                 ]);
+
+//                $notify = [
+//                    'provider_name' => $providerName,
+//                    'reservation_no' => $reservation->reservation_no,
+//                    'reservation_id' => $reservation->id,
+//                    'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+//                    'photo' => $reservation->provider->logo,
+//                    'notification_id' => $notification->id
+//                ];
+//
+//                //fire pusher  notification for admin  stop pusher for now
+//                try {
+//                    ########### admin firebase push notifications ##############################
+//                    (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(6);
+//                    event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+//                } catch (\Exception $ex) {
+//                }
 
                 return $this->returnSuccessMessage(trans('messages.Rate saved successfully'));
             }

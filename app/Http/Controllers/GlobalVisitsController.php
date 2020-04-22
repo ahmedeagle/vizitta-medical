@@ -179,11 +179,15 @@ class GlobalVisitsController extends Controller
                         'photo' => $reserve->provider->logo,
                         'notification_id' => $notification->id
                     ];
+
                     //fire pusher  notification for admin  stop pusher for now
                     try {
+                        ########### admin firebase push notifications ##############################
+                        (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(6);
                         event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
                     } catch (\Exception $ex) {
                     }
+
                 } catch (\Exception $ex) {
                 }
 

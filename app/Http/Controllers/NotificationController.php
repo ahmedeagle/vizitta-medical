@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminWebToken;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Provider;

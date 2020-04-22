@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CPanel;
 
+use App\Models\AdminWebToken;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use JWTAuth;
@@ -20,9 +21,22 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $adminWebToken = $request->only('web_token');
 
         if ($token = $this->guard()->attempt($credentials)) {
-            return $this->respondWithToken($token);
+
+            if ($adminWebToken) {
+                $admin = $this->guard()->user();
+                $webToken = AdminWebToken::where('token', $adminWebToken)->where('admin_id', $admin->id)->first();
+                if (!$webToken) {
+                    AdminWebToken::create([
+                        'admin_id' => $admin->id,
+                        'token' => $adminWebToken,
+                    ]);
+                }
+            }
+
+            return $this->respondWithToken($token, $adminWebToken);
         }
         return response()->json(['status' => false, 'error' => __('main.invalid_email_or_password')], 200);
     }
@@ -55,11 +69,12 @@ class AuthController extends Controller
         return $this->respondWithToken($this->guard()->refresh());
     }
 
-    protected function respondWithToken($token)
+    protected function respondWithToken($token, $adminWebToken = '')
     {
         return response()->json([
             'status' => true,
             'access_token' => $token,
+            'admin_web_token' => $adminWebToken,
             'user' => $this->guard()->user(),
         ]);
     }
