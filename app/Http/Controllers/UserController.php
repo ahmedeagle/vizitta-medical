@@ -2070,4 +2070,39 @@ class UserController extends Controller
         })->with(['user'])->first();
     }
 
+
+    function test(){
+
+        return $this -> getRandomStringForInvitation(6);
+
+    }
+
+    function getRandomStringForInvitation($length = 6)
+    {
+        $charactersNum = '0123456789';
+        $charactersChar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        $string = '';
+        for ($i = 0; $i < 3; $i++) {
+            $string .= $charactersNum[mt_rand(0, strlen($charactersNum) - 1)];
+        }
+
+        for ($i = 0; $i < 3; $i++) {
+            $string .= $charactersChar[mt_rand(0, strlen($charactersChar) - 1)];
+
+        }
+
+
+        $randomCode = '';
+        for ($i = 0; $i < strlen($string); $i++) {
+            $randomCode .= $string[mt_rand(0, strlen($string) - 1)];
+        }
+
+        $chkCode = User::where('invitation_code', $randomCode)->first();
+
+        if ($chkCode) {
+            $this->getRandomStringForInvitation(6);
+        }
+        return $randomCode;
+    }
 }

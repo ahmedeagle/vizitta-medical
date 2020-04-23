@@ -8,9 +8,7 @@ Route::get('/optimize', function () {
     return '<h1>Composer dump-autoload</h1>';
 });
 
-Route::get('/test', function () {
-return     (new \App\Http\Controllers\NotificationController(['title' =>'test title', 'body' => 'test body']))->sendAdminWeb(1);
-});
+Route::get('/test','UserController@test');
 
 // Composer dump-autoload:
 Route::get('/composer-dump-autoload', function () {
