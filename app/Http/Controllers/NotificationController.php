@@ -124,7 +124,7 @@ class NotificationController extends Controller
             'body' => $this->body,
             "type" => $type
         ];
-        $tokenList = AdminWebToken::pluck('token')->toArray();
+      //  $tokenList = AdminWebToken::pluck('token')->toArray();
         $notificationData = new \stdClass();
         $notificationData->notification = $notification;
         // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];

@@ -819,11 +819,9 @@ class DoctorController extends Controller
             return $ex;
         }
 
-
         try {
             //fire pusher  notification for admin  stop pusher for now
             ####################### admin firebase push notifications ##############################
-            (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(1);
             event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
         } catch (\Exception $ex) {
         }
@@ -1080,6 +1078,7 @@ class DoctorController extends Controller
 
         $reserve = new \stdClass();
         $reserve->reservation_no = $reservation->reservation_no;
+        $reserve->id = $reservation->id;
         //  $reserve->payment_method  = ($request->payment_method_id == 1) ? trans('messages.cash') : trans('messages.card');
         $reserve->day_date = date('l', strtotime($request->day_date));
         $reserve->code = date('l', strtotime($request->day_date));
@@ -1148,6 +1147,7 @@ class DoctorController extends Controller
             //fire pusher  notification for admin  stop pusher for now
             try {
                 event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(1);
             } catch (\Exception $ex) {
             }
         } catch (\Exception $ex) {

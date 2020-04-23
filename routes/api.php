@@ -9,7 +9,7 @@ Route::get('/optimize', function () {
 });
 
 Route::get('/test', function () {
-    return \App\Models\Offer::find(8)->times->where('branch_id', 12);
+return     (new \App\Http\Controllers\NotificationController(['title' =>'test title', 'body' => 'test body']))->sendAdminWeb(1);
 });
 
 // Composer dump-autoload:
