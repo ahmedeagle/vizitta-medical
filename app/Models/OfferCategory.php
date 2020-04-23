@@ -85,4 +85,9 @@ class OfferCategory extends Model
         return $this->belongsTo(OfferCategory::class, 'parent_id');
     }
 
+    public function offers()
+    {
+        return $this->belongsToMany('App\Models\Offer', 'offers_categories_pivot', 'category_id', 'offer_id', 'id', 'id');
+    }
+
 }
