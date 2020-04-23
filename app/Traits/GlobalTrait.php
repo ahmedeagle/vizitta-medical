@@ -794,6 +794,7 @@ trait GlobalTrait
             })
             ->withTimer()
             ->whereNull('parent_id')
+           // ->where('timerexpired', 0)
             ->select('id',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), 'photo',
                 'hours',

@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\CommentReport;
 use App\Models\Doctor;
 use App\Models\Mix;
+use App\Models\OfferCategory;
 use App\Models\Provider;
 use App\Models\Reason;
 use App\Models\ReportingType;
@@ -254,6 +255,8 @@ class GlobalController extends Controller
                         $timerCategory->hours = 0;
                         $timerCategory->minutes = 0;
                         $timerCategory->seconds = 0;
+                        OfferCategory::where('id',$timerCategory -> id) -> update(['timerexpired' => 1]);
+                        unset($timerCategory);
                     } else {
                         //return $timerCategory->a1 = gmdate("H", $timerCategory->difInSeconds);
                         $timerCategory->difHours = $this->getDiffBetweenTwoDatee($timerCategory->created_at, 'H');
