@@ -1029,7 +1029,8 @@ trait GlobalTrait
             $string .= $charactersChar[mt_rand(0, strlen($charactersChar) - 1)];
         }
 
-        $randomCode = $string[mt_rand(0, strlen($string) - 1)];
+        $randomCode = '';
+        $randomCode .= $string[mt_rand(0, strlen($string) - 1)];
 
         $chkCode = User::where('invitation_code', $randomCode)->first();
 
