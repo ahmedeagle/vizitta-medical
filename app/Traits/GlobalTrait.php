@@ -1029,12 +1029,14 @@ trait GlobalTrait
             $string .= $charactersChar[mt_rand(0, strlen($charactersChar) - 1)];
         }
 
-        $chkCode = User::where('invitation_code', $string)->first();
+        $randomCode = $string[mt_rand(0, strlen($string) - 1)];
+
+        $chkCode = User::where('invitation_code', $randomCode)->first();
 
         if ($chkCode) {
             $this->getRandomStringForInvitation(6);
         }
-        return $string;
+        return $randomCode;
     }
 
 
