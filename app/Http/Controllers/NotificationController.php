@@ -14,7 +14,7 @@ class NotificationController extends Controller
     protected $body;
     protected const API_ACCESS_KEY_PROVIDER = 'AAAAaPb2xeE:APA91bETQPIQYimxzzR9zIs-NbVcrz-AKKT1iDFqoMtJJ-Kpy57OoUvqPzo99Fcxf8D7YfWCtMOUByPESe9m74uUAvPX6dV6EDUSHQQO7qakkk_ZfZdo_Q2Zge7Ilajl9TY5U_lNfjMy';
     protected const API_ACCESS_KEY_USER = 'AAAAc1Y3kCA:APA91bGJNpIGQQo2LeIbiGzcNZQyITAbyR9zHQXkFKGifEj9cLdvaOy3n8YV8_vLzMPRrY0kUJm2634OUjApRf7PTJ4aj8PHRfZKgyy_05-0JxI7S_5AQ6IMEB9QF_HfG2fybbehpxQL';
-    protected const API_ACCESS_KEY_ADMIN = 'AAAAc1Y3kCA:APA91bGJNpIGQQo2LeIbiGzcNZQyITAbyR9zHQXkFKGifEj9cLdvaOy3n8YV8_vLzMPRrY0kUJm2634OUjApRf7PTJ4aj8PHRfZKgyy_05-0JxI7S_5AQ6IMEB9QF_HfG2fybbehpxQL';
+    protected const API_ACCESS_KEY_ADMIN = 'AAAAKfLog3w:APA91bHJ2uye0C8T3v3ilKMZ0zU1siqJiWfA-mNWeRM6Gn5czwwUx65MSdGAxzyLZP0CmxVnYm1c24AhV9XX5WFvuUUcDjO8WqfUCi_32NoDGckurR4gnvLaZTMMAhZ2Yaps2hNFtqcD';
     private const fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     //

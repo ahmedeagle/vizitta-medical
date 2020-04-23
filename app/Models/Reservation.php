@@ -11,7 +11,7 @@ class Reservation extends Model
 
     protected $table = 'reservations';
     public $timestamps = true;
-    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason','offer_rate', 'address'];
+    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'offer_rate', 'address'];
     protected $forcedNullNumbers = [];
 
     protected $fillable = ['reservation_no', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
@@ -126,7 +126,7 @@ class Reservation extends Model
     public function doctorInfo()
     {
 
-        return $this->belongsTo('App\Models\doctor', 'doctor_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'price', 'photo', 'rate','specification_id');
+        return $this->belongsTo('App\Models\doctor', 'doctor_id')->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'price', 'photo', 'rate', 'specification_id');
     }
 
     public function branchId()
@@ -270,6 +270,7 @@ class Reservation extends Model
     {
         return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'doctor_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total', 'discount_type', 'rejection_reason');
     }
+
     public function scopeOfferSelection($query)
     {
         return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'offer_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total');
@@ -283,7 +284,9 @@ class Reservation extends Model
 
     public function scopeFinished($query)
     {
-        return $query->/*where('day_date', '<', Carbon::now()->format('Y-m-d'))->*/ orwhere('approved', 2)->orwhere('approved', 3);
+        return $query->/*where('day_date', '<', Carbon::now()->format('Y-m-d'))->*/ where(function ($q) {
+            $q->where('approved', 2)->orwhere('approved', 3);
+        });
     }
 
     public function getPriceAttribute($value)
@@ -298,7 +301,7 @@ class Reservation extends Model
     {
         $branch_id = $this->provider_id;
         $main_id = Provider::where('id', $branch_id)->value('provider_id');
-        $main_name = Provider::where('id', $main_id)->value('name_'.app()->getLocale());
+        $main_name = Provider::where('id', $main_id)->value('name_' . app()->getLocale());
         return $main_name;
     }
 
