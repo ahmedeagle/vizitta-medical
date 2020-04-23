@@ -1009,14 +1009,22 @@ trait GlobalTrait
         return $string;
     }
 
-    function getRandomStringForInvitation($length)
+    function getRandomStringForInvitation($length = 6)
     {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersNum = '0123456789';
+        $charactersChar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
         $string = '';
-        for ($i = 0; $i < $length; $i++) {
-            $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+        for ($i = 0; $i < 3; $i++) {
+            $string .= $charactersNum[mt_rand(0, strlen($charactersNum) - 1)];
         }
+
+        for ($i = 0; $i < 3; $i++) {
+            $string .= $charactersChar[mt_rand(0, strlen($charactersChar) - 1)];
+        }
+
         $chkCode = User::where('invitation_code', $string)->first();
+
         if ($chkCode) {
             $this->getRandomStringForInvitation(6);
         }
