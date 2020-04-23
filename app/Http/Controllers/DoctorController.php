@@ -751,6 +751,7 @@ class DoctorController extends Controller
 
         $reserve = new \stdClass();
         $reserve->reservation_no = $reservation->reservation_no;
+        $reserve->id = $reservation->id;
         //  $reserve->payment_method  = ($request->payment_method_id == 1) ? trans('messages.cash') : trans('messages.card');
         $reserve->day_date = date('l', strtotime($request->day_date));
         $reserve->code = date('l', strtotime($request->day_date));
