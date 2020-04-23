@@ -814,15 +814,10 @@ class DoctorController extends Controller
                 'notification_id' => $notification->id
             ];
 
+            event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+            (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(1);
         } catch (\Exception $ex) {
             return $ex;
-        }
-
-        try {
-            //fire pusher  notification for admin  stop pusher for now
-            ####################### admin firebase push notifications ##############################
-            event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
-        } catch (\Exception $ex) {
         }
 
         return $this->returnData('reservation', $reserve);
