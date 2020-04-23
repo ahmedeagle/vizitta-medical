@@ -129,8 +129,8 @@ class NotificationController extends Controller
         $notificationData->notification = $notification;
         // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];
         $fcmNotification = [
-            'registration_ids' => $tokenList,
-            //'to' => $notify->web_token,//'/topics/alldevices',// $User->device_token, //single token
+            //'registration_ids' => $tokenList,
+            'to' => 'fqivYF6u2j2PXLlzyJSYYR:APA91bHkxvW-nq7AElRGrtvH5dR1DhggHu3YECXPzhvKMWZJ4eG0Br1ArxMgarpY5s2xS_HWF5DHobqkHZ7OcS33RGZHDS8yHUH4A963QFhj-qTd6OXMtFWFJapyRMJAl7_aebcwh288',//'/topics/alldevices',// $User->device_token, //single token
             'data' => $notificationData
         ];
         return $this->sendFCM($fcmNotification, 'admin');
