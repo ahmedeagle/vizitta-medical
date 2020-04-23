@@ -789,6 +789,9 @@ trait GlobalTrait
     {
         $category = OfferCategory::query();
         return $category
+            ->whereHas('childCategories', function ($q) {
+                $q->has('offers');
+            })
             ->withTimer()
             ->whereNull('parent_id')
             ->select('id',
