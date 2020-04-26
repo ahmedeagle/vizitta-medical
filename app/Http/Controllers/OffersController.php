@@ -1166,6 +1166,7 @@ class OffersController extends Controller
     }
 
 
+    //old
     public
     function banners(Request $request)
     {
