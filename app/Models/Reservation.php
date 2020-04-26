@@ -285,7 +285,9 @@ class Reservation extends Model
     public function scopeFinished($query)
     {
         return $query->/*where('day_date', '<', Carbon::now()->format('Y-m-d'))->*/ where(function ($q) {
-            $q->where('approved', 2)->orwhere('approved', 3);
+            $q->where(function ($q) {
+                $q->where('approved', 2)->orwhere('approved', 5)->orwhere('approved', 3);
+            });
         });
     }
 

@@ -2,7 +2,6 @@
 
 use App\Models\Provider;
 
-
 Route::get('/optimize', function () {
     exec('optimize:clear');
     return '<h1>Composer dump-autoload</h1>';

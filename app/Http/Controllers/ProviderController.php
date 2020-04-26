@@ -1216,7 +1216,7 @@ class ProviderController extends Controller
                         __('messages.branch') . ' ( ' . " {$reservation->branch->$name} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
                 }
 
-                $this->sendSMS($reservation->user->mobile, $message);
+               // $this->sendSMS($reservation->user->mobile, $message);
 
             } catch (\Exception $ex) {
 
@@ -1519,7 +1519,7 @@ class ProviderController extends Controller
             //send mobile sms
 //            $message = $bodyUser;
 
-            $this->sendSMS($reservation->user->mobile, $message);
+           // $this->sendSMS($reservation->user->mobile, $message);
 
         } catch (\Exception $ex) {
 
@@ -1592,7 +1592,7 @@ class ProviderController extends Controller
                     $message = __('messages.reject_reservations') . ' ( ' . "{$provider->$name} - {$reservation->branch->$name}" . ' ) ' .
                         __('messages.because') . '( ' . $reserv->rejectionResoan->rejection_reason . ' ) ' . __('messages.can_re_book');
                 }
-                $this->sendSMS($reservation->user->mobile, $message);
+           //     $this->sendSMS($reservation->user->mobile, $message);
 
             } catch (\Exception $ex) {
 
