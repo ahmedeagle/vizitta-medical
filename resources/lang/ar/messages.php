@@ -294,8 +294,8 @@ return [
     'Category Not Found' => 'القسم المختار غير موجود لدينا',
     'Offer Not Found' => 'العرض غير موجود',
     'Banner added successfully' => 'تم اضافة البانر بنجاح',
-    'subcategory not found' => 'القسم الفرعي للعرض غير موجود ',
-    'subcategory required' => 'القسم الفرعي للعرض مطلوب',
+    'subcategory not found' => 'القسم الفرعي غير موجود ',
+    'subcategory required' => 'القسم الفرعي مطلوب',
     'offer required' => 'العرض مطلوب',
     'offer not found' => 'العرض غير موجود لدينا',
     'No offer with this id' => 'لا يوجد عرض يهذا الرقم ',
@@ -314,5 +314,6 @@ return [
     'please enter rejection reason'  => 'من فضلك ادخل سبب الرفض اولا ',
     'reservation status changed successfully'  => 'تم تغيير حاله الحجز بنجاح',
     'Cannot delete approved reservation'  => 'لا يمكنك حذف حجز موافق عليه او ملغى',
+    'provider id required' => 'الفرع غير موجود'
 
 ];

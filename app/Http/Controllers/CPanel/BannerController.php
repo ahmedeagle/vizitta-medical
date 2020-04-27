@@ -7,11 +7,14 @@ use App\Models\Offer;
 use App\Models\OfferCategory;
 use App\Models\PromoCode;
 use App\Models\PromoCodeCategory;
+use App\Models\Provider;
+use App\Models\Specification;
 use App\Traits\CPanel\BannerTrait;
 use App\Traits\CPanel\OfferTrait;
 use App\Traits\GlobalTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Validator;
 use Flashy;
 
@@ -40,6 +43,29 @@ class BannerController extends Controller
                         $direct_type = 'عروض';
                         $offer = Offer::find($banner->type_id);
                         $direct_to = @$offer->{'title_' . app()->getLocale()};
+                    } elseif ($banner->type == 'App\Models\Provider') {
+                        $type = 'provider';
+                        $direct_type ="الأفرع";
+                        if ($banner->subCategory_id == 1)// 1 -> doctors  2-> services
+                        {
+                            $direct = 'الاطباء';
+                        } else {
+                            $direct = 'الخدمات';
+                        }
+                        $direct_to = $direct;
+                    } elseif ($banner->type == 'App\Models\center') {
+                        $type = 'provider';
+                        $direct_type = 'صفحة اضافه مركز طبي';
+                        $direct_to = $direct_type;
+                    } elseif ($banner->type == 'App\Models\Doctor') {
+                        $type = 'consulting';
+                        $direct_type = 'الاستشارات الطبيبة';
+                        if($banner -> subCategory_id == null or $banner -> subCategory_id == 0 )
+                        $direct_to = 'أقسام الاستشارات';
+                        else{
+                            $specification = Specification::where('id',$banner -> subCategory_id) -> first();
+                            $direct_to =  $specification -> name_ar;
+                        }
                     } else {
                         $type = 'none';
                         $direct_type = 'لا شي';
@@ -87,7 +113,7 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "type" => "required|in:offer,category,none",
+            "type" => "required|in:offer,category,center,branch,consulting,none",
             "photo" => "required"
 
         ]);
@@ -97,10 +123,45 @@ class BannerController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        if ($request->type == 'category') {
+        if ($request->type == 'branch') {
+            if ((empty($request->branch_id) or !is_numeric($request->branch_id)) && ($request->branch_id != 0)) {
+                return $this->returnError('D000', __('messages.provider id required'));
+            }
+            //check if  branch is exists or not
+            $branch = Provider::whereNotNull('provider_id')->where('id', $request->branch_id)->first();
+            if (!$branch) {
+                return $this->returnError('D000', __('messages.branch not found'));
+            }
+            // required   subcategory_id    1 -> doctors 2 -> services
+            if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
+                return $this->returnError('D000', __('messages.subcategory required'));
+            }
+            if ($request->subcategory_id != 1 && $request->subcategory_id != 2) {
+                return $this->returnError('D000', __('messages.subcategory_id required and must be 1 for doctors 2 for services'));
+            }
+        }
+        if ($request->type == 'center') {
+            //nothing
+        }
+        if ($request->type == 'consulting') {
+            // required only if category_id  not equal 0  //i.e not all categories then we need subcategory of this category
+            if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
+                return $this->returnError('D000', __('messages.subcategory required'));
+            }
+            //check if subcategory exists
+            if ($request->has('subcategory_id')) {
+                $specification = Specification::where('id', $request->subcategory_id)->first();
 
+                if (!$specification && $request->subcategory_id !=0 ) {
+                    return $this->returnError('D000', __('messages.subcategory not found'));
+                }
+            }
+
+
+        }
+        if ($request->type == 'category') {
             // 0 -> means all category of offers    otherwise mean offer category id
-            if ((empty($request->category_id) or !is_numeric($request->category_id) ) && ($request->category_id != 0)) {
+            if ((empty($request->category_id) or !is_numeric($request->category_id)) && ($request->category_id != 0)) {
                 return $this->returnError('D000', __('messages.category required'));
             }
 
@@ -127,7 +188,6 @@ class BannerController extends Controller
             }
 
         }
-
         if ($request->type == 'offer') {
             if (empty($request->offer_id) or !is_numeric($request->offer_id)) {
                 return $this->returnError('D000', __('messages.offer required'));
@@ -148,6 +208,15 @@ class BannerController extends Controller
         } elseif ($request->type == 'offer') {
             $id = $request->offer_id;
             $bannerable_type = 'App\Models\Offer';
+        } elseif ($request->type == 'branch') {
+            $id = $request->branch_id;
+            $bannerable_type = 'App\Models\Provider';
+        } elseif ($request->type == 'center') {
+            $id = 0;
+            $bannerable_type = 'App\Models\MedicalCenter';
+        } elseif ($request->type == 'consulting') {
+            $id = 0;
+            $bannerable_type = 'App\Models\Doctor';
         } else {
             $id = null;
             $bannerable_type = 'none';
@@ -163,7 +232,8 @@ class BannerController extends Controller
         return $this->returnSuccessMessage(trans('messages.Banner added successfully'));
     }
 
-    public function destroy(Request $request)
+    public
+    function destroy(Request $request)
     {
         try {
             $banner = Banner::find($request->banner_id);
@@ -177,7 +247,8 @@ class BannerController extends Controller
         }
     }
 
-    public function getOfferSubCategoriesByCatId(Request $request)
+    public
+    function getOfferSubCategoriesByCatId(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [

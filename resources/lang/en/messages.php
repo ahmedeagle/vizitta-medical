@@ -289,5 +289,5 @@ return [
     'reservation deleted successfully' => 'reservation deleted successfully',
     'reservation status changed successfully'  =>'reservation status changed successfully',
     'Cannot delete approved reservation'  => 'Cannot delete approved or canceled reservation',
-
+    'provider id required' => 'branch id required'
 ];
