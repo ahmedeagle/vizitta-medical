@@ -1196,7 +1196,7 @@ class OffersController extends Controller
     function bannersV2(Request $request)
     {
         try {
-            $banners = $this->getBannersV2();
+            $banners = $this->getBannersV2List();
             if (count($banners->toArray()) > 0) {
                 $banners->each(function ($banner) {
                     if ($banner->type == 'App\Models\OfferCategory') {
@@ -1260,7 +1260,7 @@ class OffersController extends Controller
                     return $banner;
                 });
 
-                $total_count = $banners->total();
+              /*  $total_count = $banners->total();
 
                 $banners = json_decode($banners->toJson());
                 $bannersJson = new \stdClass();
@@ -1268,9 +1268,9 @@ class OffersController extends Controller
                 $bannersJson->total_pages = $banners->last_page;
                 $bannersJson->total_count = $total_count;
                 $bannersJson->per_page = PAGINATION_COUNT;
-                $bannersJson->data = $banners->data;
+                $bannersJson->data = $banners->data;*/
             }
-            return $this->returnData('banners', $bannersJson);
+            return $this->returnData('banners', $banners);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
