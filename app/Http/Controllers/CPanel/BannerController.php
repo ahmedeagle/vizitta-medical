@@ -22,6 +22,7 @@ class BannerController extends Controller
 {
     use  GlobalTrait, OfferTrait, BannerTrait;
 
+    ################### manual upload ##############
     public function index()
     {
         try {
@@ -96,6 +97,25 @@ class BannerController extends Controller
         }
     }
 
+    public function edit(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "banner_id" => "required|exists:banners,id",
+            ]);
+
+
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+    ############### end manual upload ##############
     public function create()
     {
         try {

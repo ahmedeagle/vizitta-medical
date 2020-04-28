@@ -1191,7 +1191,7 @@ class OffersController extends Controller
         }
     }
 
-
+    ################### Begin manual upload ##################
     public
     function bannersV2(Request $request)
     {
@@ -1199,15 +1199,85 @@ class OffersController extends Controller
             $banners = $this->getBannersV2();
             if (count($banners->toArray()) > 0) {
                 $banners->each(function ($banner) {
-                    $banner->type = $banner->type === 'App\Models\OfferCategory' ? 'category' : 'offer';
+                    if ($banner->type == 'App\Models\OfferCategory') {
+                        $type = 'category';
+                        if ($banner->type_id == 0) {
+                            $direct_type = 'أقسام';
+                            $direct_to = 'كل الاقسام';
+                            $direct_id = 0; //means all  offers categories
+                        } else {
+                            $category = OfferCategory::whereNull('parent_id')->where('id', $banner->type_id)->first();
+                            $direct_type = 'أقسام';
+                            $direct_to = @$category->{'name_' . app()->getLocale()};
+                            $direct_id = $category->id ? $category->id : 0; //specific  offer category _id
+                        }
+                    } elseif ($banner->type == 'App\Models\Offer') {
+                        $type = 'offer';
+                        $direct_type = 'عروض';
+                        $offer = Offer::find($banner->type_id);
+                        $direct_to = @$offer->{'title_' . app()->getLocale()};
+                        $direct_id = $offer->id ? $offer->id : 0;
+
+                    } elseif ($banner->type == 'App\Models\Provider') {
+                        $type = 'provider';
+                        $direct_type = "الأفرع";
+                        if ($banner->subCategory_id == 1)// 1 -> doctors  2-> services
+                        {
+                            $direct = 'الاطباء';
+                        } else {
+                            $direct = 'الخدمات';
+                        }
+                        $direct_to = $direct;
+                        $direct_id = 0;
+
+                    } elseif ($banner->type == 'App\Models\center') {
+                        $type = 'center';
+                        $direct_type = 'صفحة اضافه مركز طبي';
+                        $direct_to = $direct_type;
+                    } elseif ($banner->type == 'App\Models\Doctor') {
+                        $type = 'consulting';
+                        $direct_type = 'الاستشارات الطبيبة';
+                        if ($banner->subCategory_id == null or $banner->subCategory_id == 0) {
+                            $direct_to = 'أقسام الاستشارات';
+                            $direct_id = 0;
+                        } else {
+                            $specification = Specification::where('id', $banner->subCategory_id)->first();
+                            $direct_to = $specification->name_ar;
+                            $direct_id = $specification->id ? $specification->id : 0;
+                        }
+                    } else {
+                        $type = 'none';
+                        $direct_type = 'لا شي';
+                        $direct_to = 'لا شي';
+                        $direct_id = 0;
+                    }
+                    $banner->type = $type;
+                    $banner->direct_type = $direct_type;
+                    $banner->direct_to = $direct_to;
+                    $banner->direct_id = $direct_id;
+                    unset($banner->type_id);
+                    unset($banner->subCategory_id);
                     return $banner;
                 });
+
+                $total_count = $banners->total();
+
+                $banners = json_decode($banners->toJson());
+                $bannersJson = new \stdClass();
+                $bannersJson->current_page = $banners->current_page;
+                $bannersJson->total_pages = $banners->last_page;
+                $bannersJson->total_count = $total_count;
+                $bannersJson->per_page = PAGINATION_COUNT;
+                $bannersJson->data = $banners->data;
             }
-            return $this->returnData('banners', $banners);
+            return $this->returnData('banners', $bannersJson);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    ################### End manual upload ##################
+
 
     public function showV2(Request $request, $allow_code = false, $proCode = 0)
     {
