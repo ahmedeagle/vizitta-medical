@@ -54,7 +54,7 @@ class BannerController extends Controller
                             $direct = 'الخدمات';
                         }
                         $direct_to = $direct;
-                    } elseif ($banner->type == 'App\Models\center') {
+                    } elseif ($banner->type == 'App\Models\MedicalCenter') {
                         $type = 'provider';
                         $direct_type = 'صفحة اضافه مركز طبي';
                         $direct_to = $direct_type;

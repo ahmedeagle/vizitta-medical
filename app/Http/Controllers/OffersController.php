@@ -1199,6 +1199,8 @@ class OffersController extends Controller
             $banners = $this->getBannersV2List();
             if (count($banners->toArray()) > 0) {
                 $banners->each(function ($banner) {
+                    $sub_direct_id =0;
+                    $direct_id = 0;
                     if ($banner->type == 'App\Models\OfferCategory') {
                         $type = 'category';
                         if ($banner->type_id == 0) {
@@ -1210,6 +1212,7 @@ class OffersController extends Controller
                             $direct_type = 'أقسام';
                             $direct_to = @$category->{'name_' . app()->getLocale()};
                             $direct_id = $category->id ? $category->id : 0; //specific  offer category _id
+                            $sub_direct_id = $banner -> subCategory_id ? $banner -> subCategory_id : 0;
                         }
                     } elseif ($banner->type == 'App\Models\Offer') {
                         $type = 'offer';
@@ -1228,9 +1231,9 @@ class OffersController extends Controller
                             $direct = 'الخدمات';
                         }
                         $direct_to = $direct;
-                        $direct_id = 0;
+                        $direct_id = $banner -> type_id ;
 
-                    } elseif ($banner->type == 'App\Models\center') {
+                    } elseif ($banner->type == 'App\Models\MedicalCenter') {
                         $type = 'center';
                         $direct_type = 'صفحة اضافه مركز طبي';
                         $direct_to = $direct_type;
@@ -1255,6 +1258,7 @@ class OffersController extends Controller
                     $banner->direct_type = $direct_type;
                     $banner->direct_to = $direct_to;
                     $banner->direct_id = $direct_id;
+                    $banner->sub_direct_id = $sub_direct_id;
                     unset($banner->type_id);
                     unset($banner->subCategory_id);
                     return $banner;
@@ -1272,7 +1276,8 @@ class OffersController extends Controller
             }
             return $this->returnData('banners', $banners);
         } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
+            return $ex;
+           // return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
