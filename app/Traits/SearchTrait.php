@@ -302,6 +302,84 @@ trait SearchTrait
           return $result;*/
     }
 
+    public function searchResultByProviderId($userId = null, Request $request = null, $provider_id)
+    {
+
+
+        $queryStr = $request->queryStr;
+        $query = Provider::query();
+
+        $provider = $query->where('id', $provider_id)
+            ->whereDoesntHave('subscriptions')
+            ->with(['type' => function ($q) {
+                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'favourites' => function ($qu) use ($userId) {
+                $qu->where('user_id', $userId)->select('provider_id');
+            }, 'city' => function ($q) {
+                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'district' => function ($q) {
+                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+            }])
+            ->where('providers.status', true)
+            ->whereNotNull('providers.provider_id');
+
+        $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
+            $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
+        });
+
+        if (isset($request->longitude) && !empty($request->longitude) && isset($request->latitude) && !empty($request->latitude)) {
+            $provider = $provider->select('id',
+                'rate',
+                'logo',
+                'longitude',
+                'latitude',
+                'email',
+                'street',
+                'address',
+                'mobile',
+                'commercial_no',
+                'branch_no',
+                'type_id',
+                'city_id', 'district_id', 'provider_id',
+                DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
+                //  DB::raw("'0' as doctor"),
+                DB::raw("'0' as price"),
+                DB::raw("0 as specification_id"),
+                'has_home_visit'
+
+            );
+
+        } else {
+            $provider = $provider
+                ->select('id',
+                    'rate',
+                    'logo',
+                    'longitude',
+                    'latitude',
+                    'email',
+                    'street',
+                    'address',
+                    'mobile',
+                    'commercial_no',
+                    'branch_no',
+                    'type_id',
+                    'city_id',
+                    'district_id',
+                    'provider_id',
+                    DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                    DB::raw("'0' as distance"),
+                    //  DB::raw("'0' as doctor"),
+                    DB::raw("'0' as price"),
+                    DB::raw("0 as specification_id"),
+                    'has_home_visit'
+                );
+        }
+
+        $result = $provider->first();
+        return $result;
+    }
+
 
     public
     function searchDateSortedResult($userId = null, Request $request = null)

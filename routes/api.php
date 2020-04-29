@@ -72,6 +72,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('medical/profile', 'MedicalProfileController@show')->name('user.medical.profile');
         Route::post('medical/profile/update', 'MedicalProfileController@store')->name('update.medical.profile');
         Route::post('search', 'GlobalController@search')->name('search');
+        Route::post('provider-details', 'GlobalController@getAllProviderDetails') ;
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
         Route::group(['prefix' => 'pay'], function () {

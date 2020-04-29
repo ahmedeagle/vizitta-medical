@@ -255,7 +255,7 @@ class GlobalController extends Controller
                         $timerCategory->hours = 0;
                         $timerCategory->minutes = 0;
                         $timerCategory->seconds = 0;
-                        OfferCategory::where('id',$timerCategory -> id) -> update(['timerexpired' => 1]);
+                        OfferCategory::where('id', $timerCategory->id)->update(['timerexpired' => 1]);
                         unset($timerCategory);
                     } else {
                         //return $timerCategory->a1 = gmdate("H", $timerCategory->difInSeconds);
@@ -531,6 +531,39 @@ class GlobalController extends Controller
 
         return $this->returnError('E001', trans('messages.No data founded'));
 
+    }
+
+    public
+    function getAllProviderDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:providers,id"
+        ]);
+
+        $user = null;
+        //  if ($this->checkToken($request))
+        $user = $this->auth('user-api');
+
+        $provider = $this->searchResultByProviderId($user ? $user->id : null, $request, $request->id);
+        if ($provider) {
+            $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
+            $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
+            //check if branch has doctors
+            $provider->has_doctors = $provider->doctors()->count() > 0 ? 1 : 0;
+            $provider->has_home_services = $provider->homeServices()->count() > 0 ? 1 : 0;
+            $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
+            unset($provider->favourites);
+        } else {
+            return $this->returnError('E001', trans('messages.No data founded'));
+        }
+         //add main provider data to branch object
+        $_provider = Provider::where('id', $provider->provider_id)
+            ->select('id', 'name_' . app()->getLocale() . ' as name', 'logo')
+            ->first();
+        //set main provider  to branches results
+        $provider->provider = $_provider;
+
+        return $this->returnData('provider', $provider);
     }
 
     protected
