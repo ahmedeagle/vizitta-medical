@@ -243,9 +243,9 @@ class BannerController extends Controller
 
         Banner::create([
             'photo' => $fileName,
-            'bannerable_type' => $bannerable_type,
-            'bannerable_id' => $id,
-            'subCategory_id' => isset($request->subcategory_id) ? $request->subcategory_id : 0
+            'bannerable_type' =>(int)$bannerable_type,
+            'bannerable_id' => (int)$id,
+            'subCategory_id' => isset($request->subcategory_id) ? (int)$request->subcategory_id : 0
         ]);
 
         return $this->returnSuccessMessage(trans('messages.Banner added successfully'));
