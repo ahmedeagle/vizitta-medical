@@ -1257,8 +1257,8 @@ class OffersController extends Controller
                     $banner->type = $type;
                     $banner->direct_type = $direct_type;
                     $banner->direct_to = $direct_to;
-                    $banner->direct_id = $direct_id;
-                    $banner->sub_direct_id = $sub_direct_id;
+                    $banner->direct_id = (int)$direct_id;
+                    $banner->sub_direct_id = (int)$sub_direct_id;
                     unset($banner->type_id);
                     unset($banner->subCategory_id);
                     return $banner;
