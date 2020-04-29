@@ -1080,4 +1080,10 @@ trait GlobalTrait
         }
     }
 
+    public function getAuthDoctor()
+    {
+        // get auth doctor in doctor area
+        return auth('doctor-api')->userOrFail();
+    }
+
 }

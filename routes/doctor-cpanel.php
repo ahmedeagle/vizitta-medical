@@ -14,9 +14,10 @@ Route::group(['middleware' => ['CheckDoctorToken:doctor-api']], function () {
         Route::post('/logout', 'DoctorController@logout');
         Route::post('/refresh', 'DoctorController@refresh');
 
+        Route::group(["namespace" => "DoctorArea"], function () {
+            Route::post('/reservations/index', 'DoctorReservationsController@index');
 
-
-
+        });
     });
 
 });
