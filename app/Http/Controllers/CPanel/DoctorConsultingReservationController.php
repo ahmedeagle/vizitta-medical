@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\DoctorConsultingReservationDetailsResource;
 use App\Models\DoctorConsultingReservation;
+use App\Models\Specification;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
 use Carbon\Carbon;
@@ -116,6 +117,20 @@ class DoctorConsultingReservationController extends Controller
             return response()->json(['status' => true, 'data' => $result]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
+
+    public function getConsultingCategories(Request $request)
+    {
+        try {
+            $result = Specification::whereHas('doctors', function ($q) {
+                $q->where('doctor_type', 'consultative')->orWhere(function ($query) {
+                    $query->where('doctor_type', 'clinic')->where('is_consult', 1);
+                });
+            })->get(['id', DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+            return $this->returnData('specifications', $result);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 

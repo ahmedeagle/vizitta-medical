@@ -353,6 +353,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Services Reservations Routes ##############
 
+        Route::post('/get-consulting-categories', 'DoctorConsultingReservationController@getConsultingCategories');
+
         ############### Start Doctor Consulting Reservations Routes ##############
         Route::prefix('doctor-consulting/reservations/')->group(function () {
             Route::post('/index', "DoctorConsultingReservationController@index");
