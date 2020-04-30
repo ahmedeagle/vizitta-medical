@@ -677,14 +677,47 @@ trait ProviderTrait
 
     public function NewReservationsByType($providers, $type)
     {
-        if ($type == 'services') {
-            return $this->getServicesNewReservations($providers);
+        if ($type == 'home_services') {
+            return $this->getHomeServicesNewReservations($providers);
+        } elseif ($type == 'clinic_services') {
+            return $this->getClinicServicesNewReservations($providers);
         }
+
     }
 
-    protected function getServicesNewReservations($providers)
+    protected function getHomeServicesNewReservations($providers)
     {
-       return  $reservations = ServiceReservation::with(['service' => function ($g) {
+        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
+            $e->where('type_id', 1);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', 0)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    protected function getClinicServicesNewReservations($providers)
+    {
+        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
+            $e->where('type_id', 2);
+        })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
