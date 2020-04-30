@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AcceptReservationMail;
 use App\Mail\NewReservationMail;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
@@ -203,6 +204,99 @@ class ServiceController extends Controller
             $this->getRandomString(8);
         }
         return $string;
+    }
+
+
+    public
+    function ChangeReservationStatus(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_id" => "required|exists:service_reservations,id",
+                "status" => "required|in:1,2" //1->approved 2->cancelled
+            ]);
+
+            if ($request->status == 2) {
+                $validator->addRules([
+                    'rejected_reason_id' => 'required|string',
+                    'rejected_reason_notes' => 'sometimes|nullable|string',
+                ]);
+            }
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            $provider = $this->auth('provider-api');
+            $reservation = $this->getReservationByNo($request->reservation_no, $provider->id);
+            if ($reservation == null)
+                return $this->returnError('D000', trans('messages.No reservation with this number'));
+
+            if ($reservation->approved == 1 && $request->status == 1)
+                return $this->returnError('E001', trans('messages.Reservation already approved'));
+
+            if ($reservation->approved == 2 && $request->status == 2)
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+
+            if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
+            ) {
+
+                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+            }
+
+            //  $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
+
+            /* if ($ReservationsNeedToClosed > 0) {
+                 return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
+             }*/
+
+            $reservation->update([
+                'approved' => $request->status  //approve reservation
+            ]);
+            DB::commit();
+
+            try {
+                $name = 'name_' . app()->getLocale();
+
+                if ($request->status == 1) {  //approve
+                    $bodyProvider = __('messages.approved user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.approved your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                } elseif ($request->status == 2) {  //cancelled
+                    $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                } else {
+                    $bodyProvider = '';
+                    $bodyUser = '';
+                }
+
+                //send push notification
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
+
+                //send mobile sms
+                /*$message = $bodyUser;
+
+                if ($provider->provider_id != null) {
+                    $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
+                        __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
+                } else {
+                    $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->$name}" . ' ) ' .
+                        __('messages.branch') . ' ( ' . " {$reservation->branch->$name} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
+                }*/
+
+                // $this->sendSMS($reservation->user->mobile, $message);
+
+            } catch (\Exception $ex) {
+
+            }
+            return $this->returnSuccessMessage(trans('messages.Reservation approved successfully'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
 

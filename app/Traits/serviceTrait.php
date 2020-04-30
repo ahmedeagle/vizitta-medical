@@ -5,9 +5,11 @@ namespace App\Traits;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
 use App\Models\Payment;
+use App\Models\Provider;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
 use App\Models\Service;
+use App\Models\ServiceReservation;
 use App\Models\User;
 use Carbon\Carbon;
 use DB;
@@ -335,6 +337,28 @@ trait ServiceTrait
     {
         // effect by date
         return ReservedTime::where('doctor_id', $doctor_id)->whereDate('day_date', $day_date)->first();
+    }
+
+
+    public function getReservationByNo($id, $provider_id)
+    {
+
+        $provider = Provider::where('id', $provider_id)->first();
+        if ($provider->provider_id == null) { // main provider
+            $branchesIds = $provider->providers()->pluck('id')->toArray();  // branches ids
+        } else {  //branch
+            $branchesIds = [$provider->id];
+        }
+        return ServiceReservation::where(function ($q) use ($id, $provider_id, $branchesIds) {
+            $q->where('id', $id)->where(function ($qq) use ($provider_id, $branchesIds) {
+                $qq->where('branch_id', $provider_id)->orWhere(function ($qqq) use ($branchesIds) {
+                    $qqq->whereIN('branch_id', $branchesIds);
+                });
+            });
+        })->with(['user', 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }])->first();
+
     }
 
 }

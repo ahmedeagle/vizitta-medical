@@ -82,7 +82,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
             Route::post('rates', 'ServiceController@getServiceRates');
-        });
+         });
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
             Route::post('info', 'ConsultingController@getConsultingIfo');
@@ -260,6 +260,14 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             // Route::post('info', function(){
             //   return auth('provider-api')->user();
             //});
+
+             ################# provider web apis ##############
+            Route::group(['prefix' => 'services'],function (){
+                Route::post('change-status', 'ServiceController@ChangeReservationStatus')->name('provider.accept.reservation');
+            });
+
+              //api to get all reservation doctor ,services,consulting and offers reservation
+            Route::post('new-reservations', 'ProviderController@getNewReservationsBytype');
         });
     });
 });

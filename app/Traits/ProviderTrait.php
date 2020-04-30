@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Doctor;
 use App\Models\Message;
+use App\Models\ServiceReservation;
 use App\Models\Ticket;
 use App\Models\Provider;
 use App\Models\ProviderType;
@@ -674,6 +675,39 @@ trait ProviderTrait
             ->paginate(10);
     }
 
+    public function NewReservationsByType($providers, $type)
+    {
+        if ($type == 'services') {
+            return $this->getServicesNewReservations($providers);
+        }
+    }
+
+    protected function getServicesNewReservations($providers)
+    {
+       return  $reservations = ServiceReservation::with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', 0)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
     public function AcceptedReservations($providers = [])
     {
         return Reservation::with(['doctor' => function ($g) {
@@ -739,7 +773,7 @@ trait ProviderTrait
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'provider' => function ($qq) {
-                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude','longitude')
+                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude')
                     ->with(['provider' => function ($g) {
                         $g->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'))
                             ->with(['type' => function ($gu) {

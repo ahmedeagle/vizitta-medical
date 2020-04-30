@@ -1136,6 +1136,51 @@ class ProviderController extends Controller
     }
 
     public
+    function getNewReservationsBytype(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:services",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->type;
+            $provider = $this->auth('provider-api');
+            if ($provider->provider_id == null) { //main provider
+                $branches = $provider->providers()->pluck('id')->toArray();
+                array_unshift($branches, $provider->id);
+            } else {
+                $branches = [$provider->id];
+            }
+
+            $reservations = $this->NewReservationsByType($branches, $type);
+
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) {
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    return $reservation;
+                });
+
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnData('reservations', $reservations);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public
     function AcceptReservation(Request $request)
     {
         try {
@@ -1216,7 +1261,7 @@ class ProviderController extends Controller
                         __('messages.branch') . ' ( ' . " {$reservation->branch->$name} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
                 }
 
-               // $this->sendSMS($reservation->user->mobile, $message);
+                // $this->sendSMS($reservation->user->mobile, $message);
 
             } catch (\Exception $ex) {
 
@@ -1519,7 +1564,7 @@ class ProviderController extends Controller
             //send mobile sms
 //            $message = $bodyUser;
 
-           // $this->sendSMS($reservation->user->mobile, $message);
+            // $this->sendSMS($reservation->user->mobile, $message);
 
         } catch (\Exception $ex) {
 
@@ -1592,7 +1637,7 @@ class ProviderController extends Controller
                     $message = __('messages.reject_reservations') . ' ( ' . "{$provider->$name} - {$reservation->branch->$name}" . ' ) ' .
                         __('messages.because') . '( ' . $reserv->rejectionResoan->rejection_reason . ' ) ' . __('messages.can_re_book');
                 }
-           //     $this->sendSMS($reservation->user->mobile, $message);
+                //     $this->sendSMS($reservation->user->mobile, $message);
 
             } catch (\Exception $ex) {
 
@@ -2182,7 +2227,7 @@ class ProviderController extends Controller
                             ->Where('doctor_rate', '!=', 0)
                             ->Where('provider_rate', '!=', null)
                             ->Where('provider_rate', '!=', 0)
-                             ->count();
+                            ->count();
                         $doctor->rate_count = $countRate;
                     }
                     $total_count = $doctors->total();
