@@ -598,23 +598,22 @@ class DoctorController extends Controller
         $credentials = $request->only('username', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
-            // $request
-            return $this->respondWithToken($token);
+            $result['access_token'] = $token;
+            $result['user'] = $this->guard()->user();
+            // return $this->respondWithToken($token);
+            return $this->returnData('data', json_decode(json_encode($result, JSON_FORCE_OBJECT)));
         }
 
-        return response()->json(['status' => false, 'error' => __('main.invalid_email_or_password')], 200);
+        return $this->returnError('E001', __('main.invalid_email_or_password'));
     }
 
     public function logout(Request $request)
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
-            return response()->json(['status' => true, 'message' => __('main.successfully_logged_out')], 200);
+            return $this->returnData('data', '', __('main.successfully_logged_out'));
         } catch (JWTException $exception) {
-            return response()->json([
-                'success' => false,
-                'error' => __('main.error_logged_out'),
-            ], 200);
+            return $this->returnError('E001', __('main.error_logged_out'));
         }
     }
 
