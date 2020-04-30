@@ -28,9 +28,10 @@ class DoctorReservationsController extends Controller
                     ->where('approved', $type);
             })->paginate(PAGINATION_COUNT);
             $result = new DoctorConsultingReservationResource($reservations);
-            return response()->json(['status' => true, 'data' => $result]);
+//            return response()->json(['status' => true, 'data' => $result]);
+            return $this->returnData('data', $result);
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError('E001', __('main.oops_error'));
         }
     }
 
@@ -38,15 +39,15 @@ class DoctorReservationsController extends Controller
     {
         try {
             $result = Reason::get(['id', DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
-            return response()->json(['status' => true, 'data' => $result, 'msg' => '']);
+            return $this->returnData('data', $result);
 
 
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError('E001', __('main.oops_error'));
         }
     }
 
-##################### Start change doctor consulting reservation status ########################
+    ##################### Start change doctor consulting reservation status ########################
     public function changeStatus(Request $request)
     {
 
@@ -56,8 +57,8 @@ class DoctorReservationsController extends Controller
                 "status" => "required|in:1,2", // 1 == confirmed && 2 == canceled
             ]);
             if ($validator->fails()) {
-                $result = $validator->messages()->toArray();
-                return response()->json(['status' => false, 'error' => $result], 200);
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
             }
 
             $reservation_id = $request->reservation_id;
@@ -68,22 +69,22 @@ class DoctorReservationsController extends Controller
             $reservation = DoctorConsultingReservation::where('id', $reservation_id)->with('user')->first();
 
             if ($reservation == null)
-                return response()->json(['success' => false, 'error' => __('messages.No reservation with this number')], 200);
+                return $this->returnError('E001', __('messages.No reservation with this number'));
             if ($reservation->approved == 1) {
-                return response()->json(['success' => false, 'error' => __('messages.Reservation already approved')], 200);
+                return $this->returnError('E001', __('messages.Reservation already approved'));
             }
 
             if ($reservation->approved == 2) {
-                return response()->json(['success' => false, 'error' => __('messages.Reservation already rejected')], 200);
+                return $this->returnError('E001', __('messages.Reservation already rejected'));
             }
 
             if ($status != 2 && $status != 1) {
-                return response()->json(['success' => false, 'error' => __('messages.status must be 1 or 2')], 200);
+                return $this->returnError('E001', __('messages.status must be 1 or 2'));
             } else {
 
                 if ($status == 2) {
                     if ($rejection_reason_id == null) {
-                        return response()->json(['success' => false, 'error' => __('messages.please enter rejection reason')], 200);
+                        return $this->returnError('E001', __('messages.please enter rejection reason'));
                     }
                 }
 
@@ -99,14 +100,14 @@ class DoctorReservationsController extends Controller
 
                 $reservation->update($data);
 
-                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);
+                return $this->returnData('', '', __('messages.reservation status changed successfully'));
             }
 
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError('E001', __('main.oops_error'));
         }
     }
 
-##################### End change doctor consulting reservation status ########################
+    ##################### End change doctor consulting reservation status ########################
 
 }

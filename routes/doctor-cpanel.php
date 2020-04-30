@@ -1,26 +1,24 @@
 <?php
 
 
-Route::prefix('doctor')->group(function () {
+Route::group(['prefix' => 'doctor', 'middleware' => ['CheckPassword', 'ChangeLanguage']], function () {
     Route::post('/login', 'DoctorController@login');
 });
 
 #### Start Authenticated Routes
-Route::group(['middleware' => ['CheckDoctorToken:doctor-api']], function () {
 
-    Route::prefix('doctor')->group(function () {
+Route::group(['prefix' => 'doctor', 'middleware' => ['CheckPassword', 'ChangeLanguage', 'CheckDoctorToken:doctor-api']], function () {
 
-        // Authentication Routes
-        Route::post('/logout', 'DoctorController@logout');
-        Route::post('/refresh', 'DoctorController@refresh');
+    // Authentication Routes
+    Route::post('/logout', 'DoctorController@logout');
+    Route::post('/refresh', 'DoctorController@refresh');
 
-        Route::group(["namespace" => "DoctorArea", "prefix" => "doctor-area"], function () {
-            Route::post('/reservations/index', 'DoctorReservationsController@index');
-            Route::post('/reservations/get-rejected-reasons', 'DoctorReservationsController@getRejectedReasons');
-            Route::post('/change-status', 'DoctorReservationsController@changeStatus');
+    Route::group(["namespace" => "DoctorArea", "prefix" => "doctor-area"], function () {
+        Route::post('/reservations-index', 'DoctorReservationsController@index');
+        Route::post('/get-rejected-reasons', 'DoctorReservationsController@getRejectedReasons');
+        Route::post('/change-status', 'DoctorReservationsController@changeStatus');
 
-        });
     });
-
 });
+
 

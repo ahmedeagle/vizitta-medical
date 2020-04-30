@@ -601,7 +601,7 @@ class DoctorController extends Controller
             $result['access_token'] = $token;
             $result['user'] = $this->guard()->user();
             // return $this->respondWithToken($token);
-            return $this->returnData('data', json_decode(json_encode($result, JSON_FORCE_OBJECT)));
+            return $this->returnData('data', $result);
         }
 
         return $this->returnError('E001', __('main.invalid_email_or_password'));
