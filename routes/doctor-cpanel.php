@@ -1,14 +1,14 @@
 <?php
 
 
-Route::prefix('{locale}/doctor')->middleware(['setAPILocale'])->where(['locale' => '[a-zA-Z]{2}'])->group(function () {
+Route::prefix('doctor')->group(function () {
     Route::post('/login', 'DoctorController@login');
 });
 
 #### Start Authenticated Routes
 Route::group(['middleware' => ['CheckDoctorToken:doctor-api']], function () {
 
-    Route::prefix('{locale}/doctor')->middleware(['setAPILocale'])->where(['locale' => '[a-zA-Z]{2}'])->group(function () {
+    Route::prefix('doctor')->group(function () {
 
         // Authentication Routes
         Route::post('/logout', 'DoctorController@logout');

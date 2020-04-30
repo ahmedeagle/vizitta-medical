@@ -99,7 +99,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function mapDoctorCPanelRoutes()
     {
-        Route::prefix('api/v1/cpanel')
+        Route::prefix('api/')
             ->middleware('api')
             ->namespace('App\Http\Controllers\CPanel')
             ->group(base_path('routes/doctor-cpanel.php'));
