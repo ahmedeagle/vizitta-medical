@@ -7,7 +7,7 @@ Route::get('/optimize', function () {
     return '<h1>Composer dump-autoload</h1>';
 });
 
-Route::get('/test','UserController@test');
+Route::get('/test', 'UserController@test');
 
 // Composer dump-autoload:
 Route::get('/composer-dump-autoload', function () {
@@ -72,7 +72,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('medical/profile', 'MedicalProfileController@show')->name('user.medical.profile');
         Route::post('medical/profile/update', 'MedicalProfileController@store')->name('update.medical.profile');
         Route::post('search', 'GlobalController@search')->name('search');
-        Route::post('provider-details', 'GlobalController@getAllProviderDetails') ;
+        Route::post('provider-details', 'GlobalController@getAllProviderDetails');
         Route::post('featured/providers', 'ProviderController@featuredProviders')->name('user.featured.providers');
         Route::post('offers/{featured?}', 'OffersController@index')->name('user.offers');
         Route::group(['prefix' => 'pay'], function () {
@@ -82,7 +82,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
             Route::post('rates', 'ServiceController@getServiceRates');
-         });
+        });
         Route::group(['prefix' => 'consulting'], function () {
             Route::post('doctors', 'ConsultingController@getConsultingDoctors');
             Route::post('info', 'ConsultingController@getConsultingIfo');
@@ -213,6 +213,11 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('available/times', 'DoctorController@getAvailableTimes')->name('provider.doctor.available.times');
         });
 
+        // services routes
+        Route::group(['prefix' => 'services'], function () {
+            Route::post('index', 'GlobalProviderController@getProviderServices');
+        });
+
 
         // provider which has token
         Route::group(['middleware' => ['CheckProviderToken', 'CheckProviderStatus']], function () {
@@ -261,12 +266,12 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             //   return auth('provider-api')->user();
             //});
 
-             ################# provider web apis ##############
-            Route::group(['prefix' => 'services'],function (){
+            ################# provider web apis ##############
+            Route::group(['prefix' => 'services'], function () {
                 Route::post('change-status', 'ServiceController@ChangeReservationStatus')->name('provider.accept.reservation');
             });
 
-              //api to get all reservation doctor ,services,consulting and offers reservation
+            //api to get all reservation doctor ,services,consulting and offers reservation
             Route::post('new-reservations', 'ProviderController@getNewReservationsBytype');
         });
     });
