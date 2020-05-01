@@ -385,7 +385,7 @@ trait ServiceTrait
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
-            ->whereIn('brait nch_id', $branchesIds)
+            ->whereIn('branch_id', $branchesIds)
             ->find($no);
     }
 }
