@@ -339,7 +339,6 @@ trait ServiceTrait
         return ReservedTime::where('doctor_id', $doctor_id)->whereDate('day_date', $day_date)->first();
     }
 
-
     public function getServicesReservationByNo($id, $provider_id)
     {
         $provider = Provider::where('id', $provider_id)->first();
@@ -360,10 +359,10 @@ trait ServiceTrait
 
     }
 
-
     public function getReservationByReservationId($no, $provider)
     {
 
+        return $no;
         if ($provider->provider_id == null) { // main provider
             $branchesIds = $provider->providers()->pluck('id')->toArray();  // branches ids
         } else {  //branch
@@ -387,7 +386,8 @@ trait ServiceTrait
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
-        ])->whereIn('branch_id', $branchesIds)
+        ])
+            ->whereIn('branch_id', $branchesIds)
             ->find($no);
     }
 }

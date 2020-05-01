@@ -206,14 +206,13 @@ class ServiceController extends Controller
         return $string;
     }
 
-
     public
     function ChangeReservationStatus(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|exists:service_reservations,id",
-                "status" => "required|in:1,2" //1->approved 2->cancelled
+                "status" => "required|in:1,2,3" //1->approved 2->cancelled 3 ->complete
             ]);
 
             if ($request->status == 2) {
@@ -230,8 +229,9 @@ class ServiceController extends Controller
 
             \Illuminate\Support\Facades\DB::beginTransaction();
             $provider = $this->auth('provider-api');
-            $reservation = $this->getServicesReservationByNo($request->reservation_no, $provider->id);
-            if ($reservation == null)
+
+             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
+            if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
             if ($reservation->approved == 1 && $request->status == 1)
@@ -263,9 +263,11 @@ class ServiceController extends Controller
                 $name = 'name_' . app()->getLocale();
 
                 if ($request->status == 1) {  //approve
+                    $message_res = __('messages.Reservation approved successfully');
                     $bodyProvider = __('messages.approved user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.approved your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
                 } elseif ($request->status == 2) {  //cancelled
+                    $message_res = __('messages.Reservation rejected successfully');
                     $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
                 } else {
@@ -293,7 +295,7 @@ class ServiceController extends Controller
             } catch (\Exception $ex) {
 
             }
-            return $this->returnSuccessMessage(trans('messages.Reservation approved successfully'));
+            return $this->returnSuccessMessage($message_res);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
