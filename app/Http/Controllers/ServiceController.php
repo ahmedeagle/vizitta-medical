@@ -34,7 +34,7 @@ use function foo\func;
 
 class ServiceController extends Controller
 {
-    use GlobalTrait, serviceTrait, PromoCodeTrait, OdooTrait, SMSTrait;
+    use GlobalTrait, ServiceTrait, PromoCodeTrait, OdooTrait, SMSTrait;
 
     public function index(Request $request)
     {
