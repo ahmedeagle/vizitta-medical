@@ -697,7 +697,7 @@ trait ProviderTrait
     protected function getHomeServicesNewReservations($providers)
     {
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
-            $e->where('type_id', 1);
+            $e->where('id', 1);
         })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
@@ -724,8 +724,8 @@ trait ProviderTrait
 
     protected function getClinicServicesNewReservations($providers)
     {
-        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
-            $e->where('type_id', 2);
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 2);
         })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
@@ -755,8 +755,8 @@ trait ProviderTrait
     protected function getHomeServicesCurrentReservations($providers)
     {
 
-        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
-            $e->where('type_id', 1);
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 1);
         })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
@@ -783,8 +783,8 @@ trait ProviderTrait
 
     protected function getClinicServicesCurrentReservations($providers)
     {
-        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
-            $e->where('type_id', 2);
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 2);
         })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
