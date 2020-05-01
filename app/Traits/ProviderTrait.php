@@ -703,7 +703,7 @@ trait ProviderTrait
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        },'paymentMethod' => function ($qu) {
+        },'type','paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'user' => function ($q) {
             $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
@@ -731,7 +731,7 @@ trait ProviderTrait
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        }, 'paymentMethod' => function ($qu) {
+        }, 'type','paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'user' => function ($q) {
             $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
@@ -750,8 +750,6 @@ trait ProviderTrait
             ->paginate(PAGINATION_COUNT);
     }
 
-
-
     protected function getHomeServicesCurrentReservations($providers)
     {
 
@@ -762,7 +760,7 @@ trait ProviderTrait
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        }, 'paymentMethod' => function ($qu) {
+        },'type', 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'user' => function ($q) {
             $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
@@ -790,7 +788,7 @@ trait ProviderTrait
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        }, 'paymentMethod' => function ($qu) {
+        },'type','paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'user' => function ($q) {
             $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
