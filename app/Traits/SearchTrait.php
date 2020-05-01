@@ -395,144 +395,291 @@ trait SearchTrait
 
             $specification_id = $request->specification_id;
             $queryStr = $request->queryStr;
-            $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
+            if($specification_id != null && $specification_id !=0)
+            {
+                $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
-                $provider->with(['type' => function ($q) {
-                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    $provider->with(['type' => function ($q) {
+                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
 
-                }, 'favourites' => function ($qu) use ($userId) {
-                    $qu->where('user_id', $userId)->select('provider_id');
-                }, 'city' => function ($q) {
-                    $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }, 'district' => function ($q) {
-                    $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                }])->select('*', DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'));
-            }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
-                $provider->whereDoesntHave('subscriptions')->where('providers.status', true);
-                // $provider->whereNotNull('providers.provider_id');
-                // Provider Name
-                $provider = $provider->where(function ($qu) use ($request, $queryStr) {
-                    $qu->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
-                });
+                    }, 'favourites' => function ($qu) use ($userId) {
+                        $qu->where('user_id', $userId)->select('provider_id');
+                    }, 'city' => function ($q) {
+                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }, 'district' => function ($q) {
+                        $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                    }])->select('*', DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'));
+                }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
+                    $provider->whereDoesntHave('subscriptions')->where('providers.status', true);
+                    // $provider->whereNotNull('providers.provider_id');
+                    // Provider Name
+                    $provider = $provider->where(function ($qu) use ($request, $queryStr) {
+                        $qu->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
+                    });
 
-                // City
-                if (isset($request->city_id) && $request->city_id != 0) {
-                    $provider = $provider->where('city_id', $request->city_id);
-                }
-                // District
-                if (isset($request->district_id) && $request->district_id != 0) {
-                    $provider = $provider->where('district_id', $request->district_id);
-                }
-                // Type
-                if (is_array($request->type_id) && count($request->type_id) > 0) {
-                    $provider = $provider->whereIn('type_id', $request->type_id);
-                }
-                // Insurance Companies
-                if (isset($request->insurance_company_id) && $request->insurance_company_id != 0) {
-                    $provider = $provider->whereHas('doctors', function ($que) use ($request) {
-                        $que->whereHas('manyInsuranceCompanies', function ($quer) use ($request) {
-                            $quer->where('insurance_company_id', $request->insurance_company_id);
-                        });
-                    });
-                }
-                // Doctor Name
-                if (isset($request->doctor_name) && !empty($request->doctor_name)) {
-                    $provider = $provider->whereHas('doctors', function ($query) use ($request) {
-                        $query->where('name_en', 'LIKE', '%' . trim($request->doctor_name) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($request->doctor_name) . '%');
-                    });
-                }
-                // Doctor Nickname
-                if (isset($request->nickname_id) && $request->nickname_id != 0) {
-                    $provider = $provider->whereHas('doctors', function ($query) use ($request) {
-                        $query->where('nickname_id', $request->nickname_id);
-                    });
-                }
-                // Doctor Gender
-                if (isset($request->doctor_gender) && ($request->doctor_gender == 1 || $request->doctor_gender == 2)) {
-                    $provider = $provider->whereHas('doctors', function ($query) use ($request) {
-                        $query->where('gender', $request->doctor_gender);
-                    });
-                }
-                // Price From
-                if (isset($request->price_from)) {
-                    $provider = $provider->whereHas('doctors', function ($qque) use ($request) {
-                        $qque->where('price', '>=', $request->price_from);
-                    });
-                }
-                // Price To
-                if (isset($request->price_to) && $request->price_to != 0) {
-                    $provider = $provider->whereHas('doctors', function ($qquer) use ($request) {
-                        $qquer->where('price', '<=', $request->price_to);
-                    });
-                }
-                // Reservation in Date
-                if (isset($request->day_date)) {
-                    $dayCode = date('D', strtotime($request->day_date));
-                    $provider = $provider->whereHas('doctors', function ($qg) use ($request, $dayCode) {
-                        $qg->whereHas('times', function ($qqq) use ($request, $dayCode) {
-                            $qqq->whereRaw('LOWER(day_code) = ?', strtolower($dayCode))->whereNotIn('doctor_id', function ($qqqu) use ($request) {
-                                $qqqu->select('doctor_id')->from('reserved_times')->where('day_date', date('Y-m-d', strtotime($request->day_date)));
+                    // City
+                    if (isset($request->city_id) && $request->city_id != 0) {
+                        $provider = $provider->where('city_id', $request->city_id);
+                    }
+                    // District
+                    if (isset($request->district_id) && $request->district_id != 0) {
+                        $provider = $provider->where('district_id', $request->district_id);
+                    }
+                    // Type
+                    if (is_array($request->type_id) && count($request->type_id) > 0) {
+                        $provider = $provider->whereIn('type_id', $request->type_id);
+                    }
+                    // Insurance Companies
+                    if (isset($request->insurance_company_id) && $request->insurance_company_id != 0) {
+                        $provider = $provider->whereHas('doctors', function ($que) use ($request) {
+                            $que->whereHas('manyInsuranceCompanies', function ($quer) use ($request) {
+                                $quer->where('insurance_company_id', $request->insurance_company_id);
                             });
                         });
-                    });
-                }
-
-                if (isset($request->longitude) && !empty($request->longitude) && isset($request->latitude) && !empty($request->latitude)) {
-
-                    $provider = $provider->select('rate',
-                        'logo',
-                        'longitude',
-                        'latitude',
-                        'email',
-                        'street',
-                        'address',
-                        'mobile',
-                        'commercial_no',
-                        'branch_no',
-                        'type_id',
-                        'city_id', 'district_id', 'provider_id',
-                        DB::raw('name_' . $this->getCurrentLang() . ' as name'),
-                        DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
-                        //  DB::raw("'0' as doctor"),
-                        DB::raw("'0' as price"),
-                        DB::raw("0 as specification_id"),
-                        'has_home_visit'
-                    );
-                    if ($request->rate == 1) {
-                        $provider->orderBy('rate', 'DESC')->orderBy('distance', $request->order);
-                    } else {
-                        $provider->orderBy('distance', $request->order);
                     }
-                } else {
-                    $provider = $provider->select('id',
-                        'rate',
-                        'logo',
-                        'longitude',
-                        'latitude',
-                        'email',
-                        'street',
-                        'address',
-                        'mobile',
-                        'commercial_no',
-                        'branch_no',
-                        'type_id',
-                        'city_id',
-                        'district_id',
-                        'provider_id',
-                        DB::raw('name_' . $this->getCurrentLang() . ' as name'),
-                        DB::raw("'0' as distance"),
-                        //  DB::raw("'0' as doctor"),
-                        DB::raw("'0' as price"),
-                        DB::raw("0 as specification_id"),
-                        'has_home_visit'
-                    );
+                    // Doctor Name
+                    if (isset($request->doctor_name) && !empty($request->doctor_name)) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('name_en', 'LIKE', '%' . trim($request->doctor_name) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($request->doctor_name) . '%');
+                        });
+                    }
+                    // Doctor Nickname
+                    if (isset($request->nickname_id) && $request->nickname_id != 0) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('nickname_id', $request->nickname_id);
+                        });
+                    }
+                    // Doctor Gender
+                    if (isset($request->doctor_gender) && ($request->doctor_gender == 1 || $request->doctor_gender == 2)) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('gender', $request->doctor_gender);
+                        });
+                    }
+                    // Price From
+                    if (isset($request->price_from)) {
+                        $provider = $provider->whereHas('doctors', function ($qque) use ($request) {
+                            $qque->where('price', '>=', $request->price_from);
+                        });
+                    }
+                    // Price To
+                    if (isset($request->price_to) && $request->price_to != 0) {
+                        $provider = $provider->whereHas('doctors', function ($qquer) use ($request) {
+                            $qquer->where('price', '<=', $request->price_to);
+                        });
+                    }
+                    // Reservation in Date
+                    if (isset($request->day_date)) {
+                        $dayCode = date('D', strtotime($request->day_date));
+                        $provider = $provider->whereHas('doctors', function ($qg) use ($request, $dayCode) {
+                            $qg->whereHas('times', function ($qqq) use ($request, $dayCode) {
+                                $qqq->whereRaw('LOWER(day_code) = ?', strtolower($dayCode))->whereNotIn('doctor_id', function ($qqqu) use ($request) {
+                                    $qqqu->select('doctor_id')->from('reserved_times')->where('day_date', date('Y-m-d', strtotime($request->day_date)));
+                                });
+                            });
+                        });
+                    }
 
-                    if ($request->rate == 1) {
-                        $provider->orderBy('rate', 'DESC');
-                    } else
-                        $provider->orderBy('id', $request->order);
-                }
-            })->select('id', 'name_ar', 'name_en', 'provider_id')->where('specification_id', $specification_id)->paginate(50);
+                    if (isset($request->longitude) && !empty($request->longitude) && isset($request->latitude) && !empty($request->latitude)) {
+
+                        $provider = $provider->select('rate',
+                            'logo',
+                            'longitude',
+                            'latitude',
+                            'email',
+                            'street',
+                            'address',
+                            'mobile',
+                            'commercial_no',
+                            'branch_no',
+                            'type_id',
+                            'city_id', 'district_id', 'provider_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                            DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
+                            //  DB::raw("'0' as doctor"),
+                            DB::raw("'0' as price"),
+                            DB::raw("0 as specification_id"),
+                            'has_home_visit'
+                        );
+                        if ($request->rate == 1) {
+                            $provider->orderBy('rate', 'DESC')->orderBy('distance', $request->order);
+                        } else {
+                            $provider->orderBy('distance', $request->order);
+                        }
+                    } else {
+                        $provider = $provider->select('id',
+                            'rate',
+                            'logo',
+                            'longitude',
+                            'latitude',
+                            'email',
+                            'street',
+                            'address',
+                            'mobile',
+                            'commercial_no',
+                            'branch_no',
+                            'type_id',
+                            'city_id',
+                            'district_id',
+                            'provider_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                            DB::raw("'0' as distance"),
+                            //  DB::raw("'0' as doctor"),
+                            DB::raw("'0' as price"),
+                            DB::raw("0 as specification_id"),
+                            'has_home_visit'
+                        );
+
+                        if ($request->rate == 1) {
+                            $provider->orderBy('rate', 'DESC');
+                        } else
+                            $provider->orderBy('id', $request->order);
+                    }
+                })
+                    ->select('id', 'name_ar', 'name_en', 'provider_id')
+                    ->where('specification_id', $specification_id)
+                    ->paginate(50);
+            }else{
+                $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
+
+                    $provider->with(['type' => function ($q) {
+                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+
+                    }, 'favourites' => function ($qu) use ($userId) {
+                        $qu->where('user_id', $userId)->select('provider_id');
+                    }, 'city' => function ($q) {
+                        $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }, 'district' => function ($q) {
+                        $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                    }])->select('*', DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'));
+                }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
+                    $provider->whereDoesntHave('subscriptions')->where('providers.status', true);
+                    // $provider->whereNotNull('providers.provider_id');
+                    // Provider Name
+                    $provider = $provider->where(function ($qu) use ($request, $queryStr) {
+                        $qu->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
+                    });
+
+                    // City
+                    if (isset($request->city_id) && $request->city_id != 0) {
+                        $provider = $provider->where('city_id', $request->city_id);
+                    }
+                    // District
+                    if (isset($request->district_id) && $request->district_id != 0) {
+                        $provider = $provider->where('district_id', $request->district_id);
+                    }
+                    // Type
+                    if (is_array($request->type_id) && count($request->type_id) > 0) {
+                        $provider = $provider->whereIn('type_id', $request->type_id);
+                    }
+                    // Insurance Companies
+                    if (isset($request->insurance_company_id) && $request->insurance_company_id != 0) {
+                        $provider = $provider->whereHas('doctors', function ($que) use ($request) {
+                            $que->whereHas('manyInsuranceCompanies', function ($quer) use ($request) {
+                                $quer->where('insurance_company_id', $request->insurance_company_id);
+                            });
+                        });
+                    }
+                    // Doctor Name
+                    if (isset($request->doctor_name) && !empty($request->doctor_name)) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('name_en', 'LIKE', '%' . trim($request->doctor_name) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($request->doctor_name) . '%');
+                        });
+                    }
+                    // Doctor Nickname
+                    if (isset($request->nickname_id) && $request->nickname_id != 0) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('nickname_id', $request->nickname_id);
+                        });
+                    }
+                    // Doctor Gender
+                    if (isset($request->doctor_gender) && ($request->doctor_gender == 1 || $request->doctor_gender == 2)) {
+                        $provider = $provider->whereHas('doctors', function ($query) use ($request) {
+                            $query->where('gender', $request->doctor_gender);
+                        });
+                    }
+                    // Price From
+                    if (isset($request->price_from)) {
+                        $provider = $provider->whereHas('doctors', function ($qque) use ($request) {
+                            $qque->where('price', '>=', $request->price_from);
+                        });
+                    }
+                    // Price To
+                    if (isset($request->price_to) && $request->price_to != 0) {
+                        $provider = $provider->whereHas('doctors', function ($qquer) use ($request) {
+                            $qquer->where('price', '<=', $request->price_to);
+                        });
+                    }
+                    // Reservation in Date
+                    if (isset($request->day_date)) {
+                        $dayCode = date('D', strtotime($request->day_date));
+                        $provider = $provider->whereHas('doctors', function ($qg) use ($request, $dayCode) {
+                            $qg->whereHas('times', function ($qqq) use ($request, $dayCode) {
+                                $qqq->whereRaw('LOWER(day_code) = ?', strtolower($dayCode))->whereNotIn('doctor_id', function ($qqqu) use ($request) {
+                                    $qqqu->select('doctor_id')->from('reserved_times')->where('day_date', date('Y-m-d', strtotime($request->day_date)));
+                                });
+                            });
+                        });
+                    }
+
+                    if (isset($request->longitude) && !empty($request->longitude) && isset($request->latitude) && !empty($request->latitude)) {
+
+                        $provider = $provider->select('rate',
+                            'logo',
+                            'longitude',
+                            'latitude',
+                            'email',
+                            'street',
+                            'address',
+                            'mobile',
+                            'commercial_no',
+                            'branch_no',
+                            'type_id',
+                            'city_id', 'district_id', 'provider_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                            DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'),
+                            //  DB::raw("'0' as doctor"),
+                            DB::raw("'0' as price"),
+                            DB::raw("0 as specification_id"),
+                            'has_home_visit'
+                        );
+                        if ($request->rate == 1) {
+                            $provider->orderBy('rate', 'DESC')->orderBy('distance', $request->order);
+                        } else {
+                            $provider->orderBy('distance', $request->order);
+                        }
+                    } else {
+                        $provider = $provider->select('id',
+                            'rate',
+                            'logo',
+                            'longitude',
+                            'latitude',
+                            'email',
+                            'street',
+                            'address',
+                            'mobile',
+                            'commercial_no',
+                            'branch_no',
+                            'type_id',
+                            'city_id',
+                            'district_id',
+                            'provider_id',
+                            DB::raw('name_' . $this->getCurrentLang() . ' as name'),
+                            DB::raw("'0' as distance"),
+                            //  DB::raw("'0' as doctor"),
+                            DB::raw("'0' as price"),
+                            DB::raw("0 as specification_id"),
+                            'has_home_visit'
+                        );
+
+                        if ($request->rate == 1) {
+                            $provider->orderBy('rate', 'DESC');
+                        } else
+                            $provider->orderBy('id', $request->order);
+                    }
+                })
+                    ->select('id', 'name_ar', 'name_en', 'provider_id')
+                    ->paginate(50);
+            }
 
             $providers = [];
             // foreach($res->data as $data){
