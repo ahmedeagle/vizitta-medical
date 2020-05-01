@@ -361,8 +361,6 @@ trait ServiceTrait
 
     public function getReservationByReservationId($no, $provider)
     {
-
-        return $no;
         if ($provider->provider_id == null) { // main provider
             $branchesIds = $provider->providers()->pluck('id')->toArray();  // branches ids
         } else {  //branch
@@ -387,7 +385,7 @@ trait ServiceTrait
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
-            ->whereIn('branch_id', $branchesIds)
+            ->whereIn('brait nch_id', $branchesIds)
             ->find($no);
     }
 }
