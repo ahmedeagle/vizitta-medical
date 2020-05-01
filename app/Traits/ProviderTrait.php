@@ -685,6 +685,15 @@ trait ProviderTrait
 
     }
 
+    public function currentReservationsByType($providers, $type)
+    {
+        if ($type == 'home_services') {
+            return $this->getHomeServicesCurrentReservations($providers);
+        } elseif ($type == 'clinic_services') {
+            return $this->getClinicServicesCurrentReservations($providers);
+        }
+    }
+
     protected function getHomeServicesNewReservations($providers)
     {
         return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
@@ -741,6 +750,65 @@ trait ProviderTrait
             ->paginate(PAGINATION_COUNT);
     }
 
+
+
+    protected function getHomeServicesCurrentReservations($providers)
+    {
+
+        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
+            $e->where('type_id', 1);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', 1)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    protected function getClinicServicesCurrentReservations($providers)
+    {
+        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
+            $e->where('type_id', 2);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', 1)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
     public function AcceptedReservations($providers = [])
     {
         return Reservation::with(['doctor' => function ($g) {
@@ -772,7 +840,7 @@ trait ProviderTrait
             /* ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
             ->orderBy('day_date')
             ->orderBy('from_time')
-            ->paginate(10);
+            ->paginate(PAGINATION_COUNT);
     }
 
     public function getReservationByNoWihRelation($no, $provider_id)

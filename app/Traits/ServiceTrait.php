@@ -360,4 +360,34 @@ trait ServiceTrait
 
     }
 
+
+    public function getReservationByReservationId($no, $provider)
+    {
+
+        if ($provider->provider_id == null) { // main provider
+            $branchesIds = $provider->providers()->pluck('id')->toArray();  // branches ids
+        } else {  //branch
+            $branchesIds = [$provider->id];
+        }
+
+        return $reservations = ServiceReservation::with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])->whereIn('branch_id', $branchesIds)
+            ->find($no);
+    }
 }

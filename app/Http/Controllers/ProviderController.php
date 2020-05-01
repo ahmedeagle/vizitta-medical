@@ -1156,7 +1156,7 @@ class ProviderController extends Controller
                 $branches = [$provider->id];
             }
 
-            $reservations = $this->NewReservationsByType($branches, $type);
+              $reservations = $this->NewReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use($request){
@@ -1186,6 +1186,59 @@ class ProviderController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    public
+    function getCurrentReservationsBytype(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:home_services,clinic_services",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->type;
+            $provider = $this->auth('provider-api');
+            if ($provider->provider_id == null) { //main provider
+                $branches = $provider->providers()->pluck('id')->toArray();
+                array_unshift($branches, $provider->id);
+            } else {
+                $branches = [$provider->id];
+            }
+
+             $reservations = $this->currentReservationsByType($branches, $type);
+
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) use($request){
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    if($request -> type == 'home_services'){
+                        $reservation-> reservation_type = 'home_services';
+                    }elseif ($request -> type == 'clinic_services'){
+                        $reservation-> reservation_type = 'clinic_services';
+                    }else{
+                        $reservation-> reservation_type = 'undefined';
+                    }
+                    return $reservation;
+                });
+
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnData('reservations', $reservations);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 
     public
     function AcceptReservation(Request $request)

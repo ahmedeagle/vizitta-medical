@@ -241,9 +241,9 @@ class ServiceReservation extends Model
 
     public function getPriceAttribute($value)
     {
-        if ($this->payment_method_id != 1) {
+       /* if ($this->payment_method_id != 1) {
             return "0";
-        }
+        }*/
         return $value;
     }
 

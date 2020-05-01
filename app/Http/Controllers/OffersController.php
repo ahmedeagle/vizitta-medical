@@ -548,11 +548,9 @@ class OffersController extends Controller
     public function getReservationDetails(Request $request)
     {
         try {
-
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|exists:reservations,id",
             ]);
-
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
