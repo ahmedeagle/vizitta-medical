@@ -240,6 +240,13 @@ class ServiceController extends Controller
             if ($reservation->approved == 2 && $request->status == 2)
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
 
+            if ($reservation->approved == 3 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation already Completed'));
+
+            if ($reservation->approved == 2 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+
+
             if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                     strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))

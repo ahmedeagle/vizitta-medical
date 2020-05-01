@@ -1364,7 +1364,7 @@ class ProviderController extends Controller
                 return $this->returnData('balances', $balanceJson);
             }
             return $this->returnError('E001', trans("messages.No balance founded"));
-        } catch (\Exception $ex) {
+        } catch (\Exception $ex){
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
@@ -1381,7 +1381,6 @@ class ProviderController extends Controller
             return $this->returnValidationError($code, $validator);
         }
         DB::beginTransaction();
-
         $provider = $this->auth('provider-api');
         $provider->makeVisible(['application_percentage', 'application_percentage_bill_insurance']);
         $reservation = $this->getReservationByNo($request->reservation_no, $provider->id);

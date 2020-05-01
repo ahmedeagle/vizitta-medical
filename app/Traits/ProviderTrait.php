@@ -696,14 +696,14 @@ trait ProviderTrait
 
     protected function getHomeServicesNewReservations($providers)
     {
-        return $reservations = ServiceReservation::whereHas('serviceTypes', function ($e) {
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('type_id', 1);
         })->with(['service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        }, 'paymentMethod' => function ($qu) {
+        },'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'user' => function ($q) {
             $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')

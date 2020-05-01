@@ -274,8 +274,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         });
 
         //api to get all reservation doctor ,services,consulting and offers reservation
-        Route::post('new-reservations', 'ProviderController@getNewReservationsBytype');
-        Route::post('current-reservations', 'ProviderController@getCurrentReservationsBytype');
+        Route::post('new-reservations', 'ProviderController@getNewReservationsBytype')-> middleware(['CheckProviderToken', 'CheckProviderStatus']);
+        Route::post('current-reservations', 'ProviderController@getCurrentReservationsBytype')-> middleware(['CheckProviderToken', 'CheckProviderStatus']);
     });
 });
 

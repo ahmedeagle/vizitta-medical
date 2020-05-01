@@ -102,6 +102,7 @@ return [
     "This provider already activated" => "مزود الخدمة هذا مفعل من فبل",
     "No reservation with this number" => "لا يوجد حجز بهذا الرقم",
     "Reservation approved successfully" => "تم تأكيد الحجز بنجاح",
+    "Reservation completed successfully" => "تم أكمال الحجز بنجاح",
     "Reservation rejected successfully" => "تم رفض الحجز بنجاح",
     "Reservation already approved" => "الحجز مقبول بالفعل",
     "Reservation already rejected" => "الحجز مرفوض بالفعل",
