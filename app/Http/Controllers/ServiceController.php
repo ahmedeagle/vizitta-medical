@@ -221,6 +221,11 @@ class ServiceController extends Controller
                     'rejected_reason_notes' => 'sometimes|nullable|string',
                 ]);
             }
+            if ($request->status == 3) {
+                $validator->addRules([
+                    "arrived" => "required|in:0,1"
+                ]);
+            }
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -230,7 +235,7 @@ class ServiceController extends Controller
             \Illuminate\Support\Facades\DB::beginTransaction();
             $provider = $this->auth('provider-api');
 
-             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
+            $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
@@ -246,6 +251,9 @@ class ServiceController extends Controller
             if ($reservation->approved == 2 && $request->status == 3)
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
 
+            if ($reservation->approved == 0 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation must be approved first'));
+
 
             if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
@@ -255,18 +263,25 @@ class ServiceController extends Controller
                 return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
             }
 
+
             //  $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
 
             /* if ($ReservationsNeedToClosed > 0) {
                  return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
              }*/
 
-            $reservation->update([
-                'approved' => $request->status  //approve reservation
-            ]);
+
+            $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
+
             DB::commit();
 
             try {
+
+                $reservation->update([
+                    'approved' => $request->status, //approve reservation
+                    'is_visit_doctor' => $complete
+                ]);
+
                 $name = 'name_' . app()->getLocale();
 
                 if ($request->status == 1) {  //approve
@@ -277,37 +292,30 @@ class ServiceController extends Controller
                     $message_res = __('messages.Reservation rejected successfully');
                     $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
-                } else {
+                } elseif ($request->status == 3) { // complete reservation
+                    if ($complete == 1) { //when reservation complete and user arrived to branch
+                        $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()}  ";
+                        $bodyUser = __('messages.complete your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()}  - ";
+                    } else {
+                        $bodyProvider = __('messages.canceled your reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                        $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                    }
+                    $message_res = $bodyUser;
+                 } else {
                     $bodyProvider = '';
                     $bodyUser = '';
                 }
-
                 //send push notification
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
-                //send mobile sms
-                /*$message = $bodyUser;
-
-                if ($provider->provider_id != null) {
-                    $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
-                        __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
-                } else {
-                    $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->$name}" . ' ) ' .
-                        __('messages.branch') . ' ( ' . " {$reservation->branch->$name} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
-                }*/
-
-                // $this->sendSMS($reservation->user->mobile, $message);
-
             } catch (\Exception $ex) {
-
             }
             return $this->returnSuccessMessage($message_res);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
-
 
     public function getReservationDetails(Request $request)
     {
@@ -324,7 +332,7 @@ class ServiceController extends Controller
             if (!$provider)
                 return $this->returnError('D000', __('messages.provider not found'));
 
-            $reservation_details = $this->getReservationByReservationId($request->reservation_id , $provider);
+            $reservation_details = $this->getReservationByReservationId($request->reservation_id, $provider);
 
             if ($reservation_details) {
                 $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
