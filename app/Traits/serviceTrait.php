@@ -340,7 +340,7 @@ trait ServiceTrait
     }
 
 
-    public function getReservationByNo($id, $provider_id)
+    public function getServicesReservationByNo($id, $provider_id)
     {
 
         $provider = Provider::where('id', $provider_id)->first();

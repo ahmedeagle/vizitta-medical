@@ -268,7 +268,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
             ################# provider web apis ##############
             Route::group(['prefix' => 'services'], function () {
-                Route::post('change-status', 'ServiceController@ChangeReservationStatus')->name('provider.accept.reservation');
+                Route::post('change-status', 'ServiceController@ChangeReservationStatus');
             });
 
             //api to get all reservation doctor ,services,consulting and offers reservation
