@@ -153,6 +153,6 @@ class Mix extends Model
 
     public function getConsultingPhotoAttribute($val)
     {
-        return ($val !== null ? $val : "");
+        return ($val != "" ? asset($val) : "");
     }
 }
