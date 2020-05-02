@@ -43,7 +43,7 @@ class GlobalVisitsController extends Controller
                     $q->where('type_id',2);
                 })->find($requestData['service_id']);
                 if ($service) {
-                  return   $serviceTimes = $service->times()->where('day_code', $dayName)->get();
+                     $serviceTimes = $service->times()->where('day_code', $dayName)->get();
                 }
             } else {
                  $service = Service::whereHas('types', function ($q) {
