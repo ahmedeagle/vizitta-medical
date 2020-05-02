@@ -59,7 +59,9 @@ class Mix extends Model
         'app_price',
         'price_less',
         'owner_points',
-        'invited_points'
+        'invited_points',
+        'consulting_text',
+        'consulting_photo',
     ];
 
     protected $forcedNullStrings = [
@@ -106,7 +108,9 @@ class Mix extends Model
         'dev_company_logo',
         'dev_company_ar',
         'dev_company_en',
-        'price_less'
+        'price_less',
+        'consulting_text',
+        'consulting_photo',
 
     ];
 

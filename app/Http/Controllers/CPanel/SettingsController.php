@@ -35,10 +35,12 @@ class SettingsController extends Controller
                 return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
             }
 
-            $settings->update($request->except('home_image1', 'home_image2'));
+            $settings->update($request->except('home_image1', 'home_image2', 'consulting_photo'));
 
             $fileName1 = $settings->home_image1;
             $fileName2 = $settings->home_image2;
+            $fileName3 = $settings->consulting_photo;
+
             if (isset($request->home_image1) && !empty($request->home_image1)) {
                 $fileName1 = $this->saveImage('generals', $request->home_image1);
             }
@@ -47,9 +49,14 @@ class SettingsController extends Controller
                 $fileName2 = $this->saveImage('generals', $request->home_image2);
             }
 
+            if (isset($request->consulting_photo) && !empty($request->consulting_photo)) {
+                $fileName3 = $this->saveImage('generals', $request->consulting_photo);
+            }
+
             $settings->update([
                 'home_image1' => $fileName1,
                 'home_image2' => $fileName2,
+                'consulting_photo' => $fileName3,
             ]);
 
 //            $this->updateAgree($request);
