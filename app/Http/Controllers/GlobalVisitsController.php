@@ -43,7 +43,23 @@ class GlobalVisitsController extends Controller
                     $q->where('type_id',2);
                 })->find($requestData['service_id']);
                 if ($service) {
-                     $serviceTimes = $service->times()->where('day_code', $dayName)->get();
+//                     $serviceTimes = $service->times()->where('day_code', $dayName)->get();
+                    $times = $service->times()->where('day_code', $dayName)->get();
+                    foreach ($times as $key => $value) {
+                        $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $service -> reservation_period );
+                        foreach ($splitTimes as $k => $v) {
+                            $s = [];
+                            $s['id'] = $value->id;
+                            $s['day_name'] = $value->day_name;
+                            $s['day_code'] = $value->day_code;
+                            $s['from_time'] = $v['from'];
+                            $s['to_time'] = $v['to'];
+                            $s['branch_id'] = $value->branch_id;
+
+                            array_push($serviceTimes, $s);
+                        }
+
+                    }
                 }
             } else {
                  $service = Service::whereHas('types', function ($q) {
