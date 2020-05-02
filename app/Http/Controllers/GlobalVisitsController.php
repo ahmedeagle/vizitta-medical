@@ -35,16 +35,22 @@ class GlobalVisitsController extends Controller
         try {
             $requestData = $request->all();
             $dayName = Str::lower(date('D', strtotime($requestData['reserve_day'])));
-            $service = Service::find($requestData['service_id']);
+
             $serviceTimes = [];
 
             if ($requestData['service_type'] == 2) { // clinic
+                 $service = Service::whereHas('types', function ($q) {
+                    $q->where('type_id',2);
+                })->find($requestData['service_id']);
                 if ($service) {
-                    $serviceTimes = $service->times()->whereNotNull('reservation_period')->where('day_code', $dayName)->get();
+                  return   $serviceTimes = $service->times()->where('day_code', $dayName)->get();
                 }
             } else {
+                 $service = Service::whereHas('types', function ($q) {
+                    $q->where('type_id', 1);
+                })->find($requestData['service_id']);
                 if ($service) {
-                    $times = $service->times()->whereNull('reservation_period')->where('day_code', $dayName)->get();
+                    $times = $service->times()->where('day_code', $dayName)->get();
                     foreach ($times as $key => $value) {
                         $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $requestData['reserve_duration']);
                         foreach ($splitTimes as $k => $v) {

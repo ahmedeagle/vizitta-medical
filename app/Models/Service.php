@@ -67,10 +67,10 @@ class Service extends Model
         return $this->hasMany('App\Models\ServiceTime', 'service_id', 'id');
     }
 
-    /* public function serviceType()
+     public function serviceType()
      {
          return $this->belongsTo('App\Models\ServiceType', 'type', 'id')->withDefault(["name" => ""]);
-     }*/
+     }
 
     public function types()
     {
