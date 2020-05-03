@@ -49,30 +49,37 @@ class GlobalProviderController extends Controller
     public function getProviderServices(Request $request)
     {
         try {
-            $type = $request->type;
+            $requestData = $request->all();
+            $rules = [
+                "service_type" => "nullable|in:1,2",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->service_type;
             $provider = Provider::whereNull('provider_id')->find($request->provider_id);
             if (!$provider)
                 return $this->returnError('E001', trans('messages.No provider with this id'));
 
-            $services = Service::with('types')->whereHas('provider', function ($q) use ($provider) {
-                $q->where('id', $provider->id);
-            })->orderBy('id', 'DESC')
-                ->paginate(PAGINATION_COUNT);
+            if (empty($type)) {
+                $services = Service::with('types')->whereHas('provider', function ($q) use ($provider) {
+                    $q->where('id', $provider->id);
+                })->orderBy('id', 'DESC')
+                    ->paginate(PAGINATION_COUNT);
+            } else {
+                $services = Service::whereHas('types', function ($q) use($type) {
+                    $q->where('type_id', $type);
+                })->whereHas('provider', function ($q) use ($provider) {
+                    $q->where('id', $provider->id);
+                })->orderBy('id', 'DESC')
+                    ->paginate(PAGINATION_COUNT);
+            }
 
             $result = new ProviderServicesResource($services);
-
-            /*if (count($services->toArray()) > 0) {
-
-                $total_count = $services->total();
-                $services = json_decode($services->toJson());
-                $servicesJson = new \stdClass();
-                $servicesJson->current_page = $services->current_page;
-                $servicesJson->total_pages = $services->last_page;
-                $servicesJson->total_count = $total_count;
-                $servicesJson->per_page = PAGINATION_COUNT;
-                $servicesJson->data = $services->data;
-                return $this->returnData('services', $servicesJson);
-            }*/
 
             return $this->returnData('services', $result);
         } catch (\Exception $ex) {
