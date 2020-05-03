@@ -278,56 +278,10 @@ class ServiceController extends Controller
             DB::commit();
 
             try {
-
-
-
-
                 $reservation->update([
                     'approved' => $request->status, //approve reservation
                     'is_visit_doctor' => $complete
                 ]);
-
-
-/*
-                $totalBill = 0;
-                $comment = " نسبة ميدكال كول من كشف حجز نقدي";
-                $invoice_type = 0;
-                $mainProv = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
-                if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
-                    $provider_has_bill = 0;
-                } else {
-                    $provider_has_bill = 1;
-
-                }
-
-                if (!is_numeric($mainProv->application_percentage_bill_insurance) || $mainProv->application_percentage_bill_insurance == 0) {
-                    $provider_has_bill_insurance = 0;
-                } else {
-                    $provider_has_bill_insurance = 1;
-                }
-
-                // get bill total only if discount apply to this provider  on bill and the reservation without coupons "bill case"
-                if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
-                    if (!$request->has('bill_total')) {
-                        if ($request->bill_total <= 0) {
-                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
-                        } else {
-                            $totalBill = $request->bill_total;
-                        }
-                    }
-                }
-
-                // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
-                if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
-                    if (!$request->has('bill_total')) {
-                        if ($request->bill_total <= 0) {
-                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
-                        } else {
-                            $totalBill = $request->bill_total;
-                        }
-                    }
-                }
-*/
 
                 $name = 'name_' . app()->getLocale();
 
