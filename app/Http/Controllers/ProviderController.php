@@ -1224,7 +1224,9 @@ class ProviderController extends Controller
                         $reservation->reservation_type = 'clinic_services';
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
-                    } else {
+                    } elseif ($request->type == 'doctor') {
+                        $reservation->reservation_type = 'doctor';
+                    }else {
                         $reservation->reservation_type = 'undefined';
                     }
                     return $reservation;

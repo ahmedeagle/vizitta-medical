@@ -271,8 +271,12 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('change-status', 'ServiceController@ChangeReservationStatus');
                 Route::post('reservations/details', 'ServiceController@getReservationDetails');
             });
-        });
 
+            Route::group(['prefix' => 'offers'], function () {
+                Route::post('change-status', 'OffersController@ChangeOfferStatus');
+            });
+
+        });
         //api to get all reservation doctor ,services,consulting and offers reservation
         Route::post('new-reservations', 'ProviderController@getNewReservationsBytype')-> middleware(['CheckProviderToken', 'CheckProviderStatus']);
         Route::post('current-reservations', 'ProviderController@getCurrentReservationsBytype')-> middleware(['CheckProviderToken', 'CheckProviderStatus']);

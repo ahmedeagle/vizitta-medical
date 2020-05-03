@@ -1197,7 +1197,7 @@ class OffersController extends Controller
             $banners = $this->getBannersV2List();
             if (count($banners->toArray()) > 0) {
                 $banners->each(function ($banner) {
-                    $sub_direct_id =0;
+                    $sub_direct_id = 0;
                     $direct_id = 0;
                     if ($banner->type == 'App\Models\OfferCategory') {
                         $type = 'category';
@@ -1210,7 +1210,7 @@ class OffersController extends Controller
                             $direct_type = 'أقسام';
                             $direct_to = @$category->{'name_' . app()->getLocale()};
                             $direct_id = $category->id ? $category->id : 0; //specific  offer category _id
-                            $sub_direct_id = $banner -> subCategory_id ? $banner -> subCategory_id : 0;
+                            $sub_direct_id = $banner->subCategory_id ? $banner->subCategory_id : 0;
                         }
                     } elseif ($banner->type == 'App\Models\Offer') {
                         $type = 'offer';
@@ -1229,7 +1229,7 @@ class OffersController extends Controller
                             $direct = 'الخدمات';
                         }
                         $direct_to = $direct;
-                        $direct_id = $banner -> type_id ;
+                        $direct_id = $banner->type_id;
 
                     } elseif ($banner->type == 'App\Models\MedicalCenter') {
                         $type = 'center';
@@ -1262,20 +1262,20 @@ class OffersController extends Controller
                     return $banner;
                 });
 
-              /*  $total_count = $banners->total();
+                /*  $total_count = $banners->total();
 
-                $banners = json_decode($banners->toJson());
-                $bannersJson = new \stdClass();
-                $bannersJson->current_page = $banners->current_page;
-                $bannersJson->total_pages = $banners->last_page;
-                $bannersJson->total_count = $total_count;
-                $bannersJson->per_page = PAGINATION_COUNT;
-                $bannersJson->data = $banners->data;*/
+                  $banners = json_decode($banners->toJson());
+                  $bannersJson = new \stdClass();
+                  $bannersJson->current_page = $banners->current_page;
+                  $bannersJson->total_pages = $banners->last_page;
+                  $bannersJson->total_count = $total_count;
+                  $bannersJson->per_page = PAGINATION_COUNT;
+                  $bannersJson->data = $banners->data;*/
             }
             return $this->returnData('banners', $banners);
         } catch (\Exception $ex) {
             return $ex;
-           // return $this->returnError($ex->getCode(), $ex->getMessage());
+            // return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
@@ -1682,6 +1682,119 @@ class OffersController extends Controller
                 return $this->returnData('times', $times);
             }
             return $this->returnError('E001', trans('messages.No doctor times found'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public
+    function ChangeOfferStatus(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_id" => "required|exists:reservations,id",
+                "status" => "required|in:1,2,3" //1->approved 2->cancelled 3 ->complete
+            ]);
+
+            if ($request->status == 2) {
+                $validator->addRules([
+                    'rejected_reason_id' => 'required|string',
+                    'rejected_reason_notes' => 'sometimes|nullable|string',
+                ]);
+            }
+            if ($request->status == 3) {
+                $validator->addRules([
+                    "arrived" => "required|in:0,1"
+                ]);
+            }
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            $provider = $this->auth('provider-api');
+
+            $reservation = Reservation::whereNotNull('offer_id')->where('id', $request -> reservation_id)->with('user')->first();;
+            if (!$reservation)
+                return $this->returnError('D000', trans('messages.No reservation with this number'));
+
+            if ($reservation->approved == 1 && $request->status == 1)
+                return $this->returnError('E001', trans('messages.Reservation already approved'));
+
+            if ($reservation->approved == 2 && $request->status == 2)
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+
+            if ($reservation->approved == 3 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation already Completed'));
+
+            if ($reservation->approved == 2 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation already rejected'));
+
+            if ($reservation->approved == 0 && $request->status == 3)
+                return $this->returnError('E001', trans('messages.Reservation must be approved first'));
+
+
+            if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
+            ) {
+
+                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+            }
+
+
+            //  $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
+
+            /* if ($ReservationsNeedToClosed > 0) {
+                 return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
+             }*/
+
+            $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
+
+            DB::commit();
+
+            try {
+
+                $reservation->update([
+                    'approved' => $request->status, //approve reservation
+                    'is_visit_doctor' => $complete
+                ]);
+
+                $name = 'name_' . app()->getLocale();
+
+                if ($request->status == 1) {  //approve
+                    $message_res = __('messages.Reservation approved successfully');
+                    $bodyProvider = __('messages.approved user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.approved your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                } elseif ($request->status == 2) {  //cancelled
+                    $message_res = __('messages.Reservation rejected successfully');
+                    $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                } elseif ($request->status == 3) { // complete reservation
+                    if ($complete == 1) { //when reservation complete and user arrived to branch
+                        $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()}  ";
+                        $bodyUser = __('messages.complete your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()}  - ";
+                    } else {
+                        $bodyProvider = __('messages.canceled your reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                        $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                    }
+                    $message_res = $bodyUser;
+                } else {
+                    $bodyProvider = '';
+                    $bodyUser = '';
+                }
+                //send push notification
+
+
+ return                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
+
+            } catch (\Exception $ex) {
+            }
+            return $this->returnSuccessMessage($message_res);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
