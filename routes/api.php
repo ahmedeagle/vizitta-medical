@@ -213,12 +213,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('available/times', 'DoctorController@getAvailableTimes')->name('provider.doctor.available.times');
         });
 
-        // services routes
-        Route::group(['prefix' => 'services'], function () {
-            Route::post('index', 'GlobalProviderController@getProviderServices');
-        });
-
-
         // provider which has token
         Route::group(['middleware' => ['CheckProviderToken', 'CheckProviderStatus']], function () {
             Route::group(['prefix' => 'branch'], function () {
@@ -227,6 +221,14 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('update/reservation', 'ProviderBranchController@UpdateReservationDateTime')->name('provider.update.reservation');
                 Route::post('reservations', 'ProviderBranchController@branchesFixedReservations')->name('provider.branch.reservations');
             });
+
+            // services routes
+            Route::group(['prefix' => 'services'], function () {
+                Route::post('index', 'GlobalProviderController@getProviderServices');
+                Route::post('getAllProviderBranchesList', 'GlobalProviderController@getAllProviderBranchesList');
+                Route::post('store', 'GlobalProviderController@store');
+            });
+
 
             Route::post('logout', 'ProviderController@logout')->name('provider.logout');
             Route::post('custom/pages', 'CustomPagesController@getProviderPages')->name('provider.custom.pages');
