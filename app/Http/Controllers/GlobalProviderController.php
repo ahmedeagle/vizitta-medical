@@ -51,6 +51,7 @@ class GlobalProviderController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
+                "provider_id" => "required",
                 "service_type" => "nullable|in:1,2",
             ];
             $validator = Validator::make($requestData, $rules);
