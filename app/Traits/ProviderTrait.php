@@ -706,7 +706,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'),'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -734,7 +734,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'),'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -798,7 +798,8 @@ trait ProviderTrait
         return $reservations = Reservation::with(['offer' => function ($q) {
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
-                'expired_at'
+                'expired_at',
+                'price'
             );
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -823,7 +824,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'),'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -851,7 +852,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'))
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'),'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -916,7 +917,8 @@ trait ProviderTrait
         return $reservations = Reservation::with(['offer' => function ($q) {
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
-                'expired_at'
+                'expired_at',
+                'price'
             );
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
