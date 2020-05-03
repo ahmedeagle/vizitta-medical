@@ -1216,7 +1216,7 @@ class ProviderController extends Controller
             $reservations = $this->currentReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
-                $reservations->getCollection()->each(function ($reservation) use ($request) {
+                $reservations->getCollection()->each(function ($reservation) use ($provider, $request) {
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
@@ -1225,27 +1225,40 @@ class ProviderController extends Controller
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
                     } elseif ($request->type == 'doctor') {
-                        $reservation->reservation_type = 'doctor';
-                    }else {
-                        $reservation->reservation_type = 'undefined';
-                    }
-                    return $reservation;
-                });
 
-                $total_count = $reservations->total();
-                $reservations = json_decode($reservations->toJson());
-                $reservationsJson = new \stdClass();
-                $reservationsJson->current_page = $reservations->current_page;
-                $reservationsJson->total_pages = $reservations->last_page;
-                $reservationsJson->total_count = $total_count;
-                $reservationsJson->per_page = PAGINATION_COUNT;
-                $reservationsJson->data = $reservations->data;
-                return $this->returnData('reservations', $reservationsJson);
-            }
+                        $provider->makeVisible(['application_percentage_bill']);
+                        $provider_has_bill = 0;
+
+                        if ($provider->provider_id == null) { // provider
+                            if (!is_numeric($provider->application_percentage_bill) || $provider->application_percentage_bill == 0) {
+                                $provider_has_bill = 0;
+                            } else {
+                                $provider_has_bill = 1;
+                            }
+                            $reservation->reservation_type = 'doctor';
+                            $reservation->provider_has_bill = $provider_has_bill;
+                        } else {
+                            $reservation->reservation_type = 'undefined';
+                        }
+                        return $reservation;
+                    });
+
+                    $total_count = $reservations->total();
+                    $reservations = json_decode($reservations->toJson());
+                    $reservationsJson = new \stdClass();
+                    $reservationsJson->current_page = $reservations->current_page;
+                    $reservationsJson->total_pages = $reservations->last_page;
+                    $reservationsJson->total_count = $total_count;
+                    $reservationsJson->per_page = PAGINATION_COUNT;
+                    $reservationsJson->data = $reservations->data;
+                    return $this->returnData('reservations', $reservationsJson);
+                }
             return $this->returnData('reservations', $reservations);
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+        catch
+            (\Exception $ex) {
+                return $this->returnError($ex->getCode(), $ex->getMessage());
+            }
     }
 
 

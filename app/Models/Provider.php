@@ -45,7 +45,7 @@ class Provider extends Authenticatable implements JWTSubject
     ];  // to append coulms to table virtual
 
     protected $hidden = [
-        'created_at', 'password' /*, 'city_id', 'type_id', 'district_id'*/, 'updated_at', 'no_of_sms', 'activation', 'device_token', 'web_token', 'application_percentage', 'application_percentage_bill',
+        'created_at', 'password' /*, 'city_id', 'type_id', 'district_id'*/, 'updated_at', 'no_of_sms', 'activation', /*'device_token',*/ 'web_token', 'application_percentage', 'application_percentage_bill',
         'odoo_provider_id', 'adminprices'
     ];
 

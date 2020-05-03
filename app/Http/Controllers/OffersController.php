@@ -1717,7 +1717,7 @@ class OffersController extends Controller
             \Illuminate\Support\Facades\DB::beginTransaction();
             $provider = $this->auth('provider-api');
 
-            $reservation = Reservation::whereNotNull('offer_id')->where('id', $request -> reservation_id)->with('user')->first();;
+            $reservation = Reservation::whereNotNull('offer_id')->where('id', $request->reservation_id)->with('user')->first();;
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
@@ -1788,8 +1788,7 @@ class OffersController extends Controller
                 }
                 //send push notification
 
-
- return                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
             } catch (\Exception $ex) {
