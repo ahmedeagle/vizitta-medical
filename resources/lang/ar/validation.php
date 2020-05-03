@@ -262,6 +262,8 @@ return [
         'has_home_visit' => 'خدمة الزياره المنزليه',
         'specification_id' => 'التخصص',
         'service_id'   => ' رقم الخدمة',
+        'hours_duration'   => 'المدة المطلوبة',
+        'service_type'   => 'نوع الخدمة',
 
 
     ],
