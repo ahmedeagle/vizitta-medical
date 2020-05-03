@@ -5,24 +5,33 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ProviderServicesResource extends JsonResource
+class ProviderServicesResource extends ResourceCollection
 {
     public function toArray($request)
     {
-//        $result['data'] = $this->collection->transform(function ($data) {
+        $result['data'] = $this->collection->transform(function ($data) {
             return [
-                'id' => $this->id,
+                'id' => $data->id,
+                'title' => app()->getLocale() == 'ar' ? $data->title_ar : $data->title_en,
+                'title_ar' => $data->title_ar,
+                'title_en' => $data->title_en,
+                'rate' => $data->rate,
+                'price' => $data->price,
+                'clinic_price_duration' => $data->clinic_price_duration,
+                'home_price_duration' => $data->home_price_duration,
+                'hide' => $data->hide,
+                'type' => $data->types,
             ];
-//        });
-//
-//        $result['pagination'] = [
-//            'total' => $this->total(),
-//            'count' => $this->count(),
-//            'per_page' => $this->perPage(),
-//            'current_page' => $this->currentPage(),
-//            'total_pages' => $this->lastPage()
-//        ];
-//        return $result;
+        });
+
+        $result['pagination'] = [
+            'total' => $this->total(),
+            'count' => $this->count(),
+            'per_page' => $this->perPage(),
+            'current_page' => $this->currentPage(),
+            'total_pages' => $this->lastPage()
+        ];
+        return $result;
     }
 
 }

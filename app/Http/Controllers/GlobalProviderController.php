@@ -59,9 +59,9 @@ class GlobalProviderController extends Controller
             })->orderBy('id', 'DESC')
                 ->paginate(PAGINATION_COUNT);
 
-//            $result = new ProviderServicesResource($services);
+            $result = new ProviderServicesResource($services);
 
-            if (count($services->toArray()) > 0) {
+            /*if (count($services->toArray()) > 0) {
 
                 $total_count = $services->total();
                 $services = json_decode($services->toJson());
@@ -72,9 +72,9 @@ class GlobalProviderController extends Controller
                 $servicesJson->per_page = PAGINATION_COUNT;
                 $servicesJson->data = $services->data;
                 return $this->returnData('services', $servicesJson);
-            }
+            }*/
 
-            return $this->returnData('services', $services);
+            return $this->returnData('services', $result);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

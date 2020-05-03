@@ -124,6 +124,7 @@ class GlobalVisitsController extends Controller
                 "from_time" => "required",
                 "to_time" => "required",
                 "price" => "required",
+                "hours_duration" => "nullable|required_if:service_type,1",
             ];
             $validator = Validator::make($requestData, $rules);
 
