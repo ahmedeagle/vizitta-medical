@@ -1140,7 +1140,7 @@ class ProviderController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:home_services,clinic_services",
+                "type" => "required|in:home_services,clinic_services,doctor,offer",
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -1156,18 +1156,22 @@ class ProviderController extends Controller
                 $branches = [$provider->id];
             }
 
-              $reservations = $this->NewReservationsByType($branches, $type);
+            $reservations = $this->NewReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
-                $reservations->getCollection()->each(function ($reservation) use($request){
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
-                     if($request -> type == 'home_services'){
-                         $reservation-> reservation_type = 'home_services';
-                     }elseif ($request -> type == 'clinic_services'){
-                         $reservation-> reservation_type = 'clinic_services';
-                     }else{
-                         $reservation-> reservation_type = 'undefined';
-                     }
+                    if ($request->type == 'home_services') {
+                        $reservation->reservation_type = 'home_services';
+                    } elseif ($request->type == 'clinic_services') {
+                        $reservation->reservation_type = 'clinic_services';
+                    } elseif ($request->type == 'doctor') {
+                        $reservation->reservation_type = 'doctor';
+                    } elseif ($request->type == 'offer') {
+                        $reservation->reservation_type = 'offer';
+                    } else {
+                        $reservation->reservation_type = 'undefined';
+                    }
                     return $reservation;
                 });
 
@@ -1179,6 +1183,7 @@ class ProviderController extends Controller
                 $reservationsJson->total_count = $total_count;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
+
                 return $this->returnData('reservations', $reservationsJson);
             }
             return $this->returnData('reservations', $reservations);
@@ -1192,7 +1197,7 @@ class ProviderController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:home_services,clinic_services",
+                "type" => "required|in:home_services,clinic_services,doctor,offer",
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -1208,17 +1213,19 @@ class ProviderController extends Controller
                 $branches = [$provider->id];
             }
 
-             $reservations = $this->currentReservationsByType($branches, $type);
+            $reservations = $this->currentReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
-                $reservations->getCollection()->each(function ($reservation) use($request){
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
-                    if($request -> type == 'home_services'){
-                        $reservation-> reservation_type = 'home_services';
-                    }elseif ($request -> type == 'clinic_services'){
-                        $reservation-> reservation_type = 'clinic_services';
-                    }else{
-                        $reservation-> reservation_type = 'undefined';
+                    if ($request->type == 'home_services') {
+                        $reservation->reservation_type = 'home_services';
+                    } elseif ($request->type == 'clinic_services') {
+                        $reservation->reservation_type = 'clinic_services';
+                    } elseif ($request->type == 'offer') {
+                        $reservation->reservation_type = 'offer';
+                    } else {
+                        $reservation->reservation_type = 'undefined';
                     }
                     return $reservation;
                 });
@@ -1364,7 +1371,7 @@ class ProviderController extends Controller
                 return $this->returnData('balances', $balanceJson);
             }
             return $this->returnError('E001', trans("messages.No balance founded"));
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
