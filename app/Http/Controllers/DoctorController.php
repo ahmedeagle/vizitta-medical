@@ -438,6 +438,7 @@ class DoctorController extends Controller
                 $collection = collect($doctor->times);
                 $filtered = $collection->filter(function ($value, $key) {
 
+
                     if (date('Y-m-d') == $value['date'])
                         return $value['from_time'] > date('H:i:s');
                     else
