@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ServiceReservation extends Model
 {
@@ -241,9 +242,9 @@ class ServiceReservation extends Model
 
     public function getPriceAttribute($value)
     {
-       /* if ($this->payment_method_id != 1) {
-            return "0";
-        }*/
+        /* if ($this->payment_method_id != 1) {
+             return "0";
+         }*/
         return $value;
     }
 
@@ -393,5 +394,44 @@ class ServiceReservation extends Model
     public function type()
     {
         return $this->belongsTo('App\Models\ServiceType', 'service_type', 'id');
+    }
+
+    public function scopeServiceSelection($query)
+    {
+
+        return $query->select(
+            "id",
+            "reservation_no",
+            DB::raw("'' as offer_id"),
+            DB::raw("'' as doctor_id"),
+            "service_id",
+            "day_date",
+            "from_time",
+            "to_time",
+            "last_day_date",
+            "last_from_time",
+            "last_to_time",
+            DB::raw("'' as doctor_rate"),
+            "service_rate",
+            "provider_rate",
+            DB::raw("'' as offer_rate"),
+            "paid",
+            "approved",
+            DB::raw("0 as use_insurance"),
+            DB::raw("'' as promocode_id"),
+            "provider_id",
+                "branch_id",
+                "price",
+                "total_price",
+                "rate_comment",
+                "rate_date",
+                "service_type",
+                "latitude",
+                "longitude",
+                "hours_duration",
+            DB::raw("'' as address"),
+            "user_id",
+            "payment_method_id"
+        );
     }
 }

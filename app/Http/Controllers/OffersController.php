@@ -1794,7 +1794,7 @@ class OffersController extends Controller
                     'is_visit_doctor' => $complete
                 ]);
 
-                $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
+                return $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
                 $application_percentage_of_offer = $reservation->offer->application_percentage ? $reservation->offer->application_percentage : 0;
 
                 if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
@@ -1813,7 +1813,7 @@ class OffersController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (عرض) حجز الكتروني ";
                     $invoice_type = 0;
                     try {
-                        $this->calculateOfferReservationBalance($provider, $payment_method, $application_percentage_of_offer, $reservation, $request);
+                        $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
                     } catch (\Exception $ex) {
                     }
                 }
@@ -1857,26 +1857,48 @@ class OffersController extends Controller
 
     protected function calculateOfferReservationBalance($application_percentage_of_offer, Reservation $reservation)
     {
-        $reservationBalance = 0;
 
-        $discountType = " فاتورة حجز نقدي لعرض ";
-        $total_amount = $reservation->offer->price_after_discount;
-        $MC_percentage = $application_percentage_of_offer;
-        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
-        $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+        if ($reservation->paymentMethod->id == 1) {//cash
+            $discountType = " فاتورة حجز نقدي لعرض ";
+            $total_amount = $reservation->offer->price_after_discount;
+            $MC_percentage = $application_percentage_of_offer;
+            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
-        $provider = $reservation->provider;  // always get branch
-        $provider->update([
-            'balance' => $provider->balance - $reservationBalance,
-        ]);
-        $reservation->update([
-            'discount_type' => $discountType,
-        ]);
-        $manager = $this->getAppInfo();
-        $manager->update([
-            'balance' => $manager->unpaid_balance + $reservationBalance
-        ]);
+            $provider = $reservation->provider;  // always get branch
+            $provider->update([
+                'balance' => $provider->balance - $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            $manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);
+        } else {
+
+            $discountType = " فاتورة حجز الكتروني لعرض ";
+            $total_amount = $reservation->offer->price_after_discount;
+            $MC_percentage = $application_percentage_of_offer;
+            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $provider = $reservation->provider;  // always get branch
+            $provider->update([
+                'balance' => $provider->balance - $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            $manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);
+
+        }
 
         return true;
 

@@ -239,6 +239,6 @@ class Doctor extends Authenticatable implements JWTSubject
         }
     }
 
-
 }
+
 

@@ -130,9 +130,5 @@ class Service extends Model
     }
 
 
-    public function scopeSelection($query){
-
-        return $query -> select('id','');
-    }
 }
 

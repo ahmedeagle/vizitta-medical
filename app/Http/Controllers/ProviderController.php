@@ -1139,7 +1139,7 @@ class ProviderController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:home_services,clinic_services,doctor,offer",
+                "type" => "required|in:home_services,clinic_services,doctor,offer,all",
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -1168,6 +1168,8 @@ class ProviderController extends Controller
                         $reservation->reservation_type = 'doctor';
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
+                    } elseif ($request->type == 'all') {
+                             $this  -> addReservationTypeToResult($reservation);
                     } else {
                         $reservation->reservation_type = 'undefined';
                     }
@@ -1215,7 +1217,7 @@ class ProviderController extends Controller
             $reservations = $this->currentReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
-                $reservations->getCollection()->each(function ($reservation) use ($provider,$request) {
+                $reservations->getCollection()->each(function ($reservation) use ($provider, $request) {
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
@@ -1244,7 +1246,7 @@ class ProviderController extends Controller
                         }
 
                         $reservation->provider_has_bill = $provider_has_bill;
-                    }else {
+                    } else {
                         $reservation->reservation_type = 'undefined';
                     }
                     return $reservation;
@@ -2337,6 +2339,13 @@ class ProviderController extends Controller
         }
         return $this->returnError('E001', trans('messages.There is no provider with this id'));
 
+    }
+
+    private function addReservationTypeToResult($reservation)
+    {
+           //doctor  -  home services  -   clinic services  - offer
+
+          /// if($reservation -> )
     }
 
 

@@ -431,4 +431,95 @@ class Reservation extends Model
             return
                 $val;
     }
+
+    public function scopeDoctorSelection($query)
+    {
+        return $query->select('id',
+            "reservation_no",
+            "offer_id",
+            "doctor_id",
+            DB::raw("'' as service_id"),
+            "day_date",
+            "from_time",
+            "to_time",
+            "last_day_date",
+            "last_from_time",
+            "last_to_time",
+            "doctor_rate",
+            DB::raw("'' as service_rate"),
+            "provider_rate",
+            "offer_rate",
+            "paid",
+            "approved",
+            "use_insurance",
+            "promocode_id",
+            "provider_id",
+            DB::raw("'' as branch_id"),
+            "price",
+            DB::raw("'' as total_price"),
+            "rate_comment",
+            "rate_date",
+            DB::raw("'' as service_type"),
+            DB::raw("'' as latitude"),
+            DB::raw("'' as longitude"),
+            DB::raw("'' as hours_duration"),
+            "address",
+            "user_id",
+            "payment_method_id"
+
+        );
+    }
+
+    public
+    function scopeOfferReservationSelection($query)
+    {
+        return $query->select(
+            "id",
+            "reservation_no",
+            "offer_id",
+            "doctor_id",
+            DB::raw("'' as service_id"),
+            "day_date",
+            "from_time",
+            "to_time",
+            "last_day_date",
+            "last_from_time",
+            "last_to_time",
+            "doctor_rate",
+            DB::raw("'' as service_rate"),
+            "provider_rate",
+            "offer_rate",
+            "paid",
+            "approved",
+            "use_insurance",
+            "promocode_id",
+            "provider_id",
+            DB::raw("'' as branch_id"),
+            "price",
+            DB::raw("'' as total_price"),
+            "rate_comment",
+            "rate_date",
+            DB::raw("'' as service_type"),
+            DB::raw("'' as latitude"),
+            DB::raw("'' as longitude"),
+            DB::raw("'' as hours_duration"),
+            "address",
+            "user_id",
+            "payment_method_id"
+             );
+    }
+
+
+    //for union only
+    public function type()
+    {
+        return $this->belongsTo('App\Models\ServiceType', 'service_type', 'id')->withDefault(["name" => ""]);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo('App\Models\Service', 'service_id')->withDefault(["name" => ""]);
+    }
+
+
 }
