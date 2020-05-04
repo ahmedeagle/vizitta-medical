@@ -32,6 +32,8 @@ class GlobalProviderController extends Controller
 
     }
 
+    ############################ Start Services Section ###########################
+
     public function getProviderServices(Request $request)
     {
         try {
@@ -205,7 +207,6 @@ class GlobalProviderController extends Controller
         }
     }
 
-
     public function destroyService(Request $request)
     {
         try {
@@ -234,5 +235,88 @@ class GlobalProviderController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    public function toggleService(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "service_id" => "required|numeric|exists:services,id",
+                "api_token" => "required",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->getData($request->api_token);
+            $service = Service::where('provider_id', $provider->id)->find($request->service_id);
+
+            if (!$service)
+                return $this->returnError('D000', __('messages.service not found'));
+
+            $newStatus = $service->status == 0 ? 1 : 0; // 0 => not active && 1=> active
+            $service->update([
+                'status' => $newStatus,
+            ]);
+
+            $result = ['status' => $newStatus];
+
+            if ($newStatus == 0)
+                return $this->returnData('service', $result, trans('messages.The service was hidden successfully'));
+            else
+                return $this->returnData('service', $result, trans('messages.The service was shown successfully'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    ############################ End Services Section #############################
+
+
+    ############################ Start Consulting Section ###########################
+
+    public function getProviderConsulting(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "type" => "required|in:1,2",
+                "api_token" => "required",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->getData($request->api_token);
+
+//            $type = $request->service_type;
+//            if (!$provider)
+//                return $this->returnError('E001', trans('messages.No provider with this id'));
+//
+//            if (empty($type)) {
+//                $services = Service::with('types')->whereHas('provider', function ($q) use ($provider) {
+//                    $q->where('id', $provider->id);
+//                })->orderBy('id', 'DESC')
+//                    ->paginate(PAGINATION_COUNT);
+//            } else {
+//                $services = Service::whereHas('types', function ($q) use ($type) {
+//                    $q->where('type_id', $type);
+//                })->whereHas('provider', function ($q) use ($provider) {
+//                    $q->where('id', $provider->id);
+//                })->orderBy('id', 'DESC')
+//                    ->paginate(PAGINATION_COUNT);
+//            }
+//
+//            $result = new ProviderServicesResource($services);
+
+            return $this->returnData('services', $result);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    ############################ End Consulting Section #############################
 
 }

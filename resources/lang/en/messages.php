@@ -293,6 +293,8 @@ return [
     'service not found' => 'Service is not found',
     'can not delete service with reservations' => 'can not delete service with reservations',
     'Service deleted successfully' => 'Service deleted successfully',
+    'The service was hidden successfully' => 'The service was hidden successfully',
+    'The service was shown successfully' => 'The service was shown successfully',
 
 
 
