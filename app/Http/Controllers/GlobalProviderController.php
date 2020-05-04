@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CPanel\MainActiveProvidersResource;
+use App\Http\Resources\CustomReservationsResource;
 use App\Http\Resources\ProviderServicesResource;
 use App\Models\DoctorConsultingReservation;
 use App\Models\Reservation;
@@ -427,10 +428,6 @@ class GlobalProviderController extends Controller
                     });
                 })
                 ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "promocode_id", "doctor_id", "provider_id");
-//                ->paginate(PAGINATION_COUNT);
-
-//            $reservations->makeHidden(['is_reported', 'branch_no', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report', 'for_me']);
-//            $reservations->makeVisible(['doctor_id']);
 
             #################### End Reservations ######################
 
@@ -450,24 +447,24 @@ class GlobalProviderController extends Controller
                 ->union($reservations)
                 ->paginate(PAGINATION_COUNT);
 
-//            $consulting->makeHidden(['mainprovider', 'branch_name', 'is_reported', 'branch_no', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report', 'for_me', 'rejected_reason_type']);
-//            $consulting->makeVisible(['doctor_id']);
 
+//            $result = $consulting;
+            $result = new CustomReservationsResource($consulting);
+            return $this->returnData('reservations', $result);
 
-            $result = $consulting;
+//            if (count($result->toArray()) > 0) {
+//                $total_count = $result->total();
+//                $result = json_decode($result->toJson());
+//                $resultJson = new \stdClass();
+//                $resultJson->current_page = $result->current_page;
+//                $resultJson->total_pages = $result->last_page;
+//                $resultJson->total_count = $total_count;
+//                $resultJson->per_page = PAGINATION_COUNT;
+//                $resultJson->data = $result->data;
+//                return $this->returnData('reservations', $resultJson);
+//            }
 
-            if (count($result->toArray()) > 0) {
-                $total_count = $result->total();
-                $result = json_decode($result->toJson());
-                $resultJson = new \stdClass();
-                $resultJson->current_page = $result->current_page;
-                $resultJson->total_pages = $result->last_page;
-                $resultJson->total_count = $total_count;
-                $resultJson->per_page = PAGINATION_COUNT;
-                $resultJson->data = $result->data;
-                return $this->returnData('reservations', $resultJson);
-            }
-            return $this->returnError('E001', trans('messages.No medical reservations founded'));
+//            return $this->returnError('E001', trans('messages.No medical reservations founded'));
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());

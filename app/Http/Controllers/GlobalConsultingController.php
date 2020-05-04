@@ -107,7 +107,12 @@ class GlobalConsultingController extends Controller
                     ->where('to_time', $value['to_time'])
                     ->first();
 
-                return strtotime($value['from_time']) >= strtotime(date('H:i:s')) && is_null($checkTime);
+                if (date('Y-m-d') == $dayDate)
+                    return $value['from_time'] > date('H:i:s') && is_null($checkTime);
+                else
+                    return $value && is_null($checkTime);
+
+//                return strtotime($value['from_time']) >= strtotime(date('H:i:s')) && is_null($checkTime);
             });
             $docTimes = array_values($filtered->all());
             ########### End To Get Times After The Current Time ############
