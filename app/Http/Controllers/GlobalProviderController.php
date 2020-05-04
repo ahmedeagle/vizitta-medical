@@ -205,4 +205,34 @@ class GlobalProviderController extends Controller
         }
     }
 
+
+    public function destroyService(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "service_id" => "required|numeric|exists:services,id",
+                "api_token" => "required",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->getData($request->api_token);
+            $service = Service::where('provider_id', $provider->id)->find($request->service_id);
+
+            if (!$service)
+                return $this->returnError('D000', __('messages.service not found'));
+
+            if ($service->reservations()->count() > 0)
+                return $this->returnError('D000', __('messages.can not delete service with reservations'));
+            else
+                $service->delete();
+
+            return $this->returnSuccessMessage(trans('messages.Service deleted successfully'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 }
