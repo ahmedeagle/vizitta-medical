@@ -320,5 +320,7 @@ return [
     'service not found' => 'هذه الخدمة غير موجوده',
     'can not delete service with reservations' => 'لا يمكن حذف خدمة مرتبطة بحجوزات',
     'Service deleted successfully' => 'تم حذف الخدمة بنجاح',
+    'The service was hidden successfully' => 'تم اخفاء الخدمة بنجاح',
+    'The service was shown successfully' => 'تم اظهار الخدمة بنجاح',
 
 ];

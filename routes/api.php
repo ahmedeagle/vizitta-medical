@@ -228,6 +228,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('getAllProviderBranchesList', 'GlobalProviderController@getAllProviderBranchesList');
                 Route::post('store', 'GlobalProviderController@storeService');
                 Route::post('destroy', 'GlobalProviderController@destroyService');
+                Route::post('toggle', 'GlobalProviderController@toggleService');
             });
 
 
