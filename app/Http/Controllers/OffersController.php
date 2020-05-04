@@ -1524,7 +1524,7 @@ class OffersController extends Controller
                 "paid" => 0,
                 "provider_id" => $request->provider_id,
                 'order' => $timeOrder,
-                'price' => $request->price
+                'price' => $offer->price_after_discount
             ]);
 
 
