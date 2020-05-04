@@ -33,20 +33,20 @@ class GlobalVisitsController extends Controller
     public function getClinicServiceAvailableTimes(Request $request)
     {
         try {
-             $requestData = $request->all();
-             $dayName = Str::lower(date('D', strtotime($requestData['reserve_day'])));
+            $requestData = $request->all();
+            $dayName = Str::lower(date('D', strtotime($requestData['reserve_day'])));
 
             $serviceTimes = [];
 
             if ($requestData['service_type'] == 2) { // clinic
-                   $service = Service::whereHas('types', function ($q) {
-                    $q->where('type_id',2);
+                $service = Service::whereHas('types', function ($q) {
+                    $q->where('type_id', 2);
                 })->find($requestData['service_id']);
                 if ($service) {
 //                     $serviceTimes = $service->times()->where('day_code', $dayName)->get();
-                     $times = $service->times()->where('day_code', $dayName)->get();
+                    $times = $service->times()->where('day_code', $dayName)->get();
                     foreach ($times as $key => $value) {
-                        $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $service -> reservation_period );
+                        $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $service->reservation_period);
                         foreach ($splitTimes as $k => $v) {
                             $s = [];
                             $s['id'] = $value->id;
@@ -62,7 +62,7 @@ class GlobalVisitsController extends Controller
                     }
                 }
             } else {
-                 $service = Service::whereHas('types', function ($q) {
+                $service = Service::whereHas('types', function ($q) {
                     $q->where('type_id', 1);
                 })->find($requestData['service_id']);
                 if ($service) {
@@ -99,7 +99,13 @@ class GlobalVisitsController extends Controller
                         ->where('to_time', $value['to_time'])
                         ->first();
 
-                    return /*strtotime($value['from_time']) >= strtotime(date('H:i:s')) &&*/ is_null($checkTime);
+                        if (date('Y-m-d') == $value['day_date'] && is_null($checkTime))
+                            return $value['from_time'] > date('H:i:s');
+                        else
+                            return is_null($checkTime);
+
+
+                   // return /*strtotime($value['from_time']) >= strtotime(date('H:i:s')) &&*/ is_null($checkTime);
                 });
                 $serTimes = array_values($filtered->all());
                 ########### End To Get Times After The Current Time ############
