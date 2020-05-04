@@ -1748,7 +1748,7 @@ class OffersController extends Controller
             \Illuminate\Support\Facades\DB::beginTransaction();
             $provider = $this->auth('provider-api');
 
-            $reservation = Reservation::whereNotNull('offer_id')->where('id', $request->reservation_id)->with('user')->first();;
+            $reservation = Reservation::whereNotNull('offer_id')->where('id', $request->reservation_id)->with('user')->first();
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
@@ -1794,6 +1794,31 @@ class OffersController extends Controller
                     'is_visit_doctor' => $complete
                 ]);
 
+                $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
+                $application_percentage_of_offer = $reservation->offer->application_percentage ? $reservation->offer->application_percentage : 0;
+
+                if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (عرض) حجز نقدي ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+
+                if ($payment_method != 1 && $request->status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (عرض) حجز الكتروني ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateOfferReservationBalance($provider, $payment_method, $application_percentage_of_offer, $reservation, $request);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+
                 $name = 'name_' . app()->getLocale();
 
                 if ($request->status == 1) {  //approve
@@ -1830,4 +1855,30 @@ class OffersController extends Controller
         }
     }
 
+    protected function calculateOfferReservationBalance($application_percentage_of_offer, Reservation $reservation)
+    {
+        $reservationBalance = 0;
+
+        $discountType = " فاتورة حجز نقدي لعرض ";
+        $total_amount = $reservation->offer->price_after_discount;
+        $MC_percentage = $application_percentage_of_offer;
+        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+        $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+        $provider = $reservation->provider;  // always get branch
+        $provider->update([
+            'balance' => $provider->balance - $reservationBalance,
+        ]);
+        $reservation->update([
+            'discount_type' => $discountType,
+        ]);
+        $manager = $this->getAppInfo();
+        $manager->update([
+            'balance' => $manager->unpaid_balance + $reservationBalance
+        ]);
+
+        return true;
+
+    }
 }
