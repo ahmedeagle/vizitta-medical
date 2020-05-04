@@ -289,5 +289,11 @@ return [
     'reservation deleted successfully' => 'reservation deleted successfully',
     'reservation status changed successfully'  =>'reservation status changed successfully',
     'Cannot delete approved reservation'  => 'Cannot delete approved or canceled reservation',
-    'provider id required' => 'branch id required'
+    'provider id required' => 'branch id required',
+    'service not found' => 'Service is not found',
+    'can not delete service with reservations' => 'can not delete service with reservations',
+    'Service deleted successfully' => 'Service deleted successfully',
+
+
+
 ];
