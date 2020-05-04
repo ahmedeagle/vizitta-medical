@@ -32,6 +32,8 @@ class GlobalProviderController extends Controller
 
     }
 
+    ############################ Start Services Section ###########################
+
     public function getProviderServices(Request $request)
     {
         try {
@@ -267,5 +269,54 @@ class GlobalProviderController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    ############################ End Services Section #############################
+
+
+    ############################ Start Consulting Section ###########################
+
+    public function getProviderConsulting(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $rules = [
+                "type" => "required|in:1,2",
+                "api_token" => "required",
+            ];
+            $validator = Validator::make($requestData, $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->getData($request->api_token);
+
+//            $type = $request->service_type;
+//            if (!$provider)
+//                return $this->returnError('E001', trans('messages.No provider with this id'));
+//
+//            if (empty($type)) {
+//                $services = Service::with('types')->whereHas('provider', function ($q) use ($provider) {
+//                    $q->where('id', $provider->id);
+//                })->orderBy('id', 'DESC')
+//                    ->paginate(PAGINATION_COUNT);
+//            } else {
+//                $services = Service::whereHas('types', function ($q) use ($type) {
+//                    $q->where('type_id', $type);
+//                })->whereHas('provider', function ($q) use ($provider) {
+//                    $q->where('id', $provider->id);
+//                })->orderBy('id', 'DESC')
+//                    ->paginate(PAGINATION_COUNT);
+//            }
+//
+//            $result = new ProviderServicesResource($services);
+
+            return $this->returnData('services', $result);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    ############################ End Consulting Section #############################
 
 }
