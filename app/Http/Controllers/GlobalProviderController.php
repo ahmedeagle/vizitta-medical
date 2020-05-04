@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CPanel\MainActiveProvidersResource;
 use App\Http\Resources\ProviderServicesResource;
+use App\Models\DoctorConsultingReservation;
+use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\Provider;
 use App\Models\ServiceTime;
@@ -12,9 +14,12 @@ use App\Traits\GlobalTrait;
 use App\Traits\OdooTrait;
 use App\Traits\SMSTrait;
 use Carbon\Carbon;
+use function foo\func;
 use Illuminate\Http\Request;
 use App\Traits\ProviderTrait;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Validator;
 use Auth;
 use Mail;
@@ -275,48 +280,200 @@ class GlobalProviderController extends Controller
 
     ############################ Start Consulting Section ###########################
 
-    public function getProviderConsulting(Request $request)
+    public function getProviderCurrentConsultingReservations(Request $request)
     {
         try {
-            $requestData = $request->all();
-            $rules = [
-                "type" => "required|in:1,2",
-                "api_token" => "required",
-            ];
-            $validator = Validator::make($requestData, $rules);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
             $provider = $this->getData($request->api_token);
+            $consultings = $this->getCurrentReservations($provider->id);
 
-//            $type = $request->service_type;
-//            if (!$provider)
-//                return $this->returnError('E001', trans('messages.No provider with this id'));
-//
-//            if (empty($type)) {
-//                $services = Service::with('types')->whereHas('provider', function ($q) use ($provider) {
-//                    $q->where('id', $provider->id);
-//                })->orderBy('id', 'DESC')
-//                    ->paginate(PAGINATION_COUNT);
-//            } else {
-//                $services = Service::whereHas('types', function ($q) use ($type) {
-//                    $q->where('type_id', $type);
-//                })->whereHas('provider', function ($q) use ($provider) {
-//                    $q->where('id', $provider->id);
-//                })->orderBy('id', 'DESC')
-//                    ->paginate(PAGINATION_COUNT);
-//            }
-//
-//            $result = new ProviderServicesResource($services);
+            if (isset($consultings) && $consultings->count() > 0) {
+                foreach ($consultings as $key => $consulting) {
+                    $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
+                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                    $consulting->consulting_start_date = $consulting_start_date;
+                    $consulting->consulting_end_date = $consulting_end_date;
+                    //return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
+                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $consulting->hours_duration)) {
+                        $consulting->allow_chat = 1;
+                    } else {
+                        $consulting->allow_chat = 0;
+                    }
+                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->doctor->makeHidden(['times']);
+                }
+            }
 
-            return $this->returnData('services', $result);
+            if (count($consultings->toArray()) > 0) {
+                $total_count = $consultings->total();
+                $consultings = json_decode($consultings->toJson());
+                $consultingsJson = new \stdClass();
+                $consultingsJson->current_page = $consultings->current_page;
+                $consultingsJson->total_pages = $consultings->last_page;
+                $consultingsJson->total_count = $total_count;
+                $consultingsJson->per_page = PAGINATION_COUNT;
+                $consultingsJson->data = $consultings->data;
+                return $this->returnData('reservations', $consultingsJson);
+            }
+            return $this->returnError('E001', trans('messages.No medical consulting founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
+    public function getCurrentReservations($id)
+    {
+        return DoctorConsultingReservation::current()
+            ->with([
+                'doctor' => function ($q) {
+                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
+                        $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+                }, 'paymentMethod' => function ($qu) {
+                    $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }])
+//            ->where('user_id', $id)
+            ->where(function ($q) use ($id) {
+                $q->where('provider_id', $id)
+                    ->orWhere('branch_id', $id);
+            })
+            //->where('day_date', '>=', Carbon::now()
+            //  ->format('Y-m-d'))
+            ->orderBy('day_date')
+            ->orderBy('order')
+            ->select('id', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    public function getProviderFinishedConsultingReservations(Request $request)
+    {
+        try {
+            $provider = $this->getData($request->api_token);
+            $consultings = $this->getFinishedReservations($provider->id);
+            if (isset($consultings) && $consultings->count() > 0) {
+                foreach ($consultings as $key => $consulting) {
+                    $consulting->allow_chat = 0;
+                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->doctor->makeHidden(['times']);
+                }
+            }
+
+            if (count($consultings->toArray()) > 0) {
+                $total_count = $consultings->total();
+                $consultings = json_decode($consultings->toJson());
+                $consultingsJson = new \stdClass();
+                $consultingsJson->current_page = $consultings->current_page;
+                $consultingsJson->total_pages = $consultings->last_page;
+                $consultingsJson->total_count = $total_count;
+                $consultingsJson->per_page = PAGINATION_COUNT;
+                $consultingsJson->data = $consultings->data;
+                return $this->returnData('reservations', $consultingsJson);
+            }
+            return $this->returnError('E001', trans('messages.No medical consulting founded'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function getFinishedReservations($id)
+    {
+        return DoctorConsultingReservation::finished()
+            ->with([
+                'doctor' => function ($q) {
+                    $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
+                        $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+                }, 'paymentMethod' => function ($qu) {
+                    $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }])
+//            ->where('user_id', $id)
+            ->where(function ($q) use ($id) {
+                $q->where('provider_id', $id)
+                    ->orWhere('branch_id', $id);
+            })
+            //->where('day_date', '>=', Carbon::now()
+            //  ->format('Y-m-d'))
+            ->orderBy('day_date')
+            ->orderBy('order')
+            ->select('id', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
+            ->paginate(PAGINATION_COUNT);
+    }
+
     ############################ End Consulting Section #############################
+
+    ############################ Start reservations-record Section #############################
+
+    public function getAllReservationsRecord(Request $request)
+    {
+        try {
+            $provider = $this->getData($request->api_token);
+            $reservationType = $request->filter_type;
+
+            if ($provider->provider_id == null) { //main provider
+                $branches = $provider->providers()->pluck('id')->toArray();
+                array_unshift($branches, $provider->id);
+            } else {
+                $branches = [$provider->id];
+            }
+
+            #################### Start Reservations ######################
+
+            $reservations = Reservation::whereIn('provider_id', $branches)
+                ->where('approved', 2)// canceled
+                ->orWhere(function ($q) {
+                    $q->where('approved', 3);// completed
+                    $q->where(function ($w) {
+                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                    });
+                })
+                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "promocode_id", "doctor_id", "provider_id");
+//                ->paginate(PAGINATION_COUNT);
+
+//            $reservations->makeHidden(['is_reported', 'branch_no', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report', 'for_me']);
+//            $reservations->makeVisible(['doctor_id']);
+
+            #################### End Reservations ######################
+
+            $consulting = DoctorConsultingReservation::where(function ($q) use ($provider) {
+                $q->where('provider_id', $provider->id)
+                    ->orWhere('branch_id', $provider->id);
+            })
+                ->where('approved', 2)// canceled
+                ->orWhere(function ($q) {
+                    $q->where('approved', 3);// completed
+                    $q->where(function ($w) {
+                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                    });
+                })
+                ->with(['provider', 'branch'])
+                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "doctor_id", "provider_id", "branch_id")
+                ->union($reservations)
+                ->paginate(PAGINATION_COUNT);
+
+//            $consulting->makeHidden(['mainprovider', 'branch_name', 'is_reported', 'branch_no', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report', 'for_me', 'rejected_reason_type']);
+//            $consulting->makeVisible(['doctor_id']);
+
+
+            $result = $consulting;
+
+            if (count($result->toArray()) > 0) {
+                $total_count = $result->total();
+                $result = json_decode($result->toJson());
+                $resultJson = new \stdClass();
+                $resultJson->current_page = $result->current_page;
+                $resultJson->total_pages = $result->last_page;
+                $resultJson->total_count = $total_count;
+                $resultJson->per_page = PAGINATION_COUNT;
+                $resultJson->data = $result->data;
+                return $this->returnData('reservations', $resultJson);
+            }
+            return $this->returnError('E001', trans('messages.No medical reservations founded'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    ############################ End reservations-record Section #############################
 
 }
