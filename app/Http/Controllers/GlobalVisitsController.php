@@ -94,13 +94,12 @@ class GlobalVisitsController extends Controller
                 $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
 
                     // Check if this time is reserved before or not
-                   /* $checkTime = ServiceReservation::where('day_date', $dayDate)
+                    $checkTime = ServiceReservation::where('day_date', $dayDate)
                         ->where('from_time', $value['from_time'])
                         ->where('to_time', $value['to_time'])
-                        ->first();*/
+                        ->first();
 
-                   return true;
-                   // return strtotime($value['from_time']) >= strtotime(date('H:i:s')) ;
+                    return /*strtotime($value['from_time']) >= strtotime(date('H:i:s')) &&*/ is_null($checkTime);
                 });
                 $serTimes = array_values($filtered->all());
                 ########### End To Get Times After The Current Time ############
