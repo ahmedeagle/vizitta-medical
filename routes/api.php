@@ -276,6 +276,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
             Route::group(['prefix' => 'offers'], function () {
                 Route::post('change-status', 'OffersController@ChangeOfferStatus');
+                Route::post('reservations/details', 'OffersController@getProviderReservationDetails');
             });
         });
         //api to get all reservation doctor ,services,consulting and offers reservation

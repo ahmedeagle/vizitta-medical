@@ -576,6 +576,37 @@ class OffersController extends Controller
         }
     }
 
+    public function getProviderReservationDetails(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_id" => "required|exists:reservations,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $provider = $this->auth('provider-api');
+            if (!$provider)
+                return $this->returnError('D000', __('messages.provider not found'));
+
+            $reservation_details = $this->getUserOffersReservationByReservationId($request->reservation_id);
+
+            if ($reservation_details) {
+                $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
+                    ->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))
+                    ->first();
+                $reservation_details->main_provider = $main_provider ? $main_provider : '';
+                $reservation_details->makeHidden(['for_me', 'branch_no', 'is_reported', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'comment_report']);
+                return $this->returnData('reservation_details', $reservation_details);
+            } else
+                return $this->returnError('E001', trans('messages.No reservations founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 
     public function show(Request $request, $allow_code = false, $proCode = 0)
     {

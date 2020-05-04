@@ -51,7 +51,7 @@ trait OfferTrait
                 'expired_at'
             );
         }, 'provider' => function ($que) {
-            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude', 'longitude');
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude');
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
@@ -71,15 +71,17 @@ trait OfferTrait
         return Reservation::with(['offer' => function ($q) {
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
-                'expired_at'
+                'expired_at',
+                'price'
             );
         }, 'provider' => function ($que) {
-            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude','longitude');
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude');
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($u) {
+            $u->select('id', 'name', 'mobile');
         }])
-
-            ->select('id', 'reservation_no', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+            ->select('id', 'reservation_no', 'user_id', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
                 'rate_date')
             ->whereNotNull('offer_id')
             ->where('id', $reservation_id)
