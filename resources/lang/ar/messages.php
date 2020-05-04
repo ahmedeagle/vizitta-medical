@@ -316,6 +316,9 @@ return [
     'please enter rejection reason'  => 'من فضلك ادخل سبب الرفض اولا ',
     'reservation status changed successfully'  => 'تم تغيير حاله الحجز بنجاح',
     'Cannot delete approved reservation'  => 'لا يمكنك حذف حجز موافق عليه او ملغى',
-    'provider id required' => 'الفرع غير موجود'
+    'provider id required' => 'الفرع غير موجود',
+    'service not found' => 'هذه الخدمة غير موجوده',
+    'can not delete service with reservations' => 'لا يمكن حذف خدمة مرتبطة بحجوزات',
+    'Service deleted successfully' => 'تم حذف الخدمة بنجاح',
 
 ];
