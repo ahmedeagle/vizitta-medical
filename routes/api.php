@@ -233,7 +233,13 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
             // consulting routes
             Route::group(['prefix' => 'consulting'], function () {
-                Route::post('index', 'GlobalProviderController@getProviderConsulting');
+                Route::post('index-current', 'GlobalProviderController@getProviderCurrentConsultingReservations');
+                Route::post('index-finished', 'GlobalProviderController@getProviderFinishedConsultingReservations');
+            });
+
+            // reservations-record routes
+            Route::group(['prefix' => 'reservations-record'], function () {
+                Route::post('index', 'GlobalProviderController@getAllReservationsRecord');
             });
 
 
