@@ -391,6 +391,12 @@ class ServiceReservation extends Model
     }
 
 
+    public function doctor()
+    {
+        return $this->belongsTo('App\Models\Doctor', 'doctor_id')->withDefault(["name" => ""]);
+    }
+
+
     public function type()
     {
         return $this->belongsTo('App\Models\ServiceType', 'service_type', 'id');
@@ -420,15 +426,15 @@ class ServiceReservation extends Model
             DB::raw("0 as use_insurance"),
             DB::raw("'' as promocode_id"),
             "provider_id",
-                "branch_id",
-                "price",
-                "total_price",
-                "rate_comment",
-                "rate_date",
-                "service_type",
-                "latitude",
-                "longitude",
-                "hours_duration",
+            "branch_id",
+            "price",
+            "total_price",
+            "rate_comment",
+            "rate_date",
+            "service_type",
+            "latitude",
+            "longitude",
+            "hours_duration",
             DB::raw("'' as address"),
             "user_id",
             "payment_method_id"
