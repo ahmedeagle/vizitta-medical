@@ -457,12 +457,41 @@ class GlobalProviderController extends Controller
                 ->union($consulting)
                 ->paginate(PAGINATION_COUNT);
 
-            $result = new CustomReservationsResource($serviceReservations);
+            $result['data'] = new CustomReservationsResource($serviceReservations);
+            $result['total_price'] = $this->calcAllReservationAmount($provider->id, $branches);
             return $this->returnData('reservations', $result);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+    }
+
+    public function calcAllReservationAmount($providerId, $branches = [])
+    {
+        $reservations = Reservation::whereIn('provider_id', $branches)
+            ->where(function ($q) {
+                $q->where('approved', 3);// completed
+                $q->where('is_visit_doctor', 1); // the client visit doctor
+            })->sum('price');
+
+        $consulting = DoctorConsultingReservation::where(function ($q) use ($providerId) {
+            $q->where('provider_id', $providerId)
+                ->orWhere('branch_id', $providerId);
+        })->where(function ($q) {
+            $q->where('approved', 3);// completed
+            $q->where('is_visit_doctor', 1); // the client visit doctor
+        })->sum('total_price');
+
+        $serviceReservations = ServiceReservation::where(function ($q) use ($providerId) {
+            $q->where('provider_id', $providerId)
+                ->orWhere('branch_id', $providerId);
+        })->where(function ($q) {
+            $q->where('approved', 3);// completed
+            $q->where('is_visit_doctor', 1); // the client visit doctor
+        })->sum('total_price');
+
+        $result = floatval($reservations) + floatval($consulting) + floatval($serviceReservations);
+        return $result;
     }
 
     ############################ End reservations-record Section #############################
