@@ -9,6 +9,7 @@ use App\Models\DoctorConsultingReservation;
 use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\Provider;
+use App\Models\ServiceReservation;
 use App\Models\ServiceTime;
 use App\Traits\DoctorTrait;
 use App\Traits\GlobalTrait;
@@ -417,8 +418,6 @@ class GlobalProviderController extends Controller
                 $branches = [$provider->id];
             }
 
-            #################### Start Reservations ######################
-
             $reservations = Reservation::whereIn('provider_id', $branches)
                 ->where('approved', 2)// canceled
                 ->orWhere(function ($q) {
@@ -427,9 +426,7 @@ class GlobalProviderController extends Controller
                         $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
                     });
                 })
-                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "promocode_id", "doctor_id", "provider_id");
-
-            #################### End Reservations ######################
+                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", DB::raw("'' as provider_id"), DB::raw("provider_id as branch_id") /*, "provider_id", DB::raw("'' as branch_id")*/, "payment_method_id", "doctor_id", "promocode_id", DB::raw("'' as service_id"));
 
             $consulting = DoctorConsultingReservation::where(function ($q) use ($provider) {
                 $q->where('provider_id', $provider->id)
@@ -442,29 +439,26 @@ class GlobalProviderController extends Controller
                         $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
                     });
                 })
-                ->with(['provider', 'branch'])
-                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "doctor_id", "provider_id", "branch_id")
+                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", "doctor_id", DB::raw("'' as promocode_id"), DB::raw("'' as service_id"));
+
+            $serviceReservations = ServiceReservation::where(function ($q) use ($provider) {
+                $q->where('provider_id', $provider->id)
+                    ->orWhere('branch_id', $provider->id);
+            })
+                ->where('approved', 2)// canceled
+                ->orWhere(function ($q) {
+                    $q->where('approved', 3);// completed
+                    $q->where(function ($w) {
+                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                    });
+                })
+                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), "service_id")
                 ->union($reservations)
+                ->union($consulting)
                 ->paginate(PAGINATION_COUNT);
 
-
-//            $result = $consulting;
-            $result = new CustomReservationsResource($consulting);
+            $result = new CustomReservationsResource($serviceReservations);
             return $this->returnData('reservations', $result);
-
-//            if (count($result->toArray()) > 0) {
-//                $total_count = $result->total();
-//                $result = json_decode($result->toJson());
-//                $resultJson = new \stdClass();
-//                $resultJson->current_page = $result->current_page;
-//                $resultJson->total_pages = $result->last_page;
-//                $resultJson->total_count = $total_count;
-//                $resultJson->per_page = PAGINATION_COUNT;
-//                $resultJson->data = $result->data;
-//                return $this->returnData('reservations', $resultJson);
-//            }
-
-//            return $this->returnError('E001', trans('messages.No medical reservations founded'));
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
