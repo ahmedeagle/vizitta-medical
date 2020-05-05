@@ -1169,7 +1169,26 @@ class ProviderController extends Controller
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
                     } elseif ($request->type == 'all') {
-                             $this  -> addReservationTypeToResult($reservation);
+
+                        $this->addReservationTypeToResult($reservation);
+                        $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                            "service_rate",
+                            "provider_rate",
+                            "offer_rate",
+                            "paid", "use_insurance",
+                            "promocode_id",
+                            "provider_id",
+                            "branch_id", "rate_comment",
+                            "rate_date",
+                            "address", "latitude",
+                            "longitude"]);
+
+                        $reservation->doctor->makeHidden(['available_time', 'times']);
+                        $reservation->provider->makeHidden(["provider_has_bill",
+                            "has_insurance",
+                            "is_lottery",
+                            "rate_count"]);
+
                     } else {
                         $reservation->reservation_type = 'undefined';
                     }
@@ -2343,9 +2362,17 @@ class ProviderController extends Controller
 
     private function addReservationTypeToResult($reservation)
     {
-           //doctor  -  home services  -   clinic services  - offer
-
-          /// if($reservation -> )
+        if ($reservation->doctor_id != null && $reservation->doctor_id != 0 && $reservation->doctor_id != "") {
+            $reservation->reservation_type = "doctor";
+        } elseif ($reservation->offer_id != null && $reservation->offer_id != 0 && $reservation->offer_id != "") {
+            $reservation->reservation_type = "offer";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 1) {
+            $reservation->reservation_type = "home_services";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 2) {
+            $reservation->reservation_type = "clinic_services";
+        } else {
+            $reservation->reservation_type = "undefined";
+        }
     }
 
 

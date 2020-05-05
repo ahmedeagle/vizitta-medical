@@ -104,7 +104,6 @@ class GlobalVisitsController extends Controller
                     else
                         return $value && is_null($checkTime);
 
-
                     //  return /*strtotime($value['from_time']) >= strtotime(date('H:i:s')) &&*/ is_null($checkTime);
                 });
                 $serTimes = array_values($filtered->all());
