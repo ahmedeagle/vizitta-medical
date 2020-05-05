@@ -68,7 +68,7 @@ class Manager extends Authenticatable implements JWTSubject
 
     public function permissions()
     {
-        return $this->belongsToMany(AdminPermissionPivot::class, 'admin_permissions_pivot', 'admin_id', 'permission_id', 'id', 'id')
+        return $this->belongsToMany(AdminPermission::class, 'admin_permissions_pivot', 'admin_id', 'permission_id', 'id', 'id')
             ->withPivot(['view', 'add', 'edit', 'delete']);
     }
 

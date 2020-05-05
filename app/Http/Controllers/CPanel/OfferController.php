@@ -130,7 +130,8 @@ class OfferController extends Controller
 //              "category_ids.*" => "required|exists:offers_categories,id",
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
 //                "paid_coupon_percentage" => "sometimes|nullable|min:0",
-                "discount" => "sometimes|nullable|min:0",
+//                "discount" => "sometimes|nullable|min:0",
+                "application_percentage" => "required",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
 
@@ -172,7 +173,7 @@ class OfferController extends Controller
                 }
             }
 
-            $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
+            $inputs = $request->only('code', 'application_percentage', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
                 'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
             $fileName = "";
@@ -326,7 +327,8 @@ class OfferController extends Controller
 //            "category_ids.*" => "required|exists:offers_categories,id",
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
 //                "paid_coupon_percentage" => "sometimes|nullable|min:0",
-                "discount" => "sometimes|nullable|numeric|min:0",
+//                "discount" => "sometimes|nullable|numeric|min:0",
+                "application_percentage" => "required",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
 
@@ -369,7 +371,7 @@ class OfferController extends Controller
                 }
             }
 
-            $inputs = $request->only('code', 'discount', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
+            $inputs = $request->only('code', 'application_percentage', 'available_count', 'available_count_type', 'status', 'started_at', 'expired_at', 'provider_id', 'title_ar', 'title_en', 'price',
                 'application_percentage', 'featured', 'price_after_discount', 'gender', 'device_type');
 
             $fileName = $offer->photo;
