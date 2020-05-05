@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CPanel;
 
+use App\Http\Resources\CPanel\ManagerPermissionsResource;
 use App\Models\AdminWebToken;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -79,12 +80,15 @@ class AuthController extends Controller
 
     protected function respondWithToken($token, $adminWebToken = '')
     {
-        return response()->json([
+        $result = [
             'status' => true,
             'access_token' => $token,
             'admin_web_token' => $adminWebToken,
             'user' => $this->guard()->user(),
-        ]);
+        ];
+        $res = Manager::with('permissions')->find($this->guard()->user()->id);
+        $result['user']['permissions'] = new ManagerPermissionsResource($res->permissions);
+        return response()->json($result);
     }
 
     public function guard()
