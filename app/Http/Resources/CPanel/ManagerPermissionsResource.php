@@ -9,15 +9,16 @@ class ManagerPermissionsResource extends ResourceCollection
 {
     public function toArray($request)
     {
-        return $this->collection->transform(function ($data) {
-            $res[$data->name] = [
-                'view' => $data->pivot->view,
-                'add' => $data->pivot->add,
-                'edit' => $data->pivot->edit,
-                'delete' => $data->pivot->delete,
+        $result = [];
+        foreach ($this->collection->toArray() as $key => $value){
+            $result[$value['name']] = [
+                'view' => $value['pivot']['view'],
+                'add' => $value['pivot']['add'],
+                'edit' => $value['pivot']['edit'],
+                'delete' => $value['pivot']['delete'],
             ];
-            return $res;
-        });
+        }
+        return (array) $result;
     }
 
 }
