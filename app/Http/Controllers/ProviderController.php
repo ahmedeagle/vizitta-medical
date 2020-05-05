@@ -1323,6 +1323,7 @@ class ProviderController extends Controller
             }
             DB::beginTransaction();
             $provider = $this->auth('provider-api');
+
             $reservation = $this->getReservationByNo($request->reservation_no, $provider->id);
             if ($reservation == null)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));

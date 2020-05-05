@@ -15,6 +15,7 @@ use App\Models\PromoCodeCategory;
 use App\Models\Provider;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
+use App\Models\ServiceReservation;
 use App\Models\Specification;
 use App\Models\User;
 use App\Models\Payment;
@@ -1777,11 +1778,12 @@ class OffersController extends Controller
             }
 
 
-            //  $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
-
-            /* if ($ReservationsNeedToClosed > 0) {
-                 return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
-             }*/
+            if ($request->status == 1) {
+               /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
+                if ($ReservationsNeedToClosed > 0) {
+                    return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
+                }*/
+            }
 
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
 
@@ -1794,7 +1796,7 @@ class OffersController extends Controller
                     'is_visit_doctor' => $complete
                 ]);
 
-                 $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
+                $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
                 $application_percentage_of_offer = $reservation->offer->application_percentage ? $reservation->offer->application_percentage : 0;
 
                 if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
@@ -1902,5 +1904,76 @@ class OffersController extends Controller
 
         return true;
 
+    }
+
+
+    public function checkIfThereReservationsNeedToClosed($no, $provider_id, $list = true)
+    {
+        $need_To_finish = 0;
+        $provider = Provider::where('id', $provider_id)->first();
+        if ($provider->provider_id == null) { // main provider
+            $branchesIds = $provider->providers()->pluck('id')->toArray();  // branches ids
+        } else {  //branch
+            $branchesIds = [$provider->id];
+        }
+
+        //doctor and offers reservations
+        $reservations = Reservation::where(function ($q) use ($no, $provider_id, $branchesIds) {
+            $q->where(function ($qq) use ($provider_id, $branchesIds) {
+                $qq->where('provider_id', $provider_id)->orWhere(function ($qqq) use ($branchesIds) {
+                    $qqq->whereIN('provider_id', $branchesIds);
+                });
+            });
+        })->where('approved', 1)
+            ->whereDate('day_date', '<=', date('Y-m-d'))
+            ->get();
+
+        //services reservations
+        $services_reservations = ServiceReservation::where(function ($q) use ($no, $provider_id, $branchesIds) {
+            $q->where(function ($qq) use ($provider_id, $branchesIds) {
+                $qq->where('branch_id', $provider_id)->orWhere(function ($qqq) use ($branchesIds) {
+                    $qqq->whereIN('branch_id', $branchesIds);
+                });
+            });
+        })->where('approved', 1)
+            ->whereDate('day_date', '<=', date('Y-m-d'))
+            ->get();
+
+        if (isset($reservations) && $reservations->count() > 0) {
+            foreach ($reservations as $reservation) {
+                $day_date = $reservation->day_date . ' ' . $reservation->from_time;
+                $reservation_date = date('Y-m-d H:i:s', strtotime($day_date));
+                $currentDate = date('Y-m-d H:i:s');
+                $fdate = $reservation_date;
+                $tdate = $currentDate;
+                $datetime1 = new DateTime($fdate);
+                $datetime2 = new DateTime($tdate);
+                $interval = $datetime1->diff($datetime2);
+                $hours = $interval->format('%a');
+                if ($hours >= 1) {
+                    $need_To_finish++;
+                }
+            }
+        }
+
+
+        if (isset($services_reservations) && $services_reservations->count() > 0) {
+            foreach ($services_reservations as $reservation) {
+                $day_date = $reservation->day_date . ' ' . $reservation->from_time;
+                $reservation_date = date('Y-m-d H:i:s', strtotime($day_date));
+                $currentDate = date('Y-m-d H:i:s');
+                $fdate = $reservation_date;
+                $tdate = $currentDate;
+                $datetime1 = new DateTime($fdate);
+                $datetime2 = new DateTime($tdate);
+                $interval = $datetime1->diff($datetime2);
+                $hours = $interval->format('%a');
+                if ($hours >= 1) {
+                    $need_To_finish++;
+                }
+            }
+        }
+
+        return $need_To_finish;
     }
 }
