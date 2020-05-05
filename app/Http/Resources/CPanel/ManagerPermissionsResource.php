@@ -10,7 +10,7 @@ class ManagerPermissionsResource extends ResourceCollection
     public function toArray($request)
     {
         $result = [];
-        foreach ($this->collection->toArray() as $key => $value){
+        foreach ($this->collection->toArray() as $key => $value) {
             $result[$value['name']] = [
                 'view' => $value['pivot']['view'],
                 'add' => $value['pivot']['add'],
@@ -18,7 +18,7 @@ class ManagerPermissionsResource extends ResourceCollection
                 'delete' => $value['pivot']['delete'],
             ];
         }
-        return (array) $result;
+        return (array)$result;
     }
 
 }

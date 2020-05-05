@@ -2,6 +2,7 @@
 
 namespace App\Traits\Dashboard;
 
+use App\Models\AdminPermission;
 use App\Models\Favourite;
 use App\Models\Manager;
 use App\Models\Reservation;
@@ -33,7 +34,7 @@ trait UserTrait
     public function getAdminById($id){
 
 
-        return Manager::with('permissions') -> find($id) ;
+        return Manager::with('permissions')-> find($id) ;
     }
 
     public function getUserReservations($id){
@@ -58,4 +59,10 @@ trait UserTrait
         ]);
         return $user;
     }
+
+    public function getAdminPermissionsList(){
+        return AdminPermission::get();
+    }
+
+
 }
