@@ -1882,13 +1882,13 @@ class OffersController extends Controller
             $discountType = " فاتورة حجز الكتروني لعرض ";
             $total_amount = $reservation->offer->price_after_discount;
             $MC_percentage = $application_percentage_of_offer;
-            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;  //20 ريال
             $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
-            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
             $provider = $reservation->provider;  // always get branch
             $provider->update([
-                'balance' => $provider->balance - $reservationBalance,
+                'balance' => $provider->balance + $reservationBalance,
             ]);
             $reservation->update([
                 'discount_type' => $discountType,
