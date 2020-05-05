@@ -131,7 +131,7 @@ class OfferController extends Controller
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
 //                "paid_coupon_percentage" => "sometimes|nullable|min:0",
 //                "discount" => "sometimes|nullable|min:0",
-                "application_percentage" => "sometimes|nullable",
+                "application_percentage" => "required",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
 
@@ -328,7 +328,7 @@ class OfferController extends Controller
                 "featured" => "required|in:1,2",    // 1 -> not featured 2 -> featured
 //                "paid_coupon_percentage" => "sometimes|nullable|min:0",
 //                "discount" => "sometimes|nullable|numeric|min:0",
-                "application_percentage" => "sometimes|nullable",
+                "application_percentage" => "required",
                 "price" => "required|min:0",
                 "price_after_discount" => "required|min:0",
 
