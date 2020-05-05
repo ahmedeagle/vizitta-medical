@@ -1182,24 +1182,25 @@ class DoctorController extends Controller
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
 
-        $url = "https://oppwa.com/v1/checkouts";
+        $url = env('PAYTABS_CHECKOUTS_URL','https://test.oppwa.com/v1/checkouts');
         $data =
-            "entityId=8ac9a4ce715e66ae01716e4a29b14b9c" .
+            "entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8').
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
             "&notificationUrl=" .
             "&merchantTransactionId=400" .
+            "&testMode=EXTERNAL" .
             "&customer.email=" . $userEmail;
 
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer OGFjOWE0Y2U3MTVlNjZhZTAxNzE2ZTQ2MTgzNDRiOGV8SDhkTmZGM0NubQ=='));
+                'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);// this should be set to true in production
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -1221,8 +1222,6 @@ class DoctorController extends Controller
 
     public function checkPaymentStatus(Request $request)
     {
-
-
         $validator = Validator::make($request->all(), [
             "checkoutId" => 'required',
         ]);
@@ -1233,15 +1232,15 @@ class DoctorController extends Controller
         }
 
 
-        $url = "https://oppwa.com/v1/checkouts/{$request -> checkoutId}/payment";
-        $url .= "?entityId=8ac9a4ce715e66ae01716e4a29b14b9c";
+        $url = env('PAYTABS_CHECKOUTS_URL','https://test.oppwa.com/v1/checkouts').'/'.$request -> checkoutId."/payment";
+        $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization:Bearer OGFjOWE0Y2U3MTVlNjZhZTAxNzE2ZTQ2MTgzNDRiOGV8SDhkTmZGM0NubQ=='));
+            'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
