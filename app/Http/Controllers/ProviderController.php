@@ -1217,7 +1217,7 @@ class ProviderController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:home_services,clinic_services,doctor,offer",
+                "type" => "required|in:home_services,clinic_services,doctor,offer,all",
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -1265,6 +1265,27 @@ class ProviderController extends Controller
                         }
 
                         $reservation->provider_has_bill = $provider_has_bill;
+                    } elseif ($request->type == 'all') {
+
+                        $this->addReservationTypeToResult($reservation);
+                        $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                            "service_rate",
+                            "provider_rate",
+                            "offer_rate",
+                            "paid", "use_insurance",
+                            "promocode_id",
+                            "provider_id",
+                            "branch_id", "rate_comment",
+                            "rate_date",
+                            "address", "latitude",
+                            "longitude"]);
+
+                        $reservation->doctor->makeHidden(['available_time', 'times']);
+                        $reservation->provider->makeHidden(["provider_has_bill",
+                            "has_insurance",
+                            "is_lottery",
+                            "rate_count"]);
+
                     } else {
                         $reservation->reservation_type = 'undefined';
                     }
