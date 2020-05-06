@@ -63,7 +63,11 @@ class GlobalConsultingController extends Controller
     {
         try {
             $requestData = $request->only(['doctor_id', 'reserve_duration', 'day_date']);
-            $doctor = Doctor::where('doctor_type', 'consultative')->find($requestData['doctor_id']);
+            $doctor = Doctor::where(function ($q) {
+                $q->where('doctor_type', 'consultative')
+                    ->orwhere('is_consult',1);
+            })
+                ->find($requestData['doctor_id']);
             $dayName = Str::lower(date('D', strtotime($requestData['day_date'])));
 
             if ($doctor) {
