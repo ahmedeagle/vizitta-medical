@@ -17,6 +17,7 @@ trait SearchTrait
 
     public function searchResult($userId = null, Request $request = null)
     {
+
         $order = (isset($request->order) && strtolower($request->order) == "desc") ? "DESC" : "ASC";
         $rate = $request->rate;
         $queryStr = $request->queryStr;
@@ -33,8 +34,7 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
-            ->whereDoesntHave('test')   // not for test purpose
-            ->whereHas('')
+            ->where('test',0)   // not for test porpose
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
@@ -395,7 +395,8 @@ trait SearchTrait
 
             $specification_id = $request->specification_id;
             $queryStr = $request->queryStr;
-            if ($specification_id != null && $specification_id != 0) {
+            if($specification_id != null && $specification_id !=0)
+            {
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
@@ -411,7 +412,7 @@ trait SearchTrait
                 }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
                     $provider->whereDoesntHave('subscriptions')
                         ->where('providers.status', true)
-                        ->whereDoesntHave('test');   // not for test porpose
+                        ->where('test',0);
                     // $provider->whereNotNull('providers.provider_id');
                     // Provider Name
                     $provider = $provider->where(function ($qu) use ($request, $queryStr) {
@@ -539,7 +540,7 @@ trait SearchTrait
                     ->select('id', 'name_ar', 'name_en', 'provider_id')
                     ->where('specification_id', $specification_id)
                     ->paginate(50);
-            } else {
+            }else{
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
