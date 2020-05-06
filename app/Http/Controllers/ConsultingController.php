@@ -186,8 +186,8 @@ class ConsultingController extends Controller
                 foreach ($consultings as $key => $consulting) {
 
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
-                   /* $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
-                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                    $consulting -> consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
+                    /*$consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
                     $consulting->mins = $this->getDiffBetweenTwoDate($consulting_start_date);
