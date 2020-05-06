@@ -33,9 +33,10 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
-            ->whereDoesntHave('test',function($t) use($userId){
-                 $t -> where('user_id','!=',$userId);
+            ->whereDoesntHave('test',function ($t) use ($userId){
+                $t -> where('user_id',$userId);
             })   // not for test purpose
+            ->whereHas('')
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
@@ -396,8 +397,7 @@ trait SearchTrait
 
             $specification_id = $request->specification_id;
             $queryStr = $request->queryStr;
-            if($specification_id != null && $specification_id !=0)
-            {
+            if ($specification_id != null && $specification_id != 0) {
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
@@ -541,7 +541,7 @@ trait SearchTrait
                     ->select('id', 'name_ar', 'name_en', 'provider_id')
                     ->where('specification_id', $specification_id)
                     ->paginate(50);
-            }else{
+            } else {
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
