@@ -33,7 +33,7 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
-            ->whereDoesntHave('test')   // not for test purpose
+         //   ->whereDoesntHave('test')   // not for test purpose
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
