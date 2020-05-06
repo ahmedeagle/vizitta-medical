@@ -143,8 +143,8 @@ class GlobalVisitsController extends Controller
             if ($user == null)
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
-            if ($request->service_type == 1 && intval($service->reservation_period) != 0) { // home service
-                $total = (floatval($service->price) * intval($requestData['hours_duration'])) / intval($service->reservation_period);
+            if ($request->service_type == 1 && intval($service->home_price_duration) != 0) { // home service
+                $total = (floatval($service->price) * intval($requestData['hours_duration'])) / intval($service->home_price_duration);
             } else {
                 $total = floatval($service->price);
             }
