@@ -53,7 +53,7 @@ trait SearchTrait
             $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
         });
 
-        if(!$show_test_providers){
+        if(!$show_test_providers or $userId == null){
             $provider = $provider->whereDoesntHave('test');
         }
 
