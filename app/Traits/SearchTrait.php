@@ -17,7 +17,6 @@ trait SearchTrait
 
     public function searchResult($userId = null, Request $request = null)
     {
-
         $order = (isset($request->order) && strtolower($request->order) == "desc") ? "DESC" : "ASC";
         $rate = $request->rate;
         $queryStr = $request->queryStr;
@@ -34,7 +33,9 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
-            ->whereDoesntHave('test')   // not for test porpose
+            ->whereDoesntHave('test',function ($t) use($userId){
+                $t ->where('for_test.user_id','!=',$userId);
+            })   // not for test purpose
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
