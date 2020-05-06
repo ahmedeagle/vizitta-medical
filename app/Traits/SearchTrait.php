@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
 use App\Models\Provider;
+use App\Models\Test;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,6 +24,17 @@ trait SearchTrait
         $queryStr = $request->queryStr;
         $query = Provider::query();
 
+        $list_of_test_users = Test::pluck('user_id')->toArray();
+        $list_of_test_providers = Test::pluck('providers_id')->toArray();
+        $show_test_providers=false;
+        if(in_array($userId,$list_of_test_users)){ //this user allow to show test providers
+             //show all providers
+            $show_test_providers = true;
+        }else{
+            //not show test providers
+            $show_test_providers = false;
+        }
+
         $provider = $query->whereDoesntHave('subscriptions')
             ->with(['type' => function ($q) {
                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -40,6 +52,10 @@ trait SearchTrait
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
             $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
         });
+
+        if(!$show_test_providers){
+            $provider = $provider->whereDoesntHave('test');
+        }
 
         /*  $doctors = Doctor::where(function ($dc) use ($queryStr) {
              $dc->where('name_en', 'LIKE', '%' . trim($queryStr) . '%');

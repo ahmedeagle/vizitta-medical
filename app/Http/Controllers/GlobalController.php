@@ -476,15 +476,14 @@ class GlobalController extends Controller
             $results = $this->searchResult($user ? $user->id : null, $request);
             if (count($results->toArray()) > 0) {
                 $total_count = $results->total();
-
-                foreach ($results as $result){
-
+                $results->getCollection()->each(function ($result) use ($request) {
                     $result->favourite = count($result->favourites) > 0 ? 1 : 0;
                     $result->distance = (string)number_format($result->distance * 1.609344, 2);
                     //check if branch has doctors
                     $result->has_doctors = $result->doctors()->count() > 0 ? 1 : 0;
                     $result->has_home_services = $result->homeServices()->count() > 0 ? 1 : 0;
                     $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
+
 
                     /* //nearest  availble time date
                      if ($result->doctor == '1') {
@@ -497,18 +496,8 @@ class GlobalController extends Controller
                      }*/
 
                     unset($result->favourites);
-
-                    $list_of_providers_for_tests = Test::pluck('provider_id')->toArray();
-                    $list_of_users_for_tests = Test::pluck('user_id')->toArray();
-                    if ($user) {
-                        if (!in_array($user->id, $list_of_users_for_tests)) { //user only for test
-                            unset($result);
-                        }
-                    } else {//hide test providers
-                        unset($result);
-                    }
-                }
-
+                    return $result;
+                });
 
                 /* //order by nearest available date
                  if (isset($request->nearest_date) && $request->nearest_date != 0) {
@@ -570,7 +559,7 @@ class GlobalController extends Controller
         } else {
             return $this->returnError('E001', trans('messages.No data founded'));
         }
-        //add main provider data to branch object
+         //add main provider data to branch object
         $_provider = Provider::where('id', $provider->provider_id)
             ->select('id', 'name_' . app()->getLocale() . ' as name', 'logo')
             ->first();
