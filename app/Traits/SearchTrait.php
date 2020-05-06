@@ -34,7 +34,7 @@ trait SearchTrait
             }])
             ->where('providers.status', true)
             ->whereDoesntHave('test',function ($t) use ($userId){
-                $t -> where('user_id',$userId);
+                $t -> where('user_id','!=',$userId);
             })   // not for test purpose
             ->whereHas('')
             ->whereNotNull('providers.provider_id');
