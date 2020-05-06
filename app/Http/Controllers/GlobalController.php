@@ -488,10 +488,11 @@ class GlobalController extends Controller
                     $list_of_users_for_tests = Test::pluck('user_id')->toArray();
                     if ($user) {
                         if (!in_array($user->id, $list_of_users_for_tests)) { //user only for test
-                            unset($result);
+                            //unset($result);
+                            return false;
                         }
                     } else {//hide test providers
-                        unset($result);
+                        return false;
                     }
 
                     /* //nearest  availble time date
