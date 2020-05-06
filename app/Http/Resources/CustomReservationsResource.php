@@ -52,6 +52,15 @@ class CustomReservationsResource extends ResourceCollection
                 ];
             }
 
+            if ($data->doctor_id == "") {
+                $res['doctor'] = null;
+            } else {
+                $res['doctor'] = [
+                    'id' => $data->doctor->id,
+                    'name' => app()->getLocale() == 'ar' ? $data->doctor->name_ar : $data->doctor->name_en,
+                ];
+            }
+
             return $res;
 
         });

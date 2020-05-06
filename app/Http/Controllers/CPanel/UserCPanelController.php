@@ -66,7 +66,7 @@ class UserCPanelController extends Controller
     public function store(Request $request)
     {
         try {
-            app()['cache']->forget('spatie.permission.cache');
+//            app()['cache']->forget('spatie.permission.cache');
             $validator = Validator::make($request->all(), [
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
@@ -77,7 +77,8 @@ class UserCPanelController extends Controller
                     /*  "digits_between:8,10",
                       "regex:/^(009665|9665|\+9665|05|5)(5|0|3|6|4|9|1|8|7)([0-9]{7})$/"*/
                 ),
-                "email" => "sometimes|email"
+                "email" => "sometimes|email",
+                "permissions" => "required|array|min:0",
             ]);
 
             if ($validator->fails()) {
@@ -97,11 +98,22 @@ class UserCPanelController extends Controller
                     'email' => $request->email,
                 ]);
 
-                $permissions = $request->except(['name_ar', 'name_en', 'email', 'password', '_token', '_method', 'mobile']);
+                /*$permissions = $request->except(['name_ar', 'name_en', 'email', 'password', '_token', '_method', 'mobile']);
                 $permissions_name = array_keys($permissions);
                 if (!empty($permissions_name)) {
                     Manager::find($manager->id)->givePermissionTo($permissions_name);
+                }*/
+
+                $permissions = $request->permissions;
+                foreach ($permissions as $k => $permission) {
+                    $manager->permissions()->attach($permission['permission_id'], [
+                        'view' => $permission['view'],
+                        'add' => $permission['add'],
+                        'edit' => $permission['edit'],
+                        'delete' => $permission['delete'],
+                    ]);
                 }
+
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.user_added_successfully')]);
             } catch (\Exception $ex) {
@@ -116,7 +128,7 @@ class UserCPanelController extends Controller
     public function update(Request $request)
     {
         try {
-            app()['cache']->forget('spatie.permission.cache');
+//            app()['cache']->forget('spatie.permission.cache');
 
             $validator = Validator::make($request->all(), [
                 "name_en" => "required|max:255",
@@ -128,7 +140,8 @@ class UserCPanelController extends Controller
                     //  "digits_between:8,10",
                     //"regex:/^(009665|9665|\+9665|05|5)(5|0|3|6|4|9|1|8|7)([0-9]{7})$/",
                 ),
-                "email" => "sometimes|email"
+                "email" => "sometimes|email",
+                "permissions" => "required|array|min:0",
             ]);
 
             if ($validator->fails()) {
@@ -153,13 +166,26 @@ class UserCPanelController extends Controller
                         'password' => $request->password
                     ]);
                 }
-                $permissions = $request->except(['name_ar', 'name_en', 'email', 'password', '_token', '_method', 'mobile']);
+
+                /*$permissions = $request->except(['name_ar', 'name_en', 'email', 'password', '_token', '_method', 'mobile']);
                 $permissions_name = array_keys($permissions);
 
                 //remove all current permissions
                 DB::table('model_has_permissions')->where('model_id', $request->id)->delete();
                 if (!empty($permissions_name)) {
                     $manager->givePermissionTo($permissions_name);
+                }*/
+
+
+                $permissions = $request->permissions;
+                $manager->permissions()->detach();
+                foreach ($permissions as $k => $permission) {
+                    $manager->permissions()->attach($permission['permission_id'], [
+                        'view' => $permission['view'],
+                        'add' => $permission['add'],
+                        'edit' => $permission['edit'],
+                        'delete' => $permission['delete'],
+                    ]);
                 }
 
                 DB::commit();

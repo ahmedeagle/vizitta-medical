@@ -143,6 +143,14 @@ class GlobalVisitsController extends Controller
             if ($user == null)
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
+            if ($request->service_type == 1 && intval($service->home_price_duration) != 0) { // home service
+                $total = (floatval($service->price) * intval($requestData['hours_duration'])) / intval($service->home_price_duration);
+            } else {
+                $total = floatval($service->price);
+            }
+
+            $totalPrice = number_format((float)$total, 2, '.', '');
+
             $reservationCode = $this->getRandomString(8);
             $reservation = ServiceReservation::create([
                 "reservation_no" => $reservationCode,
@@ -156,7 +164,7 @@ class GlobalVisitsController extends Controller
                 "provider_id" => $service->provider_id,
                 "branch_id" => $service->branch_id,
                 'price' => (!empty($request->price) ? $requestData['price'] : $service->price),
-                'total_price' => empty($request->total_price) ? null : $request->total_price,
+                'total_price' => $totalPrice,
                 "latitude" => $request->latitude,
                 "longitude" => $request->longitude,
                 "payment_method_id" => $request->payment_method_id,
