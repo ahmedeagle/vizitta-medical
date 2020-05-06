@@ -486,16 +486,6 @@ class GlobalController extends Controller
                     $result->has_home_services = $result->homeServices()->count() > 0 ? 1 : 0;
                     $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
 
-                    $list_of_providers_for_tests = Test::pluck('provider_id')->toArray();
-                    $list_of_users_for_tests = Test::pluck('user_id')->toArray();
-                    if ($user) {
-                        if (!in_array($user->id, $list_of_users_for_tests)) { //user only for test
-                            unset($result);
-                        }
-                    } else {//hide test providers
-                        unset($result);
-                    }
-
                     /* //nearest  availble time date
                      if ($result->doctor == '1') {
                          $doctor = Doctor::find($result->id);
@@ -507,6 +497,16 @@ class GlobalController extends Controller
                      }*/
 
                     unset($result->favourites);
+
+                    $list_of_providers_for_tests = Test::pluck('provider_id')->toArray();
+                    $list_of_users_for_tests = Test::pluck('user_id')->toArray();
+                    if ($user) {
+                        if (!in_array($user->id, $list_of_users_for_tests)) { //user only for test
+                            unset($result);
+                        }
+                    } else {//hide test providers
+                        unset($result);
+                    }
                 }
 
 
