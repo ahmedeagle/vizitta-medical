@@ -476,7 +476,9 @@ class GlobalController extends Controller
             $results = $this->searchResult($user ? $user->id : null, $request);
             if (count($results->toArray()) > 0) {
                 $total_count = $results->total();
-                $results->getCollection()->each(function ($result) use ($request, $user) {
+
+                foreach ($results as $result){
+
                     $result->favourite = count($result->favourites) > 0 ? 1 : 0;
                     $result->distance = (string)number_format($result->distance * 1.609344, 2);
                     //check if branch has doctors
@@ -488,11 +490,10 @@ class GlobalController extends Controller
                     $list_of_users_for_tests = Test::pluck('user_id')->toArray();
                     if ($user) {
                         if (!in_array($user->id, $list_of_users_for_tests)) { //user only for test
-                            //unset($result);
-                            return false;
+                            unset($result);
                         }
                     } else {//hide test providers
-                        return false;
+                        unset($result);
                     }
 
                     /* //nearest  availble time date
@@ -506,8 +507,8 @@ class GlobalController extends Controller
                      }*/
 
                     unset($result->favourites);
-                    return $result;
-                });
+                }
+
 
                 /* //order by nearest available date
                  if (isset($request->nearest_date) && $request->nearest_date != 0) {
