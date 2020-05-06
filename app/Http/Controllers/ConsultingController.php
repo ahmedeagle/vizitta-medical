@@ -200,7 +200,7 @@ class ConsultingController extends Controller
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
                         $consulting->approved = 3;
                     }
-                    $consulting->makeHidden(['consulting_start_date', 'mins', 'consulting_end_date', 'day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->makeHidden(['mins', 'day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);
                 }
             }
