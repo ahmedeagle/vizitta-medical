@@ -21,8 +21,10 @@ trait ConsultingTrait
     {
 
         $doctor = Doctor::query();
-        $doctor = $doctor->where('doctor_type', 'consultative')
-            ->where('specification_id', $specification_id)
+        $doctor = $doctor->where(function ($q) {
+            $q->where('doctor_type', 'consultative')
+                ->orwhere('is_consult', 1);
+        })->where('specification_id', $specification_id)
             ->with(['specification' => function ($q1) {
                 $q1->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
@@ -92,7 +94,7 @@ trait ConsultingTrait
     {
         return DoctorConsultingReservation::with([
             'doctor' => function ($q) {
-                $q->select('id', 'photo','rate','reservation_period','specification_id', DB::raw('name_' . app()->getLocale() . ' as name'),'price')->with(['specification' => function ($qq) {
+                $q->select('id', 'photo', 'rate', 'reservation_period', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'price')->with(['specification' => function ($qq) {
                     $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'paymentMethod' => function ($qu) {
