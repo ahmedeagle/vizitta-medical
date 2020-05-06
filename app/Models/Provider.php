@@ -403,7 +403,7 @@ class Provider extends Authenticatable implements JWTSubject
 
 
     public function test(){
-        return $this -> hasMany('test','provider_id','id');
+        return $this -> hasMany('App\Models\Test','provider_id','id');
     }
 }
 
