@@ -31,10 +31,10 @@ trait UserTrait
         });
     }
 
-    public function getAdminById($id){
-
-
-        return Manager::with('permissions')-> find($id) ;
+    public function getAdminById($id)
+    {
+//        return Manager::with('permissions')-> find($id) ;
+        return Manager::find($id) ;
     }
 
     public function getUserReservations($id){
