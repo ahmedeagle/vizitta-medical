@@ -1859,10 +1859,9 @@ class OffersController extends Controller
 
     protected function calculateOfferReservationBalance($application_percentage_of_offer, Reservation $reservation)
     {
-
         if ($reservation->paymentMethod->id == 1) {//cash
             $discountType = " فاتورة حجز نقدي لعرض ";
-            $total_amount = $reservation->offer->price_after_discount;
+            $total_amount = $reservation->offer->price_after_discount; // اجمالي اكشف
             $MC_percentage = $application_percentage_of_offer;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
             $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
@@ -1885,7 +1884,7 @@ class OffersController extends Controller
             $total_amount = $reservation->offer->price_after_discount;
             $MC_percentage = $application_percentage_of_offer;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;  //20 ريال
-            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;   //2
             $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
             $provider = $reservation->provider;  // always get branch
@@ -1903,7 +1902,6 @@ class OffersController extends Controller
         }
 
         return true;
-
     }
 
 
