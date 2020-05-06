@@ -25,7 +25,7 @@ trait SearchTrait
         $query = Provider::query();
 
         $list_of_test_users = Test::pluck('user_id')->toArray();
-        $list_of_test_providers = Test::pluck('providers_id')->toArray();
+        $list_of_test_providers = Test::pluck('provider_id')->toArray();
         $show_test_providers=false;
         if(in_array($userId,$list_of_test_users)){ //this user allow to show test providers
              //show all providers
