@@ -34,6 +34,7 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
+            ->where('test',0)   // not for test porpose
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
@@ -410,7 +411,9 @@ trait SearchTrait
                         $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
                     }])->select('*', DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'));
                 }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
-                    $provider->whereDoesntHave('subscriptions')->where('providers.status', true);
+                    $provider->whereDoesntHave('subscriptions')
+                        ->where('providers.status', true)
+                        ->where('test',0);
                     // $provider->whereNotNull('providers.provider_id');
                     // Provider Name
                     $provider = $provider->where(function ($qu) use ($request, $queryStr) {

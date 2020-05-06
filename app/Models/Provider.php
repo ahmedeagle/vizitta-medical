@@ -34,7 +34,7 @@ class Provider extends Authenticatable implements JWTSubject
         'no_of_sms', 'status', 'activation', 'activation_code', 'activation_code', 'api_token', 'branch_no', 'paid_balance',
         'unpaid_balance', 'application_percentage', 'application_percentage_bill', 'balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
         'odoo_provider_id',
-        'android_device_hasCode', 'lottery', 'rate', 'has_home_visit'];
+        'android_device_hasCode', 'lottery', 'rate', 'has_home_visit','test'];
 
     protected $appends = ['is_branch', 'hide',
         'parent_type', 'adminprices',
