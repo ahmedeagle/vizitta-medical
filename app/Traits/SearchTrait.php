@@ -35,6 +35,7 @@ trait SearchTrait
             }])
             ->where('providers.status', true)
             //->where('test',0)   // not for test porpose
+                ->whereDoesntHave('test')
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
