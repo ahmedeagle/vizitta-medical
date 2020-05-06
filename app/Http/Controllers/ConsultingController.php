@@ -180,7 +180,7 @@ class ConsultingController extends Controller
     {
         try {
             $user = $this->auth('user-api');
-            $consultings = $this->getAllReservations($user->id);
+              $consultings = $this->getAllReservations($user->id);
 
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
@@ -198,7 +198,7 @@ class ConsultingController extends Controller
                     }
 
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
-                        $consulting->approved = 3;
+                        $consulting->approved ='3';
                     }
                     $consulting->makeHidden(['mins', 'day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);
