@@ -34,7 +34,7 @@ trait SearchTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])
             ->where('providers.status', true)
-            ->where('test',0)   // not for test porpose
+            ->whereDoesntHave('test')   // not for test porpose
             ->whereNotNull('providers.provider_id');
 
         $provider = $provider->whereHas('provider', function ($qq) use ($queryStr) {
@@ -385,7 +385,6 @@ trait SearchTrait
     public
     function searchDateSortedResult($userId = null, Request $request = null)
     {
-
         try {
             if (isset($request->order)) {
                 if (strtolower($request->order) != "asc" && strtolower($request->order) != "desc")
@@ -413,7 +412,7 @@ trait SearchTrait
                 }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
                     $provider->whereDoesntHave('subscriptions')
                         ->where('providers.status', true)
-                        ->where('test',0);
+                        ->whereDoesntHave('test');   // not for test porpose
                     // $provider->whereNotNull('providers.provider_id');
                     // Provider Name
                     $provider = $provider->where(function ($qu) use ($request, $queryStr) {

@@ -401,6 +401,10 @@ class Provider extends Authenticatable implements JWTSubject
         });
     }
 
+
+    public function test(){
+        return $this -> hasMany('test','provider_id','id');
+    }
 }
 
 
