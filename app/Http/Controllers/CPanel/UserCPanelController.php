@@ -28,8 +28,9 @@ class UserCPanelController extends Controller
     public function create(Request $request)
     {
         try {
-            $permissions = Permission::get();
-            return response()->json(['status' => true, 'data' => $permissions]);
+//            $permissions = Permission::get();
+            $result['permissions_list'] = $this->getAdminPermissionsList();
+            return response()->json(['status' => true, 'data' => $result]);
         } catch (Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
@@ -41,6 +42,10 @@ class UserCPanelController extends Controller
             $admin = $this->getAdminById($request->id);
             if ($admin == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            $admin['permissions_list'] = $this->getAdminPermissionsList();
+            $admin['admin_permissions'] = $admin->permissions;
+            unset($admin['permissions']);
 
             return response()->json(['status' => true, 'data' => $admin]);
         } catch (Exception $ex) {
