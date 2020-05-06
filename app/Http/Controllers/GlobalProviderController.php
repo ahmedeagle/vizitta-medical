@@ -600,54 +600,65 @@ class GlobalProviderController extends Controller
             $provider = $this->getData($request->api_token);
             $reservationType = $request->filter_type;
 
+//            dd($reservationType);
+
             if ($provider->provider_id == null) { //main provider
                 $branches = $provider->providers()->pluck('id')->toArray();
                 array_unshift($branches, $provider->id);
             } else {
                 $branches = [$provider->id];
             }
+            $result = [];
 
-            $reservations = Reservation::whereIn('provider_id', $branches)
-                ->where('approved', 2)// canceled
-                ->orWhere(function ($q) {
-                    $q->where('approved', 3);// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
-                    });
+            if ($reservationType == 0) ### All Reservations
+            {
+                $reservations = Reservation::whereIn('provider_id', $branches)
+                    ->where('approved', 2)// canceled
+                    ->orWhere(function ($q) {
+                        $q->where('approved', 3);// completed
+                        $q->where(function ($w) {
+                            $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                        });
+                    })
+                    ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", DB::raw("'' as provider_id"), DB::raw("provider_id as branch_id") /*, "provider_id", DB::raw("'' as branch_id")*/, "payment_method_id", "doctor_id", "promocode_id", DB::raw("'' as service_id"));
+
+                $consulting = DoctorConsultingReservation::where(function ($q) use ($provider) {
+                    $q->where('provider_id', $provider->id)
+                        ->orWhere('branch_id', $provider->id);
                 })
-                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", DB::raw("'' as provider_id"), DB::raw("provider_id as branch_id") /*, "provider_id", DB::raw("'' as branch_id")*/, "payment_method_id", "doctor_id", "promocode_id", DB::raw("'' as service_id"));
+                    ->where('approved', 2)// canceled
+                    ->orWhere(function ($q) {
+                        $q->where('approved', 3);// completed
+                        $q->where(function ($w) {
+                            $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                        });
+                    })
+                    ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", "doctor_id", DB::raw("'' as promocode_id"), DB::raw("'' as service_id"));
 
-            $consulting = DoctorConsultingReservation::where(function ($q) use ($provider) {
-                $q->where('provider_id', $provider->id)
-                    ->orWhere('branch_id', $provider->id);
-            })
-                ->where('approved', 2)// canceled
-                ->orWhere(function ($q) {
-                    $q->where('approved', 3);// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
-                    });
+                $serviceReservations = ServiceReservation::where(function ($q) use ($provider) {
+                    $q->where('provider_id', $provider->id)
+                        ->orWhere('branch_id', $provider->id);
                 })
-                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", "doctor_id", DB::raw("'' as promocode_id"), DB::raw("'' as service_id"));
+                    ->where('approved', 2)// canceled
+                    ->orWhere(function ($q) {
+                        $q->where('approved', 3);// completed
+                        $q->where(function ($w) {
+                            $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
+                        });
+                    })
+                    ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), "service_id")
+                    ->union($reservations)
+                    ->union($consulting)
+                    ->paginate(PAGINATION_COUNT);
 
-            $serviceReservations = ServiceReservation::where(function ($q) use ($provider) {
-                $q->where('provider_id', $provider->id)
-                    ->orWhere('branch_id', $provider->id);
-            })
-                ->where('approved', 2)// canceled
-                ->orWhere(function ($q) {
-                    $q->where('approved', 3);// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', 1)->orWhere('is_visit_doctor', 0);
-                    });
-                })
-                ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), "service_id")
-                ->union($reservations)
-                ->union($consulting)
-                ->paginate(PAGINATION_COUNT);
+                $result['data'] = new CustomReservationsResource($serviceReservations);
+                $result['total_price'] = $this->calcAllReservationAmount($provider->id, $branches);
+            }
+            elseif ($reservationType == 1)
+            {
+                return 0;
+            }
 
-            $result['data'] = new CustomReservationsResource($serviceReservations);
-            $result['total_price'] = $this->calcAllReservationAmount($provider->id, $branches);
             return $this->returnData('reservations', $result);
 
         } catch (\Exception $ex) {

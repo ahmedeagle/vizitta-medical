@@ -266,10 +266,10 @@ class ServiceController extends Controller
             }
 
             if ($request->status == 1) {
-               /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
-                if ($ReservationsNeedToClosed > 0) {
-                    return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
-                }*/
+                /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
+                 if ($ReservationsNeedToClosed > 0) {
+                     return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
+                 }*/
             }
 
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
@@ -282,8 +282,37 @@ class ServiceController extends Controller
                     'is_visit_doctor' => $complete
                 ]);
 
+                ########################## Start calculate balance #################################
+
+                $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
+                $application_percentage_of_bill = $reservation->provider->application_percentage_bill ? $reservation->provider->application_percentage_bill : 0;
+
+                if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+
+                if ($payment_method != 1 && $request->status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+                ########################## End calculate balance #################################
+
                 $name = 'name_' . app()->getLocale();
 
+                $message_res = '';
                 if ($request->status == 1) {  //approve
                     $message_res = __('messages.Reservation approved successfully');
                     $bodyProvider = __('messages.approved user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
@@ -315,6 +344,52 @@ class ServiceController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+    }
+
+    protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation)
+    {
+//        $reservation->service_type == 1 ### 1 = home & 2 = clinic
+        $total_amount = $reservation->service_type == 1 ? floatval($reservation->total_price) : floatval($reservation->price);
+        $MC_percentage = $application_percentage_of_bill;
+        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+
+        if ($reservation->paymentMethod->id == 1) {//cash
+            $discountType = " فاتورة حجز نقدي لخدمة ";
+            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $branch = $reservation->branch;  // always get branch
+            $branch->update([
+                'balance' => $branch->balance - $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            /*$manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);*/
+        } else {
+
+            $discountType = " فاتورة حجز الكتروني لخدمة ";
+            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $branch = $reservation->branch;  // always get branch
+            $branch->update([
+                'balance' => $branch->balance + $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            /*$manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);*/
+
+        }
+
+        return true;
+
     }
 
     public function getReservationDetails(Request $request)
