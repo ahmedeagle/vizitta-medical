@@ -322,5 +322,6 @@ return [
     'Service deleted successfully' => 'تم حذف الخدمة بنجاح',
     'The service was hidden successfully' => 'تم اخفاء الخدمة بنجاح',
     'The service was shown successfully' => 'تم اظهار الخدمة بنجاح',
+    'Balance updated successfully' => 'تم تحديث رصيد الفرع بنجاح '
 
 ];

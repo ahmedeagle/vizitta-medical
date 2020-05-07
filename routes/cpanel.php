@@ -73,6 +73,11 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/changeStatus', 'BranchController@changeStatus');
             Route::post('/addProviderToFeatured', 'BranchController@addProviderToFeatured');
             Route::post('/removeProviderFromFeatured', 'BranchController@removeProviderFromFeatured');
+            Route::group(['prefix' => 'balances'], function () {
+                Route::post('/', 'BalanceController@getBranchesBalances');
+                Route::post('edit', 'BalanceController@editBranchBalance');
+                Route::post('update', 'BalanceController@updateBranchBalance');
+            });
         });
         ############## End Branches Routes ##############
 
