@@ -88,7 +88,7 @@ class DoctorConsultingReservationController extends Controller
                 }
 
                 $data = [
-                    'approved' => $status,
+                    'approved' => '1',
                 ];
 
                 if (!empty($rejection_reason))
