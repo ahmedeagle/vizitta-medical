@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\UserResource;
+use App\Models\AdminPermission;
 use App\Models\Manager;
 use App\Models\User;
 use App\Traits\Dashboard\UserTrait;
@@ -29,7 +30,8 @@ class UserCPanelController extends Controller
     {
         try {
 //            $permissions = Permission::get();
-            $result['permissions_list'] = $this->getAdminPermissionsList();
+//            $result['permissions_list'] = $this->getAdminPermissionsList();
+            $result = [];
             return response()->json(['status' => true, 'data' => $result]);
         } catch (Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
@@ -43,7 +45,7 @@ class UserCPanelController extends Controller
             if ($admin == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            $admin['permissions_list'] = $this->getAdminPermissionsList();
+//            $admin['permissions_list'] = $this->getAdminPermissionsList();
             $admin['admin_permissions'] = $admin->permissions;
             unset($admin['permissions']);
 
@@ -111,11 +113,12 @@ class UserCPanelController extends Controller
 
                 $permissions = $request->permissions;
                 foreach ($permissions as $k => $permission) {
-                    $manager->permissions()->attach($permission['permission_id'], [
-                        'view' => $permission['view'],
-                        'add' => $permission['add'],
-                        'edit' => $permission['edit'],
-                        'delete' => $permission['delete'],
+                    $adminPermission = AdminPermission::where('name', $permission['permission_name'])->first();
+                    $manager->permissions()->attach($adminPermission->id, [
+                        'view' => isset($permission['view']) && !is_null($permission['view']) ? $permission['view'] : null,
+                        'add' => isset($permission['add']) && !is_null($permission['add']) ? $permission['add'] : null,
+                        'edit' => isset($permission['edit']) && !is_null($permission['edit']) ? $permission['edit'] : null,
+                        'delete' => isset($permission['delete']) && !is_null($permission['delete']) ? $permission['delete'] : null,
                     ]);
                 }
 
@@ -185,11 +188,12 @@ class UserCPanelController extends Controller
                 $permissions = $request->permissions;
                 $manager->permissions()->detach();
                 foreach ($permissions as $k => $permission) {
-                    $manager->permissions()->attach($permission['permission_id'], [
-                        'view' => $permission['view'],
-                        'add' => $permission['add'],
-                        'edit' => $permission['edit'],
-                        'delete' => $permission['delete'],
+                    $adminPermission = AdminPermission::where('name', $permission['permission_name'])->first();
+                    $manager->permissions()->attach($adminPermission->id, [
+                        'view' => isset($permission['view']) && !is_null($permission['view']) ? $permission['view'] : null,
+                        'add' => isset($permission['add']) && !is_null($permission['add']) ? $permission['add'] : null,
+                        'edit' => isset($permission['edit']) && !is_null($permission['edit']) ? $permission['edit'] : null,
+                        'delete' => isset($permission['delete']) && !is_null($permission['delete']) ? $permission['delete'] : null,
                     ]);
                 }
 
