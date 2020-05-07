@@ -88,15 +88,15 @@ class DoctorConsultingReservationController extends Controller
                 }
 
                 $data = [
-                    'approved' => '1',
+                    'approved' => (string) $status,
                 ];
 
                 if (!empty($rejection_reason))
                     $data['rejection_reason'] = $rejection_reason;
 
-                $check = $reservation->update($data);
+                $reservation->update($data);
 
-                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully'), 'check'=>$data]);
+                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);
             }
 
         } catch (\Exception $ex) {
