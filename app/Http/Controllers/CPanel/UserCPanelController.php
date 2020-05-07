@@ -72,7 +72,7 @@ class UserCPanelController extends Controller
 
     public function store(Request $request)
     {
-//        try {
+        try {
 //            app()['cache']->forget('spatie.permission.cache');
             $validator = Validator::make($request->all(), [
                 "name_en" => "required|max:255",
@@ -93,9 +93,9 @@ class UserCPanelController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
 
-            /*DB::beginTransaction();
+            DB::beginTransaction();
 
-            try {*/
+            try {
 
                 $manager = Manager::create([
                     'name_en' => trim($request->name_en),
@@ -121,13 +121,12 @@ class UserCPanelController extends Controller
                             'edit' => isset($permission['edit']) && !is_null($permission['edit']) ? $permission['edit'] : null,
                             'delete' => isset($permission['delete']) && !is_null($permission['delete']) ? $permission['delete'] : null,
                         ]);
-                    }
-                    else{
+                    } else {
                         return response()->json(['success' => false, 'error' => __('main.not_found'), 'permission_name' => $permission['permission_name']], 200);
                     }
                 }
 
-                /*DB::commit();
+                DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.user_added_successfully')]);
             } catch (\Exception $ex) {
                 DB::rollback();
@@ -135,7 +134,7 @@ class UserCPanelController extends Controller
             }
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
-        }*/
+        }
     }
 
     public function update(Request $request)
