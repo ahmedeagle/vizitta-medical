@@ -126,6 +126,7 @@ class DoctorController extends Controller
             $requestData = $request->all();
             $rules = [
                 "doctor_type" => "required|in:clinic,consultative",
+                "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "username" => "required|string|max:100|unique:doctors,username",
@@ -147,7 +148,8 @@ class DoctorController extends Controller
 
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
-            } else {
+            }
+            else {
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
@@ -169,6 +171,7 @@ class DoctorController extends Controller
 
                 $doctorInfo = [
                     "doctor_type" => $request->doctor_type,
+                    "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
                     'username' => trim($request->username),
@@ -238,9 +241,9 @@ class DoctorController extends Controller
                 $times = DoctorTime::insert($working_days_data);
 
                 if ($requestData['doctor_type'] == 'consultative') {
-                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
-                        $times = ConsultativeDoctorTime::insert($working_days_data);
-                    }
+//                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
+                    $times = ConsultativeDoctorTime::insert($working_days_data);
+//                    }
                 }
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.doctor_added_successfully')]);
@@ -303,6 +306,7 @@ class DoctorController extends Controller
             $requestData = $request->all();
             $rules = [
                 "doctor_type" => "required|in:clinic,consultative",
+                "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id',
@@ -381,6 +385,7 @@ class DoctorController extends Controller
 
             try {
                 $doctorInfo = [
+                    "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
                     'username' => trim($request->username),
@@ -420,6 +425,13 @@ class DoctorController extends Controller
                 $doctor->times()->insert($working_days_data);
 
                 if ($requestData['doctor_type'] == 'consultative') {
+                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
+                        $doctor->consultativeTimes()->delete();
+                        $doctor->consultativeTimes()->insert($working_days_data);
+                    }
+                }
+
+                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
                     if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
                         $doctor->consultativeTimes()->delete();
                         $doctor->consultativeTimes()->insert($working_days_data);
