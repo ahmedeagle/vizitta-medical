@@ -26,8 +26,8 @@ class CommentsController extends Controller
 
     public function getReportsData()
     {
-        $reports = CommentReport::get();
-        $result = ReportsResource::collection($reports);
+        $reports = CommentReport::orderBy('created_at', 'DESC')->paginate(PAGINATION_COUNT);
+        $result = new ReportsResource($reports);
         return response()->json(['status' => true, 'data' => $result]);
     }
 

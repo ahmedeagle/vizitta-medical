@@ -171,7 +171,11 @@ trait GeneralTrait
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
                 'expired_at');
-        }, 'paymentMethod'])->find($id);
+        }, 'paymentMethod', 'user' => function ($q) {
+            $q->select('id', 'name');
+        }, 'doctor' => function ($q) {
+            $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])->find($id);
     }
 
     public function getAllOfferParentCategoriesList()
