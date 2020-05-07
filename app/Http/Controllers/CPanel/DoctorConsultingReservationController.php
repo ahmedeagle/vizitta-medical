@@ -96,7 +96,7 @@ class DoctorConsultingReservationController extends Controller
 
                 $check = $reservation->update($data);
 
-                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully'), 'check'=>$check]);
+                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully'), 'check'=>$data]);
             }
 
         } catch (\Exception $ex) {
