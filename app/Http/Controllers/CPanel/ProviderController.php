@@ -77,6 +77,8 @@ class ProviderController extends Controller
         });
 //        $result['provider']['doctors'] = $provider->doctors()->whereIn('provider_id', $branches)->get(['id', 'name_ar', 'name_en']);
         $result['provider']['doctors'] = $doctors;
+        $result['provider']['city'] = $provider->city;
+        $result['provider']['district'] = $provider->district;
         $result['acceptance_rate'] = $acceptance_rate;
         $result['refusal_rate'] = $refusal_rate;
         $result['allReservationCount'] = $allReservationCount;
