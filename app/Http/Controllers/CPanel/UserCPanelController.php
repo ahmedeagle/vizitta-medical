@@ -193,12 +193,16 @@ class UserCPanelController extends Controller
                 $manager->permissions()->detach();
                 foreach ($permissions as $k => $permission) {
                     $adminPermission = AdminPermission::where('name', $permission['permission_name'])->first();
-                    $manager->permissions()->attach($adminPermission->id, [
-                        'view' => isset($permission['view']) && !is_null($permission['view']) ? $permission['view'] : null,
-                        'add' => isset($permission['add']) && !is_null($permission['add']) ? $permission['add'] : null,
-                        'edit' => isset($permission['edit']) && !is_null($permission['edit']) ? $permission['edit'] : null,
-                        'delete' => isset($permission['delete']) && !is_null($permission['delete']) ? $permission['delete'] : null,
-                    ]);
+                    if ($adminPermission) {
+                        $manager->permissions()->attach($adminPermission->id, [
+                            'view' => isset($permission['view']) && !is_null($permission['view']) ? $permission['view'] : null,
+                            'add' => isset($permission['add']) && !is_null($permission['add']) ? $permission['add'] : null,
+                            'edit' => isset($permission['edit']) && !is_null($permission['edit']) ? $permission['edit'] : null,
+                            'delete' => isset($permission['delete']) && !is_null($permission['delete']) ? $permission['delete'] : null,
+                        ]);
+                    } else {
+                        return response()->json(['success' => false, 'error' => __('main.not_found'), 'permission_name' => $permission['permission_name']], 200);
+                    }
                 }
 
                 DB::commit();
