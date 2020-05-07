@@ -63,7 +63,7 @@ class GlobalConsultingController extends Controller
     {
         try {
             $requestData = $request->only(['doctor_id', 'reserve_duration', 'day_date']);
-            $doctor = Doctor::where(function ($q) {
+            $doctor = Doctor::where(function ($q) {   // edit today
                 $q->where('doctor_type', 'consultative')
                     ->orwhere('is_consult',1);
             })

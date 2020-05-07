@@ -26,11 +26,11 @@ trait SearchTrait
 
         $list_of_test_users = Test::pluck('user_id')->toArray();
         $list_of_test_providers = Test::pluck('provider_id')->toArray();
-        $show_test_providers=false;
-        if(in_array($userId,$list_of_test_users)){ //this user allow to show test providers
-             //show all providers
+        $show_test_providers = false;
+        if (in_array($userId, $list_of_test_users)) { //this user allow to show test providers
+            //show all providers
             $show_test_providers = true;
-        }else{
+        } else {
             //not show test providers
             $show_test_providers = false;
         }
@@ -53,7 +53,7 @@ trait SearchTrait
             $qq->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
         });
 
-        if(!$show_test_providers or $userId == null){
+        if (!$show_test_providers or $userId == null) {
             $provider = $provider->whereDoesntHave('test');
         }
 
@@ -409,10 +409,22 @@ trait SearchTrait
                 $request->order = "ASC";
             }
 
+
+            $list_of_test_users = Test::pluck('user_id')->toArray();
+            $list_of_test_providers = Test::pluck('provider_id')->toArray();
+            $show_test_providers = false;
+            if (in_array($userId, $list_of_test_users)) { //this user allow to show test providers
+                //show all providers
+                $show_test_providers = true;
+            } else {
+                //not show test providers
+                $show_test_providers = false;
+            }
+
+
             $specification_id = $request->specification_id;
             $queryStr = $request->queryStr;
-            if($specification_id != null && $specification_id !=0)
-            {
+            if ($specification_id != null && $specification_id != 0) {
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
@@ -425,15 +437,19 @@ trait SearchTrait
                     }, 'district' => function ($q) {
                         $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
                     }])->select('*', DB::raw('(3959 * acos(cos(radians(' . $request->latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $request->longitude . ')) + sin(radians(' . $request->latitude . ')) * sin(radians(latitude)))) AS distance'));
-                }])->whereHas('provider', function ($provider) use ($request, $queryStr) {
+                }])->whereHas('provider', function ($provider) use ($userId, $show_test_providers, $request, $queryStr) {
                     $provider->whereDoesntHave('subscriptions')
                         ->where('providers.status', true)
-                        ->where('test',0);
+                        ->where('test', 0);
                     // $provider->whereNotNull('providers.provider_id');
                     // Provider Name
                     $provider = $provider->where(function ($qu) use ($request, $queryStr) {
                         $qu->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
                     });
+
+                    if (!$show_test_providers or $userId == null) {
+                        $provider = $provider->whereDoesntHave('test');
+                    }
 
                     // City
                     if (isset($request->city_id) && $request->city_id != 0) {
@@ -556,7 +572,7 @@ trait SearchTrait
                     ->select('id', 'name_ar', 'name_en', 'provider_id')
                     ->where('specification_id', $specification_id)
                     ->paginate(50);
-            }else{
+            } else {
                 $res = \App\Models\DoctorCalculation::with(['provider' => function ($provider) use ($request, $userId) {
 
                     $provider->with(['type' => function ($q) {
