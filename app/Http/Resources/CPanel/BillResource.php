@@ -14,6 +14,10 @@ class BillResource extends ResourceCollection
                 'id' => $data->id,
                 'reservation_no' => $data->reservation_no,
                 'created_at' => $data->created_at->format('Y-m-d'),
+                'user' => [
+                    'id' => $data->reservation->user->id,
+                    'name' => $data->reservation->user->name,
+                ],
             ];
         });
 
