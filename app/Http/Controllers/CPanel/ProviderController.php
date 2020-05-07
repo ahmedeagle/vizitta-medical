@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\ProviderResource;
+use App\Models\Doctor;
 use App\Models\Provider;
 use App\Traits\Dashboard\ProviderTrait;
 use App\Traits\Dashboard\PublicTrait;
@@ -65,7 +66,17 @@ class ProviderController extends Controller
 
         $result['provider'] = $provider;
         $result['provider']['branches'] = $provider->providers()->get(['id', 'name_ar', 'name_en']);
-        $result['provider']['doctors'] = $provider->doctors()->get(['id', 'name_ar', 'name_en']);
+
+        $doctors = Doctor::whereIn('provider_id', $branchesId)->get(['id', 'name_ar', 'name_en']);
+        $doctors = $doctors->transform(function ($data) {
+            return [
+                'id' => $data->id,
+                'name_ar' => $data->name_ar,
+                'name_en' => $data->name_en,
+            ];
+        });
+//        $result['provider']['doctors'] = $provider->doctors()->whereIn('provider_id', $branches)->get(['id', 'name_ar', 'name_en']);
+        $result['provider']['doctors'] = $doctors;
         $result['acceptance_rate'] = $acceptance_rate;
         $result['refusal_rate'] = $refusal_rate;
         $result['allReservationCount'] = $allReservationCount;
