@@ -424,7 +424,9 @@ trait ProviderTrait
     public function getProvidersFeaturedBranch($userId = null, $longitude = null, $latitude = null, $specification_id = 0)
     {
         $provider = Provider::query();
-        $provider = $provider->whereHas('subscriptions')->whereHas('doctors')->with(['type' => function ($q) {
+        $provider = $provider->whereHas('subscriptions')
+            ->whereHas('doctors')
+            ->with(['type' => function ($q) {
             $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
         }, 'doctors', 'favourites' => function ($qu) use ($userId) {
             $qu->where('user_id', $userId)->select('provider_id');
@@ -454,7 +456,7 @@ trait ProviderTrait
         }
         $provider = $provider->orderBy(DB::raw('RAND()'));
 
-        return $provider->where('providers.status', 1)->limit(5)->get();
+        return $provider->where('providers.status', 1)->limit(15)->get();
 
     }
 
