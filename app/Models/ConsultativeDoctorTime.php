@@ -9,7 +9,7 @@ class ConsultativeDoctorTime extends Model
     protected $table = 'consultative_doctor_times';
     public $timestamps = false;
 
-    protected $fillable = ['day_name', 'day_code', 'from_time', 'to_time', 'doctor_id', 'reservation_period', 'order'];
+    protected $fillable = ['day_name', 'day_code', 'from_time', 'to_time', 'doctor_id', 'provider_id', 'reservation_period', 'order'];
 
     protected $hidden = ['doctor_id', 'updated_at', 'created_at', 'reservation_period', 'order'];
 

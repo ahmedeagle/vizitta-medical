@@ -148,8 +148,7 @@ class DoctorController extends Controller
 
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
-            }
-            else {
+            } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
@@ -206,44 +205,79 @@ class DoctorController extends Controller
                     }
                 }
 
-                // working days
-                $working_days_data = [];
                 $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                foreach ($request->working_days as $working_day) {
-                    if (empty($working_day['from']) or empty($working_day['to'])) {
-                        return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
-                    }
-                    $from = Carbon::parse($working_day['from']);
-                    $to = Carbon::parse($working_day['to']);
-                    if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
-                        return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+
+                // working days
+                if (isset($request->working_days) && !is_null($request->working_days)) {
+
+                    $working_days_data = [];
+                    foreach ($request->working_days as $working_day) {
+                        if (empty($working_day['from']) or empty($working_day['to'])) {
+                            return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
+                        }
+                        $from = Carbon::parse($working_day['from']);
+                        $to = Carbon::parse($working_day['to']);
+                        if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
+                            return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+                        }
+
+                        $workingDays = [
+                            'day_name' => strtolower($working_day['day']),
+                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                            'from_time' => $from->format('H:i'),
+                            'to_time' => $to->format('H:i'),
+                            'order' => array_search(strtolower($working_day['day']), $days),
+                            'reservation_period' => $request->reservation_period
+                        ];
+
+                        if ($requestData['doctor_type'] == 'clinic') {
+                            $workingDays['provider_id'] = $request->provider_id;
+                        }
+                        $working_days_data[] = $workingDays;
                     }
 
-                    $workingDays = [
-                        'day_name' => strtolower($working_day['day']),
-                        'day_code' => substr(strtolower($working_day['day']), 0, 3),
-                        'from_time' => $from->format('H:i'),
-                        'to_time' => $to->format('H:i'),
-                        'order' => array_search(strtolower($working_day['day']), $days),
-                        'reservation_period' => $request->reservation_period
-                    ];
-
-                    if ($requestData['doctor_type'] == 'clinic') {
-                        $workingDays['provider_id'] = $request->provider_id;
+                    for ($i = 0; $i < count($working_days_data); $i++) {
+                        $working_days_data[$i]['doctor_id'] = $doctor->id;
                     }
-                    $working_days_data[] = $workingDays;
+
+                    $times = DoctorTime::insert($working_days_data);
                 }
 
-                for ($i = 0; $i < count($working_days_data); $i++) {
-                    $working_days_data[$i]['doctor_id'] = $doctor->id;
-                }
+                // consultations working
+                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                    // Optional consultations working days
+                    if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
 
-                $times = DoctorTime::insert($working_days_data);
+                        $consultations_working_days_data = [];
+                        foreach ($request->consultations_working_days as $working_day) {
+                            if (empty($working_day['from']) or empty($working_day['to'])) {
+                                return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
+                            }
+                            $from = Carbon::parse($working_day['from']);
+                            $to = Carbon::parse($working_day['to']);
+                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
+                                return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+                            }
 
-                if ($requestData['doctor_type'] == 'consultative') {
-//                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
-                    $times = ConsultativeDoctorTime::insert($working_days_data);
-//                    }
+                            $consultationsWorkingDays = [
+                                'day_name' => strtolower($working_day['day']),
+                                'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                                'from_time' => $from->format('H:i'),
+                                'to_time' => $to->format('H:i'),
+                                'order' => array_search(strtolower($working_day['day']), $days),
+                                'reservation_period' => $request->reservation_period
+                            ];
+
+                            $consultationsWorkingDays['provider_id'] = $request->provider_id;
+                            $consultations_working_days_data[] = $consultationsWorkingDays;
+                        }
+
+                        for ($i = 0; $i < count($consultations_working_days_data); $i++) {
+                            $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
+                        }
+
+                        $times = ConsultativeDoctorTime::insert($consultations_working_days_data);
+                    }
                 }
                 DB::commit();
                 return response()->json(['status' => true, 'msg' => __('main.doctor_added_successfully')]);
@@ -287,12 +321,19 @@ class DoctorController extends Controller
         $result['companies'] = $this->apiGetAllInsuranceCompaniesWithSelected($doctor);
         $result['days'] = ['Saturday' => 'السبت', 'Sunday' => 'الأحد', 'Monday' => 'الإثنين', 'Tuesday' => 'الثلاثاء', 'Wednesday' => 'الأربعاء', 'Thursday' => 'الخميس', 'Friday' => 'الجمعة'];
         $result['times'] = $doctor->times()->get();
+        $result['consultativeTimes'] = $doctor->consultativeTimes()->get();
         $days_code = ['sat' => 'Saturday', 'sun' => 'Sunday', 'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday'];
 
 //        $days_ar = ['السبت' => 'Saturday', 'الأحد' => 'Sunday', 'الإثنين ' => 'Monday', 'الثلاثاء' => 'Tuesday', 'الأربعاء' => 'Wednesday', 'الخميس ' => 'Thursday', 'الجمعة ' => 'Friday'];
 
         if (!empty($result['times']) && count($result['times']) > 0) {
             foreach ($result['times'] as $time) {
+                $time['day_code'] = $days_code[$time['day_code']];
+            }
+        }
+
+        if (!empty($result['consultativeTimes']) && count($result['consultativeTimes']) > 0) {
+            foreach ($result['consultativeTimes'] as $time) {
                 $time['day_code'] = $days_code[$time['day_code']];
             }
         }
@@ -328,7 +369,7 @@ class DoctorController extends Controller
 
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
-            } else {
+            } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
@@ -344,36 +385,76 @@ class DoctorController extends Controller
             if ($doctor == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            // working days
-            $working_days_data = [];
             $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-            foreach ($request->working_days as $working_day) {
-                if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
-                    return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
-                }
-                $from = Carbon::parse($working_day['from']);
-                $to = Carbon::parse($working_day['to']);
-                if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
-                    return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+            $working_days_data = [];
+            $consultations_working_days_data = [];
+
+            // working days
+            if (isset($request->working_days) && !is_null($request->working_days)) {
+
+                foreach ($request->working_days as $working_day) {
+                    if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
+                        return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
+                    }
+                    $from = Carbon::parse($working_day['from']);
+                    $to = Carbon::parse($working_day['to']);
+                    if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
+                        return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+                    }
+
+                    $workingDays = [
+                        'day_name' => strtolower($working_day['day']),
+                        'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                        'from_time' => $from->format('H:i'),
+                        'to_time' => $to->format('H:i'),
+                        'order' => array_search(strtolower($working_day['day']), $days),
+                        'reservation_period' => $request->reservation_period
+                    ];
+
+                    if ($requestData['doctor_type'] == 'clinic') {
+                        $workingDays['provider_id'] = $request->provider_id;
+                    }
+                    $working_days_data[] = $workingDays;
                 }
 
-                $workingDays = [
-                    'day_name' => strtolower($working_day['day']),
-                    'day_code' => substr(strtolower($working_day['day']), 0, 3),
-                    'from_time' => $from->format('H:i'),
-                    'to_time' => $to->format('H:i'),
-                    'order' => array_search(strtolower($working_day['day']), $days),
-                    'reservation_period' => $request->reservation_period
-                ];
-
-                if ($requestData['doctor_type'] == 'clinic') {
-                    $workingDays['provider_id'] = $request->provider_id;
+                for ($i = 0; $i < count($working_days_data); $i++) {
+                    $working_days_data[$i]['doctor_id'] = $doctor->id;
                 }
-                $working_days_data[] = $workingDays;
             }
 
-            for ($i = 0; $i < count($working_days_data); $i++) {
-                $working_days_data[$i]['doctor_id'] = $doctor->id;
+            // consultations working
+            if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                // Optional consultations working days
+                if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
+
+                    foreach ($request->consultations_working_days as $working_day) {
+                        if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
+                            return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
+                        }
+                        $from = Carbon::parse($working_day['from']);
+                        $to = Carbon::parse($working_day['to']);
+                        if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
+                            return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
+                        }
+
+                        $consultationsWorkingDays = [
+                            'day_name' => strtolower($working_day['day']),
+                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                            'from_time' => $from->format('H:i'),
+                            'to_time' => $to->format('H:i'),
+                            'order' => array_search(strtolower($working_day['day']), $days),
+                            'reservation_period' => $request->reservation_period
+                        ];
+
+                        $consultationsWorkingDays['provider_id'] = $request->provider_id;
+
+                        $consultations_working_days_data[] = $consultationsWorkingDays;
+                    }
+
+                    for ($i = 0; $i < count($consultations_working_days_data); $i++) {
+                        $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
+                    }
+                }
             }
 
             $path = $doctor->photo;
@@ -424,17 +505,12 @@ class DoctorController extends Controller
                 $doctor->times()->delete();
                 $doctor->times()->insert($working_days_data);
 
-                if ($requestData['doctor_type'] == 'consultative') {
-                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
-                        $doctor->consultativeTimes()->delete();
-                        $doctor->consultativeTimes()->insert($working_days_data);
-                    }
-                }
-
+                // consultations working
                 if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
-                    if (isset($requestData['consultations_working_days']) && !empty($requestData['consultations_working_days'])) {
+                    // Optional consultations working days
+                    if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days']) && count($consultations_working_days_data) > 0) {
                         $doctor->consultativeTimes()->delete();
-                        $doctor->consultativeTimes()->insert($working_days_data);
+                        $doctor->consultativeTimes()->insert($consultations_working_days_data);
                     }
                 }
 
