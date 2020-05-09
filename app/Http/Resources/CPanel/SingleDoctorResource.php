@@ -30,8 +30,10 @@ class SingleDoctorResource extends JsonResource
             'waiting_period' => $this->waiting_period,
             'available_time' => $this->available_time,
             'times' => $this->times,
+            'consultativeTimes' => $this->consultativeTimes,
+
             'status' => [
-                'name' => $this->status == '1' ? __('main.active') : __('main.not_active'),
+                'name' => $this->status == '1' ? __('main . active') : __('main . not_active'),
                 'value' => $this->status,
             ],
             'show_delete' => $this->reservations->count() > 0 || $this->doctorConsultingReservations->count() > 0 ? 0 : 1,
@@ -39,8 +41,6 @@ class SingleDoctorResource extends JsonResource
 
         if ($this->doctor_type == 'clinic') {
             $result['provider'] = app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en;
-        } else {
-            $result['consultativeTimes'] = $this->consultativeTimes;
         }
         return $result;
     }
