@@ -54,6 +54,7 @@ class ProviderController extends Controller
                 return $this->returnError('D000', trans('messages.There is no specification with this id'));
         }
 
+
         $user = null;
         if ($request->api_token)
             $user = User::where('api_token', $request->api_token)->first();
@@ -64,6 +65,8 @@ class ProviderController extends Controller
             $providers->each(function ($provider) {
                 $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
                 $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
+                $provider->has_home_services = $provider->homeServices()->count() > 0 ? 1 : 0;
+                $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
                 unset($provider->favourites);
                 return $provider;
             });

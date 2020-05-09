@@ -18,7 +18,6 @@ trait SearchTrait
 
     public function searchResult($userId = null, Request $request = null)
     {
-
         $order = (isset($request->order) && strtolower($request->order) == "desc") ? "DESC" : "ASC";
         $rate = $request->rate;
         $queryStr = $request->queryStr;
