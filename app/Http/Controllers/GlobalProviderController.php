@@ -620,7 +620,7 @@ class GlobalProviderController extends Controller
             } elseif ($reservationType == 3 || $reservationType == 4) { ### home & clinic reservations
                 $serviceType = $reservationType == 3 ? 1 : 2; // 1 == home & 2 == clinic reservations
                 $result = $this->getServiceCustomReservations($provider, $serviceType);
-                $result['total_price'] = $this->calcAllReservationAmount($provider->id, $branches, $reservationType);
+                $result['total_price'] = $this->calcAllReservationAmount($provider->id, $branches, $reservationType, $serviceType);
             }
 
             return $this->returnData('reservations', $result);
@@ -632,52 +632,26 @@ class GlobalProviderController extends Controller
 
     public function getAllCustomReservations($provider, $branches = [])
     {
-        $reservations = Reservation::whereIn('provider_id', $branches)
-            ->where(function ($query) {
-                $query->where('approved', '2'); // canceled
-                $query->orWhere(function ($q) {
-                    $q->where('approved', '3');// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
-                    });
-                });
-            })
+        $reservationCondition = $this->approvedReservationCondition(new Reservation);
+        $reservations = $reservationCondition->whereIn('provider_id', $branches)
             ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", DB::raw("'' as provider_id"), DB::raw("provider_id as branch_id") /*, "provider_id", DB::raw("'' as branch_id")*/, "payment_method_id", "doctor_id", "promocode_id", DB::raw("'' as service_id"), DB::raw("'' as service_type"));
 
-        $consulting = DoctorConsultingReservation::where(function ($q) use ($provider) {
+        $consultingCondition = $this->approvedReservationCondition(new DoctorConsultingReservation);
+        $consulting = $consultingCondition->where(function ($q) use ($provider) {
             $q->where('provider_id', $provider->id)
                 ->orWhere('branch_id', $provider->id);
-        })
-            ->where(function ($query) {
-                $query->where('approved', '2'); // canceled
-                $query->orWhere(function ($q) {
-                    $q->where('approved', '3');// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
-                    });
-                });
-            })
-            ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", "doctor_id", DB::raw("'' as promocode_id"), DB::raw("'' as service_id"), DB::raw("'' as service_type"));
+        })->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", "doctor_id", DB::raw("'' as promocode_id"), DB::raw("'' as service_id"), DB::raw("'' as service_type"));
 
-        $serviceReservations = ServiceReservation::where(function ($q) use ($provider) {
+        $serviceCondition = $this->approvedReservationCondition(new ServiceReservation);
+        $services = $serviceCondition->where(function ($q) use ($provider) {
             $q->where('provider_id', $provider->id)
                 ->orWhere('branch_id', $provider->id);
-        })
-            ->where(function ($query) {
-                $query->where('approved', '2'); // canceled
-                $query->orWhere(function ($q) {
-                    $q->where('approved', '3');// completed
-                    $q->where(function ($w) {
-                        $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
-                    });
-                });
-            })
-            ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), "service_id", "service_type")
+        })->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), "service_id", "service_type")
             ->union($reservations)
             ->union($consulting)
             ->paginate(PAGINATION_COUNT);
 
-        $result['data'] = new CustomReservationsResource($serviceReservations);
+        $result['data'] = new CustomReservationsResource($services);
         return $result;
     }
 
@@ -724,19 +698,19 @@ class GlobalProviderController extends Controller
 
     public function getServiceCustomReservations($provider, $serviceType = '')
     {
-        $consulting = ServiceReservation::where('service_type', $serviceType)// Home
-        ->where(function ($q) use ($provider) {
-            $q->where('provider_id', $provider->id)
-                ->orWhere('branch_id', $provider->id);
-        })->where(function ($query) {
-            $query->where('approved', '2'); // canceled
-            $query->orWhere(function ($q) {
-                $q->where('approved', '3');// completed
-                $q->where(function ($w) {
-                    $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
+        $consulting = ServiceReservation::where('service_type', $serviceType)
+            ->where(function ($q) use ($provider) {
+                $q->where('provider_id', $provider->id)
+                    ->orWhere('branch_id', $provider->id);
+            })->where(function ($query) {
+                $query->where('approved', '2'); // canceled
+                $query->orWhere(function ($q) {
+                    $q->where('approved', '3');// completed
+                    $q->where(function ($w) {
+                        $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
+                    });
                 });
-            });
-        })
+            })
             ->select("id", "reservation_no", "day_date", "from_time", "to_time", "approved", "is_visit_doctor", "provider_id", "branch_id", "payment_method_id", DB::raw("'' as doctor_id"), DB::raw("'' as promocode_id"), 'service_id', 'service_type')
             ->paginate(PAGINATION_COUNT);
 
@@ -744,51 +718,80 @@ class GlobalProviderController extends Controller
         return $result;
     }
 
-    public function calcAllReservationAmount($providerId, $branches = [], $reservationType = 0)
+    public function calcAllReservationAmount($providerId, $branches = [], $reservationType = 0, $serviceType = '')
     {
         $result = 0;
         if ($reservationType == 0) { ### All Reservations
-            $reservations = Reservation::whereIn('provider_id', $branches)
-                ->where(function ($q) {
-                    $q->where('approved', '3');// completed
-                    $q->where('is_visit_doctor', '1'); // the client visit doctor
-                })->sum('price');
 
-            $consulting = DoctorConsultingReservation::where(function ($q) use ($providerId) {
+            $reservationCondition = $this->approvedReservationAmountCondition(new Reservation);
+            $reservations = $reservationCondition->whereIn('provider_id', $branches)->sum('price');
+
+            $consultingCondition = $this->approvedReservationAmountCondition(new DoctorConsultingReservation);
+            $consulting = $consultingCondition->where(function ($q) use ($providerId) {
                 $q->where('provider_id', $providerId)
                     ->orWhere('branch_id', $providerId);
-            })->where(function ($q) {
-                $q->where('approved', '3');// completed
-                $q->where('is_visit_doctor', '1'); // the client visit doctor
             })->sum('total_price');
 
-            $serviceReservations = ServiceReservation::where(function ($q) use ($providerId) {
+            $serviceCondition = $this->approvedReservationAmountCondition(new ServiceReservation);
+            $services = $serviceCondition->where(function ($q) use ($providerId) {
                 $q->where('provider_id', $providerId)
                     ->orWhere('branch_id', $providerId);
-            })->where(function ($q) {
-                $q->where('approved', '3');// completed
-                $q->where('is_visit_doctor', '1'); // the client visit doctor
             })->sum('total_price');
 
-            $result = floatval($reservations) + floatval($consulting) + floatval($serviceReservations);
+            $result = floatval($reservations) + floatval($consulting) + floatval($services);
+
         } elseif ($reservationType == 1) { ### offers reservations
-            $result = Reservation::whereIn('provider_id', $branches)
-                ->whereNotNull('promocode_id')
-                ->where(function ($q) {
-                    $q->where('approved', '3');// completed
-                    $q->where('is_visit_doctor', '1'); // the client visit doctor
-                })->sum('price');
+
+            $reservationCondition = $this->approvedReservationAmountCondition(new Reservation);
+            $result = $reservationCondition->whereIn('provider_id', $branches)
+                ->whereNotNull('promocode_id')->sum('price');
+
         } elseif ($reservationType == 2) { ### consulting reservations
-            $result = DoctorConsultingReservation::where(function ($q) use ($providerId) {
+
+            $consultingCondition = $this->approvedReservationAmountCondition(new DoctorConsultingReservation);
+            $result = $consultingCondition->where(function ($q) use ($providerId) {
                 $q->where('provider_id', $providerId)
                     ->orWhere('branch_id', $providerId);
-            })->where(function ($q) {
-                $q->where('approved', '3');// completed
-                $q->where('is_visit_doctor', '1'); // the client visit doctor
             })->sum('total_price');
+
+        } elseif ($reservationType == 3 || $reservationType == 4) { ### home & clinic reservations
+
+            $serviceCondition = $this->approvedReservationAmountCondition(new ServiceReservation);
+            $result = $serviceCondition->where('service_type', $serviceType)->where(function ($q) use ($providerId) {
+                $q->where('provider_id', $providerId)
+                    ->orWhere('branch_id', $providerId);
+            });
+
+            if ($reservationType == 4) {
+                $result = $result->sum('price');
+            } else {
+                $result = $result->sum('total_price');
+            }
+
         }
 
         return number_format((float)$result, 2, '.', '');
+    }
+
+    public function approvedReservationCondition($model)
+    {
+        return $model->where(function ($query) {
+            $query->where('approved', '2'); // canceled
+            $query->orWhere(function ($q) {
+                $q->where('approved', '3');// completed
+                $q->where(function ($w) {
+                    $w->where('is_visit_doctor', '1')->orWhere('is_visit_doctor', '0');
+                });
+            });
+        });
+    }
+
+    public function approvedReservationAmountCondition($model)
+    {
+        return $model->where(function ($q) {
+            $q->where('approved', '3');// completed
+            $q->where('is_visit_doctor', '1'); // the client visit doctor
+        });
     }
 
     ############################ End reservations-record Section #############################
