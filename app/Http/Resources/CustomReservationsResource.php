@@ -20,6 +20,7 @@ class CustomReservationsResource extends ResourceCollection
                 'approved' => $data->approved,
                 'is_visit_doctor' => $data->is_visit_doctor,
                 'service_id' => $data->service_id,
+                'service_type' => $data->service_type,
                 'doctor_id' => $data->doctor_id,
                 'promocode_id' => $data->promocode_id,
 //                'provider_id' => $data->provider_id,
