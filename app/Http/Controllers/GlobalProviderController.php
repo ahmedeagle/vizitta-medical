@@ -770,6 +770,10 @@ class GlobalProviderController extends Controller
                 $q->where('payment_method_id', $request->search_payment_method_id);
             }
 
+            if (!is_null($request->reservation_no) && !empty($request->reservation_no)) {
+                $q->where('reservation_no', $request->reservation_no);
+            }
+
             if (!is_null($request->search_doctor_id) && !empty($request->search_doctor_id)) {
                 if (Schema::hasColumn($model->getTable(), 'doctor_id')) {
                     $q->where('doctor_id', $request->search_doctor_id);
@@ -799,6 +803,10 @@ class GlobalProviderController extends Controller
 
             if (!is_null($request->search_payment_method_id) && !empty($request->search_payment_method_id)) {
                 $q->where('payment_method_id', $request->search_payment_method_id);
+            }
+
+            if (!is_null($request->reservation_no) && !empty($request->reservation_no)) {
+                $q->where('reservation_no', $request->reservation_no);
             }
 
             if (!is_null($request->search_doctor_id) && !empty($request->search_doctor_id)) {
