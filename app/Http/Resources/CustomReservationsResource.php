@@ -21,12 +21,15 @@ class CustomReservationsResource extends ResourceCollection
                 'to_time' => $data->to_time,
                 'approved' => $data->approved,
                 'is_visit_doctor' => $data->is_visit_doctor,
-                'service_id' => $data->service_id,
-                'service_type' => $data->service_type,
-                'doctor_id' => $data->doctor_id,
-                'promocode_id' => $data->promocode_id,
+                
+//                'service_id' => $data->service_id,
+//                'service_type' => $data->service_type,
+//                'doctor_id' => $data->doctor_id,
+//                'promocode_id' => $data->promocode_id,
+
 //                'provider_id' => $data->provider_id,
 //                'branch_id' => $data->branch_id,
+
                 'payment_method' => [
                     'id' => $data->paymentMethod->id,
                     'name' => app()->getLocale() == 'ar' ? $data->paymentMethod->name_ar : $data->paymentMethod->name_en,
