@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\DoctorConsultingReservation;
 use App\Models\Provider;
+use App\Models\Reservation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -19,11 +21,15 @@ class CustomReservationsResource extends ResourceCollection
                 'to_time' => $data->to_time,
                 'approved' => $data->approved,
                 'is_visit_doctor' => $data->is_visit_doctor,
-                'service_id' => $data->service_id,
-                'doctor_id' => $data->doctor_id,
-                'promocode_id' => $data->promocode_id,
+
+//                'service_id' => $data->service_id,
+//                'service_type' => $data->service_type,
+//                'doctor_id' => $data->doctor_id,
+//                'promocode_id' => $data->promocode_id,
+
 //                'provider_id' => $data->provider_id,
 //                'branch_id' => $data->branch_id,
+
                 'payment_method' => [
                     'id' => $data->paymentMethod->id,
                     'name' => app()->getLocale() == 'ar' ? $data->paymentMethod->name_ar : $data->paymentMethod->name_en,
@@ -59,6 +65,25 @@ class CustomReservationsResource extends ResourceCollection
                     'id' => $data->doctor->id,
                     'name' => app()->getLocale() == 'ar' ? $data->doctor->name_ar : $data->doctor->name_en,
                 ];
+            }
+
+            if ($data->promocode_id != "" && !is_null($data->promocode_id)) {
+                $res['reservation_type'] = 'offers';
+            } elseif ($data->service_id != "" && !is_null($data->service_id)) {
+                $res['reservation_type'] = $data->service_type == '1' ? 'home' : 'clinic';
+            } elseif ($data->service_id != "" && !is_null($data->service_id)) {
+                $res['reservation_type'] = $data->service_type == '1' ? 'home' : 'clinic';
+            } else {
+                $checkReservation = Reservation::where('reservation_no', $data->reservation_no)->first(); // Usual Reservation
+                $consultingReservation = DoctorConsultingReservation::where('reservation_no', $data->reservation_no)->first(); // Doctor Consulting Reservation
+
+                if (!is_null($checkReservation))
+                    $res['reservation_type'] = 'usual_reservation';
+                elseif (!is_null($consultingReservation))
+                    $res['reservation_type'] = 'consulting';
+                else
+                    $res['reservation_type'] = '';
+
             }
 
             return $res;
