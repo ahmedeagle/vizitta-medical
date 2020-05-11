@@ -353,7 +353,7 @@ trait UserTrait
         ])
             ->whereIn('id', function ($q) use ($id) {
                 $q->select('doctor_id')->from('user_favourites')->where('user_id', $id)->whereNotNull('doctor_id')->orderBy('created_at', 'DESC');
-            })->select('id', 'rate', 'nickname_id', 'specification_id', 'provider_id', 'photo', 'status',
+            })->select('id', 'rate','waiting_period','nickname_id', 'specification_id', 'provider_id', 'photo', 'status',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name') ,  DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation'))->paginate(5);
 
     }

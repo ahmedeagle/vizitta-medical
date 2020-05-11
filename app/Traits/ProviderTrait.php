@@ -456,7 +456,7 @@ trait ProviderTrait
         }
         $provider = $provider->orderBy(DB::raw('RAND()'));
 
-        return $provider->where('providers.status', 1)->limit(15)->get();
+        return $provider->where('providers.status', 1)->limit(PAGINATION_COUNT)->get();
 
     }
 
