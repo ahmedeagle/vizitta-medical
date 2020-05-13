@@ -750,6 +750,12 @@ class UserController extends Controller
             }
 
             if (count($reservations->toArray()) > 0) {
+
+                $reservations->getCollection()->each(function ($reservation) {
+                    $reservation->editable = $this->checkReservationTime($reservation);
+                    return $reservation;
+                });
+
                 $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
                 $reservationsJson = new \stdClass();
@@ -2071,9 +2077,10 @@ class UserController extends Controller
     }
 
 
-    function test(){
+    function test()
+    {
 
-        return $this -> getRandomStringForInvitation(6);
+        return $this->getRandomStringForInvitation(6);
 
     }
 

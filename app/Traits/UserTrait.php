@@ -299,9 +299,9 @@ trait UserTrait
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
                 }, 'provider' => function ($que) {
-                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar','providers.latitude', 'providers.longitude');
+                    $que->join('reservations', 'providers.id', '=', 'reservations.provider_id')->select('providers.id', 'providers.provider_id', 'name_ar', 'providers.latitude', 'providers.longitude');
                 }, 'coupon' => function ($qu) {
-                    $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price','price_after_discount');
+                    $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price', 'price_after_discount');
                 }
                 ,
                 'paymentMethod' => function ($qu) {
@@ -319,13 +319,13 @@ trait UserTrait
         return Reservation::finished()->with(['commentReport' => function ($q) use ($id) {
             $q->where('user_id', $id);
         }, 'doctor' => function ($q) {
-            $q->select('id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'),DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
+            $q->select('id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), DB::raw('abbreviation_' . app()->getLocale() . ' as abbreviation'), DB::raw('information_' . app()->getLocale() . ' as information'))->with(['specification' => function ($qq) {
                 $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
         }, 'provider' => function ($que) {
-            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'),'latitude', 'longitude');
+            $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude');
         }, 'coupon' => function ($qu) {
-            $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price','price_after_discount');
+            $qu->select('id', 'coupons_type_id', 'title_' . app()->getLocale() . ' as title', 'code', 'photo', 'price', 'price_after_discount');
         }
             , 'paymentMethod' => function ($qu) {
                 $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -353,8 +353,8 @@ trait UserTrait
         ])
             ->whereIn('id', function ($q) use ($id) {
                 $q->select('doctor_id')->from('user_favourites')->where('user_id', $id)->whereNotNull('doctor_id')->orderBy('created_at', 'DESC');
-            })->select('id', 'rate','waiting_period','nickname_id', 'specification_id', 'provider_id', 'photo', 'status',
-                DB::raw('name_' . $this->getCurrentLang() . ' as name') ,  DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation'))->paginate(5);
+            })->select('id', 'rate', 'waiting_period', 'nickname_id', 'specification_id', 'provider_id', 'photo', 'status',
+                DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation'))->paginate(5);
 
     }
 
@@ -389,7 +389,7 @@ trait UserTrait
             }
         } else {
             $provider = $provider->select('id', 'rate', 'logo', 'longitude', 'latitude', 'type_id', 'street', 'address', 'city_id', 'district_id', 'provider_id', 'status',
-                DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw("'0' as distance"),'has_home_visit');
+                DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw("'0' as distance"), 'has_home_visit');
             if ($rate == 1) {
                 $provider = $provider->orderBy('rate', 'DESC');
             }
@@ -497,5 +497,16 @@ trait UserTrait
         }
     }
 
+
+    //check reservation time 0 -> time passed 1 -> time not passed
+    public function checkReservationTime(Reservation $reservation)
+    {
+        if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+            (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))) {
+            return 0;
+        }
+        return 1;
+    }
 
 }
