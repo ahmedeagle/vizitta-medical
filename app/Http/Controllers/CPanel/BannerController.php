@@ -100,15 +100,7 @@ class BannerController extends Controller
 
     public function saveReorderBanners(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                "banner_id" => "required|exists:banners,id",
-            ]);
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-
+        try{
             $count = 0;
             $all_entries = $request->input('tree');
             if (count($all_entries)) {
