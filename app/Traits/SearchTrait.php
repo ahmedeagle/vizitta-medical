@@ -326,7 +326,6 @@ trait SearchTrait
         $query = Provider::query();
 
         $provider = $query->where('id', $provider_id)
-            ->whereDoesntHave('subscriptions')
             ->with(['type' => function ($q) {
                 $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'favourites' => function ($qu) use ($userId) {

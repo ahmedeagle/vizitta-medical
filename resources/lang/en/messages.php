@@ -295,7 +295,6 @@ return [
     'Service deleted successfully' => 'Service deleted successfully',
     'The service was hidden successfully' => 'The service was hidden successfully',
     'The service was shown successfully' => 'The service was shown successfully',
-    'Balance updated successfully' => 'branch balance updated successfully'
-
-
+    'Balance updated successfully' => 'branch balance updated successfully',
+    'provider not found' => 'Provider Not Found',
 ];

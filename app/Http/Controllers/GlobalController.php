@@ -557,7 +557,7 @@ class GlobalController extends Controller
             $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
             unset($provider->favourites);
         } else {
-            return $this->returnError('E001', trans('messages.No data founded'));
+            return $this->returnError('E001', trans('messages.provider not found'));
         }
          //add main provider data to branch object
         $_provider = Provider::where('id', $provider->provider_id)
