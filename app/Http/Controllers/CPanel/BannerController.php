@@ -46,7 +46,7 @@ class BannerController extends Controller
                         $direct_to = @$offer->{'title_' . app()->getLocale()};
                     } elseif ($banner->type == 'App\Models\Provider') {
                         $type = 'provider';
-                        $direct_type ="الأفرع";
+                        $direct_type = "الأفرع";
                         if ($banner->subCategory_id == 1)// 1 -> doctors  2-> services
                         {
                             $direct = 'الاطباء';
@@ -61,11 +61,11 @@ class BannerController extends Controller
                     } elseif ($banner->type == 'App\Models\Doctor') {
                         $type = 'consulting';
                         $direct_type = 'الاستشارات الطبيبة';
-                        if($banner -> subCategory_id == null or $banner -> subCategory_id == 0 )
-                        $direct_to = 'أقسام الاستشارات';
-                        else{
-                            $specification = Specification::where('id',$banner -> subCategory_id) -> first();
-                            $direct_to =  $specification -> name_ar;
+                        if ($banner->subCategory_id == null or $banner->subCategory_id == 0)
+                            $direct_to = 'أقسام الاستشارات';
+                        else {
+                            $specification = Specification::where('id', $banner->subCategory_id)->first();
+                            $direct_to = $specification->name_ar;
                         }
                     } else {
                         $type = 'none';
@@ -97,13 +97,48 @@ class BannerController extends Controller
         }
     }
 
+
+    public function saveReorderBanners(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "banner_id" => "required|exists:banners,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $count = 0;
+            $all_entries = $request->input('tree');
+            if (count($all_entries)) {
+                foreach ($all_entries as $key => $entry) {
+                    if ($entry['item_id'] != "" && $entry['item_id'] != null) {
+                        $item = Banner::find($entry['item_id']);
+                        $item->depth = $entry['depth'];
+                        $item->lft = $entry['left'];
+                        $item->rgt = $entry['right'];
+                        $item->save();
+                        $count++;
+                    }
+                }
+            } else {
+                return $this->returnError('D000', __('main.oops_error'));
+
+            }
+            return $this->returnSuccessMessage(__('main.oops_error'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     public function edit(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "banner_id" => "required|exists:banners,id",
             ]);
-
 
 
             if ($validator->fails()) {
@@ -114,6 +149,7 @@ class BannerController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
     ############### end manual upload ##############
     public function create()
     {
@@ -171,7 +207,7 @@ class BannerController extends Controller
             if ($request->has('subcategory_id')) {
                 $specification = Specification::where('id', $request->subcategory_id)->first();
 
-                if (!$specification && $request->subcategory_id !=0 ) {
+                if (!$specification && $request->subcategory_id != 0) {
                     return $this->returnError('D000', __('messages.subcategory not found'));
                 }
             }

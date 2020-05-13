@@ -768,7 +768,7 @@ trait GlobalTrait
                 DB::raw('bannerable_id  as type_id'),
                 'subCategory_id'
             )
-            ->orderBy('id', 'DESC')
+            ->orderBy('lft')
             ->paginate(PAGINATION_COUNT);
     }
 
@@ -782,7 +782,7 @@ trait GlobalTrait
                 DB::raw('bannerable_id  as type_id'),
                 'subCategory_id'
             )
-            ->orderBy('id', 'DESC')
+            ->orderBy('lft')
             ->get();
     }
 
