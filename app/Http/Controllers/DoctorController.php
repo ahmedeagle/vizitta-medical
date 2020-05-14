@@ -1234,7 +1234,7 @@ class DoctorController extends Controller
 
         $url = "https://test.oppwa.com/";
         $url .= $request -> resource;
-        $url .= "?".env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
+        $url .= "?entityId=8ac7a4ca6d0680f7016d14c5bbb716d8";
 
        // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
         //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
@@ -1249,6 +1249,7 @@ class DoctorController extends Controller
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
 //            return curl_error($ch);
+
             return $this->returnData('status', 'حدث خطا ما يرجي المحاولة مجددا', trans('messages.Payment status'), 'D001');
         }
         curl_close($ch);
