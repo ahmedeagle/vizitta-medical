@@ -461,6 +461,28 @@ class GlobalController extends Controller
             $providers = $resultArray[0];  //all result doctor with its providers
             if (count($providers->toArray()) > 0) {
                 $total_count = $providers->total();
+                $providers->getCollection()->each(function ($result) use ($request) {
+                    $result->favourite = count($result->favourites) > 0 ? 1 : 0;
+                    $result->distance = (string)number_format($result->distance * 1.609344, 2);
+                    //check if branch has doctors
+                    $result->has_doctors = $result->doctors()->count() > 0 ? 1 : 0;
+                    $result->has_home_services = $result->homeServices()->count() > 0 ? 1 : 0;
+                    $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
+
+
+                    /* //nearest  availble time date
+                     if ($result->doctor == '1') {
+                         $doctor = Doctor::find($result->id);
+                         if ($doctor) {
+                             //   $result->times = $doctor->times()->get();
+                             $result->available_time = $doctor->nearest_available_time;
+                         } else
+                             $result->times = [];
+                     }*/
+
+                    unset($result->favourites);
+                    return $result;
+                });
                 $providersData = json_decode($providers->toJson());
                 $providersJson = new \stdClass();
                 $providersJson->current_page = $providersData->current_page;
@@ -481,16 +503,8 @@ class GlobalController extends Controller
                     $result->distance = (string)number_format($result->distance * 1.609344, 2);
                     //check if branch has doctors
                     $result->has_doctors = $result->doctors()->count() > 0 ? 1 : 0;
-                    $result->has_home_services = $result->whereHas('services', function ($que) use ($request) {
-                        $que->where('services.status', 1)->whereHas('types', function ($services) {
-                            $services->where('services_type.id', 1); // home services
-                        });
-                    })->count() > 0 ? 1 : 0;
-                    $result->has_clinic_services = $result->whereHas('services', function ($que) use ($request) {
-                        $que->where('services.status', 1)->whereHas('types', function ($services) {
-                            $services->where('services_type.id', 2); // home services
-                        });
-                    })->count() > 0 ? 1 : 0;
+                    $result->has_home_services = $result->homeServices()->count() > 0 ? 1 : 0;
+                    $result->has_clinic_services = $result->clinicServices()->count() > 0 ? 1 : 0;
 
 
                     /* //nearest  availble time date
@@ -567,7 +581,7 @@ class GlobalController extends Controller
         } else {
             return $this->returnError('E001', trans('messages.provider not found'));
         }
-        //add main provider data to branch object
+         //add main provider data to branch object
         $_provider = Provider::where('id', $provider->provider_id)
             ->select('id', 'name_' . app()->getLocale() . ' as name', 'logo')
             ->first();

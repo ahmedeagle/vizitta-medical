@@ -479,6 +479,16 @@ trait SearchTrait
                             });
                         });
                     }
+
+                    // filter by home services
+                    if (isset($request->branch_has_home_services) && $request->branch_has_home_services != 0) {
+                        $provider = $provider->whereHas('services', function ($que) use ($request) {
+                            $que->where('services.status',1)->whereHas('types', function ($services) {
+                                $services->where('services_type.id', 1); // home services
+                            });
+                        });
+                    }
+
                     // Doctor Name
                     if (isset($request->doctor_name) && !empty($request->doctor_name)) {
                         $provider = $provider->whereHas('doctors', function ($query) use ($request) {
