@@ -509,7 +509,7 @@ class GlobalVisitsController extends Controller
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
-        $url = env('PAYTABS_CHECKOUTS_URL','PAYTABS_CHECKOUTS_URL');
+        $url = env('PAYTABS_CHECKOUTS_URL','https://oppwa.com/v1/checkouts');
         $data =
             "entityId=" . env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
