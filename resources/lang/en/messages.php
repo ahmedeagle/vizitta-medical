@@ -297,5 +297,6 @@ return [
     'The service was shown successfully' => 'The service was shown successfully',
     'Balance updated successfully' => 'branch balance updated successfully',
     'provider not found' => 'Provider Not Found',
-    'invalid_username_or_password' => 'inCorrect User name or Password'
+    'invalid_username_or_password' => 'inCorrect User name or Password',
+    'logout successfully' =>'You Are Logged Out',
 ];

@@ -706,9 +706,16 @@ class DoctorController extends Controller
 
     public function logout(Request $request)
     {
+    /*    try {
+            $this->guard()->logout();
+
+            return $this->returnSuccessMessage('E001', __('messages.invalid_username_or_password'));
+        } catch (\Exception $ex) {
+        }*/
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
-            return $this->returnData('data', '', __('main.successfully_logged_out'));
+
+            return $this->returnSuccessMessage(__('main.successfully_logged_out'));
         } catch (JWTException $exception) {
             return $this->returnError('E001', __('main.error_logged_out'));
         }
