@@ -1113,11 +1113,11 @@ class DoctorController extends Controller
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)); // branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)->provider); // main  provider
 
-             $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
+            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
 
             $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
             $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
-             $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
+            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
@@ -1141,7 +1141,7 @@ class DoctorController extends Controller
             ];
             //fire pusher  notification for admin  stop pusher for now
             try {
-             //   event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                //   event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
                 (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(1);
             } catch (\Exception $ex) {
             }
@@ -1182,9 +1182,9 @@ class DoctorController extends Controller
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
 
-        $url = env('PAYTABS_CHECKOUTS_URL','https://test.oppwa.com/v1/checkouts');
+        $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts');
         $data =
-            "entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8').
+            "entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
@@ -1197,10 +1197,10 @@ class DoctorController extends Controller
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+                'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -1224,6 +1224,7 @@ class DoctorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "checkoutId" => 'required',
+            "resource" => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -1231,28 +1232,31 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
+        $url = "https://test.oppwa.com/";
+        $url .= $request -> resource;
+        $url .= "?".env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
-        $url = env('PAYTABS_CHECKOUTS_URL','https://test.oppwa.com/v1/checkouts').'/'.$request -> checkoutId."/payment";
-        $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8');
+       // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
+        //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+            'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
-            return curl_error($ch);
-
+//            return curl_error($ch);
+            return $this->returnData('status', 'حدث خطا ما يرجي المحاولة مجددا', trans('messages.Payment status'), 'D001');
         }
         curl_close($ch);
-
         $r = json_decode($responseData);
-
-        return $this->returnData('status', $r->result, trans('messages.Payment status'), 'S001');
-
+        $obj = new \stdClass();
+        $obj -> id = isset($r->id) ?  $r->id : 0;
+        $obj -> res = $r->result;
+        return $this->returnData('status',$obj, trans('messages.Payment status'), 'S001');
     }
 
     public function hide(Request $request)
