@@ -211,6 +211,7 @@ trait SearchTrait
                 //  DB::raw("'0' as doctor"),
                 DB::raw("'0' as price"),
                 DB::raw("0 as specification_id"),
+                'has_home_visit'
 
             );
 
