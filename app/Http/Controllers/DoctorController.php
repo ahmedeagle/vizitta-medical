@@ -1168,7 +1168,6 @@ class DoctorController extends Controller
 
     public function get_checkout_id(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             "price" => array('required', 'regex:/^\d+(\.\d{1,2})?$/', 'min:1'),
         ]);
@@ -1177,14 +1176,12 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
-
-        $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts');
+        $url = env('PAYTABS_CHECKOUTS_URL','PAYTABS_CHECKOUTS_URL');
         $data =
-            "entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8') .
+            "entityId=" . env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
@@ -1197,10 +1194,10 @@ class DoctorController extends Controller
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+                'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -1218,8 +1215,6 @@ class DoctorController extends Controller
         return $this->returnData('checkoutId', $id, trans('messages.Checkout id successefully retrieved'), 'S001');
 
     }
-
-
     public function checkPaymentStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -1232,11 +1227,11 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $url = "https://test.oppwa.com/";
+        $url = "https://test.oppwa.com/"; env('PAYTABS_BASE_URL','https://test.oppwa.com/');
         $url .= $request -> resource;
-        $url .= "?entityId=8ac7a4ca6d0680f7016d14c5bbb716d8";
+        $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') ;
 
-       // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
+        // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
         //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
         $ch = curl_init();
@@ -1244,7 +1239,7 @@ class DoctorController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -1259,6 +1254,7 @@ class DoctorController extends Controller
         $obj -> res = $r->result;
         return $this->returnData('status',$obj, trans('messages.Payment status'), 'S001');
     }
+
 
     public function hide(Request $request)
     {
