@@ -580,9 +580,10 @@ class GlobalVisitsController extends Controller
         curl_close($ch);
         $r = json_decode($responseData);
         $obj = new \stdClass();
-        $obj -> id = isset($r->id) ?  $r->id : 0;
+        $obj -> id = isset($r->id) ?  $r->id : '0';
         $obj -> res = $r->result;
         return $this->returnData('status',$obj, trans('messages.Payment status'), 'S001');
     }
+
 
 }
