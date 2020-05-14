@@ -117,11 +117,11 @@ trait SearchTrait
             });
         }
 
-
         // filter by Insurance Companies
         if (isset($request->branch_has_home_services) && $request->branch_has_home_services != 0) {
             $provider = $provider->homeServices();
         }
+
 
         //  Name
         if (isset($request->doctor_name) && !empty($request->doctor_name)) {
