@@ -324,5 +324,6 @@ return [
     'The service was shown successfully' => 'تم اظهار الخدمة بنجاح',
     'Balance updated successfully' => 'تم تحديث رصيد الفرع بنجاح ',
     'provider not found' => 'مقدم الخدمه غير موجود ',
+    'invalid_username_or_password'  => 'خطا بأسم المستخدم او كلمة المرور'
 
 ];

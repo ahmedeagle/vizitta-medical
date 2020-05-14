@@ -1,7 +1,7 @@
 <?php
 
 
-Route::group(['prefix' => 'doctor', 'middleware' => ['CheckPassword', 'ChangeLanguage']], function () {
+Route::group(['prefix' => 'doctor', 'middleware' => ['CheckPassword', 'ChangeLanguage','api']], function () {
     Route::post('/login', 'DoctorController@login');
 });
 

@@ -683,6 +683,16 @@ class DoctorController extends Controller
 
     public function login(Request $request)
     {
+
+        $validator = Validator::make($request->all(), [
+            "username" => 'required|exists:doctors,username',
+            "password" => 'required',
+        ]);
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
         $credentials = $request->only('username', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
@@ -691,8 +701,7 @@ class DoctorController extends Controller
             // return $this->respondWithToken($token);
             return $this->returnData('data', $result);
         }
-
-        return $this->returnError('E001', __('main.invalid_email_or_password'));
+        return $this->returnError('E001', __('messages.invalid_username_or_password'));
     }
 
     public function logout(Request $request)
