@@ -1186,7 +1186,7 @@ class DoctorController extends Controller
             "&currency=SAR" .
             "&paymentType=DB" .
             "&notificationUrl=" .
-            "&merchantTransactionId=400" .
+            //"&merchantTransactionId=400" .
             "&testMode=EXTERNAL" .
             "&customer.email=" . $userEmail;
 
