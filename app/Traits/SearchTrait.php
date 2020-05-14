@@ -122,7 +122,7 @@ trait SearchTrait
         if (isset($request->branch_has_home_services) && $request->branch_has_home_services != 0) {
             $provider = $provider->whereHas('services', function ($que) use ($request) {
                 $que->whereHas('types', function ($services) {
-                    $services->where('id', 1); // home services
+                    $services->where('types.id', 1); // home services
                 });
             });
         }
