@@ -1179,16 +1179,16 @@ class DoctorController extends Controller
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
-        $url = env('PAYTABS_CHECKOUTS_URL','PAYTABS_CHECKOUTS_URL');
+        $url = env('PAYTABS_CHECKOUTS_URL','https://oppwa.com/v1/checkouts');
         $data =
             "entityId=" . env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=" .
-            //"&merchantTransactionId=400" .
-            "&testMode=EXTERNAL" .
-            "&customer.email=" . $userEmail;
+            "&notificationUrl=https://mcallapp.com" ;
+        // "&merchantTransactionId=400" .
+        //"&testMode=EXTERNAL" .
+        //"&customer.email=" . $userEmail;
 
         try {
             $ch = curl_init();
@@ -1227,7 +1227,7 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $url = "https://test.oppwa.com/"; env('PAYTABS_BASE_URL','https://test.oppwa.com/');
+        $url =  env('PAYTABS_BASE_URL','https://test.oppwa.com/');
         $url .= $request -> resource;
         $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') ;
 
