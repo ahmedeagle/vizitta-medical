@@ -515,10 +515,10 @@ class GlobalVisitsController extends Controller
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=" .
+            "&notificationUrl=https://mcallapp.com" .
            // "&merchantTransactionId=400" .
-            "&testMode=EXTERNAL" .
-            "&customer.email=" . $userEmail;
+            //"&testMode=EXTERNAL" .
+            //"&customer.email=" . $userEmail;
 
         try {
             $ch = curl_init();
@@ -557,7 +557,7 @@ class GlobalVisitsController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $url = "https://test.oppwa.com/"; env('PAYTABS_BASE_URL','https://test.oppwa.com/');
+        $url =  env('PAYTABS_BASE_URL','https://test.oppwa.com/');
         $url .= $request -> resource;
         $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') ;
 
