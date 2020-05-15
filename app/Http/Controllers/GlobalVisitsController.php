@@ -515,7 +515,7 @@ class GlobalVisitsController extends Controller
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=https://mcallapp.com" .
+            "&notificationUrl=https://mcallapp.com" ;
            // "&merchantTransactionId=400" .
             //"&testMode=EXTERNAL" .
             //"&customer.email=" . $userEmail;
