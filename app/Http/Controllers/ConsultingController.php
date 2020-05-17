@@ -197,7 +197,7 @@ class ConsultingController extends Controller
                         $consulting->allow_chat = 0;
                     }
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
-                        $consulting->approved = 3;
+                        $consulting->approved = '3';
                         //$consulting->update(['approved' => 3]);
 
                         DoctorConsultingReservation::where('id', $consulting->id) -> update(['approved' => 3]);
