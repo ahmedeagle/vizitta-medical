@@ -242,7 +242,10 @@ class GlobalVisitsController extends Controller
     {
         try {
             $user = $this->auth('user-api');
-            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])->where('user_id', $user->id)->paginate(10);
+            $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod'])
+                ->where('user_id', $user->id)
+                ->paginate(10);
+
             if (count($serviceReservations->toArray()) > 0) {
                 $total_count = $serviceReservations->total();
                 $serviceReservations = json_decode($serviceReservations->toJson());

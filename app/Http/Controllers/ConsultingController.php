@@ -6,6 +6,7 @@ use App\Mail\AcceptReservationMail;
 use App\Mail\RejectReservationMail;
 use App\Models\CommentReport;
 use App\Models\Doctor;
+use App\Models\DoctorConsultingReservation;
 use App\Models\Mix;
 use App\Models\PromoCode;
 use App\Models\Reason;
@@ -197,7 +198,9 @@ class ConsultingController extends Controller
                     }
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
                         $consulting->approved = 3;
-                        $consulting->update(['approved' => 3]);
+                        //$consulting->update(['approved' => 3]);
+
+                        DoctorConsultingReservation::where('id', $consulting->id) -> update(['approved' => 3]);
                     }
                     $consulting->makeHidden(['mins', 'day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);

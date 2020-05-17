@@ -244,7 +244,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('index', 'GlobalProviderController@getAllReservationsRecord');
             });
 
-
             Route::post('logout', 'ProviderController@logout')->name('provider.logout');
             Route::post('custom/pages', 'CustomPagesController@getProviderPages')->name('provider.custom.pages');
             Route::post('custom/page', 'CustomPagesController@getProviderPage')->name('provider.custom.page');
