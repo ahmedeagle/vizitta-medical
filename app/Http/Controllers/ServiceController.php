@@ -70,7 +70,7 @@ class ServiceController extends Controller
 
             if (isset($request->queryStr)) {
                 $services = $services->where(function ($q4) use ($queryStr) {
-                    $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
+                    $q4->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_en', 'LIKE', '%' . trim($queryStr) . '%');
                 });
             }
 
