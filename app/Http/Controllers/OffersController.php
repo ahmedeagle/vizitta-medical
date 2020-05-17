@@ -1524,10 +1524,10 @@ class OffersController extends Controller
                 "payment_method_id" => $request->payment_method_id,
                 "paid" => 0,
                 "provider_id" => $request->provider_id,
-                'order' => $timeOrder,
-                'price' => $offer->price_after_discount
+                "order" => $timeOrder,
+                "price" => $offer->price_after_discount,
+                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id : null
             ]);
-
 
             if (!$provider)
                 return $this->returnError('E001', 'لا يوجد مقدم خدمه  للحجز');

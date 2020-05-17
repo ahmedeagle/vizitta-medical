@@ -169,6 +169,7 @@ class GlobalConsultingController extends Controller
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
                 "provider_id" => empty($doctor->provider_id) ? null : $doctor->provider_id,
                 "branch_id" => empty($doctor->branch_id) ? null : $doctor->branch_id,
+                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id : null
             ]);
 
             if ($reservation) {

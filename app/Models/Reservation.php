@@ -11,10 +11,10 @@ class Reservation extends Model
 
     protected $table = 'reservations';
     public $timestamps = true;
-    protected $forcedNullStrings = ['bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'offer_rate', 'address'];
+    protected $forcedNullStrings = ['transaction_id','bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'offer_rate', 'address'];
     protected $forcedNullNumbers = [];
 
-    protected $fillable = ['reservation_no', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
+    protected $fillable = ['reservation_no','transaction_id', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'use_insurance', 'promocode_id', 'order', 'provider_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'people_id', 'is_visit_doctor', 'bill_total', 'discount_type',
         'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
         'offer_id', 'offer_rate', 'address'];

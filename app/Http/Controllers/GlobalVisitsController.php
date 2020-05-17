@@ -169,6 +169,7 @@ class GlobalVisitsController extends Controller
                 "longitude" => $request->longitude,
                 "payment_method_id" => $request->payment_method_id,
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
+                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id  : null
             ]);
 
             if ($reservation) {
