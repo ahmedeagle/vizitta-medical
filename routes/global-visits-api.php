@@ -11,8 +11,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('/get-all-services-reservations', 'GlobalVisitsController@getAllServicesReservations');
         Route::post('/get-service-reservation-details', 'GlobalVisitsController@getServiceReservationDetails');
 
-        Route::post('pay/get_checkout_id', 'GlobalVisitsController@get_checkout_id');
-        Route::post('pay/check_payment_status', 'GlobalVisitsController@checkPaymentStatus');
+        Route::post('pay/get_checkout_id', 'DoctorController@get_checkout_id');
+        Route::post('pay/check_payment_status', 'DoctorController@checkPaymentStatus');
 
     });
 
