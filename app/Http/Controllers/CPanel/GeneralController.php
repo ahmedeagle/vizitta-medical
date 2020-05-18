@@ -72,21 +72,37 @@ class GeneralController extends Controller
         return response()->json(['status' => true, 'data' => $result]);
     }
 
-    public function getTransactionDetails(Request $request){
-
-        dd($request->all());
+    public function getTransactionDetails(Request $request)
+    {
         try {
-          /*  $rules = [
-                trans
-            ];*/
-
+            $rules = [
+                "transaction_id" => 'required'
+            ];
             $validator = Validator::make($request->all(), $rules);
-
             if ($validator->fails()) {
-                $result = $validator->messages()->toArray();
-                return response()->json(['status' => false, 'error' => $result], 200);
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
             }
 
-        }
+            $url = "https://test.oppwa.com/v1/query/";
+            $url .= $request->transaction_id;
+            $url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $responseData = curl_exec($ch);
+            if (curl_errno($ch)) {
+                return $this->returnError('D001', 'حدث خطا ما الرجاء المحاولة مجددا');
+            }
+            curl_close($ch);
+            return $this->returnData('data', json_decode($responseData, true), '', 'S001');
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 }

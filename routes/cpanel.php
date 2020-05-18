@@ -408,7 +408,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Offers Routes ##############
 
-        Route::get('/transaction-details/{bank_transaction_id}', 'GeneralController@getTransactionDetails');
+        Route::get('transaction-details', 'GeneralController@getTransactionDetails');
 
     });
 
