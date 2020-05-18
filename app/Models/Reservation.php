@@ -273,7 +273,7 @@ class Reservation extends Model
 
     public function scopeOfferSelection($query)
     {
-        return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'offer_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total');
+        return $query->select('id', 'reservation_no','transaction_id', 'day_date', 'from_time', 'to_time', 'user_id', 'offer_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total');
     }
 
     public function scopeTommorow($query)

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class GeneralController extends Controller
 {
@@ -70,5 +71,22 @@ class GeneralController extends Controller
         $result = $this->apiGetAllSpecifications();
         return response()->json(['status' => true, 'data' => $result]);
     }
+
+    public function getTransactionDetails(Request $request){
+
+        dd($request->all());
+        try {
+          /*  $rules = [
+                trans
+            ];*/
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+
+        }
 
 }

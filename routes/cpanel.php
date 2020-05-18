@@ -348,7 +348,6 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Offers Reservations Routes ##############
 
-
         ############### Start Services Reservations Routes ##############
         Route::prefix('services/reservations/')->group(function () {
             Route::post('/index', "ServicesReservationController@index");
@@ -409,6 +408,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Offers Routes ##############
 
+        Route::get('/transaction-details/{bank_transaction_id}', 'GeneralController@getTransactionDetails');
 
     });
 

@@ -136,7 +136,8 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'today_tomorrow') {
+        }
+        elseif ($status == 'today_tomorrow') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -156,7 +157,8 @@ class offersReservationController extends Controller
                 })->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'pending') {
+        }
+        elseif ($status == 'pending') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -173,7 +175,8 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'approved') {
+        }
+        elseif ($status == 'approved') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -190,7 +193,8 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'reject') {
+        }
+        elseif ($status == 'reject') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -209,7 +213,8 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'rejected_by_user') {
+        }
+        elseif ($status == 'rejected_by_user') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -225,7 +230,8 @@ class offersReservationController extends Controller
                 ->where('offer_id', '!=', 0)
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'completed') {
+        }
+        elseif ($status == 'completed') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -243,7 +249,8 @@ class offersReservationController extends Controller
                 ->orderBy('from_time', 'ASC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'complete_visited') {
+        }
+        elseif ($status == 'complete_visited') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -260,7 +267,8 @@ class offersReservationController extends Controller
                 ->where('offer_id', '!=', 0)
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } elseif ($status == 'complete_not_visited') {
+        }
+        elseif ($status == 'complete_not_visited') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -282,7 +290,8 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        } else {
+        }
+        else {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
