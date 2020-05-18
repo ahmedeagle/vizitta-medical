@@ -17,6 +17,7 @@ class DoctorConsultingReservationResource extends ResourceCollection
                 'from_time' => $data->from_time,
                 'to_time' => $data->to_time,
                 'approved' => $data->approved,
+                'chat_id' => $data->chatId,
                 'total_price' => $data->total_price,
                 'user' => [
                     'id' => $data->user->id,

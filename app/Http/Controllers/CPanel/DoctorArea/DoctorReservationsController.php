@@ -21,6 +21,7 @@ class DoctorReservationsController extends Controller
 
     public function index(Request $request)
     {
+         //where validation!!
         try {
             $doctor = $this->getAuthDoctor();
             $type = $request->type;
