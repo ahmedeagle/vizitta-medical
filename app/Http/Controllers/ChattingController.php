@@ -71,8 +71,8 @@ class ChattingController extends Controller
 
             if (count($messages) > 0) {
                 $messages->getCollection()->each(function ($message) {
-                  if($message -> message_type == 'file')
-                     $message ->message = asset($message ->message)  ;
+                    if($message -> message_type == 'file')
+                        $message ->message = asset($message ->message)  ;
                     return  $message;
                 });
 

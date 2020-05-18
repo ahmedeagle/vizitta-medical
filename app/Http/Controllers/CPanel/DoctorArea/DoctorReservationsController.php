@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\CPanel\DoctorArea;
 
+use App\Http\Controllers\ChattingController;
 use App\Models\DoctorConsultingReservation;
 use App\Models\Reason;
+use App\Traits\ChattingTrait;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
 use Carbon\Carbon;
@@ -15,7 +17,7 @@ use App\Http\Resources\CPanel\DoctorArea\DoctorConsultingReservationResource;
 
 class DoctorReservationsController extends Controller
 {
-    use GlobalTrait;
+    use GlobalTrait, ChattingTrait;
 
     public function index(Request $request)
     {
@@ -87,7 +89,6 @@ class DoctorReservationsController extends Controller
                         return $this->returnError('E001', __('messages.please enter rejection reason'));
                     }
                 }
-
                 $data = [
                     'approved' => $status,
                 ];
@@ -99,7 +100,12 @@ class DoctorReservationsController extends Controller
                     $data['doctor_rejection_reason'] = $rejection_reason_text;
 
                 $reservation->update($data);
+                ///////initial empty chat id ////////
 
+                if ($status == 1) { //doctor accept reservation
+                    // initialize chat
+                    $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
+                }
                 return $this->returnData('', '', __('messages.reservation status changed successfully'));
             }
 
