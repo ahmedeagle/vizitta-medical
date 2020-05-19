@@ -25,7 +25,7 @@ class DoctorReservationsController extends Controller
         try {
 
             $rules = [
-                "type" => "required|in:1,2,3",
+                "type" => "required|in:0,1,2,3",
             ];
 
             $conditions = [];
