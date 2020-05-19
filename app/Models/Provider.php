@@ -357,7 +357,7 @@ class Provider extends Authenticatable implements JWTSubject
     //for featured branched
     public function subscriptions()
     {
-        return $this->hasMany('App\Models\FeaturedBranch', 'branch_id', 'id');
+        return $this->hasOne('App\Models\FeaturedBranch', 'branch_id', 'id');
     }
 
     public function gifts()

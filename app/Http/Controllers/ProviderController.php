@@ -53,8 +53,6 @@ class ProviderController extends Controller
             if ($validation->specification_found == 0)
                 return $this->returnError('D000', trans('messages.There is no specification with this id'));
         }
-
-
         $user = null;
         if ($request->api_token)
             $user = User::where('api_token', $request->api_token)->first();
@@ -62,15 +60,23 @@ class ProviderController extends Controller
             0);
 
         if ($providers->count() > 0) {
-            $providers->each(function ($provider) {
+            $providers = $this->addProviderNameToCollectionResults($providers);
+            $collection = collect($providers);
+             $filtered = $collection->filter(function ($provider, $key) {
                 $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
                 $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
                 $provider->has_home_services = $provider->homeServices()->count() > 0 ? 1 : 0;
                 $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
                 unset($provider->favourites);
-                return $provider;
+                // branches that its featured time passes must not return
+                $to = \Carbon\Carbon::now('Asia/Riyadh');
+                $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $provider->subscriptions->created_at);
+                $diff_in_days = $to->diffInDays($from);
+                return $diff_in_days <= $provider->subscriptions->duration;
             });
-            $providers = $this->addProviderNameToCollectionResults($providers);
+
+            $providers = array_values($filtered->all());
+
             return $this->returnData('featured_providers', $providers);
         }
 

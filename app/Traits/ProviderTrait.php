@@ -424,18 +424,20 @@ trait ProviderTrait
     public function getProvidersFeaturedBranch($userId = null, $longitude = null, $latitude = null, $specification_id = 0)
     {
         $provider = Provider::query();
-        $provider = $provider->whereHas('subscriptions', function ($query) {
-            $query->where(DB::raw('DATE(created_at)'), '>=', date('Y-m-d H:i:s', strtotime('-'.DB::raw('duration').' day')));
-        })->whereHas('doctors')
-            ->with(['type' => function ($q) {
-                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-            }, 'doctors', 'favourites' => function ($qu) use ($userId) {
-                $qu->where('user_id', $userId)->select('provider_id');
-            }, 'city' => function ($q) {
-                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-            }, 'district' => function ($q) {
-                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-            }])->where('provider_id', '!=', null);
+        $provider = $provider->whereHas('subscriptions')
+            ->whereHas('doctors')
+            ->with(['subscriptions' => function ($sub) {
+                $sub->select('id','branch_id','duration', 'created_at');
+            },
+                'type' => function ($q) {
+                    $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                }, 'doctors', 'favourites' => function ($qu) use ($userId) {
+                    $qu->where('user_id', $userId)->select('provider_id');
+                }, 'city' => function ($q) {
+                    $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                }, 'district' => function ($q) {
+                    $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+                }])->where('provider_id', '!=', null);
 
         if (isset($specification_id) && $specification_id != 0) {
             $provider = $provider->whereHas('doctors', function ($query) use ($specification_id) {

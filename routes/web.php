@@ -499,12 +499,35 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'auth', 'ChangeLanguag
 Route::get('map', 'Site\HomeController@getProvidersOnMap')->name('map');
 
 
-/*
-Route::get('testd',function (){
-   return  $provider = Provider::whereHas('subscriptions', function ($query) {
-//        $query->where(DB::raw('DATE(created_at)'), '>=', date('Y-m-d H:i:s', strtotime('-1 day')));
-       $query ->where('created_at')->diffInDays(Carbon::now(), $daysTillTrialEnds);
-    })->whereHas('doctors')
-        ->where('provider_id', '!=', null) -> get();
+Route::get('testd', function () {
 
-});*/
+
+    $providers = Provider::whereHas('subscriptions')->with('subscriptions')->whereHas('doctors')
+        ->where('provider_id', '!=', null)->get();
+
+    if ($providers->count() > 0) {
+        foreach ($providers as $provider) {
+
+            if ($provider->subscriptions->created_at)
+                //$provider->where(DB::raw('DATE(created_at)'), '>=', date('Y-m-d H:i:s', strtotime('-'.DB::raw('duration').' day')));
+                $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
+            $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
+            $provider->has_home_services = $provider->homeServices()->count() > 0 ? 1 : 0;
+            $provider->has_clinic_services = $provider->clinicServices()->count() > 0 ? 1 : 0;
+            unset($provider->favourites);
+
+            // branches that its featured time passes must not return
+            $to = \Carbon\Carbon::now('Asia/Riyadh');
+            $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $provider->subscriptions-> created_at);
+            $diff_in_days = $to->diffInDays($from);
+            if($diff_in_days > $provider -> subscriptions -> duration ){
+                 unset($provider);
+            }
+        }
+
+        $providers = $this->addProviderNameToCollectionResults($providers);
+        return $this->returnData('featured_providers', $providers);
+    }
+
+
+});
