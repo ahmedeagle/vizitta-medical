@@ -17,7 +17,6 @@ Route::group(['prefix' => 'doctor', 'middleware' => ['CheckPassword', 'ChangeLan
         Route::post('/reservations-index', 'DoctorReservationsController@index');
         Route::post('/get-rejected-reasons', 'DoctorReservationsController@getRejectedReasons');
         Route::post('/change-status', 'DoctorReservationsController@changeStatus');
-
     });
 });
 

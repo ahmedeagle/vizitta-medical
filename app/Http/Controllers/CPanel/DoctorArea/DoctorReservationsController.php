@@ -22,15 +22,37 @@ class DoctorReservationsController extends Controller
 
     public function index(Request $request)
     {
-        //where validation!!
         try {
+
+            $rules = [
+                "type" => "required|in:1,2,3",
+            ];
+
+            $conditions = [];
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($request->has('date')) {
+                $validator->addRules([
+                    'date' => 'required|format:Y-m-d',
+                ]);
+                $today        = date('Y-m-d');
+                array_push($conditions, [DB::raw('DATE(day_date)'), $today]);
+            }
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
             $doctor = $this->getAuthDoctor();
             $type = $request->type;
 
-            $reservations = DoctorConsultingReservation::where(function ($query) use ($doctor, $type) {
-                $query->where('doctor_id', $doctor->id)
-                    ->where('approved', $type);
-            })->paginate(PAGINATION_COUNT);
+            $conditions[] = ['doctor_id',$doctor->id];
+            $conditions[] = ['approved', $type];
+
+            $reservations = DoctorConsultingReservation::where($conditions)
+                ->paginate(PAGINATION_COUNT);
+
+
             $result = new DoctorConsultingReservationResource($reservations);
 //            return response()->json(['status' => true, 'data' => $result]);
             return $this->returnData('data', $result);
@@ -118,7 +140,7 @@ class DoctorReservationsController extends Controller
 
             $reservation->update([
                 'approved' => $request->status, //approve reservation
-                'chat_duration'   => isset($request ->chat_duration) ?  $request ->chat_duration : 0
+                'chat_duration' => isset($request->chat_duration) ? $request->chat_duration : 0
             ]);
 
             DB::commit();

@@ -33,6 +33,7 @@ use App\Models\Provider;
 use App\Models\User;
 use App\Models\Reservation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Vinkla\Hashids\Facades\Hashids;
 
 Route::get('/crons', 'Crons@cron_job');
@@ -496,6 +497,3 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'auth', 'ChangeLanguag
 
 
 Route::get('map', 'Site\HomeController@getProvidersOnMap')->name('map');
-
-
-
