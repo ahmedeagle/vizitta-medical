@@ -35,8 +35,8 @@ class DoctorReservationsController extends Controller
                 $validator->addRules([
                     'date' => 'required|format:Y-m-d',
                 ]);
-                $today        = date('Y-m-d');
-                array_push($conditions, [DB::raw('DATE(day_date)'), $today]);
+                $date        =  $request -> date;
+                array_push($conditions, [DB::raw('DATE(day_date)'), $date]);
             }
 
             if ($validator->fails()) {
