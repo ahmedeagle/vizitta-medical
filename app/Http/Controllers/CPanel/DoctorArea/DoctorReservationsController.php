@@ -33,7 +33,7 @@ class DoctorReservationsController extends Controller
 
             if ($request->has('date')) {
                 $validator->addRules([
-                    'date' => 'required|format:Y-m-d',
+                    'date' => 'required|date_format:Y-m-d',
                 ]);
                 $date        =  $request -> date;
                 array_push($conditions, [DB::raw('DATE(day_date)'), $date]);
@@ -49,7 +49,7 @@ class DoctorReservationsController extends Controller
             $conditions[] = ['doctor_id',$doctor->id];
             $conditions[] = ['approved', $type];
 
-           return  $reservations = DoctorConsultingReservation::with(['user'=>function($q){
+             $reservations = DoctorConsultingReservation::with(['user'=>function($q){
                 $q -> select('id','name','photo');
             }])
                 ->where($conditions)
@@ -60,8 +60,6 @@ class DoctorReservationsController extends Controller
 //            return response()->json(['status' => true, 'data' => $result]);
             return $this->returnData('data', $result);
         } catch (\Exception $ex) {
-
-            return $ex;
             return $this->returnError('E001', __('main.oops_error'));
         }
     }
