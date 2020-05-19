@@ -49,7 +49,7 @@ class DoctorReservationsController extends Controller
             $conditions[] = ['doctor_id',$doctor->id];
             $conditions[] = ['approved', $type];
 
-            $reservations = DoctorConsultingReservation::with(['user'=>function($q){
+           return  $reservations = DoctorConsultingReservation::with(['user'=>function($q){
                 $q -> select('id','name','photo');
             }])
                 ->where($conditions)
