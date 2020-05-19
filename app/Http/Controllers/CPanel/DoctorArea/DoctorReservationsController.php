@@ -60,6 +60,8 @@ class DoctorReservationsController extends Controller
 //            return response()->json(['status' => true, 'data' => $result]);
             return $this->returnData('data', $result);
         } catch (\Exception $ex) {
+
+            return $ex;
             return $this->returnError('E001', __('main.oops_error'));
         }
     }
