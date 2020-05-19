@@ -144,6 +144,7 @@ class DoctorController extends Controller
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
+                "application_percentage" =>"required|integer"
             ];
 
             if ($requestData['doctor_type'] == 'clinic') {
@@ -190,7 +191,8 @@ class DoctorController extends Controller
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
                     "waiting_period" => $request->waiting_period,
-                    "status" => true
+                    "status" => true,
+                    "application_percentage" => $request ->application_percentage
                 ];
                 $doctor = Doctor::create($doctorInfo);
 
@@ -365,6 +367,7 @@ class DoctorController extends Controller
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
+                "application_percentage" => "required|integer",
             ];
 
             if ($requestData['doctor_type'] == 'clinic') {
@@ -483,7 +486,8 @@ class DoctorController extends Controller
                     "price" => $request->price,
                     "reservation_period" => $request->reservation_period,
                     "waiting_period" => $request->waiting_period,
-                    "status" => $request->status
+                    "status" => $request->status,
+                    "application_percentage" => $request ->application_percentage
                 ];
 
                 if (isset($request->password) && !empty($request->password)) {

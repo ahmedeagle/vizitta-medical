@@ -437,7 +437,6 @@ trait ProviderTrait
                 $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
             }])->where('provider_id', '!=', null);
 
-
         if (isset($specification_id) && $specification_id != 0) {
             $provider = $provider->whereHas('doctors', function ($query) use ($specification_id) {
                 $query->where('specification_id', $specification_id);
