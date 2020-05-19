@@ -49,7 +49,10 @@ class DoctorReservationsController extends Controller
             $conditions[] = ['doctor_id',$doctor->id];
             $conditions[] = ['approved', $type];
 
-            $reservations = DoctorConsultingReservation::where($conditions)
+            $reservations = DoctorConsultingReservation::with(['user'=>function($q){
+                $q -> select('id','name','photo');
+            }])
+                ->where($conditions)
                 ->paginate(PAGINATION_COUNT);
 
 
