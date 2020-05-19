@@ -424,17 +424,18 @@ trait ProviderTrait
     public function getProvidersFeaturedBranch($userId = null, $longitude = null, $latitude = null, $specification_id = 0)
     {
         $provider = Provider::query();
-        $provider = $provider->whereHas('subscriptions')
-            ->whereHas('doctors')
+        $provider = $provider->whereHas('subscriptions', function ($query) {
+            $query->where(DB::raw('DATE(created_at)'), '>=', date('Y-m-d H:i:s', strtotime('-'.DB::raw('duration').' day')));
+        })->whereHas('doctors')
             ->with(['type' => function ($q) {
-            $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-        }, 'doctors', 'favourites' => function ($qu) use ($userId) {
-            $qu->where('user_id', $userId)->select('provider_id');
-        }, 'city' => function ($q) {
-            $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-        }, 'district' => function ($q) {
-            $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-        }])->where('provider_id', '!=', null);
+                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+            }, 'doctors', 'favourites' => function ($qu) use ($userId) {
+                $qu->where('user_id', $userId)->select('provider_id');
+            }, 'city' => function ($q) {
+                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+            }, 'district' => function ($q) {
+                $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+            }])->where('provider_id', '!=', null);
 
 
         if (isset($specification_id) && $specification_id != 0) {
@@ -456,7 +457,9 @@ trait ProviderTrait
         }
         $provider = $provider->orderBy(DB::raw('RAND()'));
 
-        return $provider->where('providers.status', 1)->limit(PAGINATION_COUNT)->get();
+        return $provider->where('providers.status', 1)
+            ->limit(PAGINATION_COUNT)
+            ->get();
 
     }
 
@@ -615,7 +618,7 @@ trait ProviderTrait
             $branchesIds = [$provider->id];
         }
 
-                //doctor and offers reservations
+        //doctor and offers reservations
         $reservations = Reservation::where(function ($q) use ($no, $provider_id, $branchesIds) {
             $q->where(function ($qq) use ($provider_id, $branchesIds) {
                 $qq->where('provider_id', $provider_id)->orWhere(function ($qqq) use ($branchesIds) {
@@ -626,7 +629,7 @@ trait ProviderTrait
             ->whereDate('day_date', '<=', date('Y-m-d'))
             ->get();
 
-                         //services reservations
+        //services reservations
         $services_reservations = ServiceReservation::where(function ($q) use ($no, $provider_id, $branchesIds) {
             $q->where(function ($qq) use ($provider_id, $branchesIds) {
                 $qq->where('branch_id', $provider_id)->orWhere(function ($qqq) use ($branchesIds) {
@@ -735,7 +738,7 @@ trait ProviderTrait
             return $this->getDoctorCurrentReservations($providers);
         } elseif ($type == 'offer') {
             return $this->getOfferCurrentReservations($providers);
-        }else {
+        } else {
             // return all reservations
             return $this->getAllCurrentReservations($providers);
         }
@@ -873,13 +876,13 @@ trait ProviderTrait
         $home_services_reservations = ServiceReservation::serviceSelection()
             ->serviceSelection()
             ->whereHas('type', function ($e) {
-            $e->where('id', 1);
-        })
+                $e->where('id', 1);
+            })
             ->whereIn('branch_id', $providers)
             ->where('approved', 0)
             ->orderBy('id', 'DESC');
 
-        $clinic_services_reservations =  ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
+        $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
             $e->where('id', 2);
         })
             ->whereIn('branch_id', $providers)
@@ -912,14 +915,14 @@ trait ProviderTrait
             $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
                 $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
-        },'provider' => function ($qq) {
+        }, 'provider' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        },'service' => function ($g) {
+        }, 'service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        },   'type' => function ($qq) {
+        }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
             ->whereIn('provider_id', $providers)
@@ -954,7 +957,7 @@ trait ProviderTrait
             ->where('approved', 1)
             ->orderBy('id', 'DESC');
 
-        $clinic_services_reservations =  ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
+        $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
             $e->where('id', 2);
         })
             ->whereIn('branch_id', $providers)
@@ -987,14 +990,14 @@ trait ProviderTrait
             $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
                 $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
             }]);
-        },'provider' => function ($qq) {
+        }, 'provider' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        },'service' => function ($g) {
+        }, 'service' => function ($g) {
             $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
-        },   'type' => function ($qq) {
+        }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
             ->whereIn('provider_id', $providers)

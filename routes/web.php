@@ -497,3 +497,12 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'auth', 'ChangeLanguag
 
 
 Route::get('map', 'Site\HomeController@getProvidersOnMap')->name('map');
+
+
+
+Route::get('testd',function (){
+   return  date('Y-m-d H:i:s',strtotime('-5 day'));
+    $today = date('Y-m-d');
+    return Reservation::where(DB::raw('DATE(day_date)'), $today)
+        -> select('day_date') -> get();
+});
