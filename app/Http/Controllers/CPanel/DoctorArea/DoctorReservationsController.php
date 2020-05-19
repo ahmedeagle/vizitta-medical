@@ -35,7 +35,7 @@ class DoctorReservationsController extends Controller
                 $validator->addRules([
                     'date' => 'required|date_format:Y-m-d',
                 ]);
-                $date        =  $request -> date;
+                $date = $request->date;
                 array_push($conditions, [DB::raw('DATE(day_date)'), $date]);
             }
 
@@ -46,11 +46,11 @@ class DoctorReservationsController extends Controller
             $doctor = $this->getAuthDoctor();
             $type = $request->type;
 
-            $conditions[] = ['doctor_id',$doctor->id];
+            $conditions[] = ['doctor_id', $doctor->id];
             $conditions[] = ['approved', $type];
 
-             $reservations = DoctorConsultingReservation::with(['user'=>function($q){
-                $q -> select('id','name','photo');
+            $reservations = DoctorConsultingReservation::with(['user' => function ($q) {
+                $q->select('id', 'name', 'photo');
             }])
                 ->where($conditions)
                 ->paginate(PAGINATION_COUNT);
@@ -155,7 +155,7 @@ class DoctorReservationsController extends Controller
                 $comment = " نسبة ميدكال كول من كشف (استشاري) حجز نقدي ";
                 $invoice_type = 0;
                 try {
-                    // $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
+                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
                 } catch (\Exception $ex) {
                 }
             }
@@ -165,7 +165,7 @@ class DoctorReservationsController extends Controller
                 $comment = " نسبة ميدكال كول من كشف (استشاري) حجز الكتروني ";
                 $invoice_type = 0;
                 try {
-                    // $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
+                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
                 } catch (\Exception $ex) {
                 }
             }
@@ -177,5 +177,45 @@ class DoctorReservationsController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
     ##################### End change doctor consulting reservation status ########################
+    private function calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation)
+    {
+        $total_amount = floatval($reservation->total_price);
+        $MC_percentage = $application_percentage_of_consulting;
+        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+
+        if ($reservation->paymentMethod->id == 1) {//cash
+            $discountType = " فاتورة حجز نقدي لخدمة ";
+            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $doctor = $reservation->doctor;
+            $doctor->update([
+                'balance' => $doctor->balance - $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            /*$manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);*/
+        } else {
+
+            $discountType = " فاتورة حجز الكتروني لخدمة ";
+            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $doctor = $reservation->doctor;  // always get branch
+            $doctor->update([
+                'balance' => $doctor->balance + $reservationBalance,
+            ]);
+
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+        }
+
+        return true;
+    }
 }
