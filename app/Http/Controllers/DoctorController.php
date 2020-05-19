@@ -1113,11 +1113,12 @@ class DoctorController extends Controller
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)); // branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)->provider); // main  provider
 
-            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, __('messages.You have new reservation'));  //sms for main provider
-
             $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
             $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
-            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
+            $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile,
+                $smsMessage);  //sms for main provider
+          /*  $this->sendSMS(Provider::find($doctor->provider_id)->mobile,
+                $smsMessage);  //sms for branch*/
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
@@ -1179,13 +1180,13 @@ class DoctorController extends Controller
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
-        $url = env('PAYTABS_CHECKOUTS_URL','https://oppwa.com/v1/checkouts');
+        $url = env('PAYTABS_CHECKOUTS_URL', 'https://oppwa.com/v1/checkouts');
         $data =
-            "entityId=" . env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') .
+            "entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=https://mcallapp.com" ;
+            "&notificationUrl=https://mcallapp.com";
         // "&merchantTransactionId=400" .
         //"&testMode=EXTERNAL" .
         //"&customer.email=" . $userEmail;
@@ -1194,10 +1195,10 @@ class DoctorController extends Controller
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+                'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -1215,6 +1216,7 @@ class DoctorController extends Controller
         return $this->returnData('checkoutId', $id, trans('messages.Checkout id successefully retrieved'), 'S001');
 
     }
+
     public function checkPaymentStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -1227,9 +1229,9 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $url =  env('PAYTABS_BASE_URL','https://test.oppwa.com/');
-        $url .= $request -> resource;
-        $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') ;
+        $url = env('PAYTABS_BASE_URL', 'https://test.oppwa.com/');
+        $url .= $request->resource;
+        $url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
         // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
         //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
@@ -1239,7 +1241,7 @@ class DoctorController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -1250,9 +1252,9 @@ class DoctorController extends Controller
         curl_close($ch);
         $r = json_decode($responseData);
         $obj = new \stdClass();
-        $obj -> id = isset($r->id) ?  $r->id : '0';
-        $obj -> res = $r->result;
-        return $this->returnData('status',$obj, trans('messages.Payment status'), 'S001');
+        $obj->id = isset($r->id) ? $r->id : '0';
+        $obj->res = $r->result;
+        return $this->returnData('status', $obj, trans('messages.Payment status'), 'S001');
     }
 
 
