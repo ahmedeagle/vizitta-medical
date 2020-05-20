@@ -185,7 +185,7 @@ class GlobalVisitsController extends Controller
                     $reserve->to_time = $reservation->to_time;
                     $branch = ServiceReservation::find($reservation->id)->branch_id;
 
-                    $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
+                    $reserve->provider = Provider::providerSelection()->find($service->provider_id);
                     $reserve->branch = $branch;
 
                     //push notification
@@ -196,8 +196,8 @@ class GlobalVisitsController extends Controller
                     $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
                     $this->sendSMS(Provider::find($service->provider_id)->mobile, $smsMessage);  //sms for main provider
 
-                    (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->provider_id), null, 'new_reservation'); //branch
-                    (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->provider_id)->provider, null, 'new_reservation');  //main provider
+                    (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->branch_id), null, 'new_reservation'); //branch
+                    (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($service->provider_id), null, 'new_reservation');  //main provider
                     $notification = GeneralNotification::create([
                         'title_ar' => 'حجز خدمة جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                         'title_en' => 'New service reservation for ' . ' ' . $providerName,

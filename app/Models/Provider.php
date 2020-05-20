@@ -340,7 +340,7 @@ class Provider extends Authenticatable implements JWTSubject
     public function scopeProviderSelection($query)
     {
 
-        return $query->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'address', 'latitude', 'longitude', 'logo', 'rate');
+        return $query->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'), 'address', 'latitude', 'longitude', 'logo','mobile', 'rate');
     }
 
     public function tokens()
