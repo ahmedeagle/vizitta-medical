@@ -182,26 +182,25 @@ class ConsultingController extends Controller
         try {
             $user = $this->auth('user-api');
             $consultings = $this->getAllReservations($user->id);
-
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
-
                     $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                    $currentDate = date('Y-m-d H:i:s');
                     $consulting->consulting_start_date = $consulting_start_date;
                     $consulting->consulting_end_date = $consulting_end_date;
-                    $consulting->mins = $this->getDiffBetweenTwoDate($consulting_start_date);
-                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate($consulting_start_date) <= $consulting->hours_duration)) {
-                        $consulting->allow_chat = 1;
+                    $consulting->currentDate = $currentDate;
+                    if (($currentDate >= $consulting_start_date) && ($currentDate <= $consulting_end_date) && $consulting->approved == 1) {
+                        $consulting->active_now = 1;
                     } else {
-                        $consulting->allow_chat = 0;
+                        $consulting->active_now = 0;
                     }
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
                         $consulting->approved = '3';
-                        //$consulting->update(['approved' => 3]);
-                        DoctorConsultingReservation::where('id', $consulting->id) -> update(['approved' => '3']);
+                        DoctorConsultingReservation::where('id', $consulting->id)->update(['approved' => '3']);
                     }
-                    $consulting->makeHidden(['mins', 'day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+
+                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);
                 }
             }
@@ -217,7 +216,7 @@ class ConsultingController extends Controller
                 $consultingsJson->data = $consultings->data;
                 return $this->returnData('reservations', $consultingsJson);
             }
-            return $this->returnError('E001', trans('messages.No data founded'));
+            return $this->returnError('E001', trans('messages.No medical consulting founded'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
