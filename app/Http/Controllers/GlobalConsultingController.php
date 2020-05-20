@@ -152,9 +152,7 @@ class GlobalConsultingController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
 
             $reservationCode = $this->getRandomString(8);
-
             $totalPrice = (floatval($doctor->price) * intval($requestData['hours_duration'])) / intval($doctor->reservation_period);
-
             $reservation = DoctorConsultingReservation::create([
                 "reservation_no" => $reservationCode,
                 "user_id" => $user->id,

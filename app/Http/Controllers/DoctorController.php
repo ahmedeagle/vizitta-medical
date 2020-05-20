@@ -435,9 +435,8 @@ class DoctorController extends Controller
                 $doctor->times = $res;
 
                 ########### Start To Get Doctor Times After The Current Time ############
-                $collection = collect($doctor->times);
+                 $collection = collect($doctor->times);
                 $filtered = $collection->filter(function ($value, $key) {
-
 
                     if (date('Y-m-d') == $value['date'])
                         return $value['from_time'] > date('H:i:s');

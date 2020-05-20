@@ -94,6 +94,13 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/getDoctorDays', 'DoctorController@getDoctorDays');
             Route::post('/getDoctorAvailableTime', 'DoctorController@getDoctorAvailableTime');
             Route::post('/removeShiftTimes', 'DoctorController@removeShiftTimes');
+
+            Route::group(['prefix' => 'balances'], function () {
+                Route::post('/', 'BalanceController@getDoctorsBalances');
+                Route::post('edit', 'BalanceController@editDoctorsBalance');
+                Route::post('update', 'BalanceController@updateDoctorsBalance');
+            });
+
         });
         ############## End Doctors Routes ##############
 

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\BalanceResource;
+use App\Http\Resources\CPanel\ConsultingBalanceResource;
+use App\Http\Resources\CPanel\SingleDoctorBalanceResource;
 use App\Http\Resources\CPanel\SingleProviderResource;
+use App\Models\Doctor;
 use App\Models\Provider;
 use App\Http\Controllers\Controller;
 use App\Traits\GlobalTrait;
@@ -35,6 +38,7 @@ class BalanceController extends Controller
             ]);
 
             if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
@@ -71,4 +75,62 @@ class BalanceController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    public function getDoctorsBalances()
+    {
+         $doctors = Doctor::with(['provider' => function ($q) {
+            $q->select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+        }])
+            ->select('id', 'name_' . app()->getLocale() . ' as name', 'photo', 'provider_id', 'balance', 'doctor_type', 'is_consult')
+            ->paginate(PAGINATION_COUNT);
+
+        $result = new ConsultingBalanceResource($doctors);
+        return $this->returnData('balances', $result);
+    }
+
+    public function editDoctorsBalance(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "doctor_id" => "required|numeric|exists:doctors,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $doctor = Doctor::select('id', 'name_' . app()->getLocale() . ' as name', 'balance')->find($request->doctor_id);
+            $result = new SingleDoctorBalanceResource($doctor);
+            return $this->returnData('doctor', $result);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function updateDoctorsBalance(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "doctor_id" => "required|numeric|exists:doctors,id",
+                "balance" => "required|numeric"
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $doctor = Doctor::find($request->doctor_id);
+
+            if (!$doctor)
+                return $this->returnError('E001', trans("messages.Doctor not found"));
+
+            $doctor->update(['balance' => $request->balance]);
+
+            return $this->returnSuccessMessage(trans('messages.Balance updated successfully'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 }

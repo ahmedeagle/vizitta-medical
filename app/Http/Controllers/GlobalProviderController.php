@@ -84,6 +84,7 @@ class GlobalProviderController extends Controller
         }
     }
 
+
     public function getAllProviderBranchesList(Request $request)
     {
         try {

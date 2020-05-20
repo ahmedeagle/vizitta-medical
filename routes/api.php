@@ -137,7 +137,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         // services routes
         Route::group(['prefix' => 'services', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
-            Route::post('reserve', 'ServiceController@reserveTime');
+          //  Route::post('reserve', 'ServiceController@reserveTime');
             Route::post('reservation/update', 'ServiceController@UpdateReservationDateTime');
 //            Route::post('pay/get_checkout_id', 'ServiceController@get_checkout_id');
   //          Route::post('pay/check_payment_status', 'ServiceController@checkPaymentStatus');
