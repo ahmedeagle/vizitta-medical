@@ -1169,7 +1169,7 @@ trait ProviderTrait
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        },'rejectionResoan'
+        }
         ])
             ->whereIn('branch_id', $providers)
             ->whereIn('approved', [2,3,5])   //reservations which cancelled by user or branch or complete

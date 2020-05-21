@@ -2446,7 +2446,7 @@ class ProviderController extends Controller
 
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
-                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
                     } elseif ($request->type == 'clinic_services') {
