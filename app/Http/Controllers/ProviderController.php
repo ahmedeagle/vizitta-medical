@@ -2445,6 +2445,7 @@ class ProviderController extends Controller
             $reservations = $this->recordReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
+
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
@@ -2482,12 +2483,14 @@ class ProviderController extends Controller
                     return $reservation;
                 });
 
-                $total_count = $reservations->total();
+               return  $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
                 $reservationsJson = new \stdClass();
                 $reservationsJson->current_page = $reservations->current_page;
                 $reservationsJson->total_pages = $reservations->last_page;
                 $reservationsJson->total_count = $total_count;
+                $reservationsJson->record_count = $total_count;
+                $reservationsJson->record_total = $total_count;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
 
