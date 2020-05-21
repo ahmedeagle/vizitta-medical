@@ -180,16 +180,16 @@ class ConsultingController extends Controller
     public function getConsultingReserves(Request $request)
     {
         try {
-                $type="all";
-                if($request -> has('type')){
-                     if($request -> has('type') == 0 ){//pending and approved reservation
-                            $type = 'current';
-                     }elseif($request -> has('type') == 1){
-                         $type = 'finished';       // cancelled -> 2 done ->3
-                     }
+            $type = "all";
+            if ($request->has('type')) {
+                if ($request->type == 0) {//pending and approved reservation
+                    $type = 'current';
+                } elseif ($request->type == 1) {
+                    $type = 'finished';       // cancelled -> 2 done ->3
                 }
+            }
             $user = $this->auth('user-api');
-            $consultings = $this->getAllReservations($user->id,$type);
+             $consultings = $this->getAllReservations($user->id, $type);
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
                     $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));

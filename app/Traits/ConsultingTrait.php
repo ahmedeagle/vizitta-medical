@@ -92,13 +92,12 @@ trait ConsultingTrait
 
     public function getAllReservations($id, $type = 'all')
     {
-        $conditions = [];
         if ($type == 'current') {  //pending and approved
-            $conditions = [0, 1];
-        } elseif ('finished') {  //cancelled and  done
-            $conditions = [2, 3];
+            $conditions = ['0', '1'];
+        } elseif ($type ==  'finished') {  //cancelled and  done
+            $conditions = ['2', '3'];
         } else { //all reservation
-            $conditions = [0, 1, 2, 3];
+            $conditions = ['0', '1', '2', '3'];
         }
         return DoctorConsultingReservation::with([
             'doctor' => function ($q) {
