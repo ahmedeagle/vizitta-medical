@@ -2483,7 +2483,7 @@ class ProviderController extends Controller
                     return $reservation;
                 });
 
-               return  $total_count = $reservations->where('approved','3')-> total();
+               return  $total_count = $reservations->where('approved','3')-> count();
                 $reservations = json_decode($reservations->toJson());
                 $reservationsJson = new \stdClass();
                 $reservationsJson->current_page = $reservations->current_page;
