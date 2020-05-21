@@ -2466,16 +2466,23 @@ class ProviderController extends Controller
                     } elseif ($request->type == 'all') {
 
                         $this->addReservationTypeToResult($reservation);
-                        $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                        $reservation->makeVisible(["bill_total"]);
+                        $reservation->makeHidden(["offer_id",
+                            "doctor_id",
+                            "service_id",
+                            "doctor_rate",
                             "service_rate",
                             "provider_rate",
                             "offer_rate",
-                            "paid", "use_insurance",
+                            "paid",
+                            "use_insurance",
                             "promocode_id",
                             "provider_id",
-                            "branch_id", "rate_comment",
+                            "branch_id",
+                            "rate_comment",
                             "rate_date",
-                            "address", "latitude",
+                            "address",
+                            "latitude",
                             "longitude"]);
 
                         $reservation->doctor->makeHidden(['available_time', 'times']);
