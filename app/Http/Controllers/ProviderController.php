@@ -8,6 +8,7 @@ use App\Models\CommentReport;
 use App\Models\Doctor;
 use App\Models\PromoCode;
 use App\Models\Reason;
+use App\Models\ServiceReservation;
 use App\Models\Ticket;
 use App\Models\Replay;
 use App\Models\Provider;
@@ -2447,6 +2448,12 @@ class ProviderController extends Controller
 
             if (count($reservations->toArray()) > 0) {
 
+
+                $balance = $this->getCompletedReservationRecordsTotalAndAmount($branches, $request->type);
+                $complete_reservation__count = $balance  -> total;
+                $complete_reservation__amount = $balance  -> amount;
+
+
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
@@ -2484,15 +2491,13 @@ class ProviderController extends Controller
                     return $reservation;
                 });
 
-                $complete_reservation__count = $reservations->where('approved', '3')->count();
-                $complete_reservation__amount = $reservations->where('approved', '3')->sum();
                 $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
                 $reservationsJson = new \stdClass();
                 $reservationsJson->current_page = $reservations->current_page;
                 $reservationsJson->total_pages = $reservations->last_page;
                 $reservationsJson->total_count = $total_count;
-                $reservationsJson->complete_reservation__count = $complete_reservation__count;
+                 $reservationsJson->complete_reservation__count = $complete_reservation__count;
                 $reservationsJson->complete_reservation__amount = $complete_reservation__amount;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
@@ -2505,4 +2510,89 @@ class ProviderController extends Controller
         }
     }
 
+    private function getCompletedReservationRecordsTotalAndAmount(array $branches, $type)
+    {
+        $balance = new \stdClass();
+        $balance->total = 0;
+        $balance->amount = 0;
+
+        if ($type == 'home_services') {
+            $balance->total = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 1);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->count();
+
+            $balance->amount = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 1);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->sum('total_price');
+
+        } elseif ($type == 'clinic_services') {
+            $balance->total = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 2);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->count();
+
+            $balance->amount = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 2);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->sum('total_price');
+
+        } elseif ($type == 'doctor') {
+            $balance->total = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('doctor_id')
+                ->where('doctor_id', '!=', 0)
+                ->count();
+
+            $balance->amount = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('doctor_id')
+                ->where('doctor_id', '!=', 0)
+                ->sum('price');
+        } elseif ($type == 'offer') {
+            $balance->total = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('offer_id')
+                ->where('offer_id', '!=', 0)
+                ->count();
+
+            $balance->amount = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('offer_id')
+                ->where('offer_id', '!=', 0)
+                ->sum('price');
+        } elseif ($type == 'all') {
+            $services_total = ServiceReservation::whereHas('type')
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->count();
+            $services_amount = ServiceReservation::whereHas('type')
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->sum('total_price');
+
+            $doctor_offers_total = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->count();
+
+            $doctor_offers_amount = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->sum('price');
+
+            $balance->total = $services_total + $doctor_offers_total;
+            $balance->amount = $services_amount + $doctor_offers_amount;
+
+        }
+
+        return  $balance;
+    }
 }
