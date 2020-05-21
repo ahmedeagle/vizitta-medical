@@ -90,8 +90,16 @@ trait ConsultingTrait
     }
 
 
-    public function getAllReservations($id)
+    public function getAllReservations($id, $type = 'all')
     {
+        $conditions = [];
+        if ($type == 'current') {  //pending and approved
+            $conditions = [0, 1];
+        } elseif ('finished') {  //cancelled and  done
+            $conditions = [2, 3];
+        } else { //all reservation
+            $conditions = [0, 1, 2, 3];
+        }
         return DoctorConsultingReservation::with([
             'doctor' => function ($q) {
                 $q->select('id', 'photo', 'rate', 'reservation_period', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'price')->with(['specification' => function ($qq) {
@@ -103,9 +111,10 @@ trait ConsultingTrait
             ->where('user_id', $id)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
+            ->whereIn('approved', $conditions)
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'approved', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date','chatId')
+            ->select('id', 'approved', 'doctor_id', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date', 'chatId')
             ->paginate(PAGINATION_COUNT);
     }
 }

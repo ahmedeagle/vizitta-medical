@@ -137,7 +137,6 @@ class GlobalVisitsController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-
             $service = Service::find($requestData['service_id']);
             $user = $this->auth('user-api');
             if ($user == null)
