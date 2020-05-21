@@ -296,6 +296,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         //api to get all reservation doctor ,services,consulting and offers reservation
         Route::post('new-reservations', 'ProviderController@getNewReservationsBytype')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
         Route::post('current-reservations', 'ProviderController@getCurrentReservationsBytype')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
+
+         // reservation  records
+        Route::post('reservations-records', 'ProviderController@getReservationsRecodes')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
     });
 });
 

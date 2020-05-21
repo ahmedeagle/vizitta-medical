@@ -427,7 +427,7 @@ trait ProviderTrait
         $provider = $provider->whereHas('subscriptions')
             ->whereHas('doctors')
             ->with(['subscriptions' => function ($sub) {
-                $sub->select('id','branch_id','duration', 'created_at');
+                $sub->select('id', 'branch_id', 'duration', 'created_at');
             },
                 'type' => function ($q) {
                     $q->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
@@ -862,7 +862,6 @@ trait ProviderTrait
             ->paginate(PAGINATION_COUNT);
     }
 
-
     public function getAllNewReservations($providers)
     {
         $doctor_reservations = Reservation::doctorSelection()
@@ -1128,6 +1127,52 @@ trait ProviderTrait
             ->whereNotNull('offer_id')
             ->where('offer_id', '!=', 0)
             /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+
+    public function recordReservationsByType($providers, $type)
+    {
+        if ($type == 'home_services') {
+            return $this->getHomeServicesRecordReservations($providers);
+        } elseif ($type == 'clinic_services') {
+            return $this->getClinicServicesRecordReservations($providers);
+        } elseif ($type == 'doctor') {
+            return $this->getDoctorRecordReservations($providers);
+        } elseif ($type == 'offer') {
+            return $this->getOfferRecordReservations($providers);
+        } else {
+            // return all reservations
+
+            return $this->getAllRecordReservations($providers);
+        }
+    }
+
+    protected function getHomeServicesRecordReservations($providers)
+    {
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 1);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'type', 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        },'rejectionResoan'
+        ])
+            ->whereIn('branch_id', $providers)
+            ->whereIn('approved', [2,3,5])   //reservations which cancelled by user or branch or complete
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }

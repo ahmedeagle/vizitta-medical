@@ -1272,11 +1272,27 @@ class ProviderController extends Controller
                                 $provider_has_bill = 1;
                             }
                         }
-
                         $reservation->provider_has_bill = $provider_has_bill;
                     } elseif ($request->type == 'all') {
 
                         $this->addReservationTypeToResult($reservation);
+                        if ($provider->provider_id == null) { // provider
+                            if (!is_numeric($provider->application_percentage_bill) || $provider->application_percentage_bill == 0) {
+                                $provider_has_bill = 0;
+                            } else {
+                                $provider_has_bill = 1;
+                            }
+
+                        } else {
+                            $branches = [$provider->id];
+                            $mainProv = Provider::find($provider->provider_id);
+                            if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
+                                $provider_has_bill = 0;
+                            } else {
+                                $provider_has_bill = 1;
+                            }
+                        }
+                        $reservation->provider_has_bill = $provider_has_bill;
                         $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
                             "service_rate",
                             "provider_rate",
@@ -2406,5 +2422,81 @@ class ProviderController extends Controller
         }
     }
 
+     //get all reservation doctor - services - offers which cancelled [2 by branch ,5 by user] or complete [3]
+    public function getReservationsRecodes(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:home_services,clinic_services,doctor,offer,all",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->type;
+            $provider = $this->auth('provider-api');
+            if ($provider->provider_id == null) { //main provider
+                $branches = $provider->providers()->pluck('id')->toArray();
+                array_unshift($branches, $provider->id);
+            } else {
+                $branches = [$provider->id];
+            }
+
+            $reservations = $this->recordReservationsByType($branches, $type);
+
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    if ($request->type == 'home_services') {
+                        $reservation->reservation_type = 'home_services';
+                    } elseif ($request->type == 'clinic_services') {
+                        $reservation->reservation_type = 'clinic_services';
+                    } elseif ($request->type == 'doctor') {
+                        $reservation->reservation_type = 'doctor';
+                    } elseif ($request->type == 'offer') {
+                        $reservation->reservation_type = 'offer';
+                    } elseif ($request->type == 'all') {
+
+                        $this->addReservationTypeToResult($reservation);
+                        $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                            "service_rate",
+                            "provider_rate",
+                            "offer_rate",
+                            "paid", "use_insurance",
+                            "promocode_id",
+                            "provider_id",
+                            "branch_id", "rate_comment",
+                            "rate_date",
+                            "address", "latitude",
+                            "longitude"]);
+
+                        $reservation->doctor->makeHidden(['available_time', 'times']);
+                        $reservation->provider->makeHidden(["provider_has_bill",
+                            "has_insurance",
+                            "is_lottery",
+                            "rate_count"]);
+
+                    } else {
+                        $reservation->reservation_type = 'undefined';
+                    }
+                    return $reservation;
+                });
+
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnData('reservations', $reservations);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 
 }
