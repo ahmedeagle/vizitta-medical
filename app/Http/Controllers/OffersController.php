@@ -1526,7 +1526,7 @@ class OffersController extends Controller
                 "provider_id" => $request->provider_id,
                 "order" => $timeOrder,
                 "price" => $offer->price_after_discount,
-                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id : null
+                "transaction_id" => isset($request->transaction_id) ? $request->transaction_id : null
             ]);
 
             if (!$provider)
@@ -1768,21 +1768,21 @@ class OffersController extends Controller
             if ($reservation->approved == 0 && $request->status == 3)
                 return $this->returnError('E001', trans('messages.Reservation must be approved first'));
 
+            if ($request->status != 3) {
+                if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                    (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                        strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
+                ) {
 
-            if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
-                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
-            ) {
-
-                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+                    return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+                }
             }
 
-
             if ($request->status == 1) {
-               /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
-                if ($ReservationsNeedToClosed > 0) {
-                    return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
-                }*/
+                /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
+                 if ($ReservationsNeedToClosed > 0) {
+                     return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
+                 }*/
             }
 
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
