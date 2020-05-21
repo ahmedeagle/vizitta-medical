@@ -62,7 +62,7 @@ class ProviderController extends Controller
         if ($providers->count() > 0) {
             $providers = $this->addProviderNameToCollectionResults($providers);
             $collection = collect($providers);
-             $filtered = $collection->filter(function ($provider, $key) {
+            $filtered = $collection->filter(function ($provider, $key) {
                 $provider->favourite = count($provider->favourites) > 0 ? 1 : 0;
                 $provider->distance = (string)number_format($provider->distance * 1.609344, 2);
                 $provider->has_home_services = $provider->homeServices()->count() > 0 ? 1 : 0;
@@ -2422,8 +2422,9 @@ class ProviderController extends Controller
         }
     }
 
-     //get all reservation doctor - services - offers which cancelled [2 by branch ,5 by user] or complete [3]
-    public function getReservationsRecodes(Request $request){
+    //get all reservation doctor - services - offers which cancelled [2 by branch ,5 by user] or complete [3]
+    public function getReservationsRecodes(Request $request)
+    {
         try {
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:home_services,clinic_services,doctor,offer,all",
@@ -2483,14 +2484,16 @@ class ProviderController extends Controller
                     return $reservation;
                 });
 
-               return  $total_count = $reservations->where('approved','3')-> count();
+                $complete_reservation__count = $reservations->where('approved', '3')->count();
+                $complete_reservation__amount = $reservations->where('approved', '3')->sum();
+                $total_count = $reservations->total();
                 $reservations = json_decode($reservations->toJson());
                 $reservationsJson = new \stdClass();
                 $reservationsJson->current_page = $reservations->current_page;
                 $reservationsJson->total_pages = $reservations->last_page;
                 $reservationsJson->total_count = $total_count;
-                $reservationsJson->record_count = $total_count;
-                $reservationsJson->record_total = $total_count;
+                $reservationsJson->complete_reservation__count = $complete_reservation__count;
+                $reservationsJson->complete_reservation__amount = $complete_reservation__amount;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
 
