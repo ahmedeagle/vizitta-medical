@@ -221,7 +221,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('update/reservation', 'ProviderBranchController@UpdateReservationDateTime')->name('provider.update.reservation');
                 Route::post('reservations', 'ProviderBranchController@branchesFixedReservations')->name('provider.branch.reservations');
             });
-
             // services routes
             Route::group(['prefix' => 'services'], function () {
                 Route::post('index', 'GlobalProviderController@getProviderServices');
@@ -232,7 +231,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('destroy', 'GlobalProviderController@destroyService');
                 Route::post('toggle', 'GlobalProviderController@toggleService');
             });
-
             // consulting routes
             Route::group(['prefix' => 'consulting'], function () {
                 Route::post('index-current', 'GlobalProviderController@getProviderCurrentConsultingReservations');

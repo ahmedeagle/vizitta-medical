@@ -2448,10 +2448,9 @@ class ProviderController extends Controller
 
             if (count($reservations->toArray()) > 0) {
 
-
                 $balance = $this->getCompletedReservationRecordsTotalAndAmount($branches, $request->type);
-                $complete_reservation__count = $balance  -> total;
-                $complete_reservation__amount = $balance  -> amount;
+                $complete_reservation__count = $balance->total;
+                $complete_reservation__amount = $balance->amount;
 
 
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
@@ -2497,7 +2496,7 @@ class ProviderController extends Controller
                 $reservationsJson->current_page = $reservations->current_page;
                 $reservationsJson->total_pages = $reservations->last_page;
                 $reservationsJson->total_count = $total_count;
-                 $reservationsJson->complete_reservation__count = $complete_reservation__count;
+                $reservationsJson->complete_reservation__count = $complete_reservation__count;
                 $reservationsJson->complete_reservation__amount = $complete_reservation__amount;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
@@ -2524,12 +2523,27 @@ class ProviderController extends Controller
                 ->whereIn('approved', [3])
                 ->count();
 
-            $balance->amount = ServiceReservation::whereHas('type', function ($e) {
+            $amount_if_reservation_with_bill = ServiceReservation::whereHas('type', function ($e) {
                 $e->where('id', 1);
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $amount_if_reservation_withOut_bill = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 1);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('total_price');
+
+            $balance->amount = $amount_if_reservation_with_bill + $amount_if_reservation_withOut_bill;
 
         } elseif ($type == 'clinic_services') {
             $balance->total = ServiceReservation::whereHas('type', function ($e) {
@@ -2538,13 +2552,26 @@ class ProviderController extends Controller
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
                 ->count();
-
-            $balance->amount = ServiceReservation::whereHas('type', function ($e) {
+            $amount_if_reservation_with_bill = ServiceReservation::whereHas('type', function ($e) {
                 $e->where('id', 2);
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $amount_if_reservation_withOut_bill = ServiceReservation::whereHas('type', function ($e) {
+                $e->where('id', 2);
+            })
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('total_price');
+            $balance->amount = $amount_if_reservation_with_bill + $amount_if_reservation_withOut_bill;
 
         } elseif ($type == 'doctor') {
             $balance->total = Reservation::whereIn('provider_id', $branches)
@@ -2552,12 +2579,26 @@ class ProviderController extends Controller
                 ->whereNotNull('doctor_id')
                 ->where('doctor_id', '!=', 0)
                 ->count();
-
-            $balance->amount = Reservation::whereIn('provider_id', $branches)
+            $amount_if_reservation_with_bill = Reservation::whereIn('provider_id', $branches)
                 ->whereIn('approved', [3])
                 ->whereNotNull('doctor_id')
                 ->where('doctor_id', '!=', 0)
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $amount_if_reservation_withOut_bill = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('doctor_id')
+                ->where('doctor_id', '!=', 0)
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('price');
+
+            $balance->amount = $amount_if_reservation_with_bill + $amount_if_reservation_withOut_bill;
+
         } elseif ($type == 'offer') {
             $balance->total = Reservation::whereIn('provider_id', $branches)
                 ->whereIn('approved', [3])
@@ -2565,34 +2606,77 @@ class ProviderController extends Controller
                 ->where('offer_id', '!=', 0)
                 ->count();
 
-            $balance->amount = Reservation::whereIn('provider_id', $branches)
+            $amount_if_reservation_with_bill = Reservation::whereIn('provider_id', $branches)
                 ->whereIn('approved', [3])
                 ->whereNotNull('offer_id')
                 ->where('offer_id', '!=', 0)
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $amount_if_reservation_withOut_bill = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->whereNotNull('offer_id')
+                ->where('offer_id', '!=', 0)
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('price');
+
+            $balance->amount = $amount_if_reservation_with_bill + $amount_if_reservation_withOut_bill;
+
+
         } elseif ($type == 'all') {
             $services_total = ServiceReservation::whereHas('type')
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
                 ->count();
-            $services_amount = ServiceReservation::whereHas('type')
+
+            $services_amount_if_reservation_with_bill = ServiceReservation::whereHas('type')
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $services_amount_if_reservation_withOut_bill = ServiceReservation::whereHas('type')
+                ->whereIn('branch_id', $branches)
+                ->whereIn('approved', [3])
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('total_price');
+
+            $services_amount = $services_amount_if_reservation_with_bill + $services_amount_if_reservation_withOut_bill;
+
 
             $doctor_offers_total = Reservation::whereIn('provider_id', $branches)
                 ->whereIn('approved', [3])
                 ->count();
 
-            $doctor_offers_amount = Reservation::whereIn('provider_id', $branches)
+            $amount_if_doctor_offer_with_bill = Reservation::whereIn('provider_id', $branches)
                 ->whereIn('approved', [3])
+                ->whereNotNull('bill_total')
+                ->where('bill_total', '!=', '0')
+                ->sum('bill_total');
+
+            $amount_if_doctor_offer_withOut_bill = Reservation::whereIn('provider_id', $branches)
+                ->whereIn('approved', [3])
+                ->where(function ($q) {
+                    $q->whereNull('bill_total')
+                        ->orWhere('bill_total', '0');
+                })
                 ->sum('price');
+
+            $doctor_offers_amount = $amount_if_doctor_offer_with_bill + $amount_if_doctor_offer_withOut_bill;
 
             $balance->total = $services_total + $doctor_offers_total;
             $balance->amount = $services_amount + $doctor_offers_amount;
 
         }
 
-        return  $balance;
+        return $balance;
     }
 }
