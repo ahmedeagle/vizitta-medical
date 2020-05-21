@@ -1203,6 +1203,41 @@ trait ProviderTrait
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
+    protected function getDoctorRecordReservations($providers)
+    {
+
+        return $reservations = Reservation::with(['doctor' => function ($g) {
+            $g->select('id', 'nickname_id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                ->with(['nickname' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }, 'coupon' => function ($qu) {
+            $qu->select('id', 'coupons_type_id', DB::raw('title_' . app()->getLocale() . ' as title'), 'code', 'photo', 'price', 'price_after_discount');
+        }
+            , 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'people' => function ($p) {
+                $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }])
+            ->whereIn('provider_id', $providers)
+            ->whereIn('approved', [2,3,5])   //reservations which cancelled by user or branch or complete
+            ->whereNotNull('doctor_id')
+            ->where('doctor_id', '!=', 0)
+            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
 
     public function AcceptedReservations($providers = [])
     {
