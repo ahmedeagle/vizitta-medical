@@ -127,7 +127,7 @@ class DoctorReservationsController extends Controller
             if ($reservation->approved == 0 && $request->status == 3)
                 return $this->returnError('E001', trans('messages.Reservation must be approved first'));
 
-            if ($status != 3) {
+            if ($request->status == 1) {
                 if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
