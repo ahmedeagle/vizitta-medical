@@ -65,7 +65,7 @@ class GlobalConsultingController extends Controller
             $requestData = $request->only(['doctor_id', 'reserve_duration', 'day_date']);
             $doctor = Doctor::where(function ($q) {   // edit today
                 $q->where('doctor_type', 'consultative')
-                    ->orwhere('is_consult',1);
+                    ->orwhere('is_consult', 1);
             })
                 ->find($requestData['doctor_id']);
             $dayName = Str::lower(date('D', strtotime($requestData['day_date'])));
@@ -100,25 +100,24 @@ class GlobalConsultingController extends Controller
             }
 
             ########### Start To Get Times After The Current Time ############
+            $doctorId = $requestData['doctor_id'];
             $collection = collect($doctorTimes);
             $dayDate = $requestData['day_date'];
-
-            $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
+            $filtered = $collection->filter(function ($value, $key) use ($dayDate,$doctorId){
 
                 // Check if this time is reserved before or not
-                $checkTime = DoctorConsultingReservation::where('day_date', $dayDate)
-                    ->where('from_time', $value['from_time'])
-                    ->where('to_time', $value['to_time'])
-                    ->first();
+            $checkTime = DoctorConsultingReservation::where('day_date', $dayDate)
+                ->where('from_time', $value['from_time'])
+                ->where('to_time', $value['to_time'])
+                ->where('doctor_id',$doctorId)
+                ->first();
 
-                if (date('Y-m-d') == $dayDate)
-                    return $value['from_time'] > date('H:i:s') && is_null($checkTime);
-                else
-                    return $value && is_null($checkTime);
-
-//                return strtotime($value['from_time']) >= strtotime(date('H:i:s')) && is_null($checkTime);
-            });
-            $docTimes = array_values($filtered->all());
+            if (date('Y-m-d') == $dayDate)
+                return strtotime($value['from_time']) > strtotime(date('H:i:s')) && $checkTime == null;
+            else
+                return $checkTime == null;
+        });
+             $docTimes = array_values($filtered->all());
             ########### End To Get Times After The Current Time ############
 
             return $this->returnData('times', $docTimes);
@@ -167,7 +166,7 @@ class GlobalConsultingController extends Controller
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
                 "provider_id" => empty($doctor->provider_id) ? null : $doctor->provider_id,
                 "branch_id" => empty($doctor->branch_id) ? null : $doctor->branch_id,
-                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id : null
+                "transaction_id" => isset($request->transaction_id) ? $request->transaction_id : null
             ]);
 
             if ($reservation) {

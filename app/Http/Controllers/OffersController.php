@@ -1421,7 +1421,7 @@ class OffersController extends Controller
                 $filtered = $collection->filter(function ($value, $key) {
 
                     if (date('Y-m-d') == $value['date'])
-                        return $value['from_time'] > date('H:i:s');
+                        return strtotime($value['from_time']) > strtotime(date('H:i:s'));
                     else
                         return $value;
                 });
