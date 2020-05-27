@@ -22,7 +22,7 @@ class SingleDoctorResource extends JsonResource
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
             'abbreviation' => app()->getLocale() == 'ar' ? $this->abbreviation_ar : $this->abbreviation_en,
-            'branch' => app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en,
+            'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar )? $this->provider->name_ar :""  : isset($this->provider->name_en )? $this->provider->name_en :"" ,
             'nickname' => [
                 'id' => $this->nickname->id,
                 'name' => app()->getLocale() == 'ar' ? $this->nickname->name_ar : $this->nickname->name_en,
