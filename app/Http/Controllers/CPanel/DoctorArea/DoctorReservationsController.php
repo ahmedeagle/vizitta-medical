@@ -132,8 +132,9 @@ class DoctorReservationsController extends Controller
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
                 ) {
+                      return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
                 }
-                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+              
             }
 
             if ($status == 1) { //doctor accept reservation
