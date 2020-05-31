@@ -126,7 +126,7 @@ class DoctorController extends Controller
             $requestData = $request->all();
             $rules = [
                 "doctor_type" => "required|in:clinic,consultative",
-                "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
+                "is_consult" => "sometimes|in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "username" => "required|string|max:100|unique:doctors,username",
