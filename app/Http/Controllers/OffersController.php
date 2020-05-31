@@ -1313,7 +1313,6 @@ class OffersController extends Controller
 
     ################### End manual upload ##################
 
-
     public function showV2(Request $request, $allow_code = false, $proCode = 0)
     {
         try {
@@ -1337,7 +1336,7 @@ class OffersController extends Controller
             }, 'offerBranches' => function ($qq) {
                 $qq->select('*')->with(['branch' => function ($qqq) {
                     $qqq->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
-                }]);
+                },'paymentMethods']);
             }
             ])->selection();
 
