@@ -166,6 +166,4 @@ class Offer extends Model
         return $this->belongsToMany('App\Models\PaymentMethod', 'offer_payment_methods', 'offer_id', 'payment_method_id')
             ->withPivot('payment_amount_type', 'payment_amount');
     }
-
-
 }

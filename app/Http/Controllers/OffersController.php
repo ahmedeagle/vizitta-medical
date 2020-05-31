@@ -1337,7 +1337,9 @@ class OffersController extends Controller
                 $qq->select('*')->with(['branch' => function ($qqq) {
                     $qqq->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
                 }]);
-            },'paymentMethods'
+            },'paymentMethods' => function($pay){
+              $pay -> select('payment_methods.id','name_'.app()->getLocale().' as name','flag','status');
+            }
             ])->selection();
 
             $offer = $_offer->find($request->id);
