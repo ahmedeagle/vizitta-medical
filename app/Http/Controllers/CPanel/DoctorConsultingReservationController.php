@@ -96,6 +96,11 @@ class DoctorConsultingReservationController extends Controller
 
                 $reservation->update($data);
 
+                if ($status == 1) { //admin accept reservation
+                    // initialize chat id for firebase
+                    $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
+                }
+
                 return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);
             }
 

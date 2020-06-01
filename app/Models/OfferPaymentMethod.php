@@ -14,12 +14,11 @@ class OfferPaymentMethod extends Pivot
 
     public function getPaymentAmountTypeAttribute($val)
     {
-
-        return (  $this->pivot->payment_amount_type != null ? $val : '');
+        return (  $val != null ? $val : '');
     }
+
     public function getPaymentAmountAttribute($val)
     {
-        return ($this->pivot->payment_amount != null ? $val : 0);
+        return ($val != null ? $val : 0);
     }
-
 }
