@@ -178,8 +178,10 @@ class DoctorController extends Controller
                     ->count();
                 $doctor->rate_count = $countRate;
                 $doctor->working_days = $days;
-                if (isset($request->user_id) && $request->user_id != 0) {
-                    $favouriteDoctor = $this->getDoctorFavourite($doctor->id, $request->user_id);
+                $user = $this->auth('user-api');
+
+                if (isset($user) && $user != null) {
+                    $favouriteDoctor = $this->getDoctorFavourite($doctor->id, $user -> sid);
                     if ($favouriteDoctor != null)
                         $doctor->favourite = 1;
                     else
@@ -435,7 +437,7 @@ class DoctorController extends Controller
                 $doctor->times = $res;
 
                 ########### Start To Get Doctor Times After The Current Time ############
-                 $collection = collect($doctor->times);
+                $collection = collect($doctor->times);
                 $filtered = $collection->filter(function ($value, $key) {
 
                     if (date('Y-m-d') == $value['date'])
@@ -1116,8 +1118,8 @@ class DoctorController extends Controller
             $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
             $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile,
                 $smsMessage);  //sms for main provider
-          /*  $this->sendSMS(Provider::find($doctor->provider_id)->mobile,
-                $smsMessage);  //sms for branch*/
+            /*  $this->sendSMS(Provider::find($doctor->provider_id)->mobile,
+                  $smsMessage);  //sms for branch*/
 
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
             (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
