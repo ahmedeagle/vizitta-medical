@@ -142,7 +142,6 @@ class ServiceController extends Controller
                     "branch_id" => $request->branch_id,
                     "provider_id" => $providerId,
                     "specification_id" => $request->specification_id,
-                    "price" => null,
                     "home_price" => in_array(1, $request->typeIds) ? $request->home_price : null,
                     "clinic_price" => in_array(2, $request->typeIds) ? $request->clinic_price : null,
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
