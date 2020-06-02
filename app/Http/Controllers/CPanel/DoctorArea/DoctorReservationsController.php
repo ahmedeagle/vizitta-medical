@@ -23,7 +23,6 @@ class DoctorReservationsController extends Controller
     public function index(Request $request)
     {
         try {
-
             $rules = [
                 "type" => "required|in:0,1,2,3",
             ];
@@ -49,11 +48,18 @@ class DoctorReservationsController extends Controller
             $conditions[] = ['doctor_id', $doctor->id];
             $conditions[] = ['approved', $type];
 
-            $reservations = DoctorConsultingReservation::with(['user' => function ($q) {
-                $q->select('id', 'name', 'photo');
-            }])
-                ->where($conditions)
-                ->paginate(PAGINATION_COUNT);
+            if ($type == 0 or $type == 1)   // if new or approved
+            {
+                  // if time passed  without close chat and reservation close it automatically
+
+
+            }
+
+                $reservations = DoctorConsultingReservation::with(['user' => function ($q) {
+                    $q->select('id', 'name', 'photo');
+                }])
+                    ->where($conditions)
+                    ->paginate(PAGINATION_COUNT);
 
 
             $result = new DoctorConsultingReservationResource($reservations);
@@ -132,7 +138,7 @@ class DoctorReservationsController extends Controller
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
                 ) {
-                      return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+                    return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
                 }
 
             }

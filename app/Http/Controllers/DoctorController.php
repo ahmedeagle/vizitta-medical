@@ -181,7 +181,7 @@ class DoctorController extends Controller
                 $user = $this->auth('user-api');
 
                 if (isset($user) && $user != null) {
-                    $favouriteDoctor = $this->getDoctorFavourite($doctor->id, $user -> sid);
+                    $favouriteDoctor = $this->getDoctorFavourite($request -> id, $user -> id);
                     if ($favouriteDoctor != null)
                         $doctor->favourite = 1;
                     else
