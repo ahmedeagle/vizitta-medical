@@ -72,6 +72,7 @@ trait ServicesTrait
             'provider_id',
             'branch_id',
             'rate',
+            'price',
             'home_price',
             'clinic_price',
             'home_price_duration',
