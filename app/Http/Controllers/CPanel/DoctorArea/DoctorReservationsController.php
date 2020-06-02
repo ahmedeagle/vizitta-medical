@@ -23,6 +23,7 @@ class DoctorReservationsController extends Controller
     public function index(Request $request)
     {
         try {
+
             $rules = [
                 "type" => "required|in:0,1,2,3",
             ];
@@ -53,6 +54,7 @@ class DoctorReservationsController extends Controller
             }])
                 ->where($conditions)
                 ->paginate(PAGINATION_COUNT);
+
 
             $result = new DoctorConsultingReservationResource($reservations);
 //            return response()->json(['status' => true, 'data' => $result]);
@@ -130,7 +132,7 @@ class DoctorReservationsController extends Controller
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
                 ) {
-                    return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+                      return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
                 }
 
             }
