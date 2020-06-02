@@ -116,9 +116,10 @@ class GlobalProviderController extends Controller
                 "typeIds" => "required|array|min:1",   // 1 -> home 2 -> clinic
                 "typeIds.*" => "required|in:1,2",   // 1 -> home 2 -> clinic
                 "specification_id" => "required|exists:specifications,id",
-                "price" => "required|numeric",
                 "clinic_price_duration" => "sometimes|nullable|numeric",  // in minutes
                 "home_price_duration" => "sometimes|nullable||numeric",  // in minutes
+                "clinic_price" => "sometimes|nullable|numeric",
+                "home_price" => "sometimes|nullable||numeric",
                 "information_en" => "required",
                 "information_ar" => "required",
                 "working_days" => "required|array|min:1",
@@ -131,16 +132,17 @@ class GlobalProviderController extends Controller
             }
 
             if (in_array(2, $request->typeIds)) {  // clinic
-                if (empty($request->clinic_reservation_period) or !is_numeric($request->clinic_reservation_period) or $request->clinic_reservation_period < 5) {
-                    return $this->returnError('D000', __('messages.reservation period required and must be numeric'));
-                }
+
 
                 if (empty($request->clinic_price_duration) or !is_numeric($request->clinic_price_duration)) {
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if ($request->clinic_reservation_period != $request->clinic_price_duration)
-                    return $this->returnError('D000', __('messages.if type is clinic price duration and  reservation period must be equal'));
+
+                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
+                    return $this->returnError('D000', __('messages.clinic price required'));
+                }
+
 
             }   // price_duration here is equal to  "reservation_period"
 
@@ -150,6 +152,10 @@ class GlobalProviderController extends Controller
                 }*/
                 if (empty($request->home_price_duration) or !is_numeric($request->home_price_duration)) {
                     return $this->returnError('D000', __('messages.home price duration required'));
+                }
+
+                if (empty($request->home_price) or !is_numeric($request->home_price)) {
+                    return $this->returnError('D000', __('messages.home price required'));
                 }
             }
 
@@ -169,7 +175,7 @@ class GlobalProviderController extends Controller
                 foreach ($request->working_days as $working_day) {
                     $from = Carbon::parse($working_day['from']);
                     $to = Carbon::parse($working_day['to']);
-                    if (!in_array($working_day['day'], $days) || (in_array(2, $request->typeIds) && $to->diffInMinutes($from) < $request->clinic_reservation_period))
+                    if (!in_array($working_day['day'], $days) || (in_array(2, $request->typeIds) && $to->diffInMinutes($from) < $request->clinic_price_duration))
                         return $this->returnError('D000', trans("messages.There is one day with incorrect name"));
                     $working_days_data[] = [
                         'provider_id' => $providerId,
@@ -179,7 +185,7 @@ class GlobalProviderController extends Controller
                         'from_time' => $from->format('H:i'),
                         'to_time' => $to->format('H:i'),
                         'order' => array_search(strtolower($working_day['day']), $days),
-                        'reservation_period' => in_array(2, $request->typeIds) ? $request->clinic_reservation_period : null
+                        'reservation_period' => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                     ];
                 }
 
@@ -191,11 +197,12 @@ class GlobalProviderController extends Controller
                     "branch_id" => $request->branch_id,
                     "provider_id" => $providerId,
                     "specification_id" => $request->specification_id,
-                    "price" => $request->price,
+                    "home_price" => in_array(1, $request->typeIds) ? $request->home_price : null,
+                    "clinic_price" => in_array(2, $request->typeIds) ? $request->clinic_price : null,
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 1,
-                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_reservation_period : null
+                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
 
                 $service->types()->attach($request->typeIds);
