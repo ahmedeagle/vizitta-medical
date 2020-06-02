@@ -34,7 +34,7 @@ class SingleDoctorResource extends JsonResource
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
-            'favourite' => $user==null ? '0' : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? '0' : '1'),
+            'favourite' => $user==null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
         ];
 
         if (!empty($this->provider)) {
