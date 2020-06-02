@@ -11,11 +11,20 @@ class SingleDoctorResource extends JsonResource
 {
 
     use GlobalTrait;
+
+    public $request;
+
+    public function __construct($doctor, $request)
+    {
+
+        $this->$request = $request;
+    }
+
     public function toArray($request)
     {
 
 
-          $authUser = $this->auth('user-api');
+        $authUser = $this->auth('user-api');
         if (!$authUser)
             $user = null;
         else
@@ -27,7 +36,7 @@ class SingleDoctorResource extends JsonResource
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
             'abbreviation' => app()->getLocale() == 'ar' ? $this->abbreviation_ar : $this->abbreviation_en,
-            'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar )? $this->provider->name_ar :""  : isset($this->provider->name_en )? $this->provider->name_en :"" ,
+            'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar) ? $this->provider->name_ar : "" : isset($this->provider->name_en) ? $this->provider->name_en : "",
             'token' => request()->api_token,
             'token2' => $request->api_token,
             'nickname' => [
@@ -41,7 +50,7 @@ class SingleDoctorResource extends JsonResource
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
-            'favourite' => $user==null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
+            'favourite' => $user == null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
         ];
 
         if (!empty($this->provider)) {
