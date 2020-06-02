@@ -142,8 +142,9 @@ class Service extends Model
 
     //we change price to to other price in all project and not need to edit the key in all places
 
-    public function getPriceAttribute($val)
+    public function getPriceAttribute()
     {
+
         return  $this->clinic_price;
         if ($this->clinic_price != null && $this->home_price != null) {
             return $this->clinic_price <= $this->home_price ? (string)$this->clinic_price : (string)$this->home_price;
