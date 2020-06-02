@@ -44,11 +44,6 @@ class OfferCounterExpire extends Command
     public function handle()
     {
 
-        $promoCodeCategories = PromoCodeCategory::where('hastimer', 1)->where('timerexpired', 0)->get();
-        foreach ($promoCodeCategories as $category) {
-            if (getDiffinSeconds($category -> created_at) > getSeconds($category->hours, $category->minutes, $category->seconds) ) {
-                $category -> update(['timerexpired' => 1]);
-            }
-        }
+
     }
 }

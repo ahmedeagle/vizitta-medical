@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\BranchFeaturedExpire::class,
+        \App\Console\Commands\ConsultingReservationExpire::class,
     ];
 
     /**
@@ -25,7 +26,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('subscription:expire')->daily();
-        $schedule->command('counter:expire')->everyMinute();
+        //$schedule->command('counter:expire')->everyMinute();
+        $schedule->command('consulting:expire')->everyMinute();
     }
 
     /**

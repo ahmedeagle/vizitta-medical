@@ -42,11 +42,11 @@ class BranchFeaturedExpire extends Command
      */
     public function handle()
     {
-        $subscriptions = FeaturedBranch::where('expired', 0)->whereHas('provider')->get();
+       /* $subscriptions = FeaturedBranch::where('expired', 0)->whereHas('provider')->get();
         foreach ($subscriptions as $subscription) {
             if (getDiffBetweenTwoDate($subscription->created_at, Carbon::now()) >= $subscription->duration) {
                 FeaturedBranch::where('id', $subscription->id)-> delete();
             }
-        }
+        }*/
     }
 }
