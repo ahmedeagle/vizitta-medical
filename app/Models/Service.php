@@ -12,7 +12,7 @@ class Service extends Model
     protected $table = 'services';
     public $timestamps = true;
 //
-    protected $fillable = ['title_ar','price','title_en', 'information_ar', 'information_en', 'provider_id', 'branch_id', 'specification_id', 'clinic_price','home_price','clinic_price_duration', 'home_price_duration', 'status', 'type', 'rate', 'reservation_period', 'created_at', 'updated_at'];
+    protected $fillable = ['title_ar', 'price', 'title_en', 'information_ar', 'information_en', 'provider_id', 'branch_id', 'specification_id', 'clinic_price', 'home_price', 'clinic_price_duration', 'home_price_duration', 'status', 'type', 'rate', 'reservation_period', 'created_at', 'updated_at'];
     protected $hidden = ['specification_id', 'status', 'created_at', 'updated_at'];
 
     protected $forcedNullStrings = ['reservation_period', 'home_price_duration', 'clinic_price_duration'];
@@ -60,17 +60,16 @@ class Service extends Model
     }
 
 
-
     //sat sun mon
     public function TimesCode()
     {
         return $this->hasMany('App\Models\ServiceTime', 'service_id', 'id');
     }
 
-     public function serviceType()
-     {
-         return $this->belongsTo('App\Models\ServiceType', 'type', 'id')->withDefault(["name" => ""]);
-     }
+    public function serviceType()
+    {
+        return $this->belongsTo('App\Models\ServiceType', 'type', 'id')->withDefault(["name" => ""]);
+    }
 
     public function types()
     {
@@ -104,10 +103,10 @@ class Service extends Model
         return $this->hasMany('App\Models\ServiceReservation', 'service_id');
     }
 
- /*   public function reservedTimes()
-    {
-        return $this->hasMany('App\Models\ReservedTime', 'service_id');
-    }*/
+    /*   public function reservedTimes()
+       {
+           return $this->hasMany('App\Models\ReservedTime', 'service_id');
+       }*/
 
     public function getPriceTypeAttribute($value)
     {
@@ -116,7 +115,7 @@ class Service extends Model
 
     public function scopeActive($query)
     {
-        return $query -> where('status',1);
+        return $query->where('status', 1);
     }
 
     public function getClinicPriceDurationAttribute($value)
@@ -143,6 +142,18 @@ class Service extends Model
 
     //we change price to to other price in all project and not need to edit the key in all places
 
+    public function getPriceAttribute($val)
+    {
+        if ($this->clinic_price != null && $this->home_price != null) {
+            return $this->clinic_price <= $this->home_price ? (string)$this->clinic_price : (string)$this->home_price;
+        } elseif ($this->clinic_price != null) {
+            return (string)$this->clinic_price;
+        } elseif ($this->clinic_price != null) {
+            return (string)$this->clinic_price;
+        } else {
+            return '0';
+        }
+    }
 
 }
 

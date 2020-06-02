@@ -142,7 +142,9 @@ class ServiceController extends Controller
                     "branch_id" => $request->branch_id,
                     "provider_id" => $providerId,
                     "specification_id" => $request->specification_id,
-                    "price" => $request->price,
+                    "price" => null,
+                    "home_price" => in_array(1, $request->typeIds) ? $request->home_price : null,
+                    "clinic_price" => in_array(2, $request->typeIds) ? $request->clinic_price : null,
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 1,
@@ -270,7 +272,7 @@ class ServiceController extends Controller
                 foreach ($request->working_days as $working_day) {
                     $from = Carbon::parse($working_day['from']);
                     $to = Carbon::parse($working_day['to']);
-                    if (!in_array($working_day['day'], $days) || (in_array(2, $request->typeIds) && $to->diffInMinutes($from) < $request->clinic_reservation_period))
+                    if (!in_array($working_day['day'], $days) || (in_array(2, $request->typeIds) && $to->diffInMinutes($from) < $request->clinic_price_duration))
                         return $this->returnError('D000', trans("messages.There is one day with incorrect name"));
 
                     $working_days_data[] = [
@@ -282,7 +284,7 @@ class ServiceController extends Controller
                         'from_time' => $from->format('H:i'),
                         'to_time' => $to->format('H:i'),
                         'order' => array_search(strtolower($working_day['day']), $days),
-                        'reservation_period' => in_array(2, $request->typeIds) ? $request->clinic_reservation_period : null
+                        'reservation_period' => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                     ];
 
                 }
@@ -295,11 +297,12 @@ class ServiceController extends Controller
                     "branch_id" => $request->branch_id,
                     "provider_id" => $providerId,
                     "specification_id" => $request->specification_id,
-                    "price" => $request->price,
+                    "home_price" => in_array(1, $request->typeIds) ? $request->home_price : null,
+                    "clinic_price" => in_array(2, $request->typeIds) ? $request->clinic_price : null,
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 1,
-                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_reservation_period : null
+                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
 
                 $service->times()->delete();
