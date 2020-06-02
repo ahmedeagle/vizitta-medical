@@ -52,9 +52,6 @@ class GlobalConsultingController extends Controller
             $doctor = Doctor::find($requestData['doctor_id']);
             $doctor -> user = $this->auth('user-api');
 
-
-
-
             $result = new SingleDoctorResource($doctor);
             return $this->returnData('doctor', $result);
 
