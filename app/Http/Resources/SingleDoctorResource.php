@@ -4,21 +4,13 @@ namespace App\Http\Resources;
 
 use App\Models\Provider;
 use App\Models\User;
-use App\Models\UserToken;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleDoctorResource extends JsonResource
 {
-
-    public function toArray(Request $request)
+    public function toArray($request)
     {
-         $api_token = $request->api_token;
-         dd($api_token);
-        $user = UserToken::where('api_token', $api_token)->first();
-        $id = $user ? $user->user_id : 0;
-        $authUser = User::where('id', $id) ->first();
-
+        $authUser = $this->user;
         if (!$authUser)
             $user = null;
         else
@@ -30,7 +22,7 @@ class SingleDoctorResource extends JsonResource
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
             'abbreviation' => app()->getLocale() == 'ar' ? $this->abbreviation_ar : $this->abbreviation_en,
-            'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar) ? $this->provider->name_ar : "" : isset($this->provider->name_en) ? $this->provider->name_en : "",
+            'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar )? $this->provider->name_ar :""  : isset($this->provider->name_en )? $this->provider->name_en :"" ,
             'nickname' => [
                 'id' => $this->nickname->id,
                 'name' => app()->getLocale() == 'ar' ? $this->nickname->name_ar : $this->nickname->name_en,
@@ -42,7 +34,7 @@ class SingleDoctorResource extends JsonResource
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
-            'favourite' => $user == null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
+            'favourite' => $user==null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
         ];
 
         if (!empty($this->provider)) {
