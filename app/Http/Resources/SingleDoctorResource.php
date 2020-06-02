@@ -12,8 +12,8 @@ class SingleDoctorResource extends JsonResource
 
     public function toArray($request)
     {
-
-        $api_token = $request->api_token;
+         $api_token = $request->api_token;
+         dd($api_token);
         $user = UserToken::where('api_token', $api_token)->first();
         $id = $user ? $user->user_id : 0;
         $authUser = User::where('id', $id) ->first();
