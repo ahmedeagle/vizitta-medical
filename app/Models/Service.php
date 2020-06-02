@@ -20,7 +20,7 @@ class Service extends Model
     protected $casts = [
         'status' => 'integer',
     ];
-    protected $appends = ['available_time', 'hide','price','ahmed'];
+    protected $appends = ['available_time', 'hide','ahmed'];
 
 
     public function getHideAttribute()
