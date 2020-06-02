@@ -61,8 +61,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');
     Route::post('doctor/nicknames', 'GlobalController@getNicknames')->name('doctor.nicknames');
-    Route::post('doctor/nicknames', 'GlobalController@getNicknames')->name('doctor.nicknames');
-    // Route::post('logout', 'GlobalController@logout')->name('logout');
+     // Route::post('logout', 'GlobalController@logout')->name('logout');
 
     // User routes
     Route::group(['prefix' => 'user'], function () {

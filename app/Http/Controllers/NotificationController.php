@@ -116,7 +116,6 @@ class NotificationController extends Controller
 
     }
 
-
     public function sendAdminWeb($type)
     {
         $notification = [

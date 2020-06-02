@@ -844,15 +844,16 @@ trait GlobalTrait
     public function getDoctorNicknames($provider_id = null)
     {
         $nickname = Nickname::query();
-        $nickname = $nickname->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
+        $nickname = $nickname->
+        select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
         if ($provider_id != null) {
             $nickname = $nickname->whereIn('id', function ($q) use ($provider_id) {
                 $q->select('nickname_id')->from('doctors')->whereIn('provider_id', function ($qu) use ($provider_id) {
                     $qu->select('id')->from('providers')->where('provider_id', $provider_id);
-                })->orWhere('provider_id', $provider_id);
+                })->orWhere('provider_id', $provider_id) ;
             });
         }
-        return $nickname->get();
+        return $nickname-> distinct() -> get();
     }
 
     public function getCategoriesFromDB()

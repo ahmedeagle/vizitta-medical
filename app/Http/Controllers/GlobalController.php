@@ -581,7 +581,7 @@ class GlobalController extends Controller
         } else {
             return $this->returnError('E001', trans('messages.provider not found'));
         }
-         //add main provider data to branch object
+        //add main provider data to branch object
         $_provider = Provider::where('id', $provider->provider_id)
             ->select('id', 'name_' . app()->getLocale() . ' as name', 'logo')
             ->first();
@@ -656,22 +656,11 @@ class GlobalController extends Controller
     function getNicknames(Request $request)
     {
         try {
-            $nicknames = [];
-            if (isset($request->provider_id)) {
-                $provider = Provider::with(['doctors', 'doctors.nickname'])->find($request->provider_id);
-                if ($provider == null)
-                    return $this->returnError('D000', trans('messages.There is no provider with this id'));
-                foreach ($provider->doctors as $doctor) {
-                    if ($doctor->nickname) {
-                        $nicknames[] = ['id' => $doctor->nickname->id, 'name' => $doctor->nickname->{'name_' . app()->getLocale()}];
-                    }
-                }
-            } else
-                $nicknames = $this->getDoctorNicknames(null);
+            $provider_id = isset($request->provider_id) ? $request->provider_id : null;
+            $nicknames = $this->getDoctorNicknames($provider_id);
 
             if (count($nicknames) > 0)
                 return $this->returnData('nicknames', $nicknames);
-
             return $this->returnError('E001', trans('messages.There are no nicknames found'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
