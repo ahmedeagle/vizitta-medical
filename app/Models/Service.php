@@ -123,7 +123,7 @@ class Service extends Model
         return $value != null ? $value : '';
     }
 
-    public function getHomePriceDurationAttribute($value)
+   /* public function getHomePriceDurationAttribute($value)
     {
         return $value != null ? $value : '';
     }
@@ -132,7 +132,7 @@ class Service extends Model
     public function getClinicPriceAttribute($value)
     {
         return $value != null ? $value : '';
-    }
+    }*/
 
     public function getHomePriceAttribute($value)
     {
