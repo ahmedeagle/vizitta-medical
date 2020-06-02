@@ -4,14 +4,15 @@ namespace App\Http\Resources;
 
 use App\Models\Provider;
 use App\Models\User;
+use App\Traits\GlobalTrait;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleDoctorResource extends JsonResource
 {
+
+    use GlobalTrait;
     public function toArray($request)
     {
-
-        dd($request);
         $authUser = $this->auth('user-api');
         if (!$authUser)
             $user = null;
@@ -36,7 +37,7 @@ class SingleDoctorResource extends JsonResource
             'price' => $this->price,
             'rate' => $this->rate,
             'photo' => $this->photo,
-            'favourite' => $user->favourites()->where('doctor_id', $this->id)->first(),
+            'favourite' => $user==null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
         ];
 
         if (!empty($this->provider)) {
