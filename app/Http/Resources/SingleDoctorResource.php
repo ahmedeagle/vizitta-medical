@@ -10,6 +10,8 @@ class SingleDoctorResource extends JsonResource
 {
     public function toArray($request)
     {
+
+        dd($request);
         $authUser = $this->auth('user-api');
         if (!$authUser)
             $user = null;
