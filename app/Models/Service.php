@@ -20,7 +20,7 @@ class Service extends Model
     protected $casts = [
         'status' => 'integer',
     ];
-    protected $appends = ['available_time', 'hide','price'];
+    protected $appends = ['available_time', 'hide','price','ahmed'];
 
 
     public function getHideAttribute()
@@ -142,7 +142,7 @@ class Service extends Model
 
     //we change price to to other price in all project and not need to edit the key in all places
 
-    public function getPriceAttribute()
+    public function getahmedAttribute()
     {
          return  $this-> clinic_price . $this->home_price;
         if ($this->clinic_price != null && $this->home_price != null) {
