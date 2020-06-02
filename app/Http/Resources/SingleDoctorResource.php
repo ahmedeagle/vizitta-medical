@@ -14,7 +14,7 @@ class SingleDoctorResource extends JsonResource
     {
 
         $api_token = $request->api_token;
-        $user = UserToken::where('api_token', request()->api_token)->first();
+        $user = UserToken::where('api_token', $api_token)->first();
         $id = $user ? $user->user_id : 0;
         $authUser = User::where('id', $id) ->first();
 
