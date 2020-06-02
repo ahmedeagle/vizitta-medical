@@ -151,7 +151,7 @@ class Service extends Model
         } elseif ($this->clinic_price != null) {
             return (string)$this->clinic_price;
         } else {
-            return '0';
+            return (string)$this->price;
         }
     }
 
