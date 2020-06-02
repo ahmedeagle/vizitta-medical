@@ -14,7 +14,7 @@ class SingleDoctorResource extends JsonResource
     public function toArray($request)
     {
 
-        return request()->api_token;
+
           $authUser = $this->auth('user-api');
         if (!$authUser)
             $user = null;
@@ -28,6 +28,8 @@ class SingleDoctorResource extends JsonResource
             'information' => app()->getLocale() == 'ar' ? $this->information_ar : $this->information_en,
             'abbreviation' => app()->getLocale() == 'ar' ? $this->abbreviation_ar : $this->abbreviation_en,
             'branch' => app()->getLocale() == 'ar' ? isset($this->provider->name_ar )? $this->provider->name_ar :""  : isset($this->provider->name_en )? $this->provider->name_en :"" ,
+            'token' => request()->api_token,
+            'token2' => $request->api_token,
             'nickname' => [
                 'id' => $this->nickname->id,
                 'name' => app()->getLocale() == 'ar' ? $this->nickname->name_ar : $this->nickname->name_en,
