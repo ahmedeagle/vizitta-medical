@@ -72,11 +72,12 @@ trait ServicesTrait
             'provider_id',
             'branch_id',
             'rate',
-            'price',
+            'home_price',
+            'clinic_price',
             'home_price_duration',
             'clinic_price_duration',
-            'status',
-            'reservation_period as clinic_reservation_period'
+            'status'
+//            'reservation_period as clinic_reservation_period'
         );
 
         if ($id != null)
