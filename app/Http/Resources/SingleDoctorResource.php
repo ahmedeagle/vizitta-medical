@@ -13,7 +13,7 @@ class SingleDoctorResource extends JsonResource
     use GlobalTrait;
     public function toArray($request)
     {
-        $authUser = $this->auth('user-api');
+ return         $authUser = $this->auth('user-api');
         if (!$authUser)
             $user = null;
         else
