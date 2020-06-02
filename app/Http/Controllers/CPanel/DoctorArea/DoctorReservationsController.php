@@ -48,19 +48,39 @@ class DoctorReservationsController extends Controller
             $conditions[] = ['doctor_id', $doctor->id];
             $conditions[] = ['approved', $type];
 
+            $reservations = DoctorConsultingReservation::with(['user' => function ($q) {
+                $q->select('id', 'name', 'photo');
+            }])
+                ->where($conditions)
+                ->paginate(PAGINATION_COUNT);
+
+
             if ($type == 0 or $type == 1)   // if new or approved
             {
-                  // if time passed  without close chat and reservation close it automatically
+                // if time passed  without close chat and reservation close it automatically
+                if (isset($reservations) && $reservations->count() > 0) {
+                    foreach ($reservations as $key => $consulting) {
+                        $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
+                        $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                        $currentDate = date('Y-m-d H:i:s');
+                        $consulting->consulting_start_date = $consulting_start_date;
+                        $consulting->consulting_end_date = $consulting_end_date;
+                        $consulting->currentDate = $currentDate;
+                        if (($currentDate >= $consulting_start_date) && ($currentDate <= $consulting_end_date) && $consulting->approved == 1) {
+                            $consulting->active_now = 1;
+                        } else {
+                            $consulting->active_now = 0;
+                        }
+                        if (date('Y-m-d H:i:s') >= $consulting_end_date) {
+                            $consulting->approved = '3';
+                            DoctorConsultingReservation::where('id', $consulting->id)->update(['approved' => '3']);
+                        }
 
-
+                        $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                        $consulting->doctor->makeHidden(['times']);
+                    }
+                }
             }
-
-                $reservations = DoctorConsultingReservation::with(['user' => function ($q) {
-                    $q->select('id', 'name', 'photo');
-                }])
-                    ->where($conditions)
-                    ->paginate(PAGINATION_COUNT);
-
 
             $result = new DoctorConsultingReservationResource($reservations);
 //            return response()->json(['status' => true, 'data' => $result]);
