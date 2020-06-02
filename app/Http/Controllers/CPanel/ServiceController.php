@@ -160,13 +160,13 @@ class ServiceController extends Controller
                 DB::commit();
             } catch (\Exception $ex) {
                 DB::rollback();
+                return $ex;
                 return $this->returnError('D000', __('messages.sorry please try again later'));
             }
 
             return $this->returnSuccessMessage(trans('messages.Service added successfully'));
         } catch (\Exception $ex) {
 
-            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
@@ -194,6 +194,7 @@ class ServiceController extends Controller
             return $this->returnData('service', $service);
 
         } catch (\Exception $ex) {
+
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
@@ -314,7 +315,6 @@ class ServiceController extends Controller
                 DB::commit();
             } catch (\Exception $ex) {
                 DB::rollback();
-                return $ex;
                 return $this->returnError('D000', __('messages.sorry please try again later'));
             }
             return $this->returnSuccessMessage(trans('messages.service updated successfully'));

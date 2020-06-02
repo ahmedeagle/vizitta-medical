@@ -462,7 +462,6 @@ class GlobalProviderController extends Controller
             'provider_id',
             'branch_id',
             'rate',
-            'price',
             'home_price_duration',
             'clinic_price_duration',
             'status',
