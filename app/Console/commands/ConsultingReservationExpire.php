@@ -49,7 +49,7 @@ class ConsultingReservationExpire extends Command
             $q->select('id', 'name', 'photo');
         }])
             ->wherein('approved',['0','1'])
-            ->paginate(PAGINATION_COUNT);
+            ->get();
 
 
             // if time passed  without close chat and reservation close it automatically
