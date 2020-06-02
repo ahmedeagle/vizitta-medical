@@ -51,7 +51,7 @@ class GlobalConsultingController extends Controller
             $requestData = $request->only(['doctor_id']);
             $doctor = Doctor::find($requestData['doctor_id']);
 
-            $result = new SingleDoctorResource($doctor);
+            $result = new SingleDoctorResource($doctor ,$request);
             return $this->returnData('doctor', $result);
 
         } catch (\Exception $ex) {
