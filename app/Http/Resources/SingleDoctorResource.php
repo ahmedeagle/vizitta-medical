@@ -11,7 +11,6 @@ class SingleDoctorResource extends JsonResource
     public function toArray($request)
     {
         $authUser = $this->user;
-        dd($authUser);
         if (!$authUser)
             $user = null;
         else
