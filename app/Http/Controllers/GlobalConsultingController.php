@@ -50,7 +50,7 @@ class GlobalConsultingController extends Controller
         try {
             $requestData = $request->only(['doctor_id']);
             $doctor = Doctor::find($requestData['doctor_id']);
-            $doctor -> user =;
+            //$doctor -> user =;
 
 
             return  $this->auth('user-api');
