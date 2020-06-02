@@ -144,6 +144,7 @@ class Service extends Model
 
     public function getPriceAttribute($val)
     {
+        return  $this->clinic_price;
         if ($this->clinic_price != null && $this->home_price != null) {
             return $this->clinic_price <= $this->home_price ? (string)$this->clinic_price : (string)$this->home_price;
         } elseif ($this->home_price != null) {
