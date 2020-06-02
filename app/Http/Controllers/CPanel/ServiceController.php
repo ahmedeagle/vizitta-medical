@@ -165,6 +165,8 @@ class ServiceController extends Controller
 
             return $this->returnSuccessMessage(trans('messages.Service added successfully'));
         } catch (\Exception $ex) {
+
+            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
