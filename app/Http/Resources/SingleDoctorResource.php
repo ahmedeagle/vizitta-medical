@@ -5,12 +5,13 @@ namespace App\Http\Resources;
 use App\Models\Provider;
 use App\Models\User;
 use App\Models\UserToken;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleDoctorResource extends JsonResource
 {
 
-    public function toArray($request)
+    public function toArray(Request $request)
     {
          $api_token = $request->api_token;
          dd($api_token);
