@@ -34,7 +34,32 @@ use App\Models\User;
 use App\Models\Reservation;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Twilio\Rest\Client;
+use Twilio\Exceptions\TwilioException;
 use Vinkla\Hashids\Facades\Hashids;
+
+route::get('sendSms',function (){
+    $accountSid = env('TWILIO_ACCOUNT_SID');
+    $authToken = env('TWILIO_AUTH_TOKEN');
+    $twilioNumber = env('TWILIO_NUMBER');
+    try {
+        $client = new Client($accountSid, $authToken);
+
+        $client->messages->create(
+            "+201032878227", [
+                "body" =>'Hello',
+                "from" => $twilioNumber,
+            ]
+        );
+        Log::info('Message sent to ' . $twilioNumber);
+    } catch (TwilioException $e) {
+        dd($e);
+        Log::error(
+            'Could not send SMS notification.' .
+            ' Twilio replied with: ' . $e
+        );
+    }
+});
 
 Route::get('/crons', 'Crons@cron_job');
 
