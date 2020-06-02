@@ -19,6 +19,6 @@ class OfferPaymentMethod extends Pivot
 
     public function getPaymentAmountAttribute($val)
     {
-        return ($val != null ? $val : 0);
+        return ($val != null ? $val : '0');
     }
 }
