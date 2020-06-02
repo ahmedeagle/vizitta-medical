@@ -17,17 +17,24 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ConsultingReservationExpire::class,
     ];
 
+
+    protected function scheduleTimezone()
+    {
+        return 'Asia/Riyadh';
+    }
+
     /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
+
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('subscription:expire')->daily();
         //$schedule->command('counter:expire')->everyMinute();
-        $schedule->command('consulting:expire')->everyMinute();
+        $schedule->command('consulting:expire')->everyMinute() ->runInBackground();
     }
 
     /**
@@ -41,4 +48,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+
 }

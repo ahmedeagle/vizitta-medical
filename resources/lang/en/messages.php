@@ -299,4 +299,6 @@ return [
     'provider not found' => 'Provider Not Found',
     'invalid_username_or_password' => 'inCorrect User name or Password',
     'logout successfully' =>'You Are Logged Out',
+    'clinic price required'  => 'clinic price required',
+    'home price required'  => 'home price required',
 ];

@@ -326,5 +326,8 @@ return [
     'provider not found' => 'مقدم الخدمه غير موجود ',
     'invalid_username_or_password'  => 'خطا بأسم المستخدم او كلمة المرور',
     'logout successfully' =>'تم تسجيل الخروج بنجاح',
+    'clinic price required'  => 'سعر الخدمة داخل العياده مطلوب',
+    'home price required'  => 'سعر الخدمة بالمنزل مطلوب',
+
 
 ];
