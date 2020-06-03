@@ -128,7 +128,6 @@ class Service extends Model
          return $value != null ? $value : '';
      }
 
-
       public function getClinicPriceAttribute($value)
      {
          return $value != null ? (string)$value : '';

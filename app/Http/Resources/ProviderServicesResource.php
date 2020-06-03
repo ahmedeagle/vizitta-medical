@@ -19,6 +19,8 @@ class ProviderServicesResource extends ResourceCollection
                 'price' => $data->price,
                 'clinic_price_duration' => $data->clinic_price_duration,
                 'home_price_duration' => $data->home_price_duration,
+                'clinic_price' => $data->clinic_price,
+                'home_price' => $data->home_price,
                 'hide' => $data->hide,
                 'type' => $data->types,
             ];
