@@ -116,7 +116,9 @@ class DoctorConsultingReservationController extends Controller
     public function getReservationDetails(Request $request)
     {
         try {
-            $reservation = DoctorConsultingReservation::find($request->id);
+            $reservation = DoctorConsultingReservation::with(['rejectionResoan' => function($q){
+                $q -> select('id','name_'.app() -> getLocale() . ' as name');
+            }])->find($request->id);
             if (!$reservation)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
