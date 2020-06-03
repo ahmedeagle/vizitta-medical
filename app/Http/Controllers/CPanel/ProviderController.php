@@ -4,7 +4,10 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\ProviderResource;
 use App\Models\Doctor;
+use App\Models\DoctorConsultingReservation;
 use App\Models\Provider;
+use App\Models\Reservation;
+use App\Models\ServiceReservation;
 use App\Traits\Dashboard\ProviderTrait;
 use App\Traits\Dashboard\PublicTrait;
 use App\Traits\CPanel\GeneralTrait;
@@ -40,9 +43,27 @@ class ProviderController extends Controller
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
         $branchesId = $provider->providers()->pluck('id')->toArray();
+
         $allReservationCount = 0;
         $acceptanceReservationCount = 0;
         $refusedReservationCount = 0;
+
+        $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
+        $all_services_reservation_count = ServiceReservation::whereIn('branc_id', $branchesId)->count();
+        $all_consulting_reservation_count = DoctorConsultingReservation::whereIn('provider_id', $branchesId)->count();
+
+        $approved_Offer_Doctor_reservation_count = Reservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
+        $approved_services_reservation_count = ServiceReservation::where('approved', 1)->whereIn('branc_id', $branchesId)->count();
+        $approved_consulting_reservation_count = DoctorConsultingReservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
+
+        $reject_Offer_Doctor_reservation_count = Reservation::where('approved', 2)->orwhere('approved', 5)->whereIn('provider_id', $branchesId)->count();
+        $reject_services_reservation_count = ServiceReservation::where('approved', 2)->orwhere('approved', 5)->whereIn('branc_id', $branchesId)->count();
+        $reject_consulting_reservation_count = DoctorConsultingReservation::where('approved', 2)->orwhere('approved', 5)->whereIn('provider_id', $branchesId)->count();
+
+        $provider_all_reservation_count = $all_Offer_Doctor_reservation_count + $all_services_reservation_count + $all_consulting_reservation_count;
+        $provider_all_approved_reservation_count = $approved_Offer_Doctor_reservation_count + $approved_services_reservation_count + $approved_consulting_reservation_count;
+        $provider_all_refused_reservation_count = $reject_Offer_Doctor_reservation_count + $reject_services_reservation_count + $reject_consulting_reservation_count;
+
         foreach ($branchesId as $branch_id) {
             $reservations = Provider::find($branch_id)->reservations()->select('id', 'approved')->get();
             if (isset($reservations) && $reservations->count() > 0) {
@@ -56,12 +77,12 @@ class ProviderController extends Controller
             }
         }
 
-        if ($allReservationCount == 0) {
+        if ($provider_all_reservation_count == 0) {
             $acceptance_rate = __('main.not_counted_yet');
             $refusal_rate = __('main.not_counted_yet');
         } else {
-            $acceptance_rate = round(($acceptanceReservationCount / $allReservationCount) * 100) . "%";
-            $refusal_rate = round(($refusedReservationCount / $allReservationCount) * 100) . "%";
+            $acceptance_rate = round(($provider_all_approved_reservation_count / $provider_all_reservation_count) * 100) . "%";
+            $refusal_rate = round(($provider_all_refused_reservation_count / $provider_all_reservation_count) * 100) . "%";
         }
 
         $result['provider'] = $provider;
