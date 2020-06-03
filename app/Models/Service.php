@@ -129,20 +129,20 @@ class Service extends Model
      }
 
 
-    /* public function getClinicPriceAttribute($value)
+      public function getClinicPriceAttribute($value)
      {
-         return $value != null ? $value : '';
+         return $value != null ? (string)$value : '';
      }
 
     public function getHomePriceAttribute($value)
     {
-        return $value != null ? $value : '';
-    }*/
+        return $value != null ? (string)$value : '';
+    }
 
 
     //we change price to to other price in all project and not need to edit the key in all places
 
-    public function getPriceAttribute()
+   /* public function getPriceAttribute()
     {
         if ($this->clinic_price != null && $this->home_price != null) {
             return ($this->clinic_price <= $this->home_price) ? (string)$this->clinic_price : (string)$this->home_price;
@@ -153,7 +153,7 @@ class Service extends Model
         } else {
             return (string)$this->price;
         }
-    }
+    }*/
 
 }
 
