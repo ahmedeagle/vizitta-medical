@@ -85,17 +85,7 @@ class DoctorConsultingReservation extends Model
 
     public function getRejectedReasonTypeAttribute()
     {
-        if ($this->rejected_reason_id == 1)
-            $result = app()->getLocale() == 'ar' ? 'كنت أقوم بالتجربة فقط' : 'I was just experimenting';
-        elseif ($this->rejected_reason_id == 2)
-            $result = app()->getLocale() == 'ar' ? 'حجز مكرر' : 'Duplicate reservation';
-        elseif ($this->rejected_reason_id == 3)
-            $result = app()->getLocale() == 'ar' ? 'حجزت بالخطأ' : 'Booked by mistake';
-        elseif ($this->rejected_reason_id == 4)
-            $result = app()->getLocale() == 'ar' ? 'لم أعد أرغب بالموعد' : 'I no longer want the appointment';
-        else
-            $result = null;
-        return $result;
+        return "";
     }
 
     public function rejectionResoan()
