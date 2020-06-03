@@ -1172,10 +1172,8 @@ class ProviderController extends Controller
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'clinic_services') {
                         $reservation->reservation_type = 'clinic_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'doctor') {
                         $reservation->reservation_type = 'doctor';
                     } elseif ($request->type == 'offer') {
@@ -1252,10 +1250,8 @@ class ProviderController extends Controller
                     $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'clinic_services') {
                         $reservation->reservation_type = 'clinic_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
                     } elseif ($request->type == 'doctor') {
@@ -2461,10 +2457,8 @@ class ProviderController extends Controller
                     $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'clinic_services') {
                         $reservation->reservation_type = 'clinic_services';
-                        $reservation -> price = $reservation -> getAttributes()['price'];
                     } elseif ($request->type == 'doctor') {
                         $reservation->reservation_type = 'doctor';
                     } elseif ($request->type == 'offer') {

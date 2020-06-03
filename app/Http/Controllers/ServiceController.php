@@ -80,14 +80,7 @@ class ServiceController extends Controller
                     'id',
                     DB::raw('title_' . $this->getCurrentLang() . ' as title'),
                     DB::raw('information_' . $this->getCurrentLang() . ' as information')
-                    , 'specification_id', 'provider_id',
-                    'branch_id', 'rate', 'price',
-                    'clinic_price',
-                    'home_price',
-                    'home_price_duration',
-                    'clinic_price_duration',
-                    'status',
-                    'reservation_period as clinic_reservation_period'
+                    , 'specification_id', 'provider_id', 'branch_id', 'rate', 'price','clinic_price','home_price', 'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
                 )->paginate(PAGINATION_COUNT);
 
 
@@ -420,11 +413,8 @@ class ServiceController extends Controller
             $reservation_details = $this->getReservationByReservationId($request->reservation_id, $provider);
 
             if ($reservation_details) {
-                $reservation_details -> price = $reservation_details -> getAttributes()['price'];
-
                 $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
-                    ->select('id',
-                        \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))
+                    ->select('id', \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))
                     ->first();
                 $reservation_details->main_provider = $main_provider ? $main_provider : '';
                 $reservation_details->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
