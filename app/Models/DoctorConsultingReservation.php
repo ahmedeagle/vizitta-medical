@@ -90,7 +90,7 @@ class DoctorConsultingReservation extends Model
 
     public function rejectionResoan()
     {
-        return $this->belongsTo('App\Models\ConsultingReason', 'rejection_reason', 'id');
+        return $this->belongsTo('App\Models\ConsultingReason', 'rejection_reason', 'id') -> withDefault(["id" => "" , "name" => ""]);
     }
 
     public function commentReport()
