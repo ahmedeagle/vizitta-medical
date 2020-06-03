@@ -139,7 +139,7 @@ class GlobalProviderController extends Controller
                 }
 
 
-                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
+                if (empty($request->clinic_price) ) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
@@ -154,7 +154,7 @@ class GlobalProviderController extends Controller
                     return $this->returnError('D000', __('messages.home price duration required'));
                 }
 
-                if (empty($request->home_price) or !is_numeric($request->home_price)) {
+                if (empty($request->home_price) ) {
                     return $this->returnError('D000', __('messages.home price required'));
                 }
             }
@@ -317,7 +317,7 @@ class GlobalProviderController extends Controller
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
+                if (empty($request->clinic_price) ) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
             }   // price_duration here is equal to  "reservation_period"
@@ -329,7 +329,7 @@ class GlobalProviderController extends Controller
                 if (empty($request->home_price_duration) or !is_numeric($request->home_price_duration)) {
                     return $this->returnError('D000', __('messages.home price duration required'));
                 }
-                if (empty($request->home_price) or !is_numeric($request->home_price)) {
+                if (empty($request->home_price) ) {
                     return $this->returnError('D000', __('messages.home price required'));
                 }
             }
