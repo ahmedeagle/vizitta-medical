@@ -428,8 +428,6 @@ class ServiceReservation extends Model
             "provider_id",
             "branch_id",
             "price",
-            "clinic_price",
-            "home_price",
             "total_price",
             "rate_comment",
             "rate_date",
