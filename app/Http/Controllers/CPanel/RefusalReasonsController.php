@@ -179,5 +179,17 @@ class RefusalReasonsController extends Controller
         }
     }
 
+    public function getConsultingRefusalReasonsList(Request $request)
+    {
+        try {
+            $reasons = ConsultingReason::get(['id', DB::raw('name_' . app()->getLocale() . ' as name')]);
+            if ($reasons == null)
+                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            return response()->json(['status' => true, 'data' => $reasons]);
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
 
 }
