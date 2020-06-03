@@ -62,7 +62,7 @@ class ServiceController extends Controller
                 "clinic_price_duration" => "sometimes|nullable|numeric",  // in minutes
                 "home_price_duration" => "sometimes|nullable||numeric",  // in minutes
                 "clinic_price" => "sometimes|nullable|numeric",  // in minutes
-                "home_price" => "sometimes|nullable||numeric",  // in minutes
+                "home_price" => "sometimes|nullable|numeric",  // in minutes
                 "information_en" => "required",
                 "information_ar" => "required",
                 "working_days" => "required|array|min:1",
@@ -83,7 +83,7 @@ class ServiceController extends Controller
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if (empty($request->clinic_price) ) {
+                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
@@ -99,7 +99,7 @@ class ServiceController extends Controller
                 if (empty($request->home_price_duration) or !is_numeric($request->home_price_duration)) {
                     return $this->returnError('D000', __('messages.home price duration required'));
                 }
-                if (empty($request->home_price) ) {
+                if (empty($request->home_price) or !is_numeric($request->home_price)) {
                     return $this->returnError('D000', __('messages.home price required'));
                 }
             }
@@ -234,7 +234,7 @@ class ServiceController extends Controller
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if (empty($request->clinic_price) ) {
+                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
@@ -248,7 +248,7 @@ class ServiceController extends Controller
                 if (empty($request->home_price_duration) or !is_numeric($request->home_price_duration)) {
                     return $this->returnError('D000', __('messages.home price duration required'));
                 }
-                if (empty($request->home_price) ) {
+                if (empty($request->home_price) or !is_numeric($request->home_price)) {
                     return $this->returnError('D000', __('messages.home price required'));
                 }
 
