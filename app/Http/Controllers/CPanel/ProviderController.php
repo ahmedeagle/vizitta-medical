@@ -42,7 +42,9 @@ class ProviderController extends Controller
         if ($provider == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-        $branchesId = $provider->providers()->pluck('id')->toArray();
+        //$branchesId = $provider->providers()->pluck('id')->toArray();
+
+        $branchesId =  Provider::where('provider_id',$request->id) -> pluck('id') -> toArray();
 
         $allReservationCount = 0;
         $acceptanceReservationCount = 0;
