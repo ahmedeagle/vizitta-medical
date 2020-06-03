@@ -33,7 +33,6 @@ class DoctorConsultingReservationDetailsResource extends JsonResource
 
             'user_rejected_reason_type' => $this->rejected_reason_type,
             'user_rejected_reason_notes' => $this->rejected_reason_notes,
-            'admin_provider_rejection_reason' =>$this->rejection_resoan,
             'approved' => [
                 'name' => $this->getApproved(),
                 'value' => $this->approved,
