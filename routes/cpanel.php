@@ -254,6 +254,17 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Refusal Reasons Routes ##############
 
+        ############### Start Consulting Refusal Reasons Routes ##############
+        Route::prefix('consulting/refusal_reasons/')->group(function () {
+            Route::post('/index', "RefusalReasonsController@consultingIndex");
+            Route::post('/store', 'RefusalReasonsController@consultingStore');
+            Route::post('/edit/{id}', 'RefusalReasonsController@consultingEdit');
+            Route::post('/update/{id}', 'RefusalReasonsController@consultingUpdate');
+            Route::post('/delete/{id}', "RefusalReasonsController@consultingDestroy");
+            Route::post('/getRefusalReasonsList', "RefusalReasonsController@getConsultingRefusalReasonsList");
+        });
+        ############## End Consulting Refusal Reasons Routes ##############
+
         ############### Start Agreement Routes ##############
         Route::prefix('agreement/')->group(function () {
             Route::post('/index', "AgreementController@index");
