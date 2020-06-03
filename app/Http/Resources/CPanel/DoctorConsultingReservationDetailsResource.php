@@ -8,6 +8,7 @@ class DoctorConsultingReservationDetailsResource extends JsonResource
 {
     public function toArray($request)
     {
+        dd($request);
         $result = [
             'id' => $this->id,
             'reservation_no' => $this->reservation_no,
