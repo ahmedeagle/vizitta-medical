@@ -49,15 +49,15 @@ class ProviderController extends Controller
         $refusedReservationCount = 0;
 
         $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
-        $all_services_reservation_count = ServiceReservation::whereIn('branc_id', $branchesId)->count();
+        $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
         $all_consulting_reservation_count = DoctorConsultingReservation::whereIn('provider_id', $branchesId)->count();
 
         $approved_Offer_Doctor_reservation_count = Reservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
-        $approved_services_reservation_count = ServiceReservation::where('approved', 1)->whereIn('branc_id', $branchesId)->count();
+        $approved_services_reservation_count = ServiceReservation::where('approved', 1)->whereIn('branch_id', $branchesId)->count();
         $approved_consulting_reservation_count = DoctorConsultingReservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
 
         $reject_Offer_Doctor_reservation_count = Reservation::where('approved', 2)->orwhere('approved', 5)->whereIn('provider_id', $branchesId)->count();
-        $reject_services_reservation_count = ServiceReservation::where('approved', 2)->orwhere('approved', 5)->whereIn('branc_id', $branchesId)->count();
+        $reject_services_reservation_count = ServiceReservation::where('approved', 2)->orwhere('approved', 5)->whereIn('branch_id', $branchesId)->count();
         $reject_consulting_reservation_count = DoctorConsultingReservation::where('approved', 2)->orwhere('approved', 5)->whereIn('provider_id', $branchesId)->count();
 
         $provider_all_reservation_count = $all_Offer_Doctor_reservation_count + $all_services_reservation_count + $all_consulting_reservation_count;
