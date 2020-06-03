@@ -420,6 +420,8 @@ class ServiceController extends Controller
             $reservation_details = $this->getReservationByReservationId($request->reservation_id, $provider);
 
             if ($reservation_details) {
+                $reservation_details -> price = $reservation_details -> getAttributes()['price'];
+
                 $main_provider = Provider::where('id', $reservation_details->provider['provider_id'])
                     ->select('id',
                         \Illuminate\Support\Facades\DB::raw('name_' . app()->getLocale() . ' as name'))
