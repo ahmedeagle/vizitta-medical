@@ -122,7 +122,7 @@ class DoctorConsultingReservationController extends Controller
             if (!$reservation)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            $result = new DoctorConsultingReservationDetailsResource($reservation -> with('rejectionResoan'));
+            $result = new DoctorConsultingReservationDetailsResource($reservation);
             return response()->json(['status' => true, 'data' => $result]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);

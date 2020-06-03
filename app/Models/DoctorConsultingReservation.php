@@ -11,6 +11,7 @@ class DoctorConsultingReservation extends Model
     public $timestamps = true;
     protected $forcedNullStrings = ['transaction_id','bill_photo','reservation_no', 'rejection_reason', 'price', 'provider_rate', 'doctor_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'doctor_rate', 'address'];
     protected $forcedNullNumbers = ['chatId','chat_duration'];
+    protected $with = ['rejectionResoan'];
 
     protected $fillable = ['reservation_no','chat_duration','chatId','transaction_id', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'order', 'provider_id', 'branch_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
