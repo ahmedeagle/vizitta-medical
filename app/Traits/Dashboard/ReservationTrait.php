@@ -150,7 +150,7 @@ trait ReservationTrait
                 //send mobile sms
 //                $message = $bodyUser;
 
-                $this->sendSMS($reservation->user->mobile, $message);
+             //   $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 
@@ -159,10 +159,10 @@ trait ReservationTrait
     }
 
 
-    public function sendSMS($phone, $message)
+   /* public function sendSMS($phone, $message)
     {
 
-        $curl = new \App\Support\SMS\Curl();
+       $curl = new \App\Support\SMS\Curl();
         $username = "medicare";     // The user name of gateway
         $password = "Hh..36547820";          // the password of gateway
         $sender = "MedicalCaLL";
@@ -172,7 +172,7 @@ trait ReservationTrait
         return $result;
 
 
-    }
+    }*/
 
     public static function getdayNameByDate($date)
     {
