@@ -46,9 +46,7 @@ class ProviderController extends Controller
 
         $branchesId =  Provider::where('provider_id',$request->id) -> whereNotNull('provider_id')->pluck('id') -> toArray();
 
-        $allReservationCount = 0;
-        $acceptanceReservationCount = 0;
-        $refusedReservationCount = 0;
+
 
         $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
         $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
@@ -110,11 +108,11 @@ class ProviderController extends Controller
         $result['provider']['doctors'] = $doctors;
         $result['provider']['city'] = $provider->city;
         $result['provider']['district'] = $provider->district;
-        $result['acceptance_rate'] = $acceptance_rate;
+        $result['acceptance_rate'] = $provider_all_approved_reservation_count;
         $result['refusal_rate'] = $refusal_rate;
-        $result['allReservationCount'] = $allReservationCount;
-        $result['acceptanceReservationCount'] = $acceptanceReservationCount;
-        $result['refusedReservationCount'] = $refusedReservationCount;
+        $result['allReservationCount'] = $provider_all_reservation_count;
+        $result['acceptanceReservationCount'] = $provider_all_approved_reservation_count;
+        $result['refusedReservationCount'] = $provider_all_refused_reservation_count;
         $result['provider']['show_delete'] = $provider->branches->count() > 0 ? 0 : 1;
 
         return response()->json(['status' => true, 'data' => $result]);
