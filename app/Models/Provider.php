@@ -25,7 +25,7 @@ class Provider extends Authenticatable implements JWTSubject
         'longitude' => 'string',
 
     ];
-    protected $forcedNullStrings = ['email', 'address', 'logo', 'street', 'created_at', 'api_token', 'branch_no', 'rate', 'commercial_en', 'commercial_ar', 'android_device_hasCode'];
+    protected $forcedNullStrings = ['email', 'address','address_ar','address_en', 'logo', 'street', 'created_at', 'api_token', 'branch_no', 'rate', 'commercial_en', 'commercial_ar', 'android_device_hasCode'];
     protected $forcedNullNumbers = ['
     ', 'latitude', 'longitude', 'commercial_no', 'application_percentage', 'application_percentage_bill', 'balance', 'application_percentage_bill_insurance'];
 
@@ -34,7 +34,7 @@ class Provider extends Authenticatable implements JWTSubject
         'no_of_sms', 'status', 'activation', 'activation_code', 'activation_code', 'api_token', 'branch_no', 'paid_balance',
         'unpaid_balance', 'application_percentage', 'application_percentage_bill', 'balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
         'odoo_provider_id',
-        'android_device_hasCode', 'lottery', 'rate', 'has_home_visit','test'];
+        'android_device_hasCode', 'lottery','address_ar','address_en', 'rate', 'has_home_visit','test'];
 
     protected $appends = ['is_branch', 'hide',
         'parent_type', 'adminprices',
@@ -123,6 +123,15 @@ class Provider extends Authenticatable implements JWTSubject
     public function getLogoAttribute($val)
     {
         return ($val != "" ? asset($val) : "");
+    }
+
+    public function getAddressArAttribute($val)
+    {
+        return ($val != null ?  $val : "");
+    }
+    public function getAddressEnAttribute($val)
+    {
+        return ($val != null ?  $val  : "");
     }
 
     public function getTranslatedName()

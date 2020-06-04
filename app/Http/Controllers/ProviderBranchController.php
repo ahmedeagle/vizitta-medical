@@ -208,6 +208,8 @@ class ProviderBranchController extends Controller
                 'activation' => 1,
                 'email' => $request->email,
                 'address' => trim($request->address),
+                'address_ar' => trim($request->address_ar),
+                'address_en' => trim($request->address_en),
                 'city_id' => $request->city_id,
                 'district_id' => $request->district_id,
                 'provider_id' => $mainProvider->id,
@@ -307,6 +309,8 @@ class ProviderBranchController extends Controller
                 'district_id' => $request->district_id,
                 'email' => $request->email,
                 'address' => $request->address,
+                'address_ar' => $request->address_ar,
+                'address_en' => $request->address_en,
                 'street' => trim($request->street)
             ];
 
@@ -433,6 +437,7 @@ class ProviderBranchController extends Controller
                       }
                   }
               }*/
+        $totalReservationPrice = 0;
         $totalReservationPrice = 0;
         $branchsids = $provider->provider_id != null ? [$provider->id] : $provider->providers->pluck('id')->toArray();
 
