@@ -1278,6 +1278,10 @@ class OffersController extends Controller
                             $direct_to = $specification->name_ar;
                             $direct_id = $specification->id ? $specification->id : 0;
                         }
+                    } elseif ($banner->type == 'external') {
+                        $type = 'external';
+                        $direct_type = $banner->external_link;
+                        $direct_to = 'خارجي';
                     } else {
                         $type = 'none';
                         $direct_type = 'لا شي';
@@ -1337,8 +1341,8 @@ class OffersController extends Controller
                 $qq->select('*')->with(['branch' => function ($qqq) {
                     $qqq->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'));
                 }]);
-            },'paymentMethods' => function($pay){
-              $pay -> select('payment_methods.id','name_'.app()->getLocale().' as name','flag','status');
+            }, 'paymentMethods' => function ($pay) {
+                $pay->select('payment_methods.id', 'name_' . app()->getLocale() . ' as name', 'flag', 'status');
             }
             ])->selection();
 
