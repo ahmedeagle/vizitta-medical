@@ -62,7 +62,8 @@ class Mix extends Model
         'invited_points',
         'consulting_text',
         'consulting_photo',
-        'app_price_note',
+        'app_price_note_ar',
+        'app_price_note_en',
     ];
 
     protected $forcedNullStrings = [
@@ -112,7 +113,8 @@ class Mix extends Model
         'price_less',
         'consulting_text',
         'consulting_photo',
-        'app_price_note'
+        'app_price_note_ar',
+        'app_price_note_en'
     ];
 
 
@@ -156,8 +158,14 @@ class Mix extends Model
     {
         return ($val != "" ? asset($val) : "");
     }
-    public function getAppPriceNoteAttribute($val)
+    public function getAppPriceNoteArAttribute($val)
     {
         return ($val != null ? $val : "");
     }
+
+    public function getAppPriceNoteEnAttribute($val)
+    {
+        return ($val != null ? $val : "");
+    }
+
 }
