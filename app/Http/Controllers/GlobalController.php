@@ -732,6 +732,7 @@ class GlobalController extends Controller
                     DB::raw('use1_' . $this->getCurrentLang() . ' as use1'),
                     DB::raw('use2_' . $this->getCurrentLang() . ' as use2'),
                     DB::raw('use3_' . $this->getCurrentLang() . ' as use3'),
+                    DB::raw('app_price_note_' . $this->getCurrentLang() . ' as app_price_note'),
                     DB::raw('address_' . $this->getCurrentLang() . ' as address'),
                     'email',
                     'mobile',
@@ -845,6 +846,12 @@ class GlobalController extends Controller
             return $seconds = $now->diffInSeconds($end);
         else
             return $seconds = $now->diffInHours($end);
+    }
+
+
+    public function getAppPriceNote(Request $request){
+
+
     }
 
 }
