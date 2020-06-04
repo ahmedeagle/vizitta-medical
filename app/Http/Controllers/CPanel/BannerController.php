@@ -177,11 +177,6 @@ class BannerController extends Controller
         if ($request->type == 'external') {
             if (empty($request-> external_link )) {
                 return $this->returnError('D000', __('messages.external link required'));
-
-            }else{
-                if (! filter_var($request-> external_link
-                    , FILTER_VALIDATE_URL))
-                    return $this->returnError('D000', __('messages.not valid url'));
             }
         }
         if ($request->type == 'branch') {
