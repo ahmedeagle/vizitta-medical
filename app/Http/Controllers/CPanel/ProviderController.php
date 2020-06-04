@@ -108,7 +108,7 @@ class ProviderController extends Controller
         $result['provider']['doctors'] = $doctors;
         $result['provider']['city'] = $provider->city;
         $result['provider']['district'] = $provider->district;
-        $result['acceptance_rate'] = $provider_all_approved_reservation_count;
+        $result['acceptance_rate'] = $acceptance_rate;
         $result['refusal_rate'] = $refusal_rate;
         $result['allReservationCount'] = $provider_all_reservation_count;
         $result['acceptanceReservationCount'] = $provider_all_approved_reservation_count;
