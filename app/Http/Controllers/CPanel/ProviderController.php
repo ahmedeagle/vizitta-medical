@@ -44,9 +44,7 @@ class ProviderController extends Controller
 
         //$branchesId = $provider->providers()->pluck('id')->toArray();
 
-        $branchesId =  Provider::where('provider_id',$request->id) -> whereNotNull('provider_id')->pluck('id') -> toArray();
-
-
+        $branchesId = Provider::where('provider_id', $request->id)->whereNotNull('provider_id')->pluck('id')->toArray();
 
         $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
         $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
@@ -56,34 +54,37 @@ class ProviderController extends Controller
         $approved_services_reservation_count = ServiceReservation::where('approved', 1)->whereIn('branch_id', $branchesId)->count();
 //        $approved_consulting_reservation_count = DoctorConsultingReservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
 
-        $reject_Offer_Doctor_reservation_count = Reservation::where(function($q){
-            $q -> where('approved', 2);
+        $reject_Offer_Doctor_reservation_count = Reservation::where(function ($q) {
+            $q->where('approved', 2);
         })->whereIn('provider_id', $branchesId)->count();
 
-        $reject_services_reservation_count = ServiceReservation::where(function($q){
-            $q -> where('approved', 2);
+        $reject_services_reservation_count = ServiceReservation::where(function ($q) {
+            $q->where('approved', 2);
         })->whereIn('branch_id', $branchesId)->count();
 
-/*        $reject_consulting_reservation_count = DoctorConsultingReservation::where(function($q){
-            $q -> where('approved', 2)->orwhere('approved', 5);
-        })->whereIn('provider_id', $branchesId)->count();*/
+        /*        $reject_consulting_reservation_count = DoctorConsultingReservation::where(function($q){
+                    $q -> where('approved', 2)->orwhere('approved', 5);
+                })->whereIn('provider_id', $branchesId)->count();*/
 
-        $provider_all_reservation_count = $all_Offer_Doctor_reservation_count + $all_services_reservation_count /*+ $all_consulting_reservation_count*/;
-        $provider_all_approved_reservation_count = $approved_Offer_Doctor_reservation_count + $approved_services_reservation_count /*+ $approved_consulting_reservation_count*/;
-        $provider_all_refused_reservation_count = $reject_Offer_Doctor_reservation_count + $reject_services_reservation_count /*+ $reject_consulting_reservation_count*/;
+        $provider_all_reservation_count = $all_Offer_Doctor_reservation_count + $all_services_reservation_count /*+ $all_consulting_reservation_count*/
+        ;
+        $provider_all_approved_reservation_count = $approved_Offer_Doctor_reservation_count + $approved_services_reservation_count /*+ $approved_consulting_reservation_count*/
+        ;
+        $provider_all_refused_reservation_count = $reject_Offer_Doctor_reservation_count + $reject_services_reservation_count /*+ $reject_consulting_reservation_count*/
+        ;
 
-      /*  foreach ($branchesId as $branch_id) {
-            $reservations = Provider::find($branch_id)->reservations()->select('id', 'approved')->get();
-            if (isset($reservations) && $reservations->count() > 0) {
-                foreach ($reservations as $reservation) {
-                    $allReservationCount++;
-                    if ($reservation->approved == 1 or $reservation->approved == 3)
-                        $acceptanceReservationCount++;
-                    if ($reservation->approved == 2)
-                        $refusedReservationCount++;
-                }
-            }
-        }*/
+        /*  foreach ($branchesId as $branch_id) {
+              $reservations = Provider::find($branch_id)->reservations()->select('id', 'approved')->get();
+              if (isset($reservations) && $reservations->count() > 0) {
+                  foreach ($reservations as $reservation) {
+                      $allReservationCount++;
+                      if ($reservation->approved == 1 or $reservation->approved == 3)
+                          $acceptanceReservationCount++;
+                      if ($reservation->approved == 2)
+                          $refusedReservationCount++;
+                  }
+              }
+          }*/
 
         if ($provider_all_reservation_count == 0) {
             $acceptance_rate = __('main.not_counted_yet');
@@ -506,6 +507,314 @@ class ProviderController extends Controller
             return response()->json(['status' => true, 'data' => ['branchId' => $request->provider_id], 'msg' => __('main.remove_lottery_branch')], 200);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+        }
+    }
+
+    public
+    function getProviderRservationByType(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:home_services,clinic_services,doctor,offer,all",
+                "approved" => "required|in:approved,rejected,all",
+                "provider_id" => "required|exists:providers,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->type;
+            $approved = $request->approved;
+            $provider = Provider::find($request->provider_id);
+
+            if ($provider->provider_id == null) { //main provider
+                $branches = $provider->providers()->pluck('id')->toArray();
+                array_unshift($branches, $provider->id);
+            } else {
+                $branches = [$provider->id];
+            }
+
+            $reservations = $this->getReservationsByType($branches, $type, $approved);
+
+
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'bill_total', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    if ($request->type == 'home_services') {
+                        $reservation->reservation_type = 'home_services';
+                    } elseif ($request->type == 'clinic_services') {
+                        $reservation->reservation_type = 'clinic_services';
+                    } elseif ($request->type == 'doctor') {
+                        $reservation->reservation_type = 'doctor';
+                    } elseif ($request->type == 'offer') {
+                        $reservation->reservation_type = 'offer';
+                    } elseif ($request->type == 'all') {
+
+                        $this->addReservationTypeToResult($reservation);
+                        $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                            "service_rate",
+                            "provider_rate",
+                            "offer_rate",
+                            "paid", "use_insurance",
+                            "promocode_id",
+                            "provider_id",
+                            "branch_id", "rate_comment",
+                            "rate_date",
+                            "address", "latitude",
+                            "longitude"]);
+
+                        $reservation->doctor->makeHidden(['available_time', 'times']);
+                        $reservation->provider->makeHidden(["provider_has_bill",
+                            "has_insurance",
+                            "is_lottery",
+                            "rate_count"]);
+
+                    } else {
+                        $reservation->reservation_type = 'undefined';
+                    }
+                    return $reservation;
+                });
+
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnData('reservations', $reservations);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex);
+        }
+    }
+
+
+    public function getReservationsByType($providers, $type, $approved)
+    {
+        if ($type == 'home_services') {
+            return $this->getHomeServicesReservationsByType($providers, $approved);
+        } elseif ($type == 'clinic_services') {
+            return $this->getClinicServicesReservationsByType($providers, $approved);
+        } elseif ($type == 'doctor') {
+            return $this->getDoctorReservationsByType($providers, $approved);
+        } elseif ($type == 'offer') {
+            return $this->getOfferReservationsByType($providers, $approved);
+        } else {
+            // return all reservations
+            return $this->getAllReservationsByType($providers, $approved);
+        }
+    }
+
+    private function getHomeServicesReservationsByType($providers, $approved)
+    {
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 1);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'type', 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', $approved)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+
+    private function getClinicServicesReservationsByType($providers, $approved)
+    {
+
+        return $reservations = ServiceReservation::whereHas('type', function ($e) {
+            $e->where('id', 2);
+        })->with(['service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'type', 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ])
+            ->whereIn('branch_id', $providers)
+            ->where('approved', $approved)
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    private function getDoctorReservationsByType($providers, $approved)
+    {
+        return $reservations = Reservation::with(['doctor' => function ($g) {
+            $g->select('id', 'nickname_id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                ->with(['nickname' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }, 'coupon' => function ($qu) {
+            $qu->select('id', 'coupons_type_id', DB::raw('title_' . app()->getLocale() . ' as title'), 'code', 'photo', 'price', 'price_after_discount');
+        }
+            , 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'people' => function ($p) {
+                $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }])
+            ->whereIn('provider_id', $providers)
+            ->where('approved', $approved)
+            ->whereNotNull('doctor_id')
+            ->where('doctor_id', '!=', 0)
+            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    private function getAllReservationsByType($providers, $approved)
+    {
+        $doctor_reservations = Reservation::doctorSelection()
+            ->whereIn('provider_id', $providers)
+            ->where('approved', $approved)
+            ->whereNotNull('doctor_id')
+            ->where('doctor_id', '!=', 0)
+            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC');
+
+
+        $home_services_reservations = ServiceReservation::serviceSelection()
+            ->serviceSelection()
+            ->whereHas('type', function ($e) {
+                $e->where('id', 1);
+            })
+            ->whereIn('branch_id', $providers)
+            ->where('approved', $approved)
+            ->orderBy('id', 'DESC');
+
+        $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
+            $e->where('id', 2);
+        })
+            ->whereIn('branch_id', $providers)
+            ->where('approved', $approved)
+            ->orderBy('id', 'DESC');
+
+        return Reservation::OfferReservationSelection()->with(['offer' => function ($q) {
+            $q->select('id',
+                DB::raw('title_' . app()->getLocale() . ' as title'),
+                'expired_at',
+                'price'
+            );
+        }, 'doctor' => function ($g) {
+            $g->select('id', 'nickname_id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                ->with(['nickname' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }, 'specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'people' => function ($p) {
+            $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
+                $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }]);
+        }, 'provider' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'service' => function ($g) {
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+                ->with(['specification' => function ($g) {
+                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }, 'type' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->whereIn('provider_id', $providers)
+            ->where('approved', $approved)
+            ->whereNotNull('offer_id')
+            ->where('offer_id', '!=', 0)
+            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC')
+            ->union($doctor_reservations)
+            ->union($home_services_reservations)
+            ->union($clinic_services_reservations)
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    private function getOfferReservationsByType($providers, $approved)
+    {
+        return $reservations = Reservation::with(['offer' => function ($q) {
+            $q->select('id',
+                DB::raw('title_' . app()->getLocale() . ' as title'),
+                'expired_at',
+                'price'
+            );
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'user' => function ($q) {
+            $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
+                ->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+        }])
+            ->whereIn('provider_id', $providers)
+            ->where('approved', $approved)
+            ->whereNotNull('offer_id')
+            ->where('offer_id', '!=', 0)
+            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    private function addReservationTypeToResult($reservation)
+    {
+        if ($reservation->doctor_id != null && $reservation->doctor_id != 0 && $reservation->doctor_id != "") {
+            $reservation->reservation_type = "doctor";
+        } elseif ($reservation->offer_id != null && $reservation->offer_id != 0 && $reservation->offer_id != "") {
+            $reservation->reservation_type = "offer";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 1) {
+            $reservation->reservation_type = "home_services";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 2) {
+            $reservation->reservation_type = "clinic_services";
+        } else {
+            $reservation->reservation_type = "undefined";
         }
     }
 

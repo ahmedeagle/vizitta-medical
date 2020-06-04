@@ -62,6 +62,7 @@ class Mix extends Model
         'invited_points',
         'consulting_text',
         'consulting_photo',
+        'app_price_note',
     ];
 
     protected $forcedNullStrings = [
@@ -111,7 +112,7 @@ class Mix extends Model
         'price_less',
         'consulting_text',
         'consulting_photo',
-
+        'app_price_note'
     ];
 
 
@@ -154,5 +155,9 @@ class Mix extends Model
     public function getConsultingPhotoAttribute($val)
     {
         return ($val != "" ? asset($val) : "");
+    }
+    public function getAppPriceNoteAttribute($val)
+    {
+        return ($val != null ? $val : "");
     }
 }

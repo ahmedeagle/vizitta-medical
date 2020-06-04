@@ -58,6 +58,8 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/changeStatus', 'ProviderController@changeStatus');
             Route::post('/addLotteryBranch', 'ProviderController@addLotteryBranch');
             Route::post('/removeLotteryBranch', 'ProviderController@removeLotteryBranch');
+            Route::post('/get-reservations-by-type', 'ProviderController@getProviderRservationByType');
+            Route::post('/get-all-reservations', 'ProviderController@getAllProviderRservations');
         });
         ############## End Providers Routes ##############
 

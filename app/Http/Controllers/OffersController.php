@@ -1282,6 +1282,7 @@ class OffersController extends Controller
                         $type = 'external';
                         $direct_type = $banner->external_link;
                         $direct_to = 'خارجي';
+                        $direct_id = 0;
                     } else {
                         $type = 'none';
                         $direct_type = 'لا شي';

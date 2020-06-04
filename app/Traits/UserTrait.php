@@ -377,7 +377,12 @@ trait UserTrait
             });
 
         if ($longitude != null && !empty($longitude) && $latitude != null && !empty($latitude)) {
-            $provider = $provider->select('id', 'rate', 'logo', 'longitude', 'latitude', 'type_id', 'street', 'address', 'city_id', 'district_id', 'provider_id', 'status',
+            $provider = $provider->select('id', 'rate',
+                'logo', 'longitude',
+                'latitude', 'type_id',
+                'street', 'address',
+                'city_id', 'district_id',
+                'provider_id', 'status',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'),
                 DB::raw('(3959 * acos(cos(radians(' . $latitude . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $longitude . ')) + sin(radians(' . $latitude . ')) * sin(radians(latitude)))) AS distance'),
                 'has_home_visit'
