@@ -781,11 +781,13 @@ trait GlobalTrait
                 'photo',
                 DB::raw('bannerable_type AS type'),
                 DB::raw('bannerable_id  as type_id'),
-                'subCategory_id'
+                'subCategory_id',
+                'external_link'
             )
             ->orderBy('lft')
             ->get();
     }
+
 
 
     public function getBanners()

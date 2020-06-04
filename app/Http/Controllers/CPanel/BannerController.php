@@ -67,7 +67,7 @@ class BannerController extends Controller
                             $specification = Specification::where('id', $banner->subCategory_id)->first();
                             $direct_to = $specification->name_ar;
                         }
-                    } elseif ($banner->type == 'App\Models\MedicalCenter') {
+                    } elseif ($banner->type == 'external') {
                         $type = 'external';
                         $direct_type =  $banner -> external_link;
                         $direct_to = 'خارجي';
