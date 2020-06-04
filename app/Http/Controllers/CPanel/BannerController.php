@@ -67,6 +67,10 @@ class BannerController extends Controller
                             $specification = Specification::where('id', $banner->subCategory_id)->first();
                             $direct_to = $specification->name_ar;
                         }
+                    } elseif ($banner->type == 'App\Models\MedicalCenter') {
+                        $type = 'external';
+                        $direct_type =  $banner -> external_link;
+                        $direct_to = 'خارجي';
                     } else {
                         $type = 'none';
                         $direct_type = 'لا شي';
@@ -100,7 +104,7 @@ class BannerController extends Controller
 
     public function saveReorderBanners(Request $request)
     {
-        try{
+        try {
             $count = 0;
             $all_entries = $request->input('tree');
             if (count($all_entries)) {
@@ -160,7 +164,7 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "type" => "required|in:offer,category,center,branch,consulting,none",
+            "type" => "required|in:offer,category,center,branch,consulting,external,none",
             "photo" => "required"
 
         ]);
@@ -170,6 +174,16 @@ class BannerController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
+        if ($request->type == 'external') {
+            if (empty($request-> external_link )) {
+                return $this->returnError('D000', __('messages.external link required'));
+
+            }else{
+                if (! filter_var($request-> external_link
+                    , FILTER_VALIDATE_URL))
+                    return $this->returnError('D000', __('messages.not valid url'));
+            }
+        }
         if ($request->type == 'branch') {
             if ((empty($request->branch_id) or !is_numeric($request->branch_id)) && ($request->branch_id != 0)) {
                 return $this->returnError('D000', __('messages.provider id required'));
@@ -264,6 +278,9 @@ class BannerController extends Controller
         } elseif ($request->type == 'consulting') {
             $id = 0;
             $bannerable_type = 'App\Models\Doctor';
+        } elseif ($request->type == "external") {
+            $id = null;
+            $bannerable_type = 'external';
         } else {
             $id = null;
             $bannerable_type = 'none';
@@ -273,7 +290,8 @@ class BannerController extends Controller
             'photo' => $fileName,
             'bannerable_type' => $bannerable_type,
             'bannerable_id' => $id,
-            'subCategory_id' => isset($request->subcategory_id) ? $request->subcategory_id : 0
+            'subCategory_id' => isset($request->subcategory_id) ? $request->subcategory_id : 0,
+            'external_link' => isset($request-> external_link ) ? $request->external_link : null
         ]);
 
         return $this->returnSuccessMessage(trans('messages.Banner added successfully'));

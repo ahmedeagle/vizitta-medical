@@ -328,6 +328,8 @@ return [
     'logout successfully' =>'تم تسجيل الخروج بنجاح',
     'clinic price required'  => 'سعر الخدمة داخل العياده مطلوب',
     'home price required'  => 'سعر الخدمة بالمنزل مطلوب',
+    'not valid url' => 'صيغة الرابط غير صحيحة',
+    'external link required' => 'لابد من ادخال رابط خارجي'
 
 
 ];

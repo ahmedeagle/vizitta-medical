@@ -301,4 +301,7 @@ return [
     'logout successfully' =>'You Are Logged Out',
     'clinic price required'  => 'clinic price required',
     'home price required'  => 'home price required',
+    'not valid url' => 'not a valid url',
+    'external link required' => 'External link required'
+
 ];
