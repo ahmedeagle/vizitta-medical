@@ -380,7 +380,7 @@ trait UserTrait
             $provider = $provider->select('id', 'rate',
                 'logo', 'longitude',
                 'latitude', 'type_id',
-                'street', 'address',
+                'street', 'address_'.app()->getLocale().' as address',
                 'city_id', 'district_id',
                 'provider_id', 'status',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'),
@@ -393,7 +393,9 @@ trait UserTrait
                 $provider = $provider->orderBy('distance', $order);
             }
         } else {
-            $provider = $provider->select('id', 'rate', 'logo', 'longitude', 'latitude', 'type_id', 'street', 'address', 'city_id', 'district_id', 'provider_id', 'status',
+            $provider = $provider->select('id', 'rate', 'logo',
+                'longitude', 'latitude', 'type_id',
+                'street', 'address_'.app()->getLocale().' as address', 'city_id', 'district_id', 'provider_id', 'status',
                 DB::raw('name_' . $this->getCurrentLang() . ' as name'), DB::raw("'0' as distance"), 'has_home_visit');
             if ($rate == 1) {
                 $provider = $provider->orderBy('rate', 'DESC');
