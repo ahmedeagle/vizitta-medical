@@ -47,9 +47,9 @@ class ProviderController extends Controller
         $branchesId = Provider::where('provider_id', $request->id)->whereNotNull('provider_id')->pluck('id')->toArray();
 
         //
-       return   $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
+          $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
 
-        $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
+        return  $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
 //        $all_consulting_reservation_count = DoctorConsultingReservation::whereIn('provider_id', $branchesId)->count();
 
         $approved_Offer_Doctor_reservation_count = Reservation::where('approved', 1)->whereIn('provider_id', $branchesId)->count();
