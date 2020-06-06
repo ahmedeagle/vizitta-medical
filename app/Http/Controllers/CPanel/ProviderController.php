@@ -111,7 +111,7 @@ class ProviderController extends Controller
         $result['provider']['district'] = $provider->district;
         $result['acceptance_rate'] = $acceptance_rate;
         $result['refusal_rate'] = $refusal_rate;
-       return  $result['allReservationCount'] = $provider_all_reservation_count;
+         $result['allReservationCount'] = $provider_all_reservation_count;
         $result['acceptanceReservationCount'] = $provider_all_approved_reservation_count;
         $result['refusedReservationCount'] = $provider_all_refused_reservation_count;
         $result['provider']['show_delete'] = $provider->branches->count() > 0 ? 0 : 1;
