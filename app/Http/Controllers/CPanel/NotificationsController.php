@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\NotificationReceiversResource;
+use App\Jobs\SenAdminNotification;
 use App\Models\GeneralNotification;
 use App\Models\Notification;
 use App\Models\Provider;
@@ -85,6 +86,10 @@ class NotificationsController extends Controller
         return response()->json(['status' => true, 'data' => $result]);
     }
 
+
+
+
+    // make job and queue  for ignore respose timeout
     public function store(Request $request)
     {
         try {
@@ -138,6 +143,8 @@ class NotificationsController extends Controller
                 "content" => $content,
                 "type" => $type
             ]);
+
+            dispatch(new SenAdminNotification($actors,$type,$notify_id,$title,$content)) ->delay(now()->addMinutes(1));;
 
             foreach ($actors as $actor) {
 
