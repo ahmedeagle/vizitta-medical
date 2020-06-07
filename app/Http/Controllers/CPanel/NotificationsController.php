@@ -87,8 +87,6 @@ class NotificationsController extends Controller
     }
 
 
-
-
     // make job and queue  for ignore respose timeout
     public function store(Request $request)
     {
@@ -122,19 +120,22 @@ class NotificationsController extends Controller
 
             if ($type == "users") {
                 if ($option == 2) {
-                    $actors = User::whereIn("id", $request->ids)
+                    $actors = User::whereNotNull('device_token')
+                        ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
                         ->get();
                 } else {
-                    $actors = User::select('device_token', 'web_token' , 'id')->get();
+                    $actors = User::whereNotNull('device_token')->_select('device_token', 'web_token', 'id')->get();
                 }
             } else {
                 if ($option == 2) {
-                    $actors = Provider::whereIn("id", $request->ids)
+                    $actors = Provider::whereNotNull('device_token')
+                        ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
                         ->get();
                 } else {
-                    $actors = Provider::select('device_token', 'web_token' , 'id')->get();
+                    $actors = Provider::whereNotNull('device_token')
+                        ->select('device_token', 'web_token', 'id')->get();
                 }
             }
 
@@ -144,46 +145,46 @@ class NotificationsController extends Controller
                 "type" => $type
             ]);
 
-            dispatch(new SenAdminNotification($actors,$type,$notify_id,$title,$content)) ;
+            dispatch(new SenAdminNotification($actors, $type, $notify_id, $title, $content));
 
-          /*  foreach ($actors as $actor) {
+            /*  foreach ($actors as $actor) {
 
-                $actor->makeVisible(['device_token', 'web_token']);
-                if ($type == "users") {
+                  $actor->makeVisible(['device_token', 'web_token']);
+                  if ($type == "users") {
 
-                    Reciever::insert([
-                        "notification_id" => $notify_id,
-                        "actor_id" => $actor->id
-                    ]);
-                    // push notification
-                    if ($actor->device_token != null) {
-                        //send push notification
-                        (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendUser(User::find($actor->id));
-                    }
+                      Reciever::insert([
+                          "notification_id" => $notify_id,
+                          "actor_id" => $actor->id
+                      ]);
+                      // push notification
+                      if ($actor->device_token != null) {
+                          //send push notification
+                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendUser(User::find($actor->id));
+                      }
 
-                } elseif ($type == "providers") {
+                  } elseif ($type == "providers") {
 
-                    Reciever::insert([
-                        "notification_id" => $notify_id,
-                        "actor_id" => $actor->id,
+                      Reciever::insert([
+                          "notification_id" => $notify_id,
+                          "actor_id" => $actor->id,
 
-                    ]);
-                    // push notification
-                    if ($actor->device_token != null) {
-                        (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProvider(Provider::find($actor->id));
-                    }
+                      ]);
+                      // push notification
+                      if ($actor->device_token != null) {
+                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProvider(Provider::find($actor->id));
+                      }
 
-                    if ($actor->web_token != null) {
-                        (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProviderWeb(Provider::find($actor->id));
-                    }
+                      if ($actor->web_token != null) {
+                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProviderWeb(Provider::find($actor->id));
+                      }
 
-                }
-            }*/
+                  }
+              }*/
 
             return response()->json(['status' => true, 'msg' => __('main.operation_done_successfully')]);
 
         } catch (\Exception $ex) {
-        return  $ex;
+            return $ex;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
 
