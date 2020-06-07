@@ -125,7 +125,7 @@ class NotificationsController extends Controller
                         ->select("id", "device_token")
                         ->get();
                 } else {
-                    $actors = User::whereNotNull('device_token')->_select('device_token', 'web_token', 'id')->get();
+                    $actors = User::whereNotNull('device_token')->select('device_token', 'web_token', 'id')->get();
                 }
             } else {
                 if ($option == 2) {
