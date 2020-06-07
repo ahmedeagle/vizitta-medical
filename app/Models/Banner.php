@@ -8,7 +8,7 @@ class Banner extends Model
 {
     protected $table = 'banners';
     public $timestamps = true;
-    protected $fillable = ['photo', 'bannerable_type', 'bannerable_id', 'subCategory_id','external_link'];
+    protected $fillable = ['photo', 'bannerable_type', 'bannerable_id', 'subCategory_id','external_link','lft','rgt','depth'];
     protected $hidden = ['created_at', 'updated_at', 'bannerable_type', 'bannerable_id'];
 
     public function getPhotoAttribute($val)
