@@ -783,6 +783,9 @@ trait GlobalTrait
                 'photo',
                 DB::raw('bannerable_type AS type'),
                 DB::raw('bannerable_id  as type_id'),
+                'lft',
+                'rgt',
+                'depth',
                 'subCategory_id',
                 'external_link'
             )
