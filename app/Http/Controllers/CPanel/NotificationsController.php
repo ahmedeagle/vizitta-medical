@@ -146,7 +146,7 @@ class NotificationsController extends Controller
 
             dispatch(new SenAdminNotification($actors,$type,$notify_id,$title,$content)) ->delay(now()->addMinutes(1));;
 
-            foreach ($actors as $actor) {
+          /*  foreach ($actors as $actor) {
 
                 $actor->makeVisible(['device_token', 'web_token']);
                 if ($type == "users") {
@@ -178,7 +178,7 @@ class NotificationsController extends Controller
                     }
 
                 }
-            }
+            }*/
 
             return response()->json(['status' => true, 'msg' => __('main.operation_done_successfully')]);
 
