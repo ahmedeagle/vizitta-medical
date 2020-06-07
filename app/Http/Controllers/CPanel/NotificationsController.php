@@ -144,7 +144,7 @@ class NotificationsController extends Controller
                 "type" => $type
             ]);
 
-            dispatch(new SenAdminNotification($actors,$type,$notify_id,$title,$content)) ->delay(now()->addMinutes(1));;
+            dispatch(new SenAdminNotification($actors,$type,$notify_id,$title,$content)) ;
 
           /*  foreach ($actors as $actor) {
 
