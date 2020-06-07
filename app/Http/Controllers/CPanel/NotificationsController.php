@@ -126,7 +126,7 @@ class NotificationsController extends Controller
                         ->select("id", "device_token")
                         ->get();
                 } else {
-                    $actors = User::get();
+                    $actors = User::select('device_token', 'web_token' , 'id')->get();
                 }
             } else {
                 if ($option == 2) {
@@ -134,7 +134,7 @@ class NotificationsController extends Controller
                         ->select("id", "device_token", "web_token")
                         ->get();
                 } else {
-                    $actors = Provider::get();
+                    $actors = Provider::select('device_token', 'web_token' , 'id')->get();
                 }
             }
 
