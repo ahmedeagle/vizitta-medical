@@ -125,7 +125,7 @@ class NotificationsController extends Controller
                         ->select("id", "device_token")
                         ->get();
                 } else {
-                    $actors = User::whereNotNull('device_token')->select('device_token', 'web_token', 'id')->get();
+                    $actors = User::whereNotNull('device_token')->select('device_token', 'id')->get();
                 }
             } else {
                 if ($option == 2) {
@@ -152,6 +152,7 @@ class NotificationsController extends Controller
                   $actor->makeVisible(['device_token', 'web_token']);
                   if ($type == "users") {
 
+                      Reciever::insert([
                       Reciever::insert([
                           "notification_id" => $notify_id,
                           "actor_id" => $actor->id
