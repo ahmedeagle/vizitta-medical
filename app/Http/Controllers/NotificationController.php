@@ -92,14 +92,16 @@ class NotificationController extends Controller
                 'title' => $this->title,
                 'body' => $this->body,
                 "reservation_no" => $reservation_no,
-                "type" => $type
+                "type" => $type,
+                "actor" => 'provider'
             ];
         } else {
 
             $notification = [
                 'title' => $this->title,
                 'body' => $this->body,
-                "type" => $type
+                "type" => $type,
+                "actor" => 'provider'
             ];
         }
 
@@ -121,7 +123,8 @@ class NotificationController extends Controller
         $notification = [
             'title' => $this->title,
             'body' => $this->body,
-            "type" => $type
+            "type" => $type,
+            "actor" => 'admin'
         ];
         $tokenList = AdminWebToken::pluck('token')->toArray();
         $notificationData = new \stdClass();
