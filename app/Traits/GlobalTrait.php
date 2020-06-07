@@ -775,6 +775,22 @@ trait GlobalTrait
             ->paginate(PAGINATION_COUNT);
     }
 
+    public function getBannersList()
+    {
+        $banners = Banner::query();
+        return $banners
+            ->select('id',
+                'photo',
+                DB::raw('bannerable_type AS type'),
+                DB::raw('bannerable_id  as type_id'),
+                'subCategory_id',
+                'external_link'
+            )
+            ->orderBy('lft')
+            ->get();
+    }
+
+
     public function getBannersV2List()
     {
         $banners = Banner::query();

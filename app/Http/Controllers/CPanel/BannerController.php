@@ -129,6 +129,72 @@ class BannerController extends Controller
         }
     }
 
+    public function getReorders(Request $request){
+        try {
+            $banners = $this->getBannersList();
+            if (count($banners->toArray()) > 0) {
+                $banners->each(function ($banner) {
+                    if ($banner->type == 'App\Models\OfferCategory') {
+                        $type = 'category';
+                        if ($banner->type_id == 0) {
+                            $direct_type = 'أقسام';
+                            $direct_to = 'كل الاقسام';
+                        } else {
+                            $category = OfferCategory::whereNull('parent_id')->where('id', $banner->type_id)->first();
+                            $direct_type = 'أقسام';
+                            $direct_to = @$category->{'name_' . app()->getLocale()};
+                        }
+                    } elseif ($banner->type == 'App\Models\Offer') {
+                        $type = 'offer';
+                        $direct_type = 'عروض';
+                        $offer = Offer::find($banner->type_id);
+                        $direct_to = @$offer->{'title_' . app()->getLocale()};
+                    } elseif ($banner->type == 'App\Models\Provider') {
+                        $type = 'provider';
+                        $direct_type = "الأفرع";
+                        if ($banner->subCategory_id == 1)// 1 -> doctors  2-> services
+                        {
+                            $direct = 'الاطباء';
+                        } else {
+                            $direct = 'الخدمات';
+                        }
+                        $direct_to = $direct;
+                    } elseif ($banner->type == 'App\Models\MedicalCenter') {
+                        $type = 'provider';
+                        $direct_type = 'صفحة اضافه مركز طبي';
+                        $direct_to = $direct_type;
+                    } elseif ($banner->type == 'App\Models\Doctor') {
+                        $type = 'consulting';
+                        $direct_type = 'الاستشارات الطبيبة';
+                        if ($banner->subCategory_id == null or $banner->subCategory_id == 0)
+                            $direct_to = 'أقسام الاستشارات';
+                        else {
+                            $specification = Specification::where('id', $banner->subCategory_id)->first();
+                            $direct_to = $specification->name_ar;
+                        }
+                    } elseif ($banner->type == 'external') {
+                        $type = 'external';
+                        $direct_type =  $banner -> external_link;
+                        $direct_to = 'خارجي';
+                    } else {
+                        $type = 'none';
+                        $direct_type = 'لا شي';
+                        $direct_to = 'لا شي';
+                    }
+                    $banner->type = $type;
+                    $banner->direct_type = $direct_type;
+                    $banner->direct_to = $direct_to;
+
+                    unset($banner->type_id);
+                    unset($banner->subCategory_id);
+                    return $banner;
+                });
+            }
+            return $this->returnData('banners', $banners);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
     public function edit(Request $request)
     {
         try {
