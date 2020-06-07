@@ -1,6 +1,6 @@
 <?php
 
-//define('PAGINATION_COUNT', 10);
+define('PAGINATION_COUNT', 10);
 
 Route::get('clearPermissionCach', function () {
     app()['cache']->forget('spatie.permission.cache');
