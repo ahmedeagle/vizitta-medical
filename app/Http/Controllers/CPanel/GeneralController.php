@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Models\City;
+use App\Models\Service;
 use App\Traits\CPanel\GeneralTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -101,6 +102,41 @@ class GeneralController extends Controller
             }
             curl_close($ch);
             return $this->returnData('data', json_decode($responseData, true), '', 'S001');
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public function changeStatusByType(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:services",
+                "status" => "required|in:0,1",
+                "id" => "required"
+
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $type = $request->type;
+            $status = $request->status;
+            $id = $request->id;
+
+            if ($type == 'services') {
+                $service = Service::find($id);
+                if (!$service)
+                    return $this->returnError('D000', trans("messages.no service with this id"));
+
+                $service->update(['status' => $status]);
+            }
+
+            return $this->returnSuccessMessage(trans('messages.status changed successfully'));
+
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

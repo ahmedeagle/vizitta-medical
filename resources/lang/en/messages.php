@@ -302,6 +302,7 @@ return [
     'clinic price required'  => 'clinic price required',
     'home price required'  => 'home price required',
     'not valid url' => 'not a valid url',
-    'external link required' => 'External link required'
+    'external link required' => 'External link required',
+    'status changed successfully'=> 'Status changed successfully'
 
 ];

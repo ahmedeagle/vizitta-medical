@@ -75,7 +75,9 @@ class Offer extends Model
     {
         $query->where(function ($q) {
             $q->where('available_count', '>', 0)->orWhereHas('users');
-        })->whereDate('expired_at', '>=', Carbon::now()->format('Y-m-d'));
+        })
+            ->whereDate('expired_at', '>=', Carbon::now()->format('Y-m-d'))
+            ->whereDate('started_at', '<=', Carbon::now()->format('Y-m-d'));
     }
 
     public function scopeSelection($query)

@@ -430,6 +430,9 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
 
         Route::get('transaction-details/{id?}', 'GeneralController@getTransactionDetails');
 
+        Route::post('change-status-by-type', 'GeneralController@changeStatusByType');
+
+
     });
 
 });

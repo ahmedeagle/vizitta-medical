@@ -54,7 +54,7 @@ class ServiceController extends Controller
             $category_id = $request->category_id;
             $branch_id = $request->branch_id;
 
-            $services = $services->with(['specification' => function ($q1) {
+            $services = $services->active()->with(['specification' => function ($q1) {
                 $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'branch' => function ($q2) {
                 $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');

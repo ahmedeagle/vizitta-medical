@@ -47,7 +47,7 @@ class ProviderController extends Controller
         $branchesId = Provider::where('provider_id', $request->id)->whereNotNull('provider_id')->pluck('id')->toArray();
 
         //
-          $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
+        $all_Offer_Doctor_reservation_count = Reservation::whereIn('provider_id', $branchesId)->count();
 
         $all_services_reservation_count = ServiceReservation::whereIn('branch_id', $branchesId)->count();
 //        $all_consulting_reservation_count = DoctorConsultingReservation::whereIn('provider_id', $branchesId)->count();
@@ -113,7 +113,7 @@ class ProviderController extends Controller
         $result['provider']['district'] = $provider->district;
         $result['acceptance_rate'] = $acceptance_rate;
         $result['refusal_rate'] = $refusal_rate;
-         $result['allReservationCount'] = $provider_all_reservation_count;
+        $result['allReservationCount'] = $provider_all_reservation_count;
         $result['acceptanceReservationCount'] = $provider_all_approved_reservation_count;
         $result['refusedReservationCount'] = $provider_all_refused_reservation_count;
         $result['provider']['show_delete'] = $provider->branches->count() > 0 ? 0 : 1;
@@ -638,7 +638,7 @@ class ProviderController extends Controller
         ])
             ->whereIn('branch_id', $providers);
         if ($approved == 'all')
-            $reservations = $reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $reservations = $reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $reservations = $reservations->where('approved', $approved);
 
@@ -675,7 +675,7 @@ class ProviderController extends Controller
         ])
             ->whereIn('branch_id', $providers);
         if ($approved == 'all')
-            $reservations = $reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $reservations = $reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $reservations = $reservations->where('approved', $approved);
 
@@ -715,7 +715,7 @@ class ProviderController extends Controller
             ->whereIn('provider_id', $providers);
 
         if ($approved == 'all')
-            $reservations = $reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $reservations = $reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $reservations = $reservations->where('approved', $approved);
 
@@ -745,7 +745,7 @@ class ProviderController extends Controller
             ->whereIn('provider_id', $providers);
 
         if ($approved == 'all')
-            $reservations = $reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $reservations = $reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $reservations = $reservations->where('approved', $approved);
 
@@ -781,7 +781,7 @@ class ProviderController extends Controller
             ->orderBy('id', 'DESC');
 
         if ($approved == 'all')
-            $doctor_reservations = $doctor_reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $doctor_reservations = $doctor_reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $doctor_reservations = $doctor_reservations->where('approved', $approved);
 
@@ -795,10 +795,9 @@ class ProviderController extends Controller
             ->orderBy('id', 'DESC');
 
         if ($approved == 'all')
-            $home_services_reservations = $home_services_reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $home_services_reservations = $home_services_reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $home_services_reservations = $home_services_reservations->where('approved', $approved);
-
 
         $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
             $e->where('id', 2);
@@ -807,7 +806,7 @@ class ProviderController extends Controller
             ->orderBy('id', 'DESC');
 
         if ($approved == 'all')
-            $clinic_services_reservations = $clinic_services_reservations->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $clinic_services_reservations = $clinic_services_reservations->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $clinic_services_reservations = $clinic_services_reservations->where('approved', $approved);
 
@@ -854,7 +853,7 @@ class ProviderController extends Controller
         /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
 
         if ($approved == 'all')
-            $result = $result->whereIn('approved', [0,1, 2, 3, 4, 5]);
+            $result = $result->whereIn('approved', [0, 1, 2, 3, 4, 5]);
         else
             $result = $result->where('approved', $approved);
 

@@ -329,7 +329,6 @@ return [
     'clinic price required'  => 'سعر الخدمة داخل العياده مطلوب',
     'home price required'  => 'سعر الخدمة بالمنزل مطلوب',
     'not valid url' => 'صيغة الرابط غير صحيحة',
-    'external link required' => 'لابد من ادخال رابط خارجي'
-
-
+    'external link required' => 'لابد من ادخال رابط خارجي',
+    'status changed successfully' => 'تم تغيير الحالة بنجاح',
 ];
