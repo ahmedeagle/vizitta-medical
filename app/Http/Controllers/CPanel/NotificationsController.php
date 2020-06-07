@@ -183,6 +183,7 @@ class NotificationsController extends Controller
             return response()->json(['status' => true, 'msg' => __('main.operation_done_successfully')]);
 
         } catch (\Exception $ex) {
+        return  $ex;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
 
