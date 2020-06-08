@@ -240,7 +240,7 @@ class DoctorController extends Controller
     {
         try {
             $rules = [
-                "id" => "required|exists:doctors:id",
+                "id" => "required|exists:doctors,id",
             ];
 
             $validator = Validator::make($request->all(), $rules);
