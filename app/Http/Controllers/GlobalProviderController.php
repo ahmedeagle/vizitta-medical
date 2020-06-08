@@ -603,6 +603,9 @@ class GlobalProviderController extends Controller
         }
         return DoctorConsultingReservation::finished()
             ->with([
+                'user' => function($u){
+                  $u -> select('id','name','photo');
+                },
                 'doctor' => function ($q) {
                     $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
                         $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -616,7 +619,7 @@ class GlobalProviderController extends Controller
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'doctor_id','chatId','payment_method_id', 'total_price', 'hours_duration', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
+            ->select('id', 'doctor_id','chatId','payment_method_id', 'total_price', 'hours_duration', 'day_date','user_id', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
             ->paginate(PAGINATION_COUNT);
     }
 

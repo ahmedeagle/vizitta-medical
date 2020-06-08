@@ -54,6 +54,7 @@ class DoctorController extends Controller
                 "information_ar" => "sometimes|nullable",
                 //  "insurance_companies" => "required|array",
                 "working_days" => "required|array",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
             ];
@@ -134,6 +135,7 @@ class DoctorController extends Controller
                 "abbreviation_ar" => $request->abbreviation_ar,
                 "abbreviation_en" => $request->abbreviation_en,
                 "reservation_period" => $request->reservation_period,
+                "waiting_period" => $request->waiting_period,
                 "specification_id" => $request->specification_id,
                 "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                 "price" => $request->price,
@@ -208,10 +210,12 @@ class DoctorController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
     public function getAllActiveBranches()
     {
         return Provider::where('status', true)->whereNotNull('provider_id')->select('name_ar', 'id', 'provider_id')->get();
     }
+
     public function apiGetAllSpecifications()
     {
         return Specification::select(\Illuminate\Support\Facades\DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
@@ -351,141 +355,183 @@ class DoctorController extends Controller
     public function update(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                "id" => "required|numeric",
+            $requestData = $request->all();
+            $rules = [
+                "id"  => "required|exists:doctors,id",
                 "branch_id" => "required|numeric",
+                "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "nickname_id" => "required|max:255|numeric",
-                "gender" => "required|min:1|max:2",
-                "specification_id" => "required|numeric",
-                "price" => "required|numeric",
-                "information_en" => "sometimes|nullable",
-                "information_ar" => "sometimes|nullable",
-                //  "insurance_companies" => "required|array",
-                "working_days" => "required|array",
-                "reservation_period" => "required|numeric",
+                "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id',
+                "password" => "sometimes|max:255",
+                "information_ar" => "required|max:255",
+                "information_en" => "required|max:255",
+                "abbreviation_ar" => "required|max:255",
+                "abbreviation_en" => "required|max:255",
+                "gender" => "required|in:1,2",
+                "nickname_id" => "required|numeric|exists:doctor_nicknames,id",
+                "specification_id" => "required|numeric|exists:specifications,id",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
-            ]);
+                "price" => "required|numeric",
+                "status" => "required|in:0,1",
+                "waiting_period" => "sometimes|nullable|numeric|min:0",
+                "reservation_period" => "required|numeric",
+                "working_days" => "required|array|min:1",
+            ];
 
-            if ($request->has('username') && !empty($request->username)) {
-                $validator->addRules([
-                    "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id'
-                ]);
+            if ($requestData['is_consult'] == 1) {
+                if (isset($requestData['consultations_working_days'])) {
+                    $rules["consultations_working_days"] = "required|array|min:1";
+                }
             }
 
-            if ($request->has('password') && !empty($request->password)) {
-                $validator->addRules([
-                    "password" => "sometimes|max:255",
-                ]);
-            }
+            $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
 
-            $mainProvider = $this->auth('provider-api');
-
-            $validation = $this->validateFields(['provider_id' => $request->branch_id, 'specification_id' => $request->specification_id,
-                'nickname_id' => $request->nickname_id, 'nationality_id' => $request->nationality_id, 'insurance_companies' => $request->insurance_companies,
-                'branch' => ['main_provider_id' => $mainProvider->id, 'provider_id' => $request->branch_id, 'branch_no' => 0]]);
-
-            DB::beginTransaction();
-
             $doctor = Doctor::find($request->id);
             if ($doctor == null)
-                return $this->returnError('D000', trans("messages.There is no doctor with this id"));
+                return $this->returnError('E001', __('main.not_found'));
 
-            if (!$validation->provider_found)
-                return $this->returnError('D000', trans("messages.There is no branch with this id"));
-
-            if (!$validation->branch_found)
-                return $this->returnError('D000', trans("messages.This branch isn't in your branches"));
-
-            if (!$validation->specification_found)
-                return $this->returnError('D000', trans("messages.There is no specification with this id"));
-
-            if (!$validation->nickname_found)
-                return $this->returnError('D000', trans("messages.There is no nickname with this id"));
-
-            if (isset($request->nationality_id) && $request->nationality_id != 0) {
-                if (!$validation->nationality_found)
-                    return $this->returnError('D000', trans("messages.There is no nationality with this id"));
-            }
-
-            /*  if ($validation->insurance_companies_found != count($request->insurance_companies))
-                  return $this->returnError('D000', trans("messages.There is one incorrect insurance company id"));*/
+            $days = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            $working_days_data = [];
+            $consultations_working_days_data = [];
 
             // working days
-            $working_days_data = [];
-            $days = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            if (isset($request->working_days) && !is_null($request->working_days)) {
 
-            foreach ($request->working_days as $working_day) {
-                $from = Carbon::parse($working_day['from']);
-                $to = Carbon::parse($working_day['to']);
-                if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)
-                    return $this->returnError('D000', trans("messages.There is one day with incorrect name"));
-                $working_days_data[] = ['doctor_id' => $doctor->id,
-                    'provider_id' => $request->branch_id,
-                    'day_name' => strtolower($working_day['day']),
-                    'day_code' => substr(strtolower($working_day['day']), 0, 3),
-                    'from_time' => $from->format('H:i'),
-                    'to_time' => $to->format('H:i'),
-                    'reservation_period' => $request->reservation_period];
+                foreach ($request->working_days as $working_day) {
+                    if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
+                        return $this->returnError('E001', __('main.enter_time_from_and_to'));
+
+                    }
+                    $from = Carbon::parse($working_day['from']);
+                    $to = Carbon::parse($working_day['to']);
+                    if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
+                        return $this->returnError('E001', __('main.day_is_incorrect'));
+                    }
+
+                    $workingDays = [
+                        'day_name' => strtolower($working_day['day']),
+                        'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                        'from_time' => $from->format('H:i'),
+                        'to_time' => $to->format('H:i'),
+                        'order' => array_search(strtolower($working_day['day']), $days),
+                        'reservation_period' => $request->reservation_period
+                    ];
+
+                    $workingDays['provider_id'] = $request->branch_id;
+
+                    $working_days_data[] = $workingDays;
+                }
+
+                for ($i = 0; $i < count($working_days_data); $i++) {
+                    $working_days_data[$i]['doctor_id'] = $doctor->id;
+                }
             }
 
-            $fileName = $doctor->photo;
-            if (isset($request->photo) && !empty($request->photo)) {
-                $fileName = $this->saveImage('doctors', $request->photo);
+            // consultations working
+            if ($requestData['is_consult'] == 1) {
+                // Optional consultations working days
+                if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
+
+                    foreach ($request->consultations_working_days as $working_day) {
+                        if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
+                            return $this->returnError('E001', __('main.enter_time_from_and_to'));
+                        }
+                        $from = Carbon::parse($working_day['from']);
+                        $to = Carbon::parse($working_day['to']);
+                        if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
+                            return $this->returnError('E001', __('main.day_is_incorrect'));
+                        }
+
+                        $consultationsWorkingDays = [
+                            'day_name' => strtolower($working_day['day']),
+                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                            'from_time' => $from->format('H:i'),
+                            'to_time' => $to->format('H:i'),
+                            'order' => array_search(strtolower($working_day['day']), $days),
+                            'reservation_period' => $request->reservation_period
+                        ];
+
+                        $consultationsWorkingDays['provider_id'] = $request->branch_id;
+
+                        $consultations_working_days_data[] = $consultationsWorkingDays;
+                    }
+
+                    for ($i = 0; $i < count($consultations_working_days_data); $i++) {
+                        $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
+                    }
+                }
             }
 
-            $doctor_data = [
-                "name_en" => $request->name_en,
-                "name_ar" => $request->name_ar,
-                "provider_id" => $request->branch_id,
-                "nickname_id" => $request->nickname_id != 0 ? $request->nickname_id : $doctor->nickname_id,
-                "gender" => $request->gender,
-                "photo" => $fileName,
-                "information_en" => $request->information_en,
-                "information_ar" => $request->information_ar,
-                "reservation_period" => $request->reservation_period,
-                "specification_id" => $request->specification_id != 0 ? $request->specification_id : $doctor->specification_id,
-                "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : $doctor->nationality_id,
-                "price" => $request->price
-            ];
-
-            if (isset($request->password) && !empty($request->password)) {
-                $doctor_data['password'] = $request->password;
+            $path = $doctor->photo;
+            if (isset($request->photo)) {
+                $path = $this->saveImage('doctors', $request->photo);
             }
 
-            if (isset($request->username) && !empty($request->username)) {
-                $doctor_data['username'] = $request->username;
-            }
+            \Illuminate\Support\Facades\DB::beginTransaction();
 
-            $doctor->update($doctor_data);
+            try {
+                 $_doctorInfo = [
+                    "is_consult" => $request->is_consult,
+                    "name_en" => $request->name_en,
+                    "name_ar" => $request->name_ar,
+                    'username' => trim($request->username),
+                    "provider_id" => $request->branch_id,
+                    "nickname_id" => $request->nickname_id,
+                    "gender" => $request->gender,
+                    "photo" => $path,
+                    "information_en" => $request->information_en,
+                    "information_ar" => $request->information_ar,
+                    "abbreviation_ar" => $request->abbreviation_ar,
+                    "abbreviation_en" => $request->abbreviation_en,
+                    "specification_id" => $request->specification_id,
+                    "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : null,
+                    "price" => $request->price,
+                    "reservation_period" => $request->reservation_period,
+                    "waiting_period" => $request->waiting_period,
+                    "status" => $request->status,
+                ];
 
-            // Insurance company IDs
-            //$insurance_companies_data = [];
-            //foreach ($request->insurance_companies as $company){
-            //  $insurance_companies_data[] = ['doctor_id' => $doctor->id, 'insurance_company_id' => $company];
-            //}
+                if (isset($request->password) && !empty($request->password)) {
+                    $_doctorInfo['password'] = $request->password;
+                }
 
-            if ($request->has('insurance_companies')) {
-                if (is_array($request->insurance_companies) && count($request->insurance_companies) > 0) {
-                    $doctor->insuranceCompanies()->sync($request->insurance_companies);
+                $doctor->update($_doctorInfo);
+
+                // Insurance company IDs
+                if ($request->has('insurance_companies') && is_array($request->insurance_companies) && !empty($request->insurance_companies)) {
+                    $doctor->insuranceCompanies()->sync($request->insurance_companies); // manay to many save only the new values and delete others from database
                 } else {
+                    // $doctor -> insuranceCompanies() -> delete();
                     InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
                 }
-            } else {
-                InsuranceCompanyDoctor::where('doctor_id', $doctor->id)->delete();
+
+                $doctor->times()->delete();
+                $doctor->times()->insert($working_days_data);
+
+                // consultations working
+                if ($requestData['is_consult'] == 1) {
+                    // Optional consultations working days
+                    if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days']) && count($consultations_working_days_data) > 0) {
+                        $doctor->consultativeTimes()->delete();
+                        $doctor->consultativeTimes()->insert($consultations_working_days_data);
+                    }
+                }
+
+                DB::commit();
+                return $this->returnSuccessMessage(__('main.doctor_updated_successfully'));
+
+            } catch (\Exception $ex) {
+                DB::rollback();
+                return $ex;
+                return $this->returnError($ex->getCode(), $ex);
             }
 
-            $doctor->times()->delete();
-            $doctor->times()->insert($working_days_data);
-
-            DB::commit();
-            return $this->returnSuccessMessage(trans('messages.Doctor updated successfully'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
