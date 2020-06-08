@@ -527,6 +527,16 @@ class GlobalProviderController extends Controller
 
     public function getCurrentReservations($id)
     {
+        $provider = Provider::find($id);
+
+        if ($provider != null) {
+            if ($provider->provider_id != null) {
+                $branchesIDs = [$provider->id];
+            } else {
+                $branchesIDs = $provider->providers()->pluck('id');
+            }
+        }
+
         return DoctorConsultingReservation::current()
             ->with([
                 'doctor' => function ($q) {
@@ -537,10 +547,7 @@ class GlobalProviderController extends Controller
                     $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }])
 //            ->where('user_id', $id)
-            ->where(function ($q) use ($id) {
-                $q->where('provider_id', $id)
-                    ->orWhere('branch_id', $id);
-            })
+            ->whereIn('provider_id',$branchesIDs)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
@@ -552,6 +559,8 @@ class GlobalProviderController extends Controller
     public function getProviderFinishedConsultingReservations(Request $request)
     {
         try {
+
+
             $provider = $this->getData($request->api_token);
             $consultings = $this->getFinishedReservations($provider->id);
             if (isset($consultings) && $consultings->count() > 0) {
@@ -582,6 +591,16 @@ class GlobalProviderController extends Controller
 
     public function getFinishedReservations($id)
     {
+
+        $provider = Provider::find($id);
+
+        if ($provider != null) {
+            if ($provider->provider_id != null) {
+                $branchesIDs = [$provider->id];
+            } else {
+                $branchesIDs = $provider->providers()->pluck('id');
+            }
+        }
         return DoctorConsultingReservation::finished()
             ->with([
                 'doctor' => function ($q) {
@@ -592,10 +611,7 @@ class GlobalProviderController extends Controller
                     $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }])
 //            ->where('user_id', $id)
-            ->where(function ($q) use ($id) {
-                $q->where('provider_id', $id)
-                    ->orWhere('branch_id', $id);
-            })
+            ->whereIn('provider_id',$branchesIDs)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
