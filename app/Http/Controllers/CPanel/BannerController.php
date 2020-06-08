@@ -122,7 +122,7 @@ class BannerController extends Controller
                 return $this->returnError('D000', __('main.oops_error'));
 
             }
-            return $this->returnSuccessMessage(__('main.oops_error'));
+            return $this->returnSuccessMessage(__('main.saved_successfully'));
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
