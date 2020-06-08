@@ -1997,6 +1997,7 @@ class ProviderController extends Controller
             "title" => 'required',
             "actor_type" => "required|in:1,2"
         ]);
+
         DB::beginTransaction();
         if ($validator->fails()) {
             $code = $this->returnCodeAccordingToInput($validator);

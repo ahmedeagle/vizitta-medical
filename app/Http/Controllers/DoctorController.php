@@ -181,7 +181,7 @@ class DoctorController extends Controller
                 $user = $this->auth('user-api');
 
                 if (isset($user) && $user != null) {
-                    $favouriteDoctor = $this->getDoctorFavourite($request -> id, $user -> id);
+                    $favouriteDoctor = $this->getDoctorFavourite($request->id, $user->id);
                     if ($favouriteDoctor != null)
                         $doctor->favourite = 1;
                     else
@@ -214,6 +214,18 @@ class DoctorController extends Controller
                 "reservation_period" => "required|numeric",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
             ]);
+
+            if ($request->has('username') && !empty($request->username)) {
+                $validator->addRules([
+                    "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id'
+                ]);
+            }
+
+            if ($request->has('password') && !empty($request->password)) {
+                $validator->addRules([
+                    "password" => "sometimes|max:255",
+                ]);
+            }
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -275,7 +287,7 @@ class DoctorController extends Controller
                 $fileName = $this->saveImage('doctors', $request->photo);
             }
 
-            $doctor->update([
+            $doctor_data = [
                 "name_en" => $request->name_en,
                 "name_ar" => $request->name_ar,
                 "provider_id" => $request->branch_id,
@@ -288,8 +300,17 @@ class DoctorController extends Controller
                 "specification_id" => $request->specification_id != 0 ? $request->specification_id : $doctor->specification_id,
                 "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : $doctor->nationality_id,
                 "price" => $request->price
-            ]);
+            ];
 
+            if (isset($request->password) && !empty($request->password)) {
+                $doctor_data['password'] = $request->password;
+            }
+
+            if (isset($request->username) && !empty($request->username)) {
+                $doctor_data['username'] = $request->username;
+            }
+
+            $doctor->update($doctor_data);
 
             // Insurance company IDs
             //$insurance_companies_data = [];
