@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Mail\NewReservationMail;
+use App\Models\ConsultativeDoctorTime;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
 use App\Models\GeneralNotification;
+use App\Models\InsuranceCompany;
 use App\Models\InsuranceCompanyDoctor;
+use App\Models\Nationality;
+use App\Models\Nickname;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PromoCode;
@@ -37,10 +41,11 @@ class DoctorController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $rules = [
                 "branch_id" => "required|numeric",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
+                "is_consult" => "required|in:0,1",
                 "nickname_id" => "required|max:255|numeric",
                 "gender" => "required|min:1|max:2",
                 "specification_id" => "required|numeric",
@@ -51,7 +56,14 @@ class DoctorController extends Controller
                 "working_days" => "required|array",
                 "reservation_period" => "required|numeric",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
-            ]);
+            ];
+
+            if ($request->is_consult == 1) {
+
+                $rules["consultations_working_days"] = "required|array|min:1";
+            }
+
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -109,20 +121,31 @@ class DoctorController extends Controller
                 $fileName = $this->saveImage('doctors', $request->photo);
             }
 
-
-            $doctor = Doctor::create([
+            $_data = [
                 "name_en" => $request->name_en,
                 "name_ar" => $request->name_ar,
+                "is_consult" => $request->is_consult,
                 "provider_id" => $request->branch_id,
                 "nickname_id" => $request->nickname_id,
                 "gender" => $request->gender,
                 "photo" => $fileName,
                 "information_en" => $request->information_en,
                 "information_ar" => $request->information_ar,
+                "abbreviation_ar" => $request->abbreviation_ar,
+                "abbreviation_en" => $request->abbreviation_en,
+                "reservation_period" => $request->reservation_period,
                 "specification_id" => $request->specification_id,
                 "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                 "price" => $request->price,
-                "status" => true]);
+                "status" => true];
+
+            if ($request->is_consult == 1) {
+
+                $_data['username'] = trim($request->username);
+                $_data['password'] = $request->password;
+            }
+
+            $doctor = Doctor::create($_data);
 
 
             if ($request->has('insurance_companies')) {
@@ -140,8 +163,138 @@ class DoctorController extends Controller
                 $working_days_data[$i]['doctor_id'] = $doctor->id;
             }
             DoctorTime::insert($working_days_data);
+
+
+            // consultations working
+            if ($request->is_consult == 1) {
+                // Optional consultations working days
+                if (isset($request->consultations_working_days) && !is_null($request->consultations_working_days)) {
+
+                    $consultations_working_days_data = [];
+                    foreach ($request->consultations_working_days as $working_day) {
+                        if (empty($working_day['from']) or empty($working_day['to'])) {
+                            return $this->returnError('D000', __('main.enter_time_from_and_to'));
+                        }
+                        $from = Carbon::parse($working_day['from']);
+                        $to = Carbon::parse($working_day['to']);
+                        if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
+                            return $this->returnError('D000', __('main.day_is_incorrect'));
+                        }
+
+                        $consultationsWorkingDays = [
+                            'day_name' => strtolower($working_day['day']),
+                            'day_code' => substr(strtolower($working_day['day']), 0, 3),
+                            'from_time' => $from->format('H:i'),
+                            'to_time' => $to->format('H:i'),
+                            'order' => array_search(strtolower($working_day['day']), $days),
+                            'reservation_period' => $request->reservation_period
+                        ];
+
+                        $consultationsWorkingDays['provider_id'] = $request->provider_id;
+                        $consultations_working_days_data[] = $consultationsWorkingDays;
+                    }
+
+                    for ($i = 0; $i < count($consultations_working_days_data); $i++) {
+                        $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
+                    }
+
+                    $times = ConsultativeDoctorTime::insert($consultations_working_days_data);
+                }
+            }
+
             DB::commit();
             return $this->returnSuccessMessage(trans('messages.Doctor added successfully'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+    public function getAllActiveBranches()
+    {
+        return Provider::where('status', true)->whereNotNull('provider_id')->select('name_ar', 'id', 'provider_id')->get();
+    }
+    public function apiGetAllSpecifications()
+    {
+        return Specification::select(\Illuminate\Support\Facades\DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+    }
+
+    public function apiGetAllNicknames()
+    {
+        return Nickname::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+    }
+
+    public function apiGetAllNationalities()
+    {
+        return Nationality::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+    }
+
+    public function apiGetAllInsuranceCompaniesWithSelected($doctor = null)
+    {
+        if ($doctor != null) {
+            return InsuranceCompany::select('id', 'name_' . app()->getLocale() . ' as name', DB::raw('IF ((SELECT count(id) FROM insurance_company_doctor WHERE insurance_company_doctor.doctor_id = ' . $doctor->id . ' AND insurance_company_doctor.insurance_company_id = insurance_companies.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return InsuranceCompany::select('id', 'name_' . app()->getLocale() . ' as name', DB::raw('0 as selected'))->get();
+        }
+    }
+
+    public function edit(Request $request)
+    {
+        try {
+            $rules = [
+                "id" => "required|exists:doctors:id",
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $doctor = Doctor::with('consultativeTimes')->find($request->id);
+            $doctor->makeVisible(['specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id']);
+            if ($doctor == null)
+                return $this->returnError('D000', __('main.not_found'));
+            $providers = $this->getAllActiveBranches();
+            if (isset($providers) && $providers->count() > 0) {
+                foreach ($providers as $index => $provider) {
+                    $main_Provider = $provider->provider->name_ar;
+                    $provider->provider_name = $main_Provider;
+                    $provider->name = $provider->provider_name . ' - ' . $provider->name_ar;   // merge provider name behind branch  name
+                }
+            }
+
+            $subsetProviders = $providers->map(function ($provider) {
+                return collect($provider->toArray())
+                    ->only(['id', 'name'])
+                    ->all();
+            });
+
+            $result['doctor'] = $doctor;
+            $result['providers'] = $subsetProviders;
+            $result['specifications'] = $this->apiGetAllSpecifications();
+            $result['nicknames'] = $this->apiGetAllNicknames();
+            $result['nationalities'] = $this->apiGetAllNationalities();
+            $result['companies'] = $this->apiGetAllInsuranceCompaniesWithSelected($doctor);
+            $result['days'] = ['Saturday' => 'السبت', 'Sunday' => 'الأحد', 'Monday' => 'الإثنين', 'Tuesday' => 'الثلاثاء', 'Wednesday' => 'الأربعاء', 'Thursday' => 'الخميس', 'Friday' => 'الجمعة'];
+            $result['times'] = $doctor->times()->get();
+            $result['consultativeTimes'] = $doctor->consultativeTimes()->get();
+            $days_code = ['sat' => 'Saturday', 'sun' => 'Sunday', 'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday'];
+
+//        $days_ar = ['السبت' => 'Saturday', 'الأحد' => 'Sunday', 'الإثنين ' => 'Monday', 'الثلاثاء' => 'Tuesday', 'الأربعاء' => 'Wednesday', 'الخميس ' => 'Thursday', 'الجمعة ' => 'Friday'];
+
+            if (!empty($result['times']) && count($result['times']) > 0) {
+                foreach ($result['times'] as $time) {
+                    $time['day_code'] = $days_code[$time['day_code']];
+                }
+            }
+
+            if (!empty($result['consultativeTimes']) && count($result['consultativeTimes']) > 0) {
+                foreach ($result['consultativeTimes'] as $time) {
+                    $time['day_code'] = $days_code[$time['day_code']];
+                }
+            }
+            //            return response()->json(['status' => true, 'data' => $result]);
+            return $this->returnData('doctor', $result);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }

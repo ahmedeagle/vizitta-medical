@@ -58,9 +58,6 @@ class ConsultingReservationExpire extends Command
                     $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
                     $currentDate = date('Y-m-d H:i:s');
-                    $consulting->consulting_start_date = $consulting_start_date;
-                    $consulting->consulting_end_date = $consulting_end_date;
-                    $consulting->currentDate = $currentDate;
 
                     if (date('Y-m-d H:i:s') >= $consulting_end_date) {
                         $consulting->approved = '3';

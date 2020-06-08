@@ -260,6 +260,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('hide/doctor', 'DoctorController@hide')->name('provider.hide.doctor');
             Route::post('delete/doctor', 'DoctorController@destroy')->name('provider.delete.doctor');
             Route::post('add/doctor', 'DoctorController@store')->name('provider.add.doctor');
+            Route::post('edit/doctor', 'DoctorController@edit');
             Route::post('update/doctor', 'DoctorController@update')->name('provider.update.doctor');
             Route::post('reservations', 'ProviderBranchController@AllReservations')->name('provider.reservations');
             Route::post('PrepareUpdateProfile', 'ProviderController@prepare_update_provider_profile')->name('provider.edit.profile');
