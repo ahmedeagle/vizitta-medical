@@ -20,6 +20,7 @@ class SenAdminNotification implements ShouldQueue
      *
      * @return void
      */
+    public $timeout = 240;
 
     public $actors;
     public $type;
