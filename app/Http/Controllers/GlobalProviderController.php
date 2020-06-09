@@ -559,8 +559,6 @@ class GlobalProviderController extends Controller
     public function getProviderFinishedConsultingReservations(Request $request)
     {
         try {
-
-
             $provider = $this->getData($request->api_token);
             $consultings = $this->getFinishedReservations($provider->id);
             if (isset($consultings) && $consultings->count() > 0) {
@@ -619,7 +617,7 @@ class GlobalProviderController extends Controller
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'doctor_id','chatId','payment_method_id', 'total_price', 'hours_duration', 'day_date','user_id', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
+            ->select('id', 'doctor_id','chatId','payment_method_id', 'total_price', 'hours_duration', 'day_date','user_id', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
             ->paginate(PAGINATION_COUNT);
     }
 
