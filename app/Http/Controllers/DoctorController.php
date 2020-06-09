@@ -43,7 +43,6 @@ class DoctorController extends Controller
 
             $rules = [
                 "branch_id" => "required|numeric",
-                "phone" => "sometimes|nullable|max:100|unique:doctors,phone",
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "is_consult" => "required|in:0,1",

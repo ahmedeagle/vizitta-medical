@@ -129,7 +129,6 @@ class DoctorController extends Controller
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "phone" => "sometimes|nullable|max:100|unique:doctors,phone",
                 "password" => "sometimes|nullable|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
@@ -144,12 +143,14 @@ class DoctorController extends Controller
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "working_days" => "required|array|min:1",
-                "application_percentage" =>"required|integer"
+                "application_percentage" => "required|integer"
             ];
 
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
             } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                $rules["password"] = "required|max:100|min:6";
+                $rules["phone"] = "required|max:100|unique:doctors,phone";
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
@@ -174,8 +175,6 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    'phone' => trim($request->phone),
-                    'password' => $request->password,
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
@@ -192,8 +191,14 @@ class DoctorController extends Controller
                     "reservation_period" => $request->reservation_period,
                     "waiting_period" => $request->waiting_period,
                     "status" => true,
-                    "application_percentage" => $request ->application_percentage
+                    "application_percentage" => $request->application_percentage
                 ];
+
+                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                    $doctorInfo['phone'] = trim($request->phone);
+                    $doctorInfo['password'] = $request->password;
+                }
+
                 $doctor = Doctor::create($doctorInfo);
 
                 if ($requestData['doctor_type'] == 'clinic') {
@@ -348,12 +353,11 @@ class DoctorController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
+                "id" => "required|exists:doctors,id",
                 "doctor_type" => "required|in:clinic,consultative",
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "phone" => 'sometimes|nullable|max:100|unique:doctors,phone,' . $request->id . ',id',
-                "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "abbreviation_ar" => "sometimes|max:255",
@@ -372,7 +376,10 @@ class DoctorController extends Controller
 
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
+
             } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                $rules["password"] = "required|max:100|min:6";
+                $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
@@ -472,7 +479,6 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    'phone' => trim($request->phone),
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
@@ -487,11 +493,14 @@ class DoctorController extends Controller
                     "reservation_period" => $request->reservation_period,
                     "waiting_period" => $request->waiting_period,
                     "status" => $request->status,
-                    "application_percentage" => $request ->application_percentage
+                    "application_percentage" => $request->application_percentage
                 ];
 
-                if (isset($request->password) && !empty($request->password)) {
+                 if (isset($request->password) && !empty($request->password)) {
                     $doctorInfo['password'] = $request->password;
+                }
+                if (isset($request->phone) && !empty($request->phone)) {
+                    $doctorInfo['phone'] = $request->phone;
                 }
 
                 $doctor->update($doctorInfo);
@@ -710,12 +719,12 @@ class DoctorController extends Controller
 
     public function logout(Request $request)
     {
-    /*    try {
-            $this->guard()->logout();
+        /*    try {
+                $this->guard()->logout();
 
-            return $this->returnSuccessMessage('E001', __('messages.invalid_username_or_password'));
-        } catch (\Exception $ex) {
-        }*/
+                return $this->returnSuccessMessage('E001', __('messages.invalid_username_or_password'));
+            } catch (\Exception $ex) {
+            }*/
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
 
