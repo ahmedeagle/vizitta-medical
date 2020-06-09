@@ -395,8 +395,8 @@ class DoctorController extends Controller
             $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
             }
             $doctor = $this->getDoctorById($request->id);
             if ($doctor == null)
