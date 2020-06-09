@@ -108,6 +108,13 @@ class NotificationsController extends Controller
             $option = $request->input("notify-type");
             $type = $request->input("type");
 
+            $notify_id = Notification::insertGetId([
+                "title" => $title,
+                "content" => $content,
+                "type" => $type
+            ]);
+
+
             if ($option == 2) {
                 if ($request->has('ids')) {
                     if (!is_array($request->ids) || count($request->ids) == 0) {
@@ -123,33 +130,34 @@ class NotificationsController extends Controller
                     $actors = User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
-                        ->get();
-
+                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        });
 
                 } else {
-                    $actors = User::whereNotNull('device_token')->select('device_token', 'id')->get();
+                    $actors = User::whereNotNull('device_token')
+                        ->select('device_token', 'id')
+                        ->chunk(100, function ($actors) use ($notify_id, $content, $title, $type) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        });
                 }
             } else {
                 if ($option == 2) {
                     $actors = Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
-                        ->get();
+                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        });
                 } else {
                     $actors = Provider::whereNotNull('device_token')
-                        ->select('device_token', 'web_token', 'id')->get();
+                        ->select('device_token', 'web_token', 'id')
+                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        });
                 }
             }
 
-            $notify_id = Notification::insertGetId([
-                "title" => $title,
-                "content" => $content,
-                "type" => $type
-            ]);
-
-
-            if (isset($actors) && $actors->count() > 0)
-                dispatch(new SenAdminNotification($actors, $type, $notify_id, $title, $content));
 
             /*  foreach ($actors as $actor) {
 
@@ -249,5 +257,10 @@ class NotificationsController extends Controller
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
+
     ################### End to read notification ##############################
+    private function sendActorNotification($actors, $notify_id, $content, $title, $type)
+    {
+        SenAdminNotification::dispatchNow($actors, $notify_id, $content, $title, $type);
+    }
 }

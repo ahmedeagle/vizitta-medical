@@ -129,7 +129,7 @@ class DoctorController extends Controller
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "phone" => "required|max:100|unique:doctors,phone",
+                "phone" => "sometimes|nullable|max:100|unique:doctors,phone",
                 "password" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
@@ -352,7 +352,7 @@ class DoctorController extends Controller
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "phone" => 'required|max:100|unique:doctors,phone,' . $request->id . ',id',
+                "phone" => 'sometimes|nullable|max:100|unique:doctors,phone,' . $request->id . ',id',
                 "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
