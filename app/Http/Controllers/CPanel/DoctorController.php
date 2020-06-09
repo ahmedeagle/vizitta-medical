@@ -130,7 +130,7 @@ class DoctorController extends Controller
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
                 "phone" => "sometimes|nullable|max:100|unique:doctors,phone",
-                "password" => "required|max:255",
+                "password" => "sometimes|nullable|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "abbreviation_ar" => "sometimes|max:255",
