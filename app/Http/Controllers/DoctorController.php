@@ -382,8 +382,11 @@ class DoctorController extends Controller
             if ($requestData['is_consult'] == 1) {
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
+                     $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
+                }
+
+                if (!empty($request->password)) {
                     $rules["password"] = "required|max:100|min:6";
-                    $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 }
             }
 
@@ -500,10 +503,12 @@ class DoctorController extends Controller
 
 
                 if ($requestData['is_consult'] == 1) {
-                    $_doctorInfo['password'] = $request->password;
-                    $_doctorInfo['phone'] = $request->phone;
+                     $_doctorInfo['phone'] = $request->phone;
+                    if (!empty($request->password)) {
+                        $_doctorInfo['password'] = $request->password;
+                    }
                 }
-                
+
                 $doctor->update($_doctorInfo);
 
                 // Insurance company IDs

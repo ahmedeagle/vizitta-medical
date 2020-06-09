@@ -391,9 +391,14 @@ class DoctorController extends Controller
             }
 
             if ($requestData['is_consult'] == 1) {
-                $rules["password"] = "required|max:100|min:6";
+                // $rules["password"] = "required|max:100|min:6";
                 $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
             }
+
+            if (!empty($request->password)) {
+                $rules["password"] = "required|max:100|min:6";
+            }
+
             $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
@@ -506,7 +511,9 @@ class DoctorController extends Controller
                 ];
 
                 if ($requestData['is_consult'] == 1) {
-                    $doctorInfo['password'] = $request->password;
+                    if (!empty($request->password)) {
+                        $doctorInfo['password'] = $request->password;
+                    }
                     $doctorInfo['phone'] = $request->phone;
                 }
 
