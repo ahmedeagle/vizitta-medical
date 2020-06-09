@@ -62,6 +62,8 @@ class DoctorController extends Controller
             if ($request->is_consult == 1) {
 
                 $rules["consultations_working_days"] = "required|array|min:1";
+                $rules["password"] = "required|max:100|min:6";
+                $rules["phone"] = 'required|max:100|unique:doctors,phone';
             }
 
             $validator = Validator::make($request->all(), $rules);
@@ -357,13 +359,11 @@ class DoctorController extends Controller
         try {
             $requestData = $request->all();
             $rules = [
-                "id"  => "required|exists:doctors,id",
+                "id" => "required|exists:doctors,id",
                 "branch_id" => "required|numeric",
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "phone" => 'sometimes|nullable|max:100|unique:doctors,phone,' . $request->id . ',id',
-                "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
                 "abbreviation_ar" => "required|max:255",
@@ -382,6 +382,8 @@ class DoctorController extends Controller
             if ($requestData['is_consult'] == 1) {
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
+                    $rules["password"] = "required|max:100|min:6";
+                    $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 }
             }
 
@@ -476,12 +478,11 @@ class DoctorController extends Controller
             \Illuminate\Support\Facades\DB::beginTransaction();
 
             try {
-                 $_doctorInfo = [
+                $_doctorInfo = [
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    'phone' => trim($request->phone),
-                    "provider_id" => $request->branch_id,
+                     "provider_id" => $request->branch_id,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
                     "photo" => $path,
@@ -497,10 +498,12 @@ class DoctorController extends Controller
                     "status" => $request->status,
                 ];
 
-                if (isset($request->password) && !empty($request->password)) {
-                    $_doctorInfo['password'] = $request->password;
-                }
 
+                if ($requestData['is_consult'] == 1) {
+                    $_doctorInfo['password'] = $request->password;
+                    $_doctorInfo['phone'] = $request->phone;
+                }
+                
                 $doctor->update($_doctorInfo);
 
                 // Insurance company IDs
