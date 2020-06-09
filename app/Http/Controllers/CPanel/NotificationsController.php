@@ -124,6 +124,8 @@ class NotificationsController extends Controller
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
                         ->get();
+
+
                 } else {
                     $actors = User::whereNotNull('device_token')->select('device_token', 'id')->get();
                 }
@@ -146,7 +148,8 @@ class NotificationsController extends Controller
             ]);
 
 
-            dispatch(new SenAdminNotification($actors, $type, $notify_id, $title, $content));
+            if (isset($actors) && $actors->count() > 0)
+                dispatch(new SenAdminNotification($actors, $type, $notify_id, $title, $content));
 
             /*  foreach ($actors as $actor) {
 
