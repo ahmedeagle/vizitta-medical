@@ -129,7 +129,7 @@ class DoctorController extends Controller
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "username" => "required|string|max:100|unique:doctors,username",
+                "phone" => "required|max:100|unique:doctors,phone",
                 "password" => "required|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
@@ -174,7 +174,7 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    'username' => trim($request->username),
+                    'phone' => trim($request->phone),
                     'password' => $request->password,
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
@@ -352,7 +352,7 @@ class DoctorController extends Controller
                 "is_consult" => "in:0,1", ### 0 == clinic && 1 == consultative
                 "name_en" => "required|max:255",
                 "name_ar" => "required|max:255",
-                "username" => 'required|string|max:100|unique:doctors,username,' . $request->id . ',id',
+                "phone" => 'required|max:100|unique:doctors,phone,' . $request->id . ',id',
                 "password" => "sometimes|max:255",
                 "information_ar" => "required|max:255",
                 "information_en" => "required|max:255",
@@ -472,7 +472,7 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    'username' => trim($request->username),
+                    'phone' => trim($request->phone),
                     "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
@@ -689,7 +689,7 @@ class DoctorController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            "username" => 'required|exists:doctors,username',
+            "phone" => 'required|exists:doctors,phone',
             "password" => 'required',
         ]);
         if ($validator->fails()) {
@@ -697,7 +697,7 @@ class DoctorController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $credentials = $request->only('username', 'password');
+        $credentials = $request->only('phone', 'password');
 
         if ($token = $this->guard()->attempt($credentials)) {
             $result['access_token'] = $token;
