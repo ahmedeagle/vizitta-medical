@@ -179,7 +179,7 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    "provider_id" => $requestData['is_consult'] == '0' ? $request->provider_id : null,
+                    "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
                     "photo" => $fileName,
@@ -308,7 +308,7 @@ class DoctorController extends Controller
 
     public function edit(Request $request)
     {
-        $doctor = Doctor::with('consultativeTimes')->find($request->id);
+        $doctor = Doctor::with(['consultativeTimes'])->find($request->id);
         $doctor->makeVisible(['specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id']);
         if ($doctor == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
@@ -493,7 +493,7 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                    "provider_id" => $requestData['is_consult'] == '0' ? $request->provider_id : null,
+                    "provider_id" => $requestData['doctor_type'] == 'clinic' ? $request->provider_id : null,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
                     "photo" => $path,
