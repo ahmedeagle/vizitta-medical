@@ -300,6 +300,7 @@ class DoctorController extends Controller
             }
 
         } catch (Exception $e) {
+            return $e;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
