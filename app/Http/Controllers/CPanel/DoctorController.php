@@ -149,12 +149,16 @@ class DoctorController extends Controller
             if ($requestData['doctor_type'] == 'clinic') {
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
             } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
-                $rules["password"] = "required|max:100|min:6";
-                $rules["phone"] = "required|max:100|unique:doctors,phone";
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
             }
+
+            if ($requestData['is_consult'] == 1) {
+                $rules["password"] = "required|max:100|min:6";
+                $rules["phone"] = "required|max:100|unique:doctors,phone";
+            }
+
 
             $validator = Validator::make($requestData, $rules);
 
@@ -194,7 +198,8 @@ class DoctorController extends Controller
                     "application_percentage" => $request->application_percentage
                 ];
 
-                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+
+                if ($requestData['is_consult'] == 1) {
                     $doctorInfo['phone'] = trim($request->phone);
                     $doctorInfo['password'] = $request->password;
                 }
@@ -378,13 +383,15 @@ class DoctorController extends Controller
                 $rules["provider_id"] = "required|numeric|exists:providers,id";
 
             } elseif ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
-                $rules["password"] = "required|max:100|min:6";
-                $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 if (isset($requestData['consultations_working_days'])) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
             }
 
+            if ($requestData['is_consult'] == 1) {
+                $rules["password"] = "required|max:100|min:6";
+                $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
+            }
             $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
@@ -496,12 +503,11 @@ class DoctorController extends Controller
                     "application_percentage" => $request->application_percentage
                 ];
 
-                 if (isset($request->password) && !empty($request->password)) {
+                if ($requestData['is_consult'] == 1) {
                     $doctorInfo['password'] = $request->password;
-                }
-                if (isset($request->phone) && !empty($request->phone)) {
                     $doctorInfo['phone'] = $request->phone;
                 }
+
 
                 $doctor->update($doctorInfo);
 
