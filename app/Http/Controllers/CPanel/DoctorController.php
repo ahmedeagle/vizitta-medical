@@ -295,6 +295,7 @@ class DoctorController extends Controller
                 return response()->json(['status' => true, 'msg' => __('main.doctor_added_successfully')]);
 
             } catch (\Exception $e) {
+                return $e;
                 DB::rollback();
                 return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
             }
