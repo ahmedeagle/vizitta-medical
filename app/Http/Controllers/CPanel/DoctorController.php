@@ -711,7 +711,6 @@ class DoctorController extends Controller
 
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             "phone" => 'required|exists:doctors,phone',
             "password" => 'required',
@@ -723,7 +722,7 @@ class DoctorController extends Controller
 
         $credentials = $request->only('phone', 'password');
 
-        if ($token = $this->guard()->attempt($credentials)) {
+        if ($token = $this->guard()->attempt(['phone' => $request -> phone , 'password' => $request -> password])) {
             $result['access_token'] = $token;
             $result['user'] = $this->guard()->user();
             // return $this->respondWithToken($token);
