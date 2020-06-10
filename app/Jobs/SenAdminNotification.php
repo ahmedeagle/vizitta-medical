@@ -28,7 +28,7 @@ class SenAdminNotification implements ShouldQueue
     public $title;
     public $content;
 
-    public function __construct($actors, $notify_id, $content, $title, $type)
+     public function __construct($actors, $notify_id, $content, $title, $type)
     {
         $this->actors = $actors;
         $this->type = $type;

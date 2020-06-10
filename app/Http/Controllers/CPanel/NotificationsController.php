@@ -104,8 +104,7 @@ class NotificationsController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
 
-            //restart queue
-            //\Artisan::call('queue:restart');
+
 
 
             $title = $request->input("title");
@@ -131,7 +130,7 @@ class NotificationsController extends Controller
             }
 
             if ($type == "users") {
-                if ($option == 2) {
+                if ($option == 1) {
                       User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
@@ -144,10 +143,11 @@ class NotificationsController extends Controller
                         ->select('device_token', 'id')
                         ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+
                         });
                 }
             } else {
-                if ($option == 2) {
+                if ($option == 1) {
                      Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
@@ -163,8 +163,6 @@ class NotificationsController extends Controller
                 }
             }
 
-             //run queue
-            //\Artisan::call('queue:work');
 
             return response()->json(['status' => true, 'msg' => __('messages.will send notify')]);
 
