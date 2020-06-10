@@ -44,7 +44,6 @@ class DoctorController extends Controller
                         $qq->where('status', 0);
                     }
                 })
-
                 ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('phone', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
@@ -53,10 +52,13 @@ class DoctorController extends Controller
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('nationality', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                })->orWhereHas('provider', function ($query) use ($q) {
+                })->orWhereHas('nickname', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('provider', function ($query) use ($q) {
-                    $query -> whereHas('provider' , function ($query) use($q){
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orWhereHas('provider', function ($query) use ($q) {
+                    $query->whereHas('provider', function ($query) use ($q) {
                         $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     });
                 });
@@ -82,7 +84,7 @@ class DoctorController extends Controller
                 $q->where('doctor_type', 'clinic')->where('is_consult', '1');
             })->paginate(PAGINATION_COUNT);
         } else {
-            $doctors = $sqlQuery->orderBy('id','DESC')->paginate(PAGINATION_COUNT);
+            $doctors = $sqlQuery->orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
         }
 
         /*$doctors = Doctor::where(function ($q) use ($queryStr) {
