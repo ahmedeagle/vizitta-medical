@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CPanel;
 
 use App\Http\Controllers\Controller;
+use App\Models\Offer;
 use App\Models\Service;
 use App\Models\ServiceTime;
 use App\Models\Provider;
@@ -17,12 +18,90 @@ use DB;
 
 class ServiceController extends Controller
 {
-    use GlobalTrait , ServicesTrait, OdooTrait, SMSTrait;
+    use GlobalTrait, ServicesTrait, OdooTrait, SMSTrait;
 
     public
     function index(Request $request)
     {
-        $services = $this->getServices();
+
+        $services = Service::with(['specification' => function ($q1) {
+            $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'branch' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+        }, 'provider' => function ($q2) {
+            $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'types' => function ($q3) {
+            $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+        ]);
+
+        if (request('queryStr')) {
+            $queryStr = request('queryStr');
+
+            $services = $services->where(function ($q) use ($queryStr) {
+                $q->where('title_ar', 'LIKE', '%' . trim($queryStr) . '%')
+                    ->orwhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
+            });
+
+            //$services = $this->getServices();
+
+        } elseif (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $services = $services->where('title_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orwhere('title_en', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'مفعل') {
+                        $qq->where('status', 1);
+                    } elseif (trim($q) == 'غير مفعل') {
+                        $qq->where('status', 0);
+                    }
+                })
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'منزل') {
+                        $qq->WhereHas('types', function ($query) use ($q) {
+                                 $query -> where('services_type.id',1);
+                         });
+                    } elseif (trim($q) == 'عيادة') {
+                        $qq->WhereHas('types', function ($query) use ($q) {
+                                 $query -> where('services_type.id',1);
+                         });
+                    }
+                })
+                ->orWhere('clinic_price', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('home_price', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('clinic_price_duration', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('clinic_price_duration', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('home_price_duration', 'LIKE', '%' . trim($q) . '%')
+                ->orWhereHas('provider', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                        ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('branch', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                        ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('specification', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                        ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
+                ->orderBy('id', 'DESC')
+                ->paginate(PAGINATION_COUNT);
+        } else
+            $services = $services = $this->getServices();
+
+
+        $services = $services->select(
+            'id',
+            DB::raw('title_' . $this->getCurrentLang() . ' as title'),
+            DB::raw('information_' . $this->getCurrentLang() . ' as information')
+            , 'specification_id',
+            'provider_id', 'branch_id',
+            'rate', 'price', 'clinic_price',
+            'home_price', 'home_price_duration',
+            'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
+        )
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+
         if (count($services) > 0) {
             foreach ($services as $key => $service) {
                 $service->time = "";
@@ -66,7 +145,7 @@ class ServiceController extends Controller
                 "information_en" => "required",
                 "information_ar" => "required",
                 "working_days" => "required|array|min:1",
-               // "clinic_reservation_period" => "sometimes|nullable|numeric",
+                // "clinic_reservation_period" => "sometimes|nullable|numeric",
             ]);
 
             if ($validator->fails()) {
@@ -75,9 +154,9 @@ class ServiceController extends Controller
             }
 
             if (in_array(2, $request->typeIds)) {  // clinic
-               /* if (empty($request->clinic_reservation_period) or !is_numeric($request->clinic_reservation_period) or $request->clinic_reservation_period < 5) {
-                    return $this->returnError('D000', __('messages.reservation period required and must be numeric'));
-                }*/
+                /* if (empty($request->clinic_reservation_period) or !is_numeric($request->clinic_reservation_period) or $request->clinic_reservation_period < 5) {
+                     return $this->returnError('D000', __('messages.reservation period required and must be numeric'));
+                 }*/
 
                 if (empty($request->clinic_price_duration) or !is_numeric($request->clinic_price_duration)) {
                     return $this->returnError('D000', __('messages.clinic price duration required'));
@@ -87,8 +166,8 @@ class ServiceController extends Controller
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
-               /* if ($request->clinic_reservation_period != $request->clinic_price_duration)
-                    return $this->returnError('D000', __('messages.if type is clinic price duration and  reservation period must be equal'));*/
+                /* if ($request->clinic_reservation_period != $request->clinic_price_duration)
+                     return $this->returnError('D000', __('messages.if type is clinic price duration and  reservation period must be equal'));*/
 
             }   // price_duration here is equal to  "reservation_period"
 
@@ -226,9 +305,9 @@ class ServiceController extends Controller
             }
 
             if (in_array(2, $request->typeIds)) {  // clinic
-               /* if (empty($request->clinic_reservation_period) or !is_numeric($request->clinic_reservation_period) or $request->clinic_reservation_period < 5) {
-                    return $this->returnError('D000', __('messages.reservation period required and must be numeric'));
-                }*/
+                /* if (empty($request->clinic_reservation_period) or !is_numeric($request->clinic_reservation_period) or $request->clinic_reservation_period < 5) {
+                     return $this->returnError('D000', __('messages.reservation period required and must be numeric'));
+                 }*/
 
                 if (empty($request->clinic_price_duration) or !is_numeric($request->clinic_price_duration)) {
                     return $this->returnError('D000', __('messages.clinic price duration required'));

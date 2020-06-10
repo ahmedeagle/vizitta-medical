@@ -47,7 +47,7 @@ trait ServicesTrait
         if ($id != null)
             return $services->first();
         else
-            return $services->paginate(PAGINATION_COUNT);
+            return $services->orderBy('id','DESC')->paginate(PAGINATION_COUNT);
     }
 
 
