@@ -35,6 +35,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('subscription:expire')->daily();
         //$schedule->command('counter:expire')->everyMinute();
         $schedule->command('consulting:expire')->everyMinute() ->runInBackground();
+        $schedule->command('queue:restart')->everyFiveMinutes() ->runInBackground();
+        $schedule->command('queue:work')->everyMinute() ->runInBackground();
     }
 
     /**

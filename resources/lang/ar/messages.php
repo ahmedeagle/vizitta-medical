@@ -331,4 +331,5 @@ return [
     'not valid url' => 'صيغة الرابط غير صحيحة',
     'external link required' => 'لابد من ادخال رابط خارجي',
     'status changed successfully' => 'تم تغيير الحالة بنجاح',
+    'will send notify' => 'سيتم ارسال الاشعارات في الخلفية ',
 ];

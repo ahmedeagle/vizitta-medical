@@ -15,14 +15,27 @@ class UserController extends Controller
 
     public function index()
     {
-        $queryStr = '';
-        if (request('queryStr')) {
-            $queryStr = request('queryStr');
-        }
-
-        $users = User::where(function ($q) use ($queryStr) {
-            return $q->where('name', 'LIKE', '%' . trim($queryStr) . '%');
-        })->paginate(PAGINATION_COUNT);
+         if (request('queryStr')) {  //search only by name
+             $queryStr = request('queryStr');
+            $users = User::where('name', 'LIKE', '%' . trim($queryStr) . '%')->orderBy('id', 'DESC')->paginate(10);
+        } elseif (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $users = User::where('name', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('id_number', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('birth_date', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhereHas('city', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('insuranceCompany', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('point', function ($query) use ($q) {
+                    $query->where('points', '=', trim($q));
+                })
+                ->orderBy('id', 'DESC')
+                ->paginate(PAGINATION_COUNT);
+        } else
+            $users = User::orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
 
         $result = new UserResource($users);
         return response()->json(['status' => true, 'data' => $result]);

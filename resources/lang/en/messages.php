@@ -303,6 +303,7 @@ return [
     'home price required'  => 'home price required',
     'not valid url' => 'not a valid url',
     'external link required' => 'External link required',
-    'status changed successfully'=> 'Status changed successfully'
+    'status changed successfully'=> 'Status changed successfully',
+        'will send notify' => 'سيتم ارسال الاشعارات في الخلفية ',
 
 ];

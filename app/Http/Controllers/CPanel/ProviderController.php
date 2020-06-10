@@ -23,14 +23,42 @@ class ProviderController extends Controller
 
     public function index()
     {
-        $queryStr = '';
         if (request('queryStr')) {
             $queryStr = request('queryStr');
-        }
-
-        $providers = Provider::where('provider_id', null)->where(function ($q) use ($queryStr) {
-            return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
-        })->paginate(PAGINATION_COUNT);
+            $providers = Provider::where('provider_id', null)->where('name_ar', 'LIKE', '%' . trim($queryStr) . '%')->orderBy('id', 'DESC')->paginate(10);
+        } elseif (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $providers = Provider::where('provider_id', null)
+                ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'مفعل') {
+                        $qq->where('status', 1);
+                    } elseif (trim($q) == 'غير مفعل') {
+                        $qq->where('status', 0);
+                    }
+                })->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'نعم') {
+                        $qq->where('lottery', 1);
+                    } elseif (trim($q) == 'لا') {
+                        $qq->where('lottery', 0);
+                    }
+                })
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('application_percentage_bill', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('commercial_no', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhereHas('city', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('district', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orderBy('id', 'DESC')
+                ->paginate(10);
+        } else
+            $providers = Provider::where('provider_id', null)->orderBy('id', 'DESC')->paginate(10);
 
         $result = new ProviderResource($providers);
         return response()->json(['status' => true, 'data' => $result]);

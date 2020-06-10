@@ -20,14 +20,41 @@ class BranchController extends Controller
 
     public function index()
     {
-        $queryStr = '';
-        if (request('queryStr')) {
+         if (request('queryStr')) {
             $queryStr = request('queryStr');
-        }
+            $providers = Provider::whereNotNull('provider_id')
+                ->where('name_ar', 'LIKE', '%' . trim($queryStr) . '%')
+                ->orderBy('id', 'DESC')
+                ->paginate(PAGINATION_COUNT);
 
-        $providers = Provider::whereNotNull('provider_id')->where(function ($q) use ($queryStr) {
-            return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
-        })->paginate(PAGINATION_COUNT);
+        } elseif (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $providers = Provider::whereNotNull('provider_id')
+                ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'مفعل') {
+                        $qq->where('status', 1);
+                    } elseif (trim($q) == 'غير مفعل') {
+                        $qq->where('status', 0);
+                    }
+                })
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('balance', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhereHas('city', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('district', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('provider', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orderBy('id', 'DESC')
+                ->paginate(PAGINATION_COUNT);
+        } else
+
+            $providers = Provider::whereNotNull('provider_id')->orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
 
         $result = new BranchResource($providers);
         return response()->json(['status' => true, 'data' => $result]);

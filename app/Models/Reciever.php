@@ -9,7 +9,7 @@ class Reciever extends Model
     protected $table = 'admin_notifications_receivers';
     public $timestamps = true;
 
-    protected $fillable = ['notification_id', 'actor_id','seen','created_at'];
+    protected $fillable = ['notification_id', 'actor_id','seen','device','created_at'];
     protected  $hidden =['updated_at'];
 
     public function user()

@@ -28,7 +28,7 @@ class SenAdminNotification implements ShouldQueue
     public $title;
     public $content;
 
-    public function __construct($actors, $type, $notify_id,$title,$content)
+    public function __construct($actors, $notify_id, $content, $title, $type)
     {
         $this->actors = $actors;
         $this->type = $type;
@@ -45,6 +45,12 @@ class SenAdminNotification implements ShouldQueue
     public function handle()
     {
         foreach ($this->actors as $actor) {
+
+            Reciever::insert([
+                "notification_id" => $this->notify_id,
+                "actor_id" => $actor->id,
+                "device" => $this-> type .''.$this -> title. ''.$this ->  content . ''.$this -> notify_id
+            ]);
 
             $actor->makeVisible(['device_token', 'web_token']);
             if ($this->type == "users") {

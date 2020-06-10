@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use MercurySeries\Flashy\Flashy;
+use Illuminate\Support\Facades\Artisan;
 
 class NotificationsController extends Controller
 {
@@ -103,6 +104,10 @@ class NotificationsController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
 
+            //restart queue
+            //\Artisan::call('queue:restart');
+
+
             $title = $request->input("title");
             $content = $request->input("content");
             $option = $request->input("notify-type");
@@ -127,74 +132,41 @@ class NotificationsController extends Controller
 
             if ($type == "users") {
                 if ($option == 2) {
-                    $actors = User::whereNotNull('device_token')
+                      User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
-                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
 
                 } else {
-                    $actors = User::whereNotNull('device_token')
+                      User::whereNotNull('device_token')
                         ->select('device_token', 'id')
-                        ->chunk(100, function ($actors) use ($notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
                 }
             } else {
                 if ($option == 2) {
-                    $actors = Provider::whereNotNull('device_token')
+                     Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
-                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
                 } else {
-                    $actors = Provider::whereNotNull('device_token')
+                     Provider::whereNotNull('device_token')
                         ->select('device_token', 'web_token', 'id')
-                        ->chunk(100, function ($actors, $notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
                 }
             }
 
+             //run queue
+            //\Artisan::call('queue:work');
 
-            /*  foreach ($actors as $actor) {
-
-                  $actor->makeVisible(['device_token', 'web_token']);
-                  if ($type == "users") {
-
-                      Reciever::insert([
-                      Reciever::insert([
-                          "notification_id" => $notify_id,
-                          "actor_id" => $actor->id
-                      ]);
-                      // push notification
-                      if ($actor->device_token != null) {
-                          //send push notification
-                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendUser(User::find($actor->id));
-                      }
-
-                  } elseif ($type == "providers") {
-
-                      Reciever::insert([
-                          "notification_id" => $notify_id,
-                          "actor_id" => $actor->id,
-
-                      ]);
-                      // push notification
-                      if ($actor->device_token != null) {
-                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProvider(Provider::find($actor->id));
-                      }
-
-                      if ($actor->web_token != null) {
-                          (new \App\Http\Controllers\NotificationController(['title' => $title, 'body' => $content]))->sendProviderWeb(Provider::find($actor->id));
-                      }
-
-                  }
-              }*/
-
-            return response()->json(['status' => true, 'msg' => __('main.operation_done_successfully')]);
+            return response()->json(['status' => true, 'msg' => __('messages.will send notify')]);
 
         } catch (\Exception $ex) {
             return $ex;
@@ -261,6 +233,6 @@ class NotificationsController extends Controller
     ################### End to read notification ##############################
     private function sendActorNotification($actors, $notify_id, $content, $title, $type)
     {
-        SenAdminNotification::dispatchNow($actors, $notify_id, $content, $title, $type);
+        dispatch(new SenAdminNotification($actors, $notify_id, $content, $title, $type));
     }
 }
