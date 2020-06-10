@@ -36,7 +36,7 @@ class DoctorController extends Controller
             });
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
-            $sqlQuery = Provider::where('provider_id', null)
+            $sqlQuery = Doctor::where('provider_id', null)
                 ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'مفعل') {
@@ -45,6 +45,7 @@ class DoctorController extends Controller
                         $qq->where('status', 0);
                     }
                 })
+
                 ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
