@@ -46,7 +46,7 @@ class DoctorController extends Controller
                 })
 
                 ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('phone', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhereHas('specification', function ($query) use ($q) {
