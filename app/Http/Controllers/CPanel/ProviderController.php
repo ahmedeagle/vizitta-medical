@@ -58,7 +58,7 @@ class ProviderController extends Controller
                 ->orderBy('id', 'DESC')
                 ->paginate(10);
         } else
-            $providers = Provider::where('provider_id', null)->orderBy('id', 'DESC')->paginate(10);
+            $providers = Provider::where('provider_id', null)->orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
 
         $result = new ProviderResource($providers);
         return response()->json(['status' => true, 'data' => $result]);

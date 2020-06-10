@@ -28,7 +28,7 @@ class SenAdminNotification implements ShouldQueue
     public $title;
     public $content;
 
-     public function __construct($actors, $notify_id, $content, $title, $type)
+    public function __construct($actors, $notify_id, $content, $title, $type)
     {
         $this->actors = $actors;
         $this->type = $type;
@@ -46,14 +46,16 @@ class SenAdminNotification implements ShouldQueue
     {
         foreach ($this->actors as $actor) {
 
+            $actor->makeVisible(['device_token', 'web_token']);
+
             Reciever::insert([
                 "notification_id" => $this->notify_id,
                 "actor_id" => $actor->id,
-                "device" => $this-> type .''.$this -> title. ''.$this ->  content . ''.$this -> notify_id
+                "device" => $this->type . '' . $this->title . '' . $this->content . '' . $this->notify_id . '' . $actor->device_token
             ]);
 
-            $actor->makeVisible(['device_token', 'web_token']);
-            if ($this->type == "users") {
+
+            /* if ($this->type == "users") {
 
                 Reciever::insert([
                     "notification_id" => $this->notify_id,
@@ -62,26 +64,26 @@ class SenAdminNotification implements ShouldQueue
                 // push notification
                 if ($actor->device_token != null) {
                     //send push notification
-                    (new \App\Http\Controllers\NotificationController(['title' => $this->title, 'body' => $this -> content]))->sendUser(User::find($actor->id));
+                    (new \App\Http\Controllers\NotificationController(['title' => $this->title, 'body' => $this->content]))->sendUser(User::find($actor->id));
                 }
 
-            } elseif ($this -> type == "providers") {
+            } elseif ($this->type == "providers") {
 
                 Reciever::insert([
-                    "notification_id" => $this -> notify_id,
+                    "notification_id" => $this->notify_id,
                     "actor_id" => $actor->id,
 
                 ]);
                 // push notification
                 if ($actor->device_token != null) {
-                    (new \App\Http\Controllers\NotificationController(['title' => $this -> title, 'body' => $this -> content]))->sendProvider(Provider::find($actor->id));
+                    (new \App\Http\Controllers\NotificationController(['title' => $this->title, 'body' => $this->content]))->sendProvider(Provider::find($actor->id));
                 }
 
                 if ($actor->web_token != null) {
-                    (new \App\Http\Controllers\NotificationController(['title' => $this -> title, 'body' => $this -> content]))->sendProviderWeb(Provider::find($actor->id));
+                    (new \App\Http\Controllers\NotificationController(['title' => $this->title, 'body' => $this->content]))->sendProviderWeb(Provider::find($actor->id));
                 }
 
-            }
+            }*/
         }
     }
 }
