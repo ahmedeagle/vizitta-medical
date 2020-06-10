@@ -32,7 +32,50 @@ class OfferController extends Controller
 
     public function index()
     {
-        $offers = Offer::orderBy('expired_at', 'DESC')->paginate(PAGINATION_COUNT);
+
+        if (request('queryStr')) {
+            $queryStr = request('queryStr');
+            $offers = Offer::orderBy('expired_at', 'DESC')
+                ->where(function ($q) use ($queryStr) {
+                    $q->where('title_ar', 'LIKE', '%' . trim($queryStr) . '%')
+                        ->orwhere('title_en', 'LIKE', '%' . trim($queryStr) . '%');
+                })
+                ->paginate(PAGINATION_COUNT);
+        } elseif (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $providers = Provider::where('provider_id', null)
+                ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'مفعل') {
+                        $qq->where('status', 1);
+                    } elseif (trim($q) == 'غير مفعل') {
+                        $qq->where('status', 0);
+                    }
+                })->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'نعم') {
+                        $qq->where('lottery', 1);
+                    } elseif (trim($q) == 'لا') {
+                        $qq->where('lottery', 0);
+                    }
+                })
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('application_percentage_bill', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('commercial_no', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhereHas('city', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('district', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orderBy('id', 'DESC')
+                ->paginate(10);
+        } else
+            $offers = Offer::orderBy('expired_at', 'DESC')->paginate(PAGINATION_COUNT);
+
+
         $result = new OffersResource($offers);
         return response()->json(['status' => true, 'data' => $result]);
     }

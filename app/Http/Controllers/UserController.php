@@ -181,7 +181,7 @@ class UserController extends Controller
                 $invited_points = $settings->invited_points;
             }
 
-            if ($request->has('invitation_by_code')) {
+            if ($request->has('invitation_by_code') && ! empty($request-> invitation_by_code)) {
                 $invited_by_code = strtolower($request->invitation_by_code);
                 $codeOwner = User::where('invitation_code', $invited_by_code)->first();
                 if (!$codeOwner) {

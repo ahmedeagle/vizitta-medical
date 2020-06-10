@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Traits\Dashboard\ProviderTrait;
 use App\Traits\Dashboard\PublicTrait;
 use App\Traits\CPanel\GeneralTrait;
+use function foo\func;
 
 class BranchController extends Controller
 {
@@ -20,10 +21,13 @@ class BranchController extends Controller
 
     public function index()
     {
-         if (request('queryStr')) {
+        if (request('queryStr')) {
             $queryStr = request('queryStr');
             $providers = Provider::whereNotNull('provider_id')
-                ->where('name_ar', 'LIKE', '%' . trim($queryStr) . '%')
+                ->where(function ($q) use ($queryStr) {
+                    $q->where('name_ar', 'LIKE', '%' . trim($queryStr) . '%')
+                        ->orwhere('name_en', 'LIKE', '%' . trim($queryStr) . '%');
+                })
                 ->orderBy('id', 'DESC')
                 ->paginate(PAGINATION_COUNT);
 
