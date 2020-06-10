@@ -82,7 +82,7 @@ class DoctorController extends Controller
                 $q->where('doctor_type', 'clinic')->where('is_consult', '1');
             })->paginate(PAGINATION_COUNT);
         } else {
-            $doctors = $sqlQuery->paginate(PAGINATION_COUNT);
+            $doctors = $sqlQuery->orderBy('id','DESC')->paginate(PAGINATION_COUNT);
         }
 
         /*$doctors = Doctor::where(function ($q) use ($queryStr) {
