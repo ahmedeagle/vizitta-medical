@@ -35,6 +35,7 @@ class BranchController extends Controller
             $q = request('generalQueryStr');
             $providers = Provider::whereNotNull('provider_id')
                 ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'مفعل') {
                         $qq->where('status', 1);
@@ -42,7 +43,6 @@ class BranchController extends Controller
                         $qq->where('status', 0);
                     }
                 })
-                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('balance', 'LIKE', '%' . trim($q) . '%')

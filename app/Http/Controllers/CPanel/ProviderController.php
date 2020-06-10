@@ -35,6 +35,7 @@ class ProviderController extends Controller
             $q = request('generalQueryStr');
             $providers = Provider::where('provider_id', null)
                 ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'مفعل') {
                         $qq->where('status', 1);
@@ -48,7 +49,6 @@ class ProviderController extends Controller
                         $qq->where('lottery', 0);
                     }
                 })
-                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')

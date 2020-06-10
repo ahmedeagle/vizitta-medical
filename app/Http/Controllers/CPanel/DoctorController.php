@@ -32,11 +32,13 @@ class DoctorController extends Controller
         if ($request->queryStr) {
             $queryStr = $request->queryStr;
             $sqlQuery = Doctor::where(function ($q) use ($queryStr) {
-                return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
+                return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')
+                    ->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
             });
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
             $sqlQuery = Doctor::where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'مفعل') {
                         $qq->where('status', 1);
@@ -44,7 +46,6 @@ class DoctorController extends Controller
                         $qq->where('status', 0);
                     }
                 })
-                ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('phone', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
