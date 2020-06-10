@@ -34,7 +34,7 @@ class DoctorController extends Controller
             $sqlQuery = Doctor::where(function ($q) use ($queryStr) {
                 return $q->where('name_en', 'LIKE', '%' . trim($queryStr) . '%')->orWhere('name_ar', 'LIKE', '%' . trim($queryStr) . '%');
             });
-        }elseif (request('generalQueryStr')) {  //search all column
+        } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
             $sqlQuery = Provider::where('provider_id', null)
                 ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
@@ -44,32 +44,30 @@ class DoctorController extends Controller
                     } elseif (trim($q) == 'غير مفعل') {
                         $qq->where('status', 0);
                     }
-                })->orWhere(function ($qq) use ($q) {
-                    if (trim($q) == 'نعم') {
-                        $qq->where('lottery', 1);
-                    } elseif (trim($q) == 'لا') {
-                        $qq->where('lottery', 0);
-                    }
                 })
                 ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('username', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('mobile', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('application_percentage', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('application_percentage_bill', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('commercial_no', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhereHas('city', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                })->orWhereHas('district', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                ->orWhereHas('specification', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('nationality', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('provider', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('provider', function ($query) use ($q) {
+                    $query -> whereHas('provider' , function ($query) use($q){
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                    });
                 });
-                /*->orderBy('id', 'DESC')
-                ->paginate(10);*/
-        }else{
+
+            /*->orderBy('id', 'DESC')
+            ->paginate(10);*/
+        } else {
             $sqlQuery = Doctor::query();
         }
 
-         $type = $request->type;
+        $type = $request->type;
 
         if ($type == 'clinic') {
             $doctors = $sqlQuery->where(function ($q) {
@@ -754,7 +752,7 @@ class DoctorController extends Controller
 
         $credentials = $request->only('phone', 'password');
 
-        if ($token = $this->guard()->attempt(['phone' => $request -> phone , 'password' => $request -> password])) {
+        if ($token = $this->guard()->attempt(['phone' => $request->phone, 'password' => $request->password])) {
             $result['access_token'] = $token;
             $result['user'] = $this->guard()->user();
             // return $this->respondWithToken($token);
