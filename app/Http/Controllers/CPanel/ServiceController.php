@@ -82,12 +82,9 @@ class ServiceController extends Controller
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')
                         ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
-                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
-                ->orderBy('id', 'DESC')
-                ->paginate(PAGINATION_COUNT);
-        } else
-            $services = $services = $this->getServices();
+                ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%');
 
+        }
 
         $services = $services->select(
             'id',
