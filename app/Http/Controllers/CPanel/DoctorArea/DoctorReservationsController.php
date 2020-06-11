@@ -55,6 +55,22 @@ class DoctorReservationsController extends Controller
                 ->where($conditions)
                 ->paginate(PAGINATION_COUNT);
 
+            if (isset($reservations) && $reservations->count() > 0 && ($type == 0 or $type == 1)) { // only for current and new reservation we add key to know if the reservation allow chat or not
+                foreach ($reservations as $key => $consulting) {
+                    $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
+                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
+                    $consulting->consulting_start_date = $consulting_start_date;
+                    $consulting->consulting_end_date = $consulting_end_date;
+                    //return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
+                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $consulting->hours_duration)) {
+                        $consulting->allow_chat = 1;
+                    } else {
+                        $consulting->allow_chat = 0;
+                    }
+                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->doctor->makeHidden(['times']);
+                }
+            }
 
             $result = new DoctorConsultingReservationResource($reservations);
 //            return response()->json(['status' => true, 'data' => $result]);
@@ -74,6 +90,12 @@ class DoctorReservationsController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError('E001', __('main.oops_error'));
         }
+    }
+    function getDiffBetweenTwoDate($ConsultingDate)
+    {
+        $end = Carbon::parse($ConsultingDate, 'Asia/Riyadh');
+        $now = Carbon::now('Asia/Riyadh');
+        return $length = $now->diffInMinutes($end);
     }
 
     ##################### Start change doctor consulting reservation status ########################
