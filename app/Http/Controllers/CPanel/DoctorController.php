@@ -190,6 +190,7 @@ class DoctorController extends Controller
             if ($requestData['is_consult'] == 1) {
                 $rules["password"] = "required|max:100|min:6";
                 $rules["phone"] = "required|max:100|unique:doctors,phone";
+                $rules["price_consulting"] = "required|numeric";
             }
 
 
@@ -235,6 +236,7 @@ class DoctorController extends Controller
                 if ($requestData['is_consult'] == 1) {
                     $doctorInfo['phone'] = trim($request->phone);
                     $doctorInfo['password'] = $request->password;
+                    $doctorInfo['price_consulting'] = $request->password;
                 }
 
                 $doctor = Doctor::create($doctorInfo);
@@ -426,6 +428,7 @@ class DoctorController extends Controller
             if ($requestData['is_consult'] == 1) {
                 // $rules["password"] = "required|max:100|min:6";
                 $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
+                $rules["price_consulting"] = 'required|numeric';
             }
 
             if (!empty($request->password)) {
@@ -548,6 +551,7 @@ class DoctorController extends Controller
                         $doctorInfo['password'] = $request->password;
                     }
                     $doctorInfo['phone'] = $request->phone;
+                    $doctorInfo['price_consulting'] = $request->price_consulting;
                 }
 
 
