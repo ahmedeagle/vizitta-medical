@@ -62,11 +62,24 @@ class ReservationController extends Controller
                 })
                 ->orWhereHas('branch', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                     $query->orWhereHas('provider', function ($query) use ($q) {
                         $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
                         $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                     });
-                })->orderBy('day_date', 'DESC')
+                })
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'معلق') {
+                        $qq->where('approved', 0);
+                    } elseif (trim($q) == 'مقبول') {
+                        $qq->where('approved', 1);
+                    } elseif (trim($q) == 'مرفوض') {
+                        $qq->whereIn('approved', [2, 5]);
+                    } elseif (trim($q) == 'مكتمل') {
+                        $qq->where('approved', 3);
+                    }
+                })
+                ->orderBy('day_date', 'DESC')
                 ->paginate(PAGINATION_COUNT);
 
             $data['reservations'] = new ReservationResource($res);

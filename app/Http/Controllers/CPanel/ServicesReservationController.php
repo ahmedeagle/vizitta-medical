@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CPanel\ReservationResource;
+use function foo\func;
 
 class ServicesReservationController extends Controller
 {
@@ -55,6 +56,62 @@ class ServicesReservationController extends Controller
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
         },
         ]);
+
+        if (request('generalQueryStr')) {  //search all column
+            $q = request('generalQueryStr');
+            $res = $reservations::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
+                ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('total_price', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('bill_total', 'LIKE', '%' . trim($q) . '%')
+                ->orWhere('discount_type', 'LIKE', '%' . trim($q) . '%')
+                ->orWhereHas('user', function ($query) use ($q) {
+                    $query->where('name', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orWhereHas('service', function ($query) use ($q) {
+                    $query->where('title_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('title_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('paymentMethod', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orWhereHas('branch', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                })->orWhereHas('provider', function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                })
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'خدمة بالمركز الطبي') {
+                        $qq->where('service_type', 2);
+                    } elseif (trim($q) == 'خدمة منزلية') {
+                        $qq->where('service_type', 1);
+                    }
+                })
+                ->orWhere(function ($qq) use ($q) {
+                    if (trim($q) == 'معلق') {
+                        $qq->where('approved', 0);
+                    } elseif (trim($q) == 'مقبول') {
+                        $qq->where('approved', 1);
+                    } elseif (trim($q) == 'مرفوض') {
+                        $qq->whereIn('approved', [2, 5]);
+                    } elseif (trim($q) == 'مكتمل') {
+                        $qq->where('approved', 3);
+                    }
+                })
+                ->orderBy('day_date', 'DESC')
+                ->paginate(PAGINATION_COUNT);
+
+            $data['reservations'] = new ReservationResource($res);
+
+        } else {
+            $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
+                ->paginate(10));
+        }
+
 
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);
