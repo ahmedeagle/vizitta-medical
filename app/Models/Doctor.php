@@ -20,8 +20,8 @@ class Doctor extends Authenticatable implements JWTSubject
         'status' => 'integer',
     ];
 
-    protected $fillable = ['doctor_type', 'is_consult', 'name_en', 'name_ar', 'username','phone', 'password', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
-        'provider_id', 'specification_id', 'nationality_id', 'price','price_consulting', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en', 'waiting_period', 'application_percentage', 'balance', 'phone'];
+    protected $fillable = ['doctor_type', 'is_consult', 'name_en', 'name_ar', 'username', 'phone', 'password', 'gender', 'photo', 'information_en', 'information_ar', 'nickname_id',
+        'provider_id', 'specification_id', 'nationality_id', 'price', 'price_consulting', 'status', 'rate', 'reservation_period', 'abbreviation_ar', 'abbreviation_en', 'waiting_period', 'application_percentage', 'balance', 'phone'];
 
     protected $hidden = ['pivot', 'password', 'specification_id', 'nationality_id', 'provider_id', 'status', 'nickname_id', 'created_at', 'updated_at'];
     protected $appends = ['available_time', 'hide'];
@@ -223,6 +223,16 @@ class Doctor extends Authenticatable implements JWTSubject
     }
 
     public function getPhoneAttribute($val)
+    {
+        return ($val !== null ? $val : "");
+    }
+
+    public function getPriceAttribute($val)
+    {
+        return ($val !== null ? $val : "");
+    }
+
+    public function getPriceConsultingAttribute($val)
     {
         return ($val !== null ? $val : "");
     }

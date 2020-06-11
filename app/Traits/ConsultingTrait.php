@@ -35,7 +35,7 @@ trait ConsultingTrait
         if ($gender != null && $gender != 0 && in_array($gender, [1, 2]))
             $doctor = $doctor->where('gender', $gender);
 
-        $doctor = $doctor->select('id', 'specification_id', 'photo', 'rate', 'price', 'reservation_period',
+        $doctor = $doctor->select('id', 'specification_id', 'photo', 'rate', 'price','price_consulting', 'reservation_period',
             DB::raw('name_' . $this->getCurrentLang() . ' as name')
         );
         return $doctor->where('doctors.status', 1)->paginate(PAGINATION_COUNT);

@@ -32,6 +32,7 @@ class SingleDoctorResource extends JsonResource
                 'name' => app()->getLocale() == 'ar' ? $this->specification->name_ar : $this->specification->name_en
             ],
             'price' => $this->price,
+            'price_consulting' => $this->price_consulting,
             'rate' => $this->rate,
             'photo' => $this->photo,
             'favourite' => $user==null ? 0 : ($user->favourites()->where('doctor_id', $this->id)->first() == null ? 0 : 1),
