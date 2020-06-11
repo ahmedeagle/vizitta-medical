@@ -49,7 +49,11 @@ class ServicesReservationController extends Controller
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
         }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
+            ;
+        }, 'branch' => function ($qq) {
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
+            ;
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($qq) {
