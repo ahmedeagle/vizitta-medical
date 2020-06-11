@@ -58,9 +58,6 @@ class ServicesReservationController extends Controller
         ]);
 
 
-
-
-
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);
             $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
