@@ -1316,6 +1316,46 @@ class ProviderController extends Controller
                     } else {
                         $reservation->reservation_type = 'undefined';
                     }
+
+                    ############################## check if reservation passed by day ###########
+
+                    $reservation->provider_has_bill = $provider_has_bill;
+
+                    $end_status = 0;
+                    if (date('Y-m-d', strtotime($reservation->day_date)) <= date('Y-m-d')) {
+                        $day_date = $reservation->day_date . ' ' . $reservation->from_time;
+                        $reservation_date = date('Y-m-d H:i:s', strtotime($day_date));
+                        $currentDate = date('Y-m-d H:i:s');
+                        $fdate = $reservation_date;
+                        $tdate = $currentDate;
+                        $datetime1 = new DateTime($fdate);
+                        $datetime2 = new DateTime($tdate);
+                        $interval = $datetime1->diff($datetime2);
+                        $days = $interval->format('%a');
+                        if ($days >= 1) {// there are  24 and more hours between now and reservation date
+                            $end_status = 1;  // 1-> mean need to close because 24 h  passed
+                        } elseif ($days < 1) {  // no 24 hours between now and reservation date
+                            if (date('Y-m-d', strtotime($reservation->day_date)) < date('Y-m-d')) {
+                                $end_status = 2;  //  2-> mean the reservation date passed but not complete 24 hours
+                            } else {  // reservation is today
+                                if (date('H:i:s', strtotime($reservation->from_time)) < date('H:i:s')) {
+                                    //date passed but not complete 24 hours
+                                    $end_status = 2;
+                                } else {
+                                    $end_status = 0;
+                                }
+                            }
+                        } else {
+                            $end_status = 0;
+                        }
+                    } else {
+                        $end_status = 0;
+                    }
+                    $reservation->end_status = $end_status;
+
+
+
+                    #############################################################################
                     return $reservation;
                 });
 
