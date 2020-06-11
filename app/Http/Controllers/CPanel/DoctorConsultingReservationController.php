@@ -74,7 +74,6 @@ class DoctorConsultingReservationController extends Controller
                 $reservations=  DoctorConsultingReservation::paginate(PAGINATION_COUNT);
             }
 
-            $reservations = DoctorConsultingReservation::paginate(PAGINATION_COUNT);
 
             $result = new DoctorConsultingReservationResource($reservations);
             return response()->json(['status' => true, 'data' => $result]);
