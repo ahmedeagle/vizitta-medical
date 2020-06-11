@@ -67,7 +67,7 @@ class offersReservationController extends Controller
                             $query->where('name', 'LIKE', '%' . trim($q) . '%');
                         })
                         ->orWhereHas('offer', function ($query) use ($q) {
-                            $query->where('title_ar', 'LIKE', '%' . trim($q) . '%')->where('title_en', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('title_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('title_en', 'LIKE', '%' . trim($q) . '%');
                         })->orWhereHas('paymentMethod', function ($query) use ($q) {
                             $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                         })
