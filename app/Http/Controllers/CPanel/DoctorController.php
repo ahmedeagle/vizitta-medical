@@ -236,7 +236,7 @@ class DoctorController extends Controller
                 if ($requestData['is_consult'] == 1) {
                     $doctorInfo['phone'] = trim($request->phone);
                     $doctorInfo['password'] = $request->password;
-                    $doctorInfo['price_consulting'] = $request->password;
+                    $doctorInfo['price_consulting'] = $request->price_consulting;
                 }
 
                 $doctor = Doctor::create($doctorInfo);
@@ -330,13 +330,11 @@ class DoctorController extends Controller
                 return response()->json(['status' => true, 'msg' => __('main.doctor_added_successfully')]);
 
             } catch (\Exception $e) {
-                return $e;
                 DB::rollback();
                 return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
             }
 
         } catch (Exception $e) {
-            return $e;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }

@@ -64,6 +64,7 @@ class DoctorController extends Controller
                 $rules["consultations_working_days"] = "required|array|min:1";
                 $rules["password"] = "required|max:100|min:6";
                 $rules["phone"] = 'required|max:100|unique:doctors,phone';
+                $rules["price_consulting"] = "required|numeric";
             }
 
             $validator = Validator::make($request->all(), $rules);
@@ -147,6 +148,7 @@ class DoctorController extends Controller
 
                 $_data['phone'] = trim($request->phone);
                 $_data['password'] = $request->password;
+                $_data['price_consulting'] = $request->price_consulting;
             }
 
             $doctor = Doctor::create($_data);
