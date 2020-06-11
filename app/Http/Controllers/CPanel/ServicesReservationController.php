@@ -57,6 +57,19 @@ class ServicesReservationController extends Controller
         },
         ]);
 
+
+
+
+
+        if ($request->reservation_id) {
+            $reservation = $reservations->find($request->reservation_id);
+            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
+            if (!$reservation)
+                return $this->returnError('E001', trans('messages.No Reservations founded'));
+            else
+                return $this->returnData('reservations', $reservation);
+        }
+
         if (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
             $res = $reservations -> where('reservation_no', 'LIKE', '%' . trim($q) . '%')
@@ -103,19 +116,10 @@ class ServicesReservationController extends Controller
 
             $data['reservations'] = new ReservationResource($res);
 
-        } else {
+        }
+        else{
             $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
                 ->paginate(10));
-        }
-
-
-        if ($request->reservation_id) {
-            $reservation = $reservations->find($request->reservation_id);
-            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
-            if (!$reservation)
-                return $this->returnError('E001', trans('messages.No Reservations founded'));
-            else
-                return $this->returnData('reservations', $reservation);
         }
 
         $reservations = $reservations->paginate(PAGINATION_COUNT);
