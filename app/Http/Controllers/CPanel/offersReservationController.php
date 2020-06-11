@@ -67,20 +67,33 @@ class offersReservationController extends Controller
                             $query->where('name', 'LIKE', '%' . trim($q) . '%');
                         })
                         ->orWhereHas('offer', function ($query) use ($q) {
-                            $query->where('title_ar', 'LIKE', '%' . trim($q) . '%');
-                            $query->where('title_en', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('title_ar', 'LIKE', '%' . trim($q) . '%')->where('title_en', 'LIKE', '%' . trim($q) . '%');
                         })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                            $query->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                         })
-                        ->orWhereHas('branch', function ($query) use ($q) {
-                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                            $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
-                            $query->orWhereHas('provider', function ($query) use ($q) {
-                                $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                                $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
-                            });
+                        ->orWhere(function ($qq) use ($q) {
+                            if (trim($q) == 'معلق') {
+                                $qq->where('approved', 0);
+                            } elseif (trim($q) == 'مقبول') {
+                                $qq->where('approved', 1);
+                            } elseif (trim($q) == 'مرفوض') {
+                                $qq->whereIn('approved', [2, 5]);
+                            } elseif (trim($q) == 'مكتمل') {
+                                $qq->where('approved', 3);
+                            }
+                        })
+                        ->orWhereHas('provider', function ($query) use ($q) {
+                            $query->where(function ($query) use ($q) {
+                                $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                                    ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                            })
+                                -> orWhereHas('provider',function ($query) use($q){
+                                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                                        ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                                });
+
                         });
+
 
                 })->orderBy('day_date', 'DESC')
                 ->offerSelection()
@@ -140,8 +153,7 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'today_tomorrow') {
+        } elseif ($status == 'today_tomorrow') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -161,8 +173,7 @@ class offersReservationController extends Controller
                 })->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'pending') {
+        } elseif ($status == 'pending') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -179,8 +190,7 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'approved') {
+        } elseif ($status == 'approved') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -197,8 +207,7 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'reject') {
+        } elseif ($status == 'reject') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -217,8 +226,7 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'rejected_by_user') {
+        } elseif ($status == 'rejected_by_user') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -234,8 +242,7 @@ class offersReservationController extends Controller
                 ->where('offer_id', '!=', 0)
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'completed') {
+        } elseif ($status == 'completed') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -253,8 +260,7 @@ class offersReservationController extends Controller
                 ->orderBy('from_time', 'ASC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'complete_visited') {
+        } elseif ($status == 'complete_visited') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -271,8 +277,7 @@ class offersReservationController extends Controller
                 ->where('offer_id', '!=', 0)
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        elseif ($status == 'complete_not_visited') {
+        } elseif ($status == 'complete_not_visited') {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
@@ -294,8 +299,7 @@ class offersReservationController extends Controller
                 ->orderBy('day_date', 'DESC')
                 ->offerSelection()
                 ->paginate(PAGINATION_COUNT);
-        }
-        else {
+        } else {
             return $reservaitons = Reservation::with(['offer' => function ($q) {
                 $q->select('id',
                     DB::raw('title_' . app()->getLocale() . ' as title'),
