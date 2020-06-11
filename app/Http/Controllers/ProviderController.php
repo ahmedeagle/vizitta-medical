@@ -1319,7 +1319,7 @@ class ProviderController extends Controller
 
                     ############################## check if reservation passed by day ###########
 
-                    $reservation->provider_has_bill = $provider_has_bill;
+//                    $reservation->provider_has_bill = $provider_has_bill;
 
                     $end_status = 0;
                     if (date('Y-m-d', strtotime($reservation->day_date)) <= date('Y-m-d')) {
