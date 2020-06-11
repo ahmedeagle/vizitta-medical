@@ -23,7 +23,52 @@ class DoctorConsultingReservationController extends Controller
     public function index(Request $request)
     {
         try {
+
+            if (request('generalQueryStr')) {  //search all column
+                $q = request('generalQueryStr');
+                $res = DoctorConsultingReservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+                    ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
+                    ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
+                    ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
+                    ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
+                    ->orWhere('total_price', 'LIKE', '%' . trim($q) . '%')
+                    ->orWhere('bill_total', 'LIKE', '%' . trim($q) . '%')
+                    ->orWhere('discount_type', 'LIKE', '%' . trim($q) . '%')
+                    ->orWhereHas('user', function ($query) use ($q) {
+                        $query->where('name', 'LIKE', '%' . trim($q) . '%');
+                    })
+                    ->orWhereHas('doctor', function ($query) use ($q) {
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    })->orWhereHas('paymentMethod', function ($query) use ($q) {
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    })
+                    ->orWhereHas('provider', function ($query) use ($q) {
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    })
+
+                    ->orWhere(function ($qq) use ($q) {
+                        if (trim($q) == 'معلق') {
+                            $qq->where('approved', '0');
+                        } elseif (trim($q) == 'مقبول') {
+                            $qq->where('approved', '1');
+                        } elseif (trim($q) == 'مرفوض') {
+                            $qq->whereIn('approved', ['2', '5']);
+                        } elseif (trim($q) == 'مكتمل') {
+                            $qq->where('approved', '3');
+                        }
+                    })
+                    ->orderBy('day_date', 'DESC')
+                    ->paginate(PAGINATION_COUNT);
+
+                $data['reservations'] = new ReservationResource($res);
+
+            }
+
             $reservations = DoctorConsultingReservation::paginate(PAGINATION_COUNT);
+
             $result = new DoctorConsultingReservationResource($reservations);
             return response()->json(['status' => true, 'data' => $result]);
         } catch (\Exception $ex) {
