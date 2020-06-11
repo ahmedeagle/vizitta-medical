@@ -66,15 +66,19 @@ class offersReservationController extends Controller
                         ->orWhereHas('user', function ($query) use ($q) {
                             $query->where('name', 'LIKE', '%' . trim($q) . '%');
                         })
-                        ->orWhereHas('doctor', function ($query) use ($q) {
-                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        ->orWhereHas('offer', function ($query) use ($q) {
+                            $query->where('title_ar', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('title_en', 'LIKE', '%' . trim($q) . '%');
                         })->orWhereHas('paymentMethod', function ($query) use ($q) {
                             $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                            $query->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                         })
                         ->orWhereHas('branch', function ($query) use ($q) {
                             $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                             $query->orWhereHas('provider', function ($query) use ($q) {
                                 $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                                $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                             });
                         });
 

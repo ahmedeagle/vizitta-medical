@@ -55,16 +55,19 @@ class ReservationController extends Controller
                 })
                 ->orWhereHas('doctor', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('paymentMethod', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('branch', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
                     $query->orWhereHas('provider', function ($query) use ($q) {
                         $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
                     });
                 })->orderBy('day_date', 'DESC')
-                ->paginate(10);
+                ->paginate(PAGINATION_COUNT);
 
             $data['reservations'] = new ReservationResource($res);
 
