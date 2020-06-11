@@ -26,7 +26,7 @@ class DoctorConsultingReservationController extends Controller
 
             if (request('generalQueryStr')) {  //search all column
                 $q = request('generalQueryStr');
-                $res = DoctorConsultingReservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+                $reservations = DoctorConsultingReservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
                     ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
                     ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
                     ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
@@ -68,8 +68,10 @@ class DoctorConsultingReservationController extends Controller
                     ->orderBy('day_date', 'DESC')
                     ->paginate(PAGINATION_COUNT);
 
-                $data['reservations'] = new ReservationResource($res);
+              //  $data['reservations'] = new DoctorConsultingReservationResource($res);
 
+            }else{
+                $reservations=  DoctorConsultingReservation::paginate(PAGINATION_COUNT);
             }
 
             $reservations = DoctorConsultingReservation::paginate(PAGINATION_COUNT);
