@@ -1353,8 +1353,6 @@ class ProviderController extends Controller
                     }
                     $reservation->end_status = $end_status;
 
-
-
                     #############################################################################
                     return $reservation;
                 });

@@ -56,19 +56,19 @@ class DoctorReservationsController extends Controller
                 ->paginate(PAGINATION_COUNT);
 
             if (isset($reservations) && $reservations->count() > 0 && ($type == 0 or $type == 1)) { // only for current and new reservation we add key to know if the reservation allow chat or not
-                foreach ($reservations as $key => $consulting) {
-                    $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
-                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
-                    $consulting->consulting_start_date = $consulting_start_date;
-                    $consulting->consulting_end_date = $consulting_end_date;
+                foreach ($reservations as $key => $reservation) {
+                    $consulting_start_date = date('Y-m-d H:i:s', strtotime($reservation->day_date . ' ' . $reservation->from_time));
+                    $consulting_end_date = date('Y-m-d H:i:s', strtotime($reservation->day_date . ' ' . $reservation->to_time));
+                    $reservation->consulting_start_date = $consulting_start_date;
+                    $reservation->consulting_end_date = $consulting_end_date;
                     //return $consulting_start_date .' > = '.date('Y-m-d H:i:s');
-                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $consulting->hours_duration)) {
-                        $consulting->allow_chat = 1;
+                    if (date('Y-m-d H:i:s') >= $consulting_start_date && ($this->getDiffBetweenTwoDate(date('Y-m-d H:i:s'), $consulting_start_date) <= $reservation->hours_duration)) {
+                        $reservation->allow_chat = 1;
                     } else {
-                        $consulting->allow_chat = 0;
+                        $reservation->allow_chat = 0;
                     }
-                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
-                    $consulting->doctor->makeHidden(['times']);
+                   // $reservation->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                   // $reservation->doctor->makeHidden(['times']);
                 }
             }
 
