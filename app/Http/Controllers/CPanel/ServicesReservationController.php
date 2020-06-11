@@ -59,7 +59,7 @@ class ServicesReservationController extends Controller
 
         if (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
-            $res = $reservations::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+            $res = $reservations -> where('reservation_no', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
