@@ -54,18 +54,14 @@ class ReservationController extends Controller
                     $query->where('name', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('doctor', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('branch', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                    $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     $query->orWhereHas('provider', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     });
                 })
                 ->orWhere(function ($qq) use ($q) {
