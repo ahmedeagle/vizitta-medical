@@ -382,11 +382,9 @@ class DoctorController extends Controller
             ];
 
             if ($requestData['is_consult'] == 1) {
-                if (isset($requestData['consultations_working_days'])) {
-                    $rules["consultations_working_days"] = "required|array|min:1";
-                     $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
-                }
-
+                $rules["consultations_working_days"] = "required|array|min:1";
+                $rules["price_consulting"] = 'required|numeric';
+                $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 if (!empty($request->password)) {
                     $rules["password"] = "required|max:100|min:6";
                 }
@@ -487,7 +485,7 @@ class DoctorController extends Controller
                     "is_consult" => $request->is_consult,
                     "name_en" => $request->name_en,
                     "name_ar" => $request->name_ar,
-                     "provider_id" => $request->branch_id,
+                    "provider_id" => $request->branch_id,
                     "nickname_id" => $request->nickname_id,
                     "gender" => $request->gender,
                     "photo" => $path,
@@ -505,7 +503,8 @@ class DoctorController extends Controller
 
 
                 if ($requestData['is_consult'] == 1) {
-                     $_doctorInfo['phone'] = $request->phone;
+                    $_doctorInfo['phone'] = $request->phone;
+                    $_doctorInfo['price_consulting'] = $request->price_consulting;
                     if (!empty($request->password)) {
                         $_doctorInfo['password'] = $request->password;
                     }
