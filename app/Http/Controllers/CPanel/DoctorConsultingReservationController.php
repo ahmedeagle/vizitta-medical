@@ -38,15 +38,20 @@ class DoctorConsultingReservationController extends Controller
                         $query->where('name', 'LIKE', '%' . trim($q) . '%');
                     })
                     ->orWhereHas('doctor', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     })
                     ->orWhereHas('provider', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
-                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                        $query->where(function ($query) use ($q) {
+                            $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                                ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        })
+                            -> orWhereHas('provider',function ($query) use($q){
+                                $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                                    ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                            });
+
                     })
 
                     ->orWhere(function ($qq) use ($q) {
