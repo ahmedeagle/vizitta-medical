@@ -65,6 +65,16 @@ class OfferController extends Controller
                     } elseif (trim($q) == 'غير مميز') {
                         $qq->where('featured', 1);
                     }
+                })  ->orWhereHas('provider', function ($query) use ($q) {
+                    $query->where(function ($query) use ($q) {
+                        $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                            ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    })
+                        -> orWhereHas('provider',function ($query) use($q){
+                            $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
+                                ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                        });
+
                 })
                 ->orderBy('id', 'DESC')
                 ->paginate(PAGINATION_COUNT);

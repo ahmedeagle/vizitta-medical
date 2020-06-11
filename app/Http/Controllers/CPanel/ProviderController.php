@@ -56,9 +56,9 @@ class ProviderController extends Controller
                 ->orWhere('commercial_no', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhereHas('city', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('district', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orderBy('id', 'DESC')
                 ->paginate(10);

@@ -57,11 +57,11 @@ class ServiceController extends Controller
                     }
                 })
                 ->orWhere(function ($qq) use ($q) {
-                    if (trim($q) == 'منزل') {
+                    if (trim($q) == 'خدمة منزلية') {
                         $qq->WhereHas('types', function ($query) use ($q) {
                                  $query -> where('services_type.id',1);
                          });
-                    } elseif (trim($q) == 'عيادة') {
+                    } elseif (trim($q) == 'خدمة بالمركز الطبي') {
                         $qq->WhereHas('types', function ($query) use ($q) {
                                  $query -> where('services_type.id',1);
                          });
