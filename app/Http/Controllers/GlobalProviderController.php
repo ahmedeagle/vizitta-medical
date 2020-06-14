@@ -97,7 +97,6 @@ class GlobalProviderController extends Controller
             }
             $provider = $this->getData($request->api_token);
             $branches = Provider::where('status', true)->where('provider_id', $provider->id)->get();
-            $branches -> provider =  $provider;
 
             $result = MainActiveProvidersResource::collection($branches);
             return $this->returnData('branches', $result);
@@ -105,6 +104,29 @@ class GlobalProviderController extends Controller
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
+    }
+
+
+    public function checkHomeVisits(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "api_token" => "required",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->getData($request->api_token);
+            if ($provider->provider_id == null) // main providers
+                return $this->returnData('has_home_visits', $provider->has_home_visit);
+            else  // branch
+                return $this->returnData('has_home_visits', $provider->provider->has_home_visit);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+
     }
 
     public function storeService(Request $request)
@@ -549,7 +571,7 @@ class GlobalProviderController extends Controller
                     $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }])
 //            ->where('user_id', $id)
-            ->whereIn('provider_id',$branchesIDs)
+            ->whereIn('provider_id', $branchesIDs)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
@@ -603,8 +625,8 @@ class GlobalProviderController extends Controller
         }
         return DoctorConsultingReservation::finished()
             ->with([
-                'user' => function($u){
-                  $u -> select('id','name','photo');
+                'user' => function ($u) {
+                    $u->select('id', 'name', 'photo');
                 },
                 'doctor' => function ($q) {
                     $q->select('id', 'photo', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))->with(['specification' => function ($qq) {
@@ -614,12 +636,12 @@ class GlobalProviderController extends Controller
                     $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }])
 //            ->where('user_id', $id)
-            ->whereIn('provider_id',$branchesIDs)
+            ->whereIn('provider_id', $branchesIDs)
             //->where('day_date', '>=', Carbon::now()
             //  ->format('Y-m-d'))
             ->orderBy('day_date')
             ->orderBy('order')
-            ->select('id', 'doctor_id','chatId','payment_method_id', 'total_price', 'hours_duration', 'day_date','user_id', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
+            ->select('id', 'doctor_id', 'chatId', 'payment_method_id', 'total_price', 'hours_duration', 'day_date', 'user_id', 'day_date', 'from_time', 'to_time', 'doctor_rate', 'rate_comment', 'rate_date')
             ->paginate(PAGINATION_COUNT);
     }
 

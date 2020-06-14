@@ -229,6 +229,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('update', 'GlobalProviderController@updateService');
                 Route::post('destroy', 'GlobalProviderController@destroyService');
                 Route::post('toggle', 'GlobalProviderController@toggleService');
+                Route::post('check-has-home-visits', 'GlobalProviderController@checkHomeVisits');
             });
             // consulting routes
             Route::group(['prefix' => 'consulting'], function () {
