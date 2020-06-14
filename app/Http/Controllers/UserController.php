@@ -2173,7 +2173,7 @@ class UserController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
             }
 
-            Reciever::where('id', $request->notification_id)->update(['seen', '1']);
+            Reciever::where('id', $request->notification_id)->update(['seen'=> '1']);
 
             return $this->returnSuccessMessage('');
 
