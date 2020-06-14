@@ -124,6 +124,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         // user which authenticated
         Route::group(['middleware' => 'CheckUserToken'], function () {
             Route::post('logout', 'UserController@logout')->name('user.logout');
+            Route::post('notifications','NotificationController@notifications');
         });
         // doctor routes
         Route::group(['prefix' => 'doctor', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
@@ -157,7 +158,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('offer/reservations', 'OffersController@getAllOffersReservations');
             Route::post('points', 'UserController@getPoints')->name('user.points');
             Route::post('rate', 'UserController@userRating')->name('user.rate');
-            Route::post('notifications','NotificationController@notifications');
+
 
             ################### services rate and update rate routes #################
             Route::group(['prefix' => 'rate'], function () {

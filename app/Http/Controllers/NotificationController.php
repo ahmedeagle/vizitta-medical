@@ -221,14 +221,14 @@ class NotificationController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
             }
 
-            $un_read_notifications = 0;
-            if ($request->type == 'count') {
+             if ($request->type == 'count') {
                 $un_read_notifications = Reciever::where('actor_id', $user->id)
                     ->unseenForUser()
                     ->count();
                 return $this->returnData('un_read_notifications', $un_read_notifications);
             }
             ///else get notifications list
+
 
 
 
