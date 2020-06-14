@@ -15,6 +15,7 @@ use App\Models\Message;
 use App\Models\Mix;
 use App\Models\Point;
 use App\Models\Provider;
+use App\Models\Reciever;
 use App\Models\ReportingType;
 use App\Models\ReservedTime;
 use App\Models\Service;
@@ -2111,5 +2112,42 @@ class UserController extends Controller
             $this->getRandomStringForInvitation(6);
         }
         return $randomCode;
+    }
+
+
+    public function notifications(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:count,list"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+             $user = $this->auth('user-api');
+            if (!$user) {
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            }
+
+            if ($request->type == 'count') {
+                $un_read_notifications = Reciever::where('actor_id', $user->id)
+                    ->unseenForUser()
+                    ->count();
+                return $this->returnData('un_read_notifications', $un_read_notifications);
+            }
+            ///else get notifications list
+
+            return  $notifications = Reciever::where('actor_id', $user->id)
+                ->unseenForUser()
+                ->paginate(PAGINATION_COUNT);
+
+            $notifications = new NotificationsResource($notifications);
+
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 }

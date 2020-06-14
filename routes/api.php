@@ -124,11 +124,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         // user which authenticated
         Route::group(['middleware' => 'CheckUserToken'], function () {
             Route::post('logout', 'UserController@logout')->name('user.logout');
-            Route::post('notifications','NotificationController@notifications');
+            Route::post('notifications','UserController@notifications');
         });
         // doctor routes
         Route::group(['prefix' => 'doctor', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
-
             Route::post('reserve', 'DoctorController@reserveTime')->name('user.doctor.reserve');
             Route::post('reservation/update', 'DoctorController@UpdateReservationDateTime')->name('user.doctor.reservation.update');
             Route::post('reservation/update/time', 'UserController@UpdateReservationDateTime')->name('user.update.reservation');

@@ -206,34 +206,5 @@ class NotificationController extends Controller
     }
 
 
-    public function notifications(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                "type" => "required|in:count,list"
-            ]);
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $user = $this->auth($request->api_token);
-            if (!$user) {
-                return $this->returnError('E001', trans('messages.There is no user with this id'));
-            }
 
-             if ($request->type == 'count') {
-                $un_read_notifications = Reciever::where('actor_id', $user->id)
-                    ->unseenForUser()
-                    ->count();
-                return $this->returnData('un_read_notifications', $un_read_notifications);
-            }
-            ///else get notifications list
-
-
-
-
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
 }
