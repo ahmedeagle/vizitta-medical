@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CPanel\NotificationsResource;
+use App\Http\Resources\NotificationsResource;
 use App\Mail\AcceptReservationMail;
 use App\Mail\NewReplyMessageMail;
 use App\Mail\NewUserMessageMail;
