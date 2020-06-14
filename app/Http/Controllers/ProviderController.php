@@ -2741,7 +2741,7 @@ class ProviderController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-            $provider = $this->auth('user-api');
+            $provider = $this->auth('provider-api');
             if (!$provider) {
                 return $this->returnError('E001', trans('messages.Provider not found'));
             }
