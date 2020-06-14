@@ -161,7 +161,7 @@ class GlobalConsultingController extends Controller
                 "from_time" => date('H:i:s', strtotime($requestData['from_time'])),
                 "to_time" => date('H:i:s', strtotime($requestData['to_time'])),
                 "paid" => 0,
-                'price' => (!empty($requestData['price']) ? $requestData['price'] : $doctor->price),
+                'price' => (!empty($requestData['price']) ? $requestData['price'] : $doctor->price_consulting),
                 'total_price' => $totalPrice,
                 "payment_method_id" => $request->payment_method_id,
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
