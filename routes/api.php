@@ -61,7 +61,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::post('nationalities', 'GlobalController@getNationalities')->name('nationalities');
     Route::post('app/data', 'GlobalController@getAppData')->name('app.data');
     Route::post('doctor/nicknames', 'GlobalController@getNicknames')->name('doctor.nicknames');
-     // Route::post('logout', 'GlobalController@logout')->name('logout');
+    // Route::post('logout', 'GlobalController@logout')->name('logout');
 
     // User routes
     Route::group(['prefix' => 'user'], function () {
@@ -124,8 +124,8 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         // user which authenticated
         Route::group(['middleware' => 'CheckUserToken'], function () {
             Route::post('logout', 'UserController@logout')->name('user.logout');
-            Route::post('notifications','UserController@notifications');
-            Route::post('notifications-mark-as-seen','UserController@MarknotificationsAsSeen');
+            Route::post('notifications', 'UserController@notifications');
+            Route::post('notifications-mark-as-seen', 'UserController@MarknotificationsAsSeen');
         });
         // doctor routes
         Route::group(['prefix' => 'doctor', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
@@ -139,10 +139,10 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         // services routes
         Route::group(['prefix' => 'services', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
-          //  Route::post('reserve', 'ServiceController@reserveTime');
+            //  Route::post('reserve', 'ServiceController@reserveTime');
             Route::post('reservation/update', 'ServiceController@UpdateReservationDateTime');
 //            Route::post('pay/get_checkout_id', 'ServiceController@get_checkout_id');
-  //          Route::post('pay/check_payment_status', 'ServiceController@checkPaymentStatus');
+            //          Route::post('pay/check_payment_status', 'ServiceController@checkPaymentStatus');
         });
 
         // user which activated and authenticated
@@ -241,6 +241,11 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
                 Route::post('index-finished', 'GlobalProviderController@getProviderFinishedConsultingReservations');
             });
 
+            Route::group(['prefix' => 'notifications'], function () {
+                Route::post('/', 'ProviderController@notifications');
+                Route::post('mark-as-seen', 'ProviderController@MarknotificationsAsSeen');
+            });
+
             // reservations-record routes
             Route::group(['prefix' => 'reservations-record'], function () {
                 Route::post('index', 'GlobalProviderController@getAllReservationsRecord');
@@ -300,7 +305,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::post('new-reservations', 'ProviderController@getNewReservationsBytype')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
         Route::post('current-reservations', 'ProviderController@getCurrentReservationsBytype')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
 
-         // reservation  records
+        // reservation  records
         Route::post('reservations-records', 'ProviderController@getReservationsRecodes')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
 
 

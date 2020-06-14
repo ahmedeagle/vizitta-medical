@@ -2142,7 +2142,7 @@ class UserController extends Controller
 
             $notifications = Reciever::whereHas('notification')
                 ->with(['notification' => function ($q) {
-                    $q->select('id', 'title', 'content');
+                    $q->select('id','photo','title', 'content');
                 }])->where('actor_id', $user->id)
                 ->unseenForUser()
                 ->paginate(PAGINATION_COUNT);
@@ -2155,8 +2155,6 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
-
-
     public function MarknotificationsAsSeen(Request $request)
     {
         try {

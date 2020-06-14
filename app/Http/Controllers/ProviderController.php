@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NotificationsResource;
 use App\Mail\AcceptReservationMail;
 use App\Mail\RejectReservationMail;
 use App\Models\CommentReport;
 use App\Models\Doctor;
 use App\Models\PromoCode;
 use App\Models\Reason;
+use App\Models\Reciever;
 use App\Models\ServiceReservation;
 use App\Models\Ticket;
 use App\Models\Replay;
@@ -1218,7 +1220,7 @@ class ProviderController extends Controller
             }
             return $this->returnData('reservations', $reservations);
         } catch (\Exception $ex) {
-            return  $ex;
+            return $ex;
             return $this->returnError($ex->getCode(), $ex);
         }
     }
@@ -2726,4 +2728,76 @@ class ProviderController extends Controller
 
         return $balance;
     }
+
+
+    public function notifications(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:count,list"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $provider = $this->auth('user-api');
+            if (!$provider) {
+                return $this->returnError('E001', trans('messages.Provider not found'));
+            }
+            if ($provider->provider_id != null) {
+                $request->provider_id = 0;
+                $branchesIDs = [$provider->id];
+            } else {
+                $branchesIDs = $provider->providers()->pluck('id');
+            }
+
+            if ($request->type == 'count') {
+                $un_read_notifications = Reciever::whereIn('actor_id', $branchesIDs)
+                    ->unseenForProvider()
+                    ->count();
+                return $this->returnData('un_read_notifications', $un_read_notifications);
+            }
+            ///else get notifications list
+
+            $notifications = Reciever::whereHas('notification')
+                ->with(['notification' => function ($q) {
+                    $q->select('id', 'photo', 'title', 'content');
+                }])->whereIn('actor_id', $branchesIDs)
+                ->unseenForProvider()
+                ->paginate(PAGINATION_COUNT);
+
+            $notifications = new NotificationsResource($notifications);
+
+            return $this->returnData('notifications', $notifications);
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function MarknotificationsAsSeen(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "notification_id" => "required|exists:admin_notifications_receivers,id"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $user = $this->auth('user-api');
+            if (!$user) {
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            }
+
+            Reciever::where('id', $request->notification_id)->update(['seen' => '1']);
+
+            return $this->returnSuccessMessage('');
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
 }
