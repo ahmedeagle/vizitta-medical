@@ -157,6 +157,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('offer/reservations', 'OffersController@getAllOffersReservations');
             Route::post('points', 'UserController@getPoints')->name('user.points');
             Route::post('rate', 'UserController@userRating')->name('user.rate');
+            Route::post('notifications','NotificationController@notifications');
 
             ################### services rate and update rate routes #################
             Route::group(['prefix' => 'rate'], function () {

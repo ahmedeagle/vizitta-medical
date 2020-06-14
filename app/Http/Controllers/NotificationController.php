@@ -6,10 +6,14 @@ use App\Models\AdminWebToken;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Provider;
+use App\Traits\GlobalTrait;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NotificationController extends Controller
 {
+    use GlobalTrait;
     protected $device_token;
     protected $title;
     protected $body;
@@ -19,7 +23,6 @@ class NotificationController extends Controller
     private const fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     //
-
     /**
      * Create a new notification instance.
      *
@@ -197,5 +200,31 @@ class NotificationController extends Controller
         $this->device_token = $data['device_token'];
         $this->title = $data['title'];
         $this->body = $data['body'];
+    }
+
+
+    public function notifications(Request $request){
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:count,list"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $user = $this->auth($request -> api_token);
+            if (!$user) {
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            }
+               DB::beginTransaction();
+
+                DB::commit();
+
+
+                return $this->returnData('provider', json_decode(json_encode($provider, JSON_FORCE_OBJECT)), trans('messages.confirm code send'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 }
