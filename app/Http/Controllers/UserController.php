@@ -2161,8 +2161,7 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "seen" => "required|in:1",
-                "notification_id" => "required|exists:admin_notifications_receivers,id"
+                 "notification_id" => "required|exists:admin_notifications_receivers,id"
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
