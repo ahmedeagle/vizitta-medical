@@ -36,7 +36,7 @@ class NotificationsController extends Controller
                 $q->with([$relation]);
             }])->where('type', $request->type)->select('*')->get();*/
 
-            $notifications = Notification::where('type', $request->type)->select('id', 'title', 'content', 'created_at')->paginate(PAGINATION_COUNT);
+            $notifications = Notification::where('type', $request->type)->select('id', 'title','photo','content', 'created_at')->paginate(PAGINATION_COUNT);
             return response()->json(['status' => true, 'data' => $notifications]);
 
         } catch (\Exception $ex) {
@@ -97,6 +97,7 @@ class NotificationsController extends Controller
                 "title" => "required|max:255",
                 "content" => "required|max:255",
                 "notify-type" => "required|in:1,2",
+                "photo" => "sometimes|mimes:jpg,jpeg,png",
             ]);
 
             if ($validator->fails()) {
@@ -112,7 +113,8 @@ class NotificationsController extends Controller
             $notify_id = Notification::insertGetId([
                 "title" => $title,
                 "content" => $content,
-                "type" => $type
+                "type" => $type,
+                "photo" => $request->photo
             ]);
 
 
@@ -128,15 +130,15 @@ class NotificationsController extends Controller
 
             if ($type == "users") {
                 if ($option == 1) {
-                      User::whereNotNull('device_token')
+                    User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
-                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
 
                 } else {
-                      User::whereNotNull('device_token')
+                    User::whereNotNull('device_token')
                         ->select('device_token', 'id')
                         ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
@@ -145,16 +147,16 @@ class NotificationsController extends Controller
                 }
             } else {
                 if ($option == 1) {
-                     Provider::whereNotNull('device_token')
+                    Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
-                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
                 } else {
-                     Provider::whereNotNull('device_token')
+                    Provider::whereNotNull('device_token')
                         ->select('device_token', 'web_token', 'id')
-                        ->chunk(50, function ($actors) use($notify_id, $content, $title, $type) {
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
                             $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
                         });
                 }
