@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminWebToken;
+use App\Models\Notification;
+use App\Models\Reciever;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Provider;
@@ -23,6 +25,7 @@ class NotificationController extends Controller
     private const fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     //
+
     /**
      * Create a new notification instance.
      *
@@ -135,7 +138,7 @@ class NotificationController extends Controller
         // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];
         $fcmNotification = [
             'registration_ids' => $tokenList,
-           // 'to' => 'fqivYF6u2j2PXLlzyJSYYR:APA91bHkxvW-nq7AElRGrtvH5dR1DhggHu3YECXPzhvKMWZJ4eG0Br1ArxMgarpY5s2xS_HWF5DHobqkHZ7OcS33RGZHDS8yHUH4A963QFhj-qTd6OXMtFWFJapyRMJAl7_aebcwh288',//'/topics/alldevices',// $User->device_token, //single token
+            // 'to' => 'fqivYF6u2j2PXLlzyJSYYR:APA91bHkxvW-nq7AElRGrtvH5dR1DhggHu3YECXPzhvKMWZJ4eG0Br1ArxMgarpY5s2xS_HWF5DHobqkHZ7OcS33RGZHDS8yHUH4A963QFhj-qTd6OXMtFWFJapyRMJAl7_aebcwh288',//'/topics/alldevices',// $User->device_token, //single token
             'data' => $notificationData
         ];
         return $this->sendFCM($fcmNotification, 'admin');
@@ -203,7 +206,8 @@ class NotificationController extends Controller
     }
 
 
-    public function notifications(Request $request){
+    public function notifications(Request $request)
+    {
         try {
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:count,list"
@@ -212,16 +216,21 @@ class NotificationController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-            $user = $this->auth($request -> api_token);
+            $user = $this->auth($request->api_token);
             if (!$user) {
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
             }
-               DB::beginTransaction();
 
-                DB::commit();
+            $un_read_notifications = 0;
+            if ($request->type == 'count') {
+                $un_read_notifications = Reciever::where('actor_id', $user->id)
+                    ->unseenForUser()
+                    ->count();
+                return $this->returnData('un_read_notifications', $un_read_notifications);
+            }
+            ///else get notifications list
 
 
-                return $this->returnData('provider', json_decode(json_encode($provider, JSON_FORCE_OBJECT)), trans('messages.confirm code send'));
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());

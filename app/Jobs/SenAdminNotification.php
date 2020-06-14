@@ -52,7 +52,8 @@ class SenAdminNotification implements ShouldQueue
 
                 Reciever::insert([
                     "notification_id" => $this->notify_id,
-                    "actor_id" => $actor->id
+                    "actor_id" => $actor->id,
+                    "actor_type" => $this->type
                 ]);
                 // push notification
                 if ($actor->device_token != null) {
@@ -65,6 +66,7 @@ class SenAdminNotification implements ShouldQueue
                 Reciever::insert([
                     "notification_id" => $this -> notify_id,
                     "actor_id" => $actor->id,
+                    "actor_type" => $this->type
 
                 ]);
                 // push notification

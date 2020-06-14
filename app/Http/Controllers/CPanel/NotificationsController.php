@@ -104,9 +104,6 @@ class NotificationsController extends Controller
                 return response()->json(['status' => false, 'error' => $result], 200);
             }
 
-
-
-
             $title = $request->input("title");
             $content = $request->input("content");
             $option = $request->input("notify-type");
@@ -167,7 +164,6 @@ class NotificationsController extends Controller
             return response()->json(['status' => true, 'msg' => __('messages.will send notify')]);
 
         } catch (\Exception $ex) {
-            return $ex;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
 
