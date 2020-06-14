@@ -12,10 +12,10 @@ class NotificationsResource extends ResourceCollection
         $result['data'] = $this->collection->transform(function ($data) {
             return [
                 'id' => $data->id,
-                'created_at' => $data->created_at,
-                'seen' => $data->seen,
                 'title' => $data->notification->title,
                 'content' => $data->notification->content
+                'seen' => $data->seen,
+                'created_at' => $data->created_at,
             ];
         });
 
