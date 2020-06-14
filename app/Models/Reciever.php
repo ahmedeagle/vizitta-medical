@@ -10,7 +10,7 @@ class Reciever extends Model
     public $timestamps = true;
 
     protected $fillable = ['notification_id', 'actor_id','actor_type','seen','device','created_at'];
-    protected  $hidden =['updated_at'];
+    protected  $hidden =['updated_at','device'];
 
     public function user()
     {
@@ -22,7 +22,16 @@ class Reciever extends Model
         return $this->belongsTo('App\Models\Provider','actor_id');
     }
 
+    public function  notification(){
+
+         return $this -> belongsTo('App\Models\Notification','notification_id','id');
+    }
+
     public function scopeUnseenForUser($query){
         return $query -> where('actor_type','users') -> where('seen','0');
+    }
+
+    public function getCreatedAtAttribute($val){
+       return  $val !==null ? $val : "";
     }
 }

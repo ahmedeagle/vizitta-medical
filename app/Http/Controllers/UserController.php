@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CPanel\NotificationsResource;
 use App\Mail\AcceptReservationMail;
 use App\Mail\NewReplyMessageMail;
 use App\Mail\NewUserMessageMail;
@@ -182,7 +183,7 @@ class UserController extends Controller
                 $invited_points = $settings->invited_points;
             }
 
-            if ($request->has('invitation_by_code') && ! empty($request-> invitation_by_code)) {
+            if ($request->has('invitation_by_code') && !empty($request->invitation_by_code)) {
                 $invited_by_code = strtolower($request->invitation_by_code);
                 $codeOwner = User::where('invitation_code', $invited_by_code)->first();
                 if (!$codeOwner) {
@@ -2126,7 +2127,7 @@ class UserController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-             $user = $this->auth('user-api');
+            $user = $this->auth('user-api');
             if (!$user) {
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
             }
@@ -2139,7 +2140,9 @@ class UserController extends Controller
             }
             ///else get notifications list
 
-            return  $notifications = Reciever::where('actor_id', $user->id)
+            $notifications = Reciever::with(['notification' => function ($q) {
+                $q->select('id', 'title', 'content');
+            }])->where('actor_id', $user->id)
                 ->unseenForUser()
                 ->paginate(PAGINATION_COUNT);
 
