@@ -1488,6 +1488,98 @@ class DoctorController extends Controller
     }
 
 
+    ///////////apple pay credential ///////////////////
+    public function get_checkout_id_apple_pay(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "price" => array('required', 'regex:/^\d+(\.\d{1,2})?$/', 'min:1'),
+        ]);
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
+        $user = $this->auth('user-api');
+        $userEmail = $user->email ? $user->email : 'info@wisyst.info';
+
+        $url = env('PAYTABS_CHECKOUTS_URL', 'https://oppwa.com/v1/checkouts');
+        $data =
+            "entityId=" . env('PAYTABS_APPLE_PAY_ENTITYID', '8ac7a4c8729db6f90172a323404c16f6') .
+            "&amount=" . $request->price .
+            "&currency=SAR" .
+            "&paymentType=DB" .
+            "&notificationUrl=https://mcallapp.com";
+        // "&merchantTransactionId=400" .
+        //"&testMode=EXTERNAL" .
+        //"&customer.email=" . $userEmail;
+
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization:Bearer ' . env('PAYTABS_APPLE_PAY_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $responseData = curl_exec($ch);
+            if (curl_errno($ch)) {
+
+                // return response()->json(['status' => false, 'errNum' => 3, 'msg' => $msg[3]]);
+            }
+            curl_close($ch);
+
+        } catch (\Exception $ex) {
+
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+
+        $id = json_decode($responseData)->id;
+        return $this->returnData('checkoutId', $id, trans('messages.Checkout id successefully retrieved'), 'S001');
+
+    }
+
+    public function checkPaymentStatus_apple_pay(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "checkoutId" => 'required',
+            "resource" => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
+        $url = env('PAYTABS_BASE_URL', 'https://test.oppwa.com/');
+        $url .= $request->resource;
+        $url .= "?entityId=" . env('PAYTABS_APPLE_PAY_ENTITYID', '8ac7a4c8729db6f90172a323404c16f6');
+
+        // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
+        //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization:Bearer ' . env('PAYTABS_APPLE_PAY_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $responseData = curl_exec($ch);
+        if (curl_errno($ch)) {
+//            return curl_error($ch);
+
+            return $this->returnData('status', 'حدث خطا ما يرجي المحاولة مجددا', trans('messages.Payment status'), 'D001');
+        }
+        curl_close($ch);
+        $r = json_decode($responseData);
+        $obj = new \stdClass();
+        $obj->id = isset($r->id) ? $r->id : '0';
+        $obj->res = $r->result;
+        return $this->returnData('status', $obj, trans('messages.Payment status'), 'S001');
+    }
+
+
     public function hide(Request $request)
     {
         try {
