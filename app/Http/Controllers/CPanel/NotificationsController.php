@@ -100,8 +100,7 @@ class NotificationsController extends Controller
                 "title" => "required|max:255",
                 "content" => "required|max:255",
                 "notify-type" => "required|in:1,2",
-                "photo" => "sometimes|mimes:jpg,jpeg,png",
-            ]);
+             ]);
 
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
