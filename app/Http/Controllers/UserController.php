@@ -2155,4 +2155,30 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+
+    public function MarknotificationsAsSeen(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "seen" => "required|in:1",
+                "notification_id" => "required|exists:admin_notifications_receivers,id"
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $user = $this->auth('user-api');
+            if (!$user) {
+                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            }
+
+            Reciever::where('id', $request->notification_id)->update(['seen', '1']);
+
+            return $this->returnSuccessMessage('');
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 }

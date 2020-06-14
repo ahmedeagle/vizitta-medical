@@ -125,6 +125,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
         Route::group(['middleware' => 'CheckUserToken'], function () {
             Route::post('logout', 'UserController@logout')->name('user.logout');
             Route::post('notifications','UserController@notifications');
+            Route::post('notifications-mark-as-seen','UserController@MarknotificationsAsSeen');
         });
         // doctor routes
         Route::group(['prefix' => 'doctor', 'middleware' => ['CheckUserToken', 'CheckUserStatus']], function () {
