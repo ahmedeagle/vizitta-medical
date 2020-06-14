@@ -2732,7 +2732,6 @@ class ProviderController extends Controller
 
     public function notifications(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:count,list"
@@ -2786,9 +2785,9 @@ class ProviderController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-            $user = $this->auth('user-api');
-            if (!$user) {
-                return $this->returnError('E001', trans('messages.There is no user with this id'));
+            $provider = $this->auth('provider-api');
+            if (!$provider) {
+                return $this->returnError('E001', trans('messages.Provider not found'));
             }
 
             Reciever::where('id', $request->notification_id)->update(['seen' => '1']);
