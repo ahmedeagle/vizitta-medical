@@ -13,9 +13,9 @@ class NotificationsResource extends ResourceCollection
             return [
                 'id' => $data->id,
                 'title' => $data->notification->title,
-                'content' => $data->notification->content
+                'content' => $data->notification->content,
                 'seen' => $data->seen,
-                'created_at' => $data->created_at,
+                'created_at' => $data->created_at
             ];
         });
 
