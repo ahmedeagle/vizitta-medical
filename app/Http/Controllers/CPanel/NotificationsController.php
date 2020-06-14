@@ -8,6 +8,8 @@ use App\Models\GeneralNotification;
 use App\Models\Notification;
 use App\Models\Provider;
 use App\Models\Reciever;
+use App\Traits\Dashboard\PublicTrait;
+use App\Traits\GlobalTrait;
 use Carbon\Carbon;
 use Freshbitsweb\Laratables\Laratables;
 use Illuminate\Http\Request;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Artisan;
 
 class NotificationsController extends Controller
 {
+    use GlobalTrait;
     public function index(Request $request)
     {
         try {
@@ -110,10 +113,16 @@ class NotificationsController extends Controller
             $option = $request->input("notify-type");
             $type = $request->input("type");
 
+
+            $fileName = "";
+            if (isset($request->photo) && !empty($request->v)) {
+                $fileName = $this->saveImage('notifications', $request->photo);
+            }
+
             $notify_id = Notification::insertGetId([
                 "title" => $title,
                 "content" => $content,
-                "type" => $type,
+                "type" => $fileName,
                 "photo" => $request->photo
             ]);
 

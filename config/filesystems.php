@@ -60,6 +60,11 @@ return [
             'root' => base_path() . '/images/doctors/',
             'url' => env('APP_URL') . '/public',
             'visibility' => 'public',
+        ], 'notifications' => [
+            'driver' => 'local',
+            'root' => base_path() . '/images/notifications/',
+            'url' => env('APP_URL') . '/public',
+            'visibility' => 'public',
         ],
         'brands' => [
             'driver' => 'local',
