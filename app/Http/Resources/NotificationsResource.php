@@ -28,5 +28,4 @@ class NotificationsResource extends ResourceCollection
         ];
         return $result;
     }
-
 }

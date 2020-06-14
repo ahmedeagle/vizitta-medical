@@ -2140,9 +2140,10 @@ class UserController extends Controller
             }
             ///else get notifications list
 
-            $notifications = Reciever::with(['notification' => function ($q) {
-                $q->select('id', 'title', 'content');
-            }])->where('actor_id', $user->id)
+            $notifications = Reciever::whereHas('notification')
+                ->with(['notification' => function ($q) {
+                    $q->select('id', 'title', 'content');
+                }])->where('actor_id', $user->id)
                 ->unseenForUser()
                 ->paginate(PAGINATION_COUNT);
 
