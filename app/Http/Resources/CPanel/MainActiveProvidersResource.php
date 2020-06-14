@@ -11,6 +11,7 @@ class MainActiveProvidersResource extends JsonResource
         $result = [
             'id' => $this->id,
             'name' => app()->getLocale() == 'ar' ? $this->name_ar : $this->name_en,
+            'home_visit' => $this -> provider -> has_home_visit,
         ];
 
         if (isset($this->selected))

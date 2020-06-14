@@ -97,6 +97,8 @@ class GlobalProviderController extends Controller
             }
             $provider = $this->getData($request->api_token);
             $branches = Provider::where('status', true)->where('provider_id', $provider->id)->get();
+            $branches -> provider =  $provider;
+
             $result = MainActiveProvidersResource::collection($branches);
             return $this->returnData('branches', $result);
 
