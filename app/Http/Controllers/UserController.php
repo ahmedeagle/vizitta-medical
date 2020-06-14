@@ -2148,6 +2148,7 @@ class UserController extends Controller
 
             $notifications = new NotificationsResource($notifications);
 
+            return $this->returnData('notifications', $notifications);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
