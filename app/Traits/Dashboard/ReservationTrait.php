@@ -14,6 +14,7 @@ use Freshbitsweb\Laratables\Laratables;
 trait ReservationTrait
 {
     use OdooTrait;
+
     public function getReservationById($id)
     {
         return Reservation::find($id);
@@ -196,11 +197,14 @@ trait ReservationTrait
 
     public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
+        dd($request);
 
-        $reservation->update([
-            'approved' => $status,
-            'rejection_reason' => $rejection_reason,
-        ]);
+        if ($status != 3) {
+            $reservation->update([
+                'approved' => $status,
+                'rejection_reason' => $rejection_reason,
+            ]);
+        }
 
         $provider = Provider::find($reservation->provider_id); // branch
         $provider->makeVisible(['device_token']);
@@ -282,7 +286,7 @@ trait ReservationTrait
                 if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
                     if (!$request->has('bill_total')) {
                         if ($request->bill_total <= 0) {
-                             return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
+                            return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                         } else {
                             $totalBill = $request->bill_total;
                         }
@@ -333,8 +337,7 @@ trait ReservationTrait
                     $data['comment'] = $comment;
                     $data['sales_journal'] = 1;
                     $data['Receivables_account'] = 8;
-                }
-                elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
+                } elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
                     $data['payment_term'] = 4; //edit
                     $data['sales_account'] = 19;
                     $comment = "  نسبة ميدكال كول من  فاتورة حجز نقدي عادية ";
