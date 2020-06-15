@@ -261,9 +261,7 @@ trait ReservationTrait
                         return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                 }
                 $reservation->update([
-                    'approved' => 3,
                     'bill_total' => $request->bill_total,
-                    //'discount_type'   =>  $discountType
                 ]);
 
                 $data = [];
@@ -329,7 +327,8 @@ trait ReservationTrait
 
             } else {
                 $reservation->update([
-                    'approved' => 2
+                    'approved' => 2,
+                    'is_visit_doctor' => 0
                 ]);
             }
 
