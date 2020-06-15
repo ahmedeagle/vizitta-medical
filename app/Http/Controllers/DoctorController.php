@@ -324,7 +324,7 @@ class DoctorController extends Controller
             if ($doctor != null) {
                 $doctor->time = "";
 
-                if($doctor -> is_consult != 0 && $doctor -> is_consult != null) {
+                if ($doctor->doctor_type == 'clinic') {
                     $days = $this->geDaysDoctorExist($doctor->id);
                     $match = $this->getMatchedDateToDays($days);
                     if (!$match || $match['date'] == null)

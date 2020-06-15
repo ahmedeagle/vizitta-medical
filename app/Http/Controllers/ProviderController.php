@@ -788,7 +788,7 @@ class ProviderController extends Controller
                 if (count($doctors) > 0) {
                     foreach ($doctors as $key => $doctor) {
                         $doctor->time = "";
-                        if ($doctor->is_consul != 0 && $doctor->is_consult != null) {
+                        if ($doctor->doctor_type == 'clinic') {
                             $days = $doctor->times;
                             $match = $this->getMatchedDateToDays($days);
 
