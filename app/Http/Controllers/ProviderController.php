@@ -2403,7 +2403,7 @@ class ProviderController extends Controller
                 }
 
                 $front = $request->has('show_front') ? 1 : 0;
-                $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
+               return  $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
 
                 if (count($doctors) > 0) {
                     foreach ($doctors as $key => $doctor) {
