@@ -324,8 +324,7 @@ class DoctorController extends Controller
             if ($doctor != null) {
                 $doctor->time = "";
 
-                if ($doctor->doctor_type == 'clinic') {
-                    $days = $this->geDaysDoctorExist($doctor->id);
+                     $days = $this->geDaysDoctorExist($doctor->id);
                     $match = $this->getMatchedDateToDays($days);
                     if (!$match || $match['date'] == null)
                         return $this->returnError('E001', trans('messages.doctor is not available'));
@@ -333,7 +332,6 @@ class DoctorController extends Controller
                     $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
 
                     $doctor->time = $availableTime;
-                }
 
                 $countRate = $countRate = Doctor::find($request->id)->reservations()
                     ->Where('doctor_rate', '!=', null)
