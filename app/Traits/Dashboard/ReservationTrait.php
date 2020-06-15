@@ -197,7 +197,7 @@ trait ReservationTrait
 
     public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
-        
+
         if ($status != 3) {
             $reservation->update([
                 'approved' => $status,
@@ -206,59 +206,13 @@ trait ReservationTrait
         }
 
         $provider = Provider::find($reservation->provider_id); // branch
-        $provider->makeVisible(['device_token']);
 
 
         if ($status == 3) {  //complete Reservations
-            $totalBill = 0;
-            $comment = " نسبة ميدكال كول من كشف حجز نقدي";
-            $invoice_type = 0;
-            $mainProv = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
-            if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
-                $provider_has_bill = 0;
-            } else {
-                $provider_has_bill = 1;
-
-            }
-
-            if (!is_numeric($mainProv->application_percentage_bill_insurance) || $mainProv->application_percentage_bill_insurance == 0) {
-                $provider_has_bill_insurance = 0;
-            } else {
-                $provider_has_bill_insurance = 1;
-            }
-
-            // get bill total only if discount apply to this provider  on bill and the reservation without coupons "bill case"
-            if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
-                if (!$request->has('bill_total')) {
-                    if ($request->bill_total <= 0) {
-                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
-                    } else {
-                        $totalBill = $request->bill_total;
-                    }
-                }
-            }
-
-            // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
-            if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
-                if (!$request->has('bill_total')) {
-                    if ($request->bill_total <= 0) {
-                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
-                    } else {
-                        $totalBill = $request->bill_total;
-                    }
-                }
-            }
-            $reservation->update([
-                'approved' => 3,
-                'bill_total' => $request->bill_total,
-            ]);
-
 
             if ($arrived == 1) {
 
                 //calculate balance
-
-
                 $reservation->update([
                     'approved' => 3,
                     'is_visit_doctor' => $arrived
@@ -268,6 +222,8 @@ trait ReservationTrait
                 $comment = " نسبة ميدكال كول من كشف حجز نقدي";
                 $invoice_type = 0;
                 $mainProv = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
+                $provider->makeVisible(['device_token', 'application_percentage_bill_insurance', 'application_percentage_bill']);
+
                 if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
                     $provider_has_bill = 0;
                 } else {
@@ -283,25 +239,26 @@ trait ReservationTrait
 
                 // get bill total only if discount apply to this provider  on bill and the reservation without coupons "bill case"
                 if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
-                    if (!$request->has('bill_total')) {
+                    if ($request->has('bill_total')) {
                         if ($request->bill_total <= 0) {
                             return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                         } else {
                             $totalBill = $request->bill_total;
                         }
-                    }
+                    } else
+                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                 }
 
                 // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
                 if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
-                    if (!$request->has('bill_total')) {
+                    if ($request->has('bill_total')) {
                         if ($request->bill_total <= 0) {
-
                             return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                         } else {
                             $totalBill = $request->bill_total;
                         }
-                    }
+                    } else
+                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                 }
                 $reservation->update([
                     'approved' => 3,
@@ -310,11 +267,9 @@ trait ReservationTrait
                 ]);
 
                 $data = [];
-                $promoCode = PromoCode::find($reservation->promocode_id);
-                if ($reservation->promocode_id == null /*or (isset($promoCode) && $promoCode->coupons_type_id == 2)*/) { //change balance here
-                    // Calculate the balance if reservation without any coupon
-                    $this->calculateBalanceAdmin($provider, $reservation->payment_method_id, $reservation, $request);
-                }
+
+                // Calculate the balance
+                $this->calculateBalanceAdmin($provider, $reservation->payment_method_id, $reservation, $request);
 
                 $manager = $this->getAppInfo();
                 $mainprov = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
@@ -367,10 +322,9 @@ trait ReservationTrait
                 }
 
                 // if reservation is cash with insurance or without insurance
-                if ($reservation->promocode_id == null) {
-                    $odoo_invoice_id = $this->createInvoice_CashReservation($data);
+                     $odoo_invoice_id = $this->createInvoice_CashReservation($data);
                     $reservation->update(['odoo_invoice_id' => $odoo_invoice_id]);
-                }
+
 
 
             } else {
