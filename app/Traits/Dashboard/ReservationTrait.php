@@ -2,7 +2,9 @@
 
 namespace App\Traits\Dashboard;
 
+use App\Mail\AcceptReservationMail;
 use App\Models\Doctor;
+use App\Models\PromoCode;
 use App\Models\Provider;
 use App\Models\Reservation;
 use Carbon\Carbon;
@@ -113,15 +115,195 @@ trait ReservationTrait
         return $reservation;
     }
 
-    public function changerReservationStatus($reservation, $status, $rejection_reason = null)
+    public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
+
         $reservation->update([
             'approved' => $status,
-            'rejection_reason' => $rejection_reason
+            'rejection_reason' => $rejection_reason,
         ]);
 
         $provider = Provider::find($reservation->provider_id); // branch
         $provider->makeVisible(['device_token']);
+
+
+        if ($status == 3) {  //complete Reservations
+            $totalBill = 0;
+            $comment = " نسبة ميدكال كول من كشف حجز نقدي";
+            $invoice_type = 0;
+            $mainProv = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
+            if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
+                $provider_has_bill = 0;
+            } else {
+                $provider_has_bill = 1;
+
+            }
+
+            if (!is_numeric($mainProv->application_percentage_bill_insurance) || $mainProv->application_percentage_bill_insurance == 0) {
+                $provider_has_bill_insurance = 0;
+            } else {
+                $provider_has_bill_insurance = 1;
+            }
+
+            // get bill total only if discount apply to this provider  on bill and the reservation without coupons "bill case"
+            if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
+                if (!$request->has('bill_total')) {
+                    if ($request->bill_total <= 0) {
+                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
+                    } else {
+                        $totalBill = $request->bill_total;
+                    }
+                }
+            }
+
+            // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
+            if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
+                if (!$request->has('bill_total')) {
+                    if ($request->bill_total <= 0) {
+                        return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
+                    } else {
+                        $totalBill = $request->bill_total;
+                    }
+                }
+            }
+            $reservation->update([
+                'approved' => 3,
+                'bill_total' => $request->bill_total,
+            ]);
+
+
+            if ($arrived == 1) {
+                $reservation->update([
+                    'approved' => 3,
+                    'is_visit_doctor' => $arrived
+                ]);
+
+
+                //calculate balance
+
+
+                $reservation->update([
+                    'approved' => 3,
+                    'is_visit_doctor' => $complete
+                ]);
+
+                $totalBill = 0;
+                $comment = " نسبة ميدكال كول من كشف حجز نقدي";
+                $invoice_type = 0;
+                $mainProv = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
+                if (!is_numeric($mainProv->application_percentage_bill) || $mainProv->application_percentage_bill == 0) {
+                    $provider_has_bill = 0;
+                } else {
+                    $provider_has_bill = 1;
+
+                }
+
+                if (!is_numeric($mainProv->application_percentage_bill_insurance) || $mainProv->application_percentage_bill_insurance == 0) {
+                    $provider_has_bill_insurance = 0;
+                } else {
+                    $provider_has_bill_insurance = 1;
+                }
+
+                // get bill total only if discount apply to this provider  on bill and the reservation without coupons "bill case"
+                if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
+                    if (!$request->has('bill_total')) {
+                        if ($request->bill_total <= 0) {
+                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
+                        } else {
+                            $totalBill = $request->bill_total;
+                        }
+                    }
+                }
+
+                // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
+                if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
+                    if (!$request->has('bill_total')) {
+                        if ($request->bill_total <= 0) {
+                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
+                        } else {
+                            $totalBill = $request->bill_total;
+                        }
+                    }
+                }
+                $reservation->update([
+                    'approved' => 3,
+                    'bill_total' => $request->bill_total,
+                    //'discount_type'   =>  $discountType
+                ]);
+
+                $data = [];
+                $promoCode = PromoCode::find($reservation->promocode_id);
+                if ($reservation->promocode_id == null /*or (isset($promoCode) && $promoCode->coupons_type_id == 2)*/) { //change balance here
+                    // Calculate the balance if reservation without any coupon
+                    $this->calculateBalance($provider, $reservation->payment_method_id, $reservation, $request);
+                }
+
+                $manager = $this->getAppInfo();
+                $mainprov = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
+                $mainprov->makeVisible(['application_percentage_bill', 'application_percentage', 'application_percentage_bill_insurance']);
+
+                // save odoo invoice with details  to odoo erp system on case cash "note uptill now only cash payment allowed "
+
+                if ($reservation->use_insurance == 1 && $reservation->promocode_id == null) {
+                    $data['payment_term'] = 5;
+                    $data['sales_account'] = 580;
+                    $comment = "  نسبة ميدكال كول من  فاتورة حجز نقدي بتأمين   ";
+                    $invoice_type = 2;   // with insurance
+                    $data['product_id'] = 4;
+                    $data['total_amount'] = ($provider_has_bill == 1 or $provider_has_bill_insurance == 1) && ($reservation->promocode_id == null) ? $request->bill_total : $reservation->price;
+                    $data['MC_percentage'] = $reservation->use_insurance == 0 ? $mainprov->application_percentage_bill + $mainprov->application_percentage : $mainprov->application_percentage_bill_insurance + $mainprov->application_percentage;
+                    $data['invoice_type_id'] = $invoice_type;
+                    $data['cost_center_id'] = 510;
+                    $data['origin'] = $reservation->reservation_no;
+                    $data['comment'] = $comment;
+                    $data['sales_journal'] = 1;
+                    $data['Receivables_account'] = 8;
+                }
+                elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
+                    $data['payment_term'] = 4; //edit
+                    $data['sales_account'] = 19;
+                    $comment = "  نسبة ميدكال كول من  فاتورة حجز نقدي عادية ";
+                    $invoice_type = 1;   // without insurance
+                    $data['product_id'] = 5;
+                    $data['total_amount'] = ($provider_has_bill == 1 or $provider_has_bill_insurance == 1) && ($reservation->promocode_id == null) ? $request->bill_total : $reservation->price;
+                    $data['MC_percentage'] = $reservation->use_insurance == 0 ? $mainprov->application_percentage_bill + $mainprov->application_percentage : $mainprov->application_percentage_bill_insurance + $mainprov->application_percentage;
+                    $data['invoice_type_id'] = $invoice_type;
+                    $data['cost_center_id'] = 510;
+                    $data['origin'] = $reservation->reservation_no;
+                    $data['comment'] = $comment;
+                    $data['sales_journal'] = 1;
+                    $data['Receivables_account'] = 8;
+                }
+
+                $branchOfReservation = $reservation->provider;
+
+                if ($branchOfReservation->odoo_provider_id) {
+                    $partner_id = $branchOfReservation->odoo_provider_id;
+                    $data['partner_id'] = $partner_id;
+                } else {
+                    // if provider not has an account on odoo , create new account
+                    $name = $mainProv->commercial_ar . ' - ' . $branchOfReservation->name_ar;
+                    $odoo_provider_id = $this->saveProviderToOdoo($branchOfReservation->mobile, $name);
+                    $branchOfReservation->update(['odoo_provider_id' => $odoo_provider_id]);
+                    $partner_id = $odoo_provider_id;
+                    $data['partner_id'] = $partner_id;
+                }
+
+                // if reservation is cash with insurance or without insurance
+                if ($reservation->promocode_id == null) {
+                    $odoo_invoice_id = $this->createInvoice_CashReservation($data);
+                    $reservation->update(['odoo_invoice_id' => $odoo_invoice_id]);
+                }
+
+
+            } else {
+                $reservation->update([
+                    'approved' => 2
+                ]);
+            }
+
+        }
+
         try {
             if ($provider && $reservation->user_id != null) {
 
@@ -150,7 +332,7 @@ trait ReservationTrait
                 //send mobile sms
 //                $message = $bodyUser;
 
-             //   $this->sendSMS($reservation->user->mobile, $message);
+                //   $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 
@@ -159,20 +341,20 @@ trait ReservationTrait
     }
 
 
-   /* public function sendSMS($phone, $message)
-    {
+    /* public function sendSMS($phone, $message)
+     {
 
-       $curl = new \App\Support\SMS\Curl();
-        $username = "medicare";     // The user name of gateway
-        $password = "Hh..36547820";          // the password of gateway
-        $sender = "MedicalCaLL";
-        $url = "http://www.jawalbsms.ws/api.php/sendsms?user=$username&pass=$password&to=$phone&message=$message&sender=$sender";
-        $urlDiv = explode("?", $url);
-        $result = $curl->_simple_call("post", $urlDiv[0], $urlDiv[1], array("TIMEOUT" => 3));
-        return $result;
+        $curl = new \App\Support\SMS\Curl();
+         $username = "medicare";     // The user name of gateway
+         $password = "Hh..36547820";          // the password of gateway
+         $sender = "MedicalCaLL";
+         $url = "http://www.jawalbsms.ws/api.php/sendsms?user=$username&pass=$password&to=$phone&message=$message&sender=$sender";
+         $urlDiv = explode("?", $url);
+         $result = $curl->_simple_call("post", $urlDiv[0], $urlDiv[1], array("TIMEOUT" => 3));
+         return $result;
 
 
-    }*/
+     }*/
 
     public static function getdayNameByDate($date)
     {

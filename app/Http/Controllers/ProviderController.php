@@ -1612,7 +1612,8 @@ class ProviderController extends Controller
                 $data['comment'] = $comment;
                 $data['sales_journal'] = 1;
                 $data['Receivables_account'] = 8;
-            } elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
+            }
+            elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
                 $data['payment_term'] = 4; //edit
                 $data['sales_account'] = 19;
                 $comment = "  نسبة ميدكال كول من  فاتورة حجز نقدي عادية ";
@@ -1646,7 +1647,8 @@ class ProviderController extends Controller
             if ($reservation->promocode_id == null) {
                 $odoo_invoice_id = $this->createInvoice_CashReservation($data);
                 $reservation->update(['odoo_invoice_id' => $odoo_invoice_id]);
-            } elseif ($reservation->promocode_id != null) { //discount coupon
+            }
+            elseif ($reservation->promocode_id != null) { //discount coupon
                 //calculate balance if reservation with coupon  discount / prepaid
                 $this->calculateBalance($provider, $reservation->payment_method_id, $reservation, $request);
                 $data = [];

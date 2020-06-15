@@ -56,12 +56,12 @@ class ReservationController extends Controller
                 ->orWhereHas('doctor', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('branch', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     $query->orWhereHas('provider', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                     });
                 })
                 ->orWhere(function ($qq) use ($q) {
@@ -194,16 +194,27 @@ class ReservationController extends Controller
 
         if ($request->status != 2 && $request->status != 1) {
             return response()->json(['status' => false, 'error' => __('main.enter_valid_activation_code')], 200);
-        } else {
-
-            if ($request->status == 2) {
-                if ($request->rejection_reason == null) {
-                    return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
-                }
-            }
-            $this->changerReservationStatus($reservation, $request->status);
-            return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
         }
+
+        if ($request->status == 2) {
+            if ($request->rejection_reason == null) {
+                return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
+            }
+        }
+
+        $arrived = 0;
+
+        if ($request->status == 3) {
+
+            if (!isset($request->arrived) or ($request->arrived != 0 && $request->arrived != 1)) {
+                return response()->json(['status' => false, 'error' => __('main.enter_arrived_status')], 200);
+            }
+            $arrived = $request->arrived;
+        }
+
+         $this->changerReservationStatus($reservation, $request->status, $arrived ,$request);
+        return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
+
 
     }
 

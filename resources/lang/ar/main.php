@@ -190,5 +190,6 @@ return [
     'enter_from_or_to'                                                    => 'ادخل الوقت من او الى',
     'reservation_period_greater_than_from_and_to'                         => 'مدة الحجز اكبر من الفرق بين الوقت من و الى',
     'read_notification_successfully'                                      => 'تم رؤية الإشعار بنجاح',
+    'enter_arrived_status' => 'لابد من تحديد اكمال حجز بوصول العميل ام لا'
 
 ];
