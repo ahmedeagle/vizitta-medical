@@ -61,7 +61,7 @@ class DoctorController extends Controller
 
             if ($request->is_consult == 1) {
 
-                if ($request->consultations_working_days) {
+                if (isset($request->consultations_working_days)) {
                     $rules["consultations_working_days"] = "required|array|min:1";
                 }
                 $rules["password"] = "required|max:100|min:6";
@@ -399,7 +399,10 @@ class DoctorController extends Controller
             ];
 
             if ($requestData['is_consult'] == 1) {
-                $rules["consultations_working_days"] = "required|array|min:1";
+                if (isset($request->consultations_working_days)) {
+                    $rules["consultations_working_days"] = "required|array|min:1";
+                }
+
                 $rules["price_consulting"] = 'required|numeric';
                 $rules["phone"] = 'required|max:100|unique:doctors,phone,' . $request->id . ',id';
                 if (!empty($request->password)) {

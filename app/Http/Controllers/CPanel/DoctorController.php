@@ -175,7 +175,7 @@ class DoctorController extends Controller
                 "status" => "required|in:0,1",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
-               // "working_days" => "required|array|min:1",
+                // "working_days" => "required|array|min:1",
                 "application_percentage" => "required|integer"
             ];
 
@@ -413,7 +413,7 @@ class DoctorController extends Controller
                 "status" => "required|in:0,1",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
-               // "working_days" => "required|array|min:1",
+                // "working_days" => "required|array|min:1",
                 "application_percentage" => "required|integer",
             ];
 
