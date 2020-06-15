@@ -789,7 +789,7 @@ class ProviderController extends Controller
                     foreach ($doctors as $key => $doctor) {
 
                         $doctor->time = "";
-                             return $days = $doctor->times;
+                              $days = $doctor->times;
                              $match = $this->getMatchedDateToDays($days);
 
                             if (!$match || $match['date'] == null) {
@@ -799,7 +799,6 @@ class ProviderController extends Controller
                             $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
                             $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
                             $doctor->time = $availableTime;
-
 
 
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
