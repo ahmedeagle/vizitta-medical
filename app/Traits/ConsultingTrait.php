@@ -19,7 +19,6 @@ trait ConsultingTrait
 {
     public function getDoctors($specification_id, $nickname_id, $gender)
     {
-
         $doctor = Doctor::with(['nickname' => function($q){
             $q -> select('id','name_'.app()->getLocale().' as name');
         }]);
@@ -107,6 +106,8 @@ trait ConsultingTrait
                     $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            },'nickname' => function ($qu) {
                 $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }])
             ->where('user_id', $id)

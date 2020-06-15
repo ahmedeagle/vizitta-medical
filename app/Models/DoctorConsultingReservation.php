@@ -231,6 +231,12 @@ class DoctorConsultingReservation extends Model
         }
     }
 
+    public function nickname()
+    {
+        return $this->belongsTo('App\Models\Nickname', 'nickname_id')->withDefault(["name" => ""]);
+    }
+
+
     //based on if reservation has application percentage or bill total or  paid coupon
     public function getReservationTotalAttribute()
     {
