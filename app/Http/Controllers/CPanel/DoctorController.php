@@ -567,7 +567,7 @@ class DoctorController extends Controller
                 $doctor->times()->insert($working_days_data);
 
                 // consultations working
-                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                if (($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) or  $requestData['doctor_type'] == 'consultative') {
                     // Optional consultations working days
                     if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days']) && count($consultations_working_days_data) > 0) {
                         $doctor->consultativeTimes()->delete();
