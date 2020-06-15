@@ -246,7 +246,6 @@ trait ReservationTrait
                             $totalBill = $request->bill_total;
                         }
                     } else {
-                        dd(0);
                         return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                     }
                 }
@@ -347,13 +346,19 @@ trait ReservationTrait
                     $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
                         __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
 
-                } else {
+                } elseif($status == 1) {
                     $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
 
                     $rejected_reason = 'name_' . app()->getLocale();
                     $message = __('messages.reject_reservations') . ' ( ' . "{$provider->provider->$name} - {$provider->getTranslatedName()}" . ' ) ' .
                         __('messages.because') . '( ' . "{$reservation->rejectionResoan->$rejected_reason}" . ' ) ' . __('messages.can_re_book');
+                }elseif($status == 3) {
+                    $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.complete your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+
+                    $message = __('messages.your_reservation_has_been_complete_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
+                        __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
                 }
 
                 //send push notification
@@ -369,7 +374,9 @@ trait ReservationTrait
         } catch (\Exception $exception) {
 
         }
-        return $reservation;
+
+
+        return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
     }
 
 
