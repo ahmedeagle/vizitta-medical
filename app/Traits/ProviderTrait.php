@@ -370,7 +370,8 @@ trait ProviderTrait
             });
         }
 
-        $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status', 'waiting_period',
+        $doctor = $doctor->select('id', 'specification_id',
+            'nationality_id', 'nickname_id','is_consult','photo', 'gender', 'rate', 'price', 'status', 'waiting_period',
             DB::raw('name_' . $this->getCurrentLang() . ' as name'),
             DB::raw('information_' . $this->getCurrentLang() . ' as information'),
             DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')
