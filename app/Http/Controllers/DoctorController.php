@@ -53,7 +53,7 @@ class DoctorController extends Controller
                 "information_en" => "sometimes|nullable",
                 "information_ar" => "sometimes|nullable",
                 //  "insurance_companies" => "required|array",
-                "working_days" => "required|array",
+               // "working_days" => "required|array",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "nationality_id" => "required|numeric|exists:nationalities,id",

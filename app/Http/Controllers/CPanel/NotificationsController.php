@@ -100,6 +100,7 @@ class NotificationsController extends Controller
                 "title" => "required|max:255",
                 "content" => "required|max:255",
                 "notify-type" => "required|in:1,2",
+                "allow_fire_base"  => 'required|in:0,1'
              ]);
 
             if ($validator->fails()) {
@@ -111,6 +112,7 @@ class NotificationsController extends Controller
             $content = $request->input("content");
             $option = $request->input("notify-type");
             $type = $request->input("type");
+            $allow_fire_base = $request->input("allow_fire_base");
 
 
             $fileName = "";
@@ -121,8 +123,9 @@ class NotificationsController extends Controller
             $notify_id = Notification::insertGetId([
                 "title" => $title,
                 "content" => $content,
-                "type" => $fileName,
-                "photo" => $request->photo
+                "type" => $type,
+                "photo" =>$fileName,
+                'allow_fire_base' =>  $allow_fire_base
             ]);
 
 
@@ -141,15 +144,15 @@ class NotificationsController extends Controller
                     User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
                         });
 
                 } else {
                     User::whereNotNull('device_token')
                         ->select('device_token', 'id')
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
 
                         });
                 }
@@ -158,14 +161,14 @@ class NotificationsController extends Controller
                     Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
                         });
                 } else {
                     Provider::whereNotNull('device_token')
                         ->select('device_token', 'web_token', 'id')
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
                         });
                 }
             }
@@ -235,8 +238,8 @@ class NotificationsController extends Controller
     }
 
     ################### End to read notification ##############################
-    private function sendActorNotification($actors, $notify_id, $content, $title, $type)
+    private function sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base)
     {
-        dispatch(new SenAdminNotification($actors, $notify_id, $content, $title, $type));
+        dispatch(new SenAdminNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base));
     }
 }

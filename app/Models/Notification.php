@@ -9,7 +9,7 @@ class Notification extends Model
     protected $table = 'admin_notifications';
     public $timestamps = true;
 
-    protected $fillable = ['title', 'content', 'type', 'created_at', 'photo'];
+    protected $fillable = ['title', 'content', 'type','allow_fire_base','created_at', 'photo'];
     protected $hidden = ['updated_at'];
 
     public function recievers()
