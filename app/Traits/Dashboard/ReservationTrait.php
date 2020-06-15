@@ -7,11 +7,13 @@ use App\Models\Doctor;
 use App\Models\PromoCode;
 use App\Models\Provider;
 use App\Models\Reservation;
+use App\Traits\OdooTrait;
 use Carbon\Carbon;
 use Freshbitsweb\Laratables\Laratables;
 
 trait ReservationTrait
 {
+    use OdooTrait;
     public function getReservationById($id)
     {
         return Reservation::find($id);
@@ -115,6 +117,83 @@ trait ReservationTrait
         return $reservation;
     }
 
+
+    public function calculateBalanceAdmin($provider, $paymentMethod_id, Reservation $reservation, $request)
+    {
+        // all this balance make by - minus because the payment only is  cash no visa untill now
+        $manager = $this->getAppInfo();
+        $mainprov = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
+        $mainprov->makeVisible(['application_percentage_bill', 'application_percentage', 'application_percentage_bill_insurance', '']);
+        //if there is bill  take app percentage from bill + reservation price
+        $reservationBalance = 0;
+        $discountType = '--';
+        if (!is_numeric($mainprov->application_percentage_bill) || $mainprov->application_percentage_bill == 0) {
+            $provider_has_bill = 0;
+        } else {
+            $provider_has_bill = 1;
+        }
+
+        if (!is_numeric($mainprov->application_percentage_bill_insurance) || $mainprov->application_percentage_bill_insurance == 0) {
+            $provider_has_bill_insurance = 0;
+        } else {
+            $provider_has_bill_insurance = 1;
+        }
+
+        //if reservation without any coupon
+        if ($reservation->use_insurance == 1 && $reservation->promocode_id == null) {
+            $discountType = " فاتورة حجز نقدي بتأمين";
+            $total_amount = ($provider_has_bill == 1 or $provider_has_bill_insurance == 1) && ($reservation->promocode_id == null) ? $request->bill_total : $reservation->price;
+            $MC_percentage = $reservation->use_insurance == 0 ? $mainprov->application_percentage_bill + $mainprov->application_percentage : $mainprov->application_percentage_bill_insurance + $mainprov->application_percentage;
+            $reservationBalanceBeforeTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeTax * 5) / 100;
+            $reservationBalance = ($reservationBalanceBeforeTax + $additional_tax_value);
+        } elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
+            $discountType = " فاتورة حجز نقدي ";
+            $total_amount = ($provider_has_bill == 1 or $provider_has_bill_insurance == 1) && ($reservation->promocode_id == null) ? $request->bill_total : $reservation->price;
+            $MC_percentage = $reservation->use_insurance == 0 ? $mainprov->application_percentage_bill + $mainprov->application_percentage : $mainprov->application_percentage_bill_insurance + $mainprov->application_percentage;
+            $reservationBalanceBeforeTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeTax * 5) / 100;
+            $reservationBalance = ($reservationBalanceBeforeTax + $additional_tax_value);
+        }
+
+        //if reservation with coupon
+        if ($reservation->promocode_id != null) {
+            if ($reservation->coupon->coupons_type_id == 1) {  //discount coupon
+                //get  coupon total amount    step 1
+                $totalCouponPrice = $reservation->coupon->price;   //1000
+                $coupounDiscountPercentage = $reservation->coupon->discount;  //20
+                $amountAfterDiscount = $coupounDiscountPercentage > 0 ? ($totalCouponPrice - (($totalCouponPrice * $coupounDiscountPercentage) / 100)) : $totalCouponPrice; //800
+                $MC_percentage = $reservation->coupon->application_percentage;
+                $medicalAmount = $MC_percentage > 0 ? ($amountAfterDiscount * $MC_percentage) / 100 : 0;
+                $addationan_tax = ($medicalAmount * 5) / 100;
+                //get amount after coupoun discount applied step 2
+                //calculate admin percentage of step 2
+                $discountType = " فاتورة حجز بكوبون خصم ";
+                $reservationBalance = $medicalAmount + $addationan_tax;
+            } else {   //prepaid coupon
+                $offer_amount_WithoutVAT = $reservation->coupon->price;
+                $MC_percentage = isset($reservation->coupon->paid_coupon_percentage) ? $reservation->coupon->paid_coupon_percentage : 0; //15
+                $discountType = " فاتورة حجز بكوبون مدفوع  ";
+                $amount = ($offer_amount_WithoutVAT * $MC_percentage) / 100;
+                $addtional_tax = ($amount * 5) / 100;
+                $reservationBalance = $amount + $addtional_tax;
+            }
+        }
+
+        $provider = $reservation->provider;  // always get branch
+        $provider->update([
+            'balance' => $provider->balance - $reservationBalance,
+        ]);
+        $reservation->update([
+            'discount_type' => $discountType,
+        ]);
+        /*  $manager->update([
+              'balance' => $manager->unpaid_balance + $reservationBalance
+          ]);*/
+
+        return true;
+    }
+
     public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
 
@@ -173,11 +252,6 @@ trait ReservationTrait
 
 
             if ($arrived == 1) {
-                $reservation->update([
-                    'approved' => 3,
-                    'is_visit_doctor' => $arrived
-                ]);
-
 
                 //calculate balance
 
@@ -208,7 +282,7 @@ trait ReservationTrait
                 if ($provider_has_bill == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 0) {
                     if (!$request->has('bill_total')) {
                         if ($request->bill_total <= 0) {
-                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
+                             return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                         } else {
                             $totalBill = $request->bill_total;
                         }
@@ -219,7 +293,8 @@ trait ReservationTrait
                 if ($provider_has_bill_insurance == 1 && $reservation->promocode_id == null && $reservation->use_insurance == 1) {
                     if (!$request->has('bill_total')) {
                         if ($request->bill_total <= 0) {
-                            return $this->returnError('E001', trans('messages.Must add Bill Total'));
+
+                            return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
                         } else {
                             $totalBill = $request->bill_total;
                         }
@@ -235,7 +310,7 @@ trait ReservationTrait
                 $promoCode = PromoCode::find($reservation->promocode_id);
                 if ($reservation->promocode_id == null /*or (isset($promoCode) && $promoCode->coupons_type_id == 2)*/) { //change balance here
                     // Calculate the balance if reservation without any coupon
-                    $this->calculateBalance($provider, $reservation->payment_method_id, $reservation, $request);
+                    $this->calculateBalanceAdmin($provider, $reservation->payment_method_id, $reservation, $request);
                 }
 
                 $manager = $this->getAppInfo();
