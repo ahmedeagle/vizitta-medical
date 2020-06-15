@@ -53,7 +53,7 @@ class DoctorController extends Controller
                 "information_en" => "sometimes|nullable",
                 "information_ar" => "sometimes|nullable",
                 //  "insurance_companies" => "required|array",
-               // "working_days" => "required|array",
+                // "working_days" => "required|array",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
                 "nationality_id" => "required|numeric|exists:nationalities,id",
@@ -61,7 +61,9 @@ class DoctorController extends Controller
 
             if ($request->is_consult == 1) {
 
-                $rules["consultations_working_days"] = "required|array|min:1";
+                if ($request->consultations_working_days) {
+                    $rules["consultations_working_days"] = "required|array|min:1";
+                }
                 $rules["password"] = "required|max:100|min:6";
                 $rules["phone"] = 'required|max:100|unique:doctors,phone';
                 $rules["price_consulting"] = "required|numeric";
