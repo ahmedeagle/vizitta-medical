@@ -311,7 +311,7 @@ class DoctorController extends Controller
                                 'from_time' => $from->format('H:i'),
                                 'to_time' => $to->format('H:i'),
                                 'order' => array_search(strtolower($working_day['day']), $days),
-                                'reservation_period' => $request->reservation_period // for clinic doctor  but for consulting is 15 min static
+                                'reservation_period' => 15 // for clinic doctor  but for consulting is 15 min static
                             ];
 
                             $consultationsWorkingDays['provider_id'] = $request->provider_id;
