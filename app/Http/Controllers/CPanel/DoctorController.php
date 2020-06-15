@@ -175,7 +175,7 @@ class DoctorController extends Controller
                 "status" => "required|in:0,1",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
-                "working_days" => "required|array|min:1",
+               // "working_days" => "required|array|min:1",
                 "application_percentage" => "required|integer"
             ];
 
@@ -409,7 +409,7 @@ class DoctorController extends Controller
                 "status" => "required|in:0,1",
                 "waiting_period" => "sometimes|nullable|numeric|min:0",
                 "reservation_period" => "required|numeric",
-                "working_days" => "required|array|min:1",
+               // "working_days" => "required|array|min:1",
                 "application_percentage" => "required|integer",
             ];
 
@@ -447,7 +447,7 @@ class DoctorController extends Controller
             $consultations_working_days_data = [];
 
             // working days
-            if (isset($request->working_days) && !is_null($request->working_days)) {
+            if ($doctor -> doctor_type == 'clinic' && isset($request->working_days) && !is_null($request->working_days)){
 
                 foreach ($request->working_days as $working_day) {
                     if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
@@ -480,17 +480,16 @@ class DoctorController extends Controller
             }
 
             // consultations working
-            if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+            if (($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) or  $requestData['doctor_type'] == 'consultative') {
                 // Optional consultations working days
                 if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
-
                     foreach ($request->consultations_working_days as $working_day) {
                         if (!array_key_exists('from', $working_day) or !array_key_exists('to', $working_day)) {
                             return response()->json(['status' => false, 'error' => ['working_day' => __('main.enter_time_from_and_to')]], 200);
                         }
                         $from = Carbon::parse($working_day['from']);
                         $to = Carbon::parse($working_day['to']);
-                        if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period)) {
+                        if ((!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < 15)) {
                             return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
                         }
 
@@ -500,7 +499,7 @@ class DoctorController extends Controller
                             'from_time' => $from->format('H:i'),
                             'to_time' => $to->format('H:i'),
                             'order' => array_search(strtolower($working_day['day']), $days),
-                            'reservation_period' => $request->reservation_period
+                            'reservation_period' => 15
                         ];
 
                         $consultationsWorkingDays['provider_id'] = $request->provider_id;
