@@ -319,7 +319,7 @@ trait ProviderTrait
         if ($gender != null && $gender != 0 && in_array($gender, [1, 2]))
             $doctor = $doctor->where('gender', $gender);
 
-        $doctor = $doctor->select('id', 'specification_id', 'nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status',
+        $doctor = $doctor->select('id', 'specification_id','is_consult','nationality_id', 'nickname_id', 'photo', 'gender', 'rate', 'price', 'status',
             DB::raw('name_' . $this->getCurrentLang() . ' as name'),
             DB::raw('information_' . $this->getCurrentLang() . ' as information'),
             DB::raw('abbreviation_' . $this->getCurrentLang() . ' as abbreviation')

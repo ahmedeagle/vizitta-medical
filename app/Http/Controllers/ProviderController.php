@@ -788,16 +788,20 @@ class ProviderController extends Controller
                 if (count($doctors) > 0) {
                     foreach ($doctors as $key => $doctor) {
                         $doctor->time = "";
-                        $days = $doctor->times;
-                        $match = $this->getMatchedDateToDays($days);
+                        if ($doctor->is_consul != 0 && $doctor->is_consult != null) {
+                            $days = $doctor->times;
+                            $match = $this->getMatchedDateToDays($days);
 
-                        if (!$match || $match['date'] == null) {
-                            $doctor->time = new \stdClass();;
-                            continue;
+                            if (!$match || $match['date'] == null) {
+                                $doctor->time = new \stdClass();;
+                                continue;
+                            }
+                            $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
+                            $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
+                            $doctor->time = $availableTime;
                         }
-                        $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                        $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
-                        $doctor->time = $availableTime;
+
+
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
                     }
                     $total_count = $doctors->total();
@@ -2403,7 +2407,7 @@ class ProviderController extends Controller
                 }
 
                 $front = $request->has('show_front') ? 1 : 0;
-               return  $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
+                return $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
 
                 if (count($doctors) > 0) {
                     foreach ($doctors as $key => $doctor) {
@@ -2416,8 +2420,7 @@ class ProviderController extends Controller
                             continue;
                         }
                         $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                        if($doctor -> is_consult == 0 or $doctor -> is_consult == null )
-                        {
+                        if ($doctor->is_consult == 0 or $doctor->is_consult == null) {
                             $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
                             $doctor->time = $availableTime;
                         }
