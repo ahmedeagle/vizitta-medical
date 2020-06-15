@@ -271,7 +271,7 @@ trait ReservationTrait
                 // Calculate the balance
                 $this->calculateBalanceAdmin($provider, $reservation->payment_method_id, $reservation, $request);
 
-                $manager = $this->getAppInfo();
+                $manager = Mix::select('mobile', 'email', 'app_price')->first();
                 $mainprov = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
                 $mainprov->makeVisible(['application_percentage_bill', 'application_percentage', 'application_percentage_bill_insurance']);
 
