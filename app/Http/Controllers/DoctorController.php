@@ -323,14 +323,18 @@ class DoctorController extends Controller
             $doctor = $this->getDoctorByID($request->id);
             if ($doctor != null) {
                 $doctor->time = "";
-                $days = $this->geDaysDoctorExist($doctor->id);
-                $match = $this->getMatchedDateToDays($days);
-                if (!$match || $match['date'] == null)
-                    return $this->returnError('E001', trans('messages.doctor is not available'));
-                $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
 
-                $doctor->time = $availableTime;
+                if($doctor -> is_consult != 0 && $doctor -> is_consult != null) {
+                    $days = $this->geDaysDoctorExist($doctor->id);
+                    $match = $this->getMatchedDateToDays($days);
+                    if (!$match || $match['date'] == null)
+                        return $this->returnError('E001', trans('messages.doctor is not available'));
+                    $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
+                    $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
+
+                    $doctor->time = $availableTime;
+                }
+
                 $countRate = $countRate = Doctor::find($request->id)->reservations()
                     ->Where('doctor_rate', '!=', null)
                     ->Where('doctor_rate', '!=', 0)
