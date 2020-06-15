@@ -20,7 +20,9 @@ trait ConsultingTrait
     public function getDoctors($specification_id, $nickname_id, $gender)
     {
 
-        $doctor = Doctor::query();
+        $doctor = Doctor::with(['nickname' => function($q){
+            $q -> select('id','name_'.app()->getLocale().' as name');
+        }]);
         $doctor = $doctor->where(function ($q) {
             $q->where('doctor_type', 'consultative')
                 ->orwhere('is_consult', 1);
