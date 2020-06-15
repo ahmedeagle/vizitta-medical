@@ -322,11 +322,12 @@ class DoctorController extends Controller
                         }
 
 
-                        return $consultations_working_days_data;
+
                         for ($i = 0; $i < count($consultations_working_days_data); $i++) {
                             $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
                         }
 
+                        return $consultations_working_days_data;
                         $times = ConsultativeDoctorTime::insert($consultations_working_days_data);
                     }
                 }
