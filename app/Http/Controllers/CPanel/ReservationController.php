@@ -192,7 +192,7 @@ class ReservationController extends Controller
             return response()->json(['status' => false, 'error' => __('messages.Reservation already rejected')], 200);
         }
 
-        if ($request->status != 2 && $request->status != 1) {
+        if ($request->status != 2 && $request->status != 1 && $request->status != 3) {
             return response()->json(['status' => false, 'error' => __('main.enter_valid_activation_code')], 200);
         }
 
