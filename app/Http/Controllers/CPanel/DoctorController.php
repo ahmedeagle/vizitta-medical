@@ -226,7 +226,7 @@ class DoctorController extends Controller
                     "specification_id" => $request->specification_id,
                     "nationality_id" => $request->nationality_id != 0 ? $request->nationality_id : NULL,
                     "price" => $request->price,
-                    "reservation_period" => $request->reservation_period,
+                    "reservation_period" =>$request->reservation_period ,  //only for clinic doctors only otherwise it = 0
                     "waiting_period" => $request->waiting_period,
                     "status" => true,
                     "application_percentage" => $request->application_percentage
@@ -254,9 +254,8 @@ class DoctorController extends Controller
 
                 $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-                // working days
-                if (isset($request->working_days) && !is_null($request->working_days)) {
-
+                // working days  for clinic doctor
+                if ($doctor -> doctor_type == 'clinic' && isset($request->working_days) && !is_null($request->working_days)) {
                     $working_days_data = [];
                     foreach ($request->working_days as $working_day) {
                         if (empty($working_day['from']) or empty($working_day['to'])) {
@@ -302,7 +301,7 @@ class DoctorController extends Controller
                             }
                             $from = Carbon::parse($working_day['from']);
                             $to = Carbon::parse($working_day['to']);
-                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) < $request->reservation_period) {
+                            if (!in_array($working_day['day'], $days) || $to->diffInMinutes($from) <  15) {  // 15
                                 return response()->json(['status' => false, 'error' => ['working_day' => __('main.day_is_incorrect')]], 200);
                             }
 
@@ -312,7 +311,7 @@ class DoctorController extends Controller
                                 'from_time' => $from->format('H:i'),
                                 'to_time' => $to->format('H:i'),
                                 'order' => array_search(strtolower($working_day['day']), $days),
-                                'reservation_period' => $request->reservation_period
+                                'reservation_period' => $request->reservation_period // for clinic doctor  but for consulting is 15 min static
                             ];
 
                             $consultationsWorkingDays['provider_id'] = $request->provider_id;
