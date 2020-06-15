@@ -294,7 +294,7 @@ class DoctorController extends Controller
                     // Optional consultations working days
 
 
-                    return $requestData['consultations_working_days'];
+
                     if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
 
                         $consultations_working_days_data = [];
@@ -321,6 +321,8 @@ class DoctorController extends Controller
                             $consultations_working_days_data[] = $consultationsWorkingDays;
                         }
 
+
+                        return $consultations_working_days_data;
                         for ($i = 0; $i < count($consultations_working_days_data); $i++) {
                             $consultations_working_days_data[$i]['doctor_id'] = $doctor->id;
                         }
