@@ -184,11 +184,11 @@ class ReservationController extends Controller
 
         if ($reservation == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
-        if ($reservation->approved == 1) {
+        if ($reservation->approved == 1 && $request->status == 1) {
             return response()->json(['status' => false, 'error' => __('messages.Reservation already approved')], 200);
         }
 
-        if ($reservation->approved == 2) {
+        if ($reservation->approved == 2 && $request->status == 1) {
             return response()->json(['status' => false, 'error' => __('messages.Reservation already rejected')], 200);
         }
 
