@@ -321,17 +321,17 @@ class DoctorController extends Controller
 
             //$doctor = Doctor::with('times')->find($request->id);
             $doctor = $this->getDoctorByID($request->id);
+
             if ($doctor != null) {
                 $doctor->time = "";
+                $days = $this->geDaysDoctorExist($doctor->id);
+                $match = $this->getMatchedDateToDays($days);
+                if (!$match || $match['date'] == null)
+                    return $this->returnError('E001', trans('messages.doctor is not available'));
+                $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
+                $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
 
-                     $days = $this->geDaysDoctorExist($doctor->id);
-                    $match = $this->getMatchedDateToDays($days);
-                    if (!$match || $match['date'] == null)
-                        return $this->returnError('E001', trans('messages.doctor is not available'));
-                    $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                    $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
-
-                    $doctor->time = $availableTime;
+                $doctor->time = $availableTime;
 
                 $countRate = $countRate = Doctor::find($request->id)->reservations()
                     ->Where('doctor_rate', '!=', null)
@@ -350,8 +350,21 @@ class DoctorController extends Controller
                     else
                         $doctor->favourite = 0;
                 }
+
+                if ($doctor != null && $doctor->is_consult == 1) {
+                    $consultativeTimes = $doctor->consultativeTimes()->get();
+                    $days_code = ['sat' => 'Saturday', 'sun' => 'Sunday', 'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday'];
+                    if (!empty($consultativeTimes) && count($consultativeTimes) > 0) {
+                        foreach ($consultativeTimes as $time) {
+                            $time['day_code'] = $days_code[$time['day_code']];
+                        }
+                    }
+                    $doctor->consultations_working_days = $consultativeTimes;
+                }
+
                 return $this->returnData('doctor', json_decode($doctor, FALSE));
             }
+
             return $this->returnError('E001', trans('messages.No doctor with this id'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
