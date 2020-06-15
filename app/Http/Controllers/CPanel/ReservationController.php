@@ -212,9 +212,7 @@ class ReservationController extends Controller
             $arrived = $request->arrived;
         }
 
-         $this->changerReservationStatus($reservation, $request->status,null,$arrived ,$request);
-        return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
-
+       return   $this->changerReservationStatus($reservation, $request->status,null,$arrived ,$request);
 
     }
 

@@ -245,8 +245,10 @@ trait ReservationTrait
                         } else {
                             $totalBill = $request->bill_total;
                         }
-                    } else
+                    } else {
+                        dd(0);
                         return response()->json(['status' => false, 'error' => __('messages.Must add Bill Total')], 200);
+                    }
                 }
 
                 // get bill total only if discount apply to this provider  on insurance_bill and the reservation without coupons "bill case"
