@@ -290,7 +290,7 @@ class DoctorController extends Controller
                 }
 
                 // consultations working
-                if ($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) {
+                if (($requestData['doctor_type'] == 'clinic' && $requestData['is_consult'] == 1) or  $requestData['doctor_type'] == 'consultative') {
                     // Optional consultations working days
                     if (isset($requestData['consultations_working_days']) && !is_null($requestData['consultations_working_days'])) {
 
