@@ -212,7 +212,7 @@ class ReservationController extends Controller
             $arrived = $request->arrived;
         }
 
-         $this->changerReservationStatus($reservation, $request->status, $arrived ,$request);
+         $this->changerReservationStatus($reservation, $request->status,null,$arrived ,$request);
         return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
 
 
@@ -241,7 +241,7 @@ class ReservationController extends Controller
                     return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
                 }
             }
-            $this->changerReservationStatus($reservation, $status, $rejection_reason);
+            $this->changerReservationStatus($reservation, $status, $rejection_reason,0,$request);
             return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
         }
     }

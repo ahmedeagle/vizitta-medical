@@ -197,8 +197,7 @@ trait ReservationTrait
 
     public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
-        dd($request);
-
+        
         if ($status != 3) {
             $reservation->update([
                 'approved' => $status,
