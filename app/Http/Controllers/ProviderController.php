@@ -1714,6 +1714,7 @@ class ProviderController extends Controller
             $reservation->update([
                 'approved' => 2
             ]);
+
             if ($reservation->user->email != null)
                 Mail::to($reservation->user->email)->send(new   RejectReservationMail($reservation->reservation_no));
         }
@@ -2421,10 +2422,8 @@ class ProviderController extends Controller
                             continue;
                         }
                         $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                        if ($doctor->is_consult == 0 or $doctor->is_consult == null) {
-                            $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
+                             $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
                             $doctor->time = $availableTime;
-                        }
 
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
                         $countRate = Doctor::find($doctor->id)->reservations()
