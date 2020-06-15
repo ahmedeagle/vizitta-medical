@@ -4,6 +4,7 @@ namespace App\Traits\Dashboard;
 
 use App\Mail\AcceptReservationMail;
 use App\Models\Doctor;
+use App\Models\Mix;
 use App\Models\PromoCode;
 use App\Models\Provider;
 use App\Models\Reservation;
@@ -122,7 +123,7 @@ trait ReservationTrait
     public function calculateBalanceAdmin($provider, $paymentMethod_id, Reservation $reservation, $request)
     {
         // all this balance make by - minus because the payment only is  cash no visa untill now
-        $manager = $this->getAppInfo();
+        $manager = Mix::select('mobile', 'email', 'app_price')->first();
         $mainprov = Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id);
         $mainprov->makeVisible(['application_percentage_bill', 'application_percentage', 'application_percentage_bill_insurance', '']);
         //if there is bill  take app percentage from bill + reservation price
