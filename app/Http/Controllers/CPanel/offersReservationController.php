@@ -393,18 +393,26 @@ class offersReservationController extends Controller
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
             }
 
-            if ($status != 2 && $status != 1) {
+            if ($status != 2 && $status != 1 && $request->status != 3) {
                 return $this->returnError('E001', trans('messages.status must be 1 or 2'));
-            } else {
+            }
 
                 if ($status == 2) {
                     if ($rejection_reason == null) {
                         return $this->returnError('E001', trans('messages.please enter rejection reason'));
                     }
                 }
-                $this->changerReservationStatus($reservation, $status);
-                return $this->returnSuccessMessage(trans('messages.reservation status changed successfully'));
+
+            $arrived = 0;
+
+            if ($request->status == 3) {
+
+                if (!isset($request->arrived) or ($request->arrived != 0 && $request->arrived != 1)) {
+                    return response()->json(['status' => false, 'error' => __('main.enter_arrived_status')], 200);
+                }
+                $arrived = $request->arrived;
             }
+             return   $this->changerReservationStatus($reservation, $request->status,null,$arrived ,$request);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());

@@ -261,6 +261,7 @@ return [
     'provider_have_new_reservation_from_MedicalCall' => 'لديك حجز جديد من مستفيدي تطبيق ميديكل كول يرجى تأكيد الطلب فوراً عبر منصة قبول الطلبات mcall.sa ',
     'provider_have_new_service_reservation_from_MedicalCall' => 'لديك حجز خدمة جديد من مستفيدي تطبيق ميديكل كول يرجى تأكيد الطلب فوراً عبر منصة قبول الطلبات mcall.sa ',
     'your_reservation_has_been_accepted_from' => 'لقد تم قبول حجزك من ',
+    'your_reservation_has_been_complete_from' => 'لقد تم أنهاء حجزك من ',
     'if_you_wish_to_change_reservations' => 'في حال الرغبة بتغيير الحجز أو الإلغاء يرجى التواصل مع خدمة العملاء 920035999',
 
     'reject_reservations' => 'يؤسفنا ابلاغك برفض حجزك لدى',
