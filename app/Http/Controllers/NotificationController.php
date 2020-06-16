@@ -39,6 +39,7 @@ class NotificationController extends Controller
 
     public function sendUser(User $notify, $bill = false, $reservation_id = null)
     {
+
         // $data['device_token'] = $User->device_token;
         $notification = [
             'title' => $this->title,

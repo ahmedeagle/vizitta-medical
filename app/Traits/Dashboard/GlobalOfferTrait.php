@@ -128,12 +128,12 @@ trait GlobalOfferTrait
                 //send push notification
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id));
 
-                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
+return                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
                 //send mobile sms
 //                $message = $bodyUser;
 
-                $this->sendSMS($reservation->user->mobile, $message);
+//                $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 
