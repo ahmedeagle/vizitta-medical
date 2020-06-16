@@ -65,6 +65,11 @@ trait GlobalOfferTrait
 
             if ($arrived == 1) {
 
+                $reservation->update([
+                    'approved' => 3,
+                    'is_visit_doctor' => 1
+                ]);
+
                 if ($payment_method == 1 && $status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
                     $totalBill = 0;
                     $comment = " نسبة ميدكال كول من كشف (عرض) حجز نقدي ";

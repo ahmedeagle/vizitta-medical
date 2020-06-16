@@ -49,11 +49,9 @@ class ServicesReservationController extends Controller
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
         }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
-            ;
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
-            ;
+            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'branch' => function ($qq) {
@@ -73,7 +71,7 @@ class ServicesReservationController extends Controller
 
         if (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
-            $res = $reservations -> where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+            $res = $reservations->where('reservation_no', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
                 ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
@@ -85,12 +83,12 @@ class ServicesReservationController extends Controller
                     $query->where('name', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('service', function ($query) use ($q) {
-                    $query->where('title_ar', 'LIKE', '%' . trim($q) . '%') ->where('title_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('title_ar', 'LIKE', '%' . trim($q) . '%')->where('title_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->where('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->where('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orWhereHas('branch', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') ->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                 })->orWhereHas('provider', function ($query) use ($q) {
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->where('name_en', 'LIKE', '%' . trim($q) . '%');
                 })
@@ -117,8 +115,7 @@ class ServicesReservationController extends Controller
 
             $data['reservations'] = new ReservationResource($res);
 
-        }
-        else{
+        } else {
             $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
                 ->paginate(10));
         }
@@ -166,11 +163,10 @@ class ServicesReservationController extends Controller
     ##################### Start change service reservation status ########################
     public function changeStatus(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|max:255",
-                "status" => "required|in:1,2" // 1 == confirmed && 2 == canceled
+                "status" => "required|in:1,2,3" // 1 == confirmed && 2 == canceled
             ]);
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
@@ -179,46 +175,156 @@ class ServicesReservationController extends Controller
 
             $reservation_id = $request->reservation_id;
             $status = $request->status;
-            $rejection_reason = $request->reason;
+            $rejection_reason = $request->rejected_reason_id;
 
             $reservation = ServiceReservation::where('id', $reservation_id)->with('user')->first();
 
             if ($reservation == null)
                 return response()->json(['success' => false, 'error' => __('messages.No reservation with this number')], 200);
-            if ($reservation->approved == 1) {
+            if ($reservation->approved == 1 && $request->status == 1) {
                 return response()->json(['success' => false, 'error' => __('messages.Reservation already approved')], 200);
             }
 
-            if ($reservation->approved == 2) {
+            if ($reservation->approved == 2 && $request->status == 2) {
                 return response()->json(['success' => false, 'error' => __('messages.Reservation already rejected')], 200);
             }
 
-            if ($status != 2 && $status != 1) {
+            if ($status != 2 && $status != 1 && $status != 3) {
                 return response()->json(['success' => false, 'error' => __('messages.status must be 1 or 2')], 200);
-            } else {
-
-                if ($status == 2) {
-                    if ($rejection_reason == null) {
-                        return response()->json(['success' => false, 'error' => __('messages.please enter rejection reason')], 200);
-                    }
-                }
-
-                $data = [
-                    'approved' => $status,
-                ];
-
-                if (!empty($rejection_reason))
-                    $data['rejection_reason'] = $rejection_reason;
-
-                $reservation->update($data);
-
-                return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);
             }
+
+            if ($status == 2) {
+                if ($rejection_reason == null) {
+                    return response()->json(['success' => false, 'error' => __('messages.please enter rejection reason')], 200);
+                }
+            }
+
+            if ($request->status == 3) {
+                $validator->addRules([
+                    "arrived" => "required|in:0,1"
+                ]);
+            }
+
+
+            $arrived = 0;
+
+            if ($request->status == 3) {
+
+                if (!isset($request->arrived) or ($request->arrived != 0 && $request->arrived != 1)) {
+                    return response()->json(['status' => false, 'error' => __('main.enter_arrived_status')], 200);
+                }
+                $arrived = $request->arrived;
+            }
+
+            return $this->changerReservationStatus($reservation, $request->status, $rejection_reason, $arrived, $request);
+
 
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
+
     ##################### End change service reservation status ########################
+    public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
+    {
+        if ($status != 3) {
+            $reservation->update([
+                'approved' => $status,
+                'rejection_reason' => $rejection_reason
+            ]);
+        }
+
+
+        $provider = Provider::find($reservation->provider_id); // branch
+        $provider->makeVisible(['device_token']);
+
+        $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
+        $application_percentage_of_bill = $reservation->provider->application_percentage_bill ? $reservation->provider->application_percentage_bill : 0;
+
+        $complete = $arrived;
+
+        if ($status == 3) {  //complete Reservations
+            if ($arrived == 1) {
+
+                $reservation->update([
+                    'approved' => 3,
+                    'is_visit_doctor' => 1
+                ]);
+
+                if ($payment_method == 1 && $status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateServiceReservationBalanceForAdmin($application_percentage_of_bill, $reservation);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+                if ($payment_method != 1 && $status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
+                    $totalBill = 0;
+                    $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
+                    $invoice_type = 0;
+                    try {
+                        $this->calculateOfferReservationBalanceForAdmin($application_percentage_of_bill, $reservation);
+                    } catch (\Exception $ex) {
+                    }
+                }
+
+            } else {
+                $reservation->update([
+                    'approved' => 2,
+                    'is_visit_doctor' => 0
+                ]);
+            }
+
+        }
+        try {
+            if ($provider && $reservation->user_id != null) {
+
+                $name = 'name_' . app()->getLocale();
+                if ($status == 1) {
+                    $bodyProvider = __('messages.approved user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.approved your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+
+                    $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
+                        __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
+
+                } elseif ($status == 2) {
+                    $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                    $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+
+                    $rejected_reason = 'name_' . app()->getLocale();
+                    $message = __('messages.reject_reservations') . ' ( ' . "{$provider->provider->getTranslatedName()} - {$provider->getTranslatedName()}" . ' ) ' .
+                        __('messages.because') . '( ' . "{$rejection_reason}" . ' ) ' . __('messages.can_re_book');
+                } elseif ($status == 3) { // complete reservation
+                    if ($complete == 1) { //when reservation complete and user arrived to branch
+                        $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . " - {$provider->getTranslatedName()}  ";
+                        $bodyUser = __('messages.complete your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()}  - ";
+                    } else {
+                        $bodyProvider = __('messages.canceled your reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
+                        $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
+                    }
+                    $message_res = $bodyUser;
+                } else {
+                    $bodyProvider = '';
+                    $bodyUser = '';
+                }
+
+                //send push notification
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id));
+
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
+
+                //send mobile sms
+//                $message = $bodyUser;
+
+//                $this->sendSMS($reservation->user->mobile, $message);
+            }
+        } catch (\Exception $exception) {
+
+        }
+        return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
+    }
 
 }

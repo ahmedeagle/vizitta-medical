@@ -412,8 +412,7 @@ class offersReservationController extends Controller
                 }
                 $arrived = $request->arrived;
             }
-             return   $this->changerReservationStatus($reservation, $request->status,null,$arrived ,$request);
-
+             return   $this->changerReservationStatus($reservation, $request->status,$rejection_reason,$arrived ,$request);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
