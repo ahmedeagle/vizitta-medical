@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\NotificationsResource;
+use App\Http\Resources\SingleNotificationResource;
 use App\Mail\AcceptReservationMail;
 use App\Mail\RejectReservationMail;
 use App\Models\CommentReport;
@@ -2770,7 +2771,7 @@ class ProviderController extends Controller
                 ->with(['notification' => function ($q) {
                     $q->select('id', 'photo', 'title', 'content');
                 }])->whereIn('actor_id', $branchesIDs)
-                ->unseenForProvider()
+                ->forProvider()
                 ->paginate(PAGINATION_COUNT);
 
             $notifications = new NotificationsResource($notifications);

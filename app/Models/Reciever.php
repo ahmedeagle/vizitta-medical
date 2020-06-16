@@ -37,6 +37,10 @@ class Reciever extends Model
     {
         return $query->where('actor_type', 'providers')->where('seen', '0');
     }
+    public function scopeForProvider($query)
+    {
+        return $query->where('actor_type', 'providers');
+    }
 
     public function getCreatedAtAttribute($val)
     {
