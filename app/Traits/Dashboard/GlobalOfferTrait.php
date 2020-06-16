@@ -138,7 +138,7 @@ trait GlobalOfferTrait
         } catch (\Exception $exception) {
 
         }
-        return $reservation;
+        return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
     }
 
     public function calculateOfferReservationBalanceForAdmin($application_percentage_of_offer, Reservation $reservation)

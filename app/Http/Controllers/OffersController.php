@@ -1735,7 +1735,7 @@ class OffersController extends Controller
                 "status" => "required|in:1,2,3" //1->approved 2->cancelled 3 ->complete
             ]);
 
-            if ($request->status == 2) {
+            if ($request->status == 2 && $request -> rejected_reason_id != 0  ) {
                 $validator->addRules([
                     'rejected_reason_id' => 'required|string',
                     'rejected_reason_notes' => 'sometimes|nullable|string',
