@@ -39,7 +39,9 @@ class NotificationsController extends Controller
                 $q->with([$relation]);
             }])->where('type', $request->type)->select('*')->get();*/
 
-            $notifications = Notification::where('type', $request->type)->select('id', 'title','photo','content', 'created_at')->paginate(PAGINATION_COUNT);
+            $notifications = Notification::where('type', $request->type)
+                ->select('id', 'title','photo','content', 'created_at')
+                ->orderBy('id','DESC')->paginate(PAGINATION_COUNT);
             return response()->json(['status' => true, 'data' => $notifications]);
 
         } catch (\Exception $ex) {
