@@ -110,7 +110,7 @@ trait GlobalOfferTrait
 
                     $rejected_reason = 'name_' . app()->getLocale();
                     $message = __('messages.reject_reservations') . ' ( ' . "{$provider->provider->getTranslatedName()} - {$provider->getTranslatedName()}" . ' ) ' .
-                        __('messages.because') . '( ' . "{$reservation->rejectionResoan->$rejected_reason}" . ' ) ' . __('messages.can_re_book');
+                        __('messages.because') . '( ' . "{$rejection_reason}" . ' ) ' . __('messages.can_re_book');
                 }elseif ($status == 3) { // complete reservation
                     if ($complete == 1) { //when reservation complete and user arrived to branch
                         $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . " - {$provider->getTranslatedName()}  ";
