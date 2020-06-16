@@ -327,4 +327,50 @@ class ServicesReservationController extends Controller
         return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
     }
 
+
+    protected function calculateServiceReservationBalanceForAdmin($application_percentage_of_bill, Reservation $reservation)
+    {
+
+       // $reservation->service_type == 1; ### 1 = home & 2 = clinic
+        $total_amount = $reservation->service_type == 1 ? floatval($reservation->total_price) : floatval($reservation->price);
+        $MC_percentage = $application_percentage_of_bill;
+        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+
+        if ($reservation->paymentMethod->id == 1) {//cash
+            $discountType = " فاتورة حجز نقدي لخدمة ";
+            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $branch = $reservation->branch;  // always get branch
+            $branch->update([
+                'balance' => $branch->balance - $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            /*$manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);*/
+        } else {
+
+            $discountType = " فاتورة حجز الكتروني لخدمة ";
+            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+            $branch = $reservation->branch;  // always get branch
+            $branch->update([
+                'balance' => $branch->balance + $reservationBalance,
+            ]);
+            $reservation->update([
+                'discount_type' => $discountType,
+            ]);
+            /*$manager = $this->getAppInfo();
+            $manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance
+            ]);*/
+
+        }
+
+        return true;
+    }
 }
