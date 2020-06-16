@@ -235,7 +235,7 @@ class ServicesReservationController extends Controller
         }
 
 
-        $provider = Provider::find($reservation->provider_id); // branch
+        $provider = Provider::find($reservation->branch_id); // branch
         $provider->makeVisible(['device_token']);
 
         $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
