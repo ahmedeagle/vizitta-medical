@@ -180,7 +180,7 @@ class ReservationController extends Controller
 
     public function changeStatus(Request $request)
     {
-        return $reservation = Reservation::where('id', $request->id)->with('user')->first();
+         $reservation = Reservation::where('id', $request->id)->with('user')->first();
 
         if ($reservation == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
