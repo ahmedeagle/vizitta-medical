@@ -370,7 +370,7 @@ class offersReservationController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "reservation_id" => "required|max:255",
-                "status" => "required|in:1,2" // 1 approved 2 reject
+                "status" => "required|in:1,2,3" // 1 approved 2 reject
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
