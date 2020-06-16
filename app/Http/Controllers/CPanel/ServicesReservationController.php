@@ -328,7 +328,7 @@ class ServicesReservationController extends Controller
     }
 
 
-    protected function calculateServiceReservationBalanceForAdmin($application_percentage_of_bill, Reservation $reservation)
+    protected function calculateServiceReservationBalanceForAdmin($application_percentage_of_bill, ServiceReservation $reservation)
     {
 
        // $reservation->service_type == 1; ### 1 = home & 2 = clinic
