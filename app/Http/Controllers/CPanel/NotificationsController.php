@@ -116,7 +116,7 @@ class NotificationsController extends Controller
 
 
             $fileName = "";
-            if (isset($request->photo) && !empty($request->v)) {
+            if (isset($request->photo) && !empty($request->photo)) {
                 $fileName = $this->saveImage('notifications', $request->photo);
             }
 
