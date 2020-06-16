@@ -325,8 +325,6 @@ trait ReservationTrait
                      $odoo_invoice_id = $this->createInvoice_CashReservation($data);
                     $reservation->update(['odoo_invoice_id' => $odoo_invoice_id]);
 
-
-
             } else {
                 $reservation->update([
                     'approved' => 2,

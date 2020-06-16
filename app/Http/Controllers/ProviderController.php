@@ -2799,7 +2799,17 @@ class ProviderController extends Controller
 
             Reciever::where('id', $request->notification_id)->update(['seen' => '1']);
 
-            return $this->returnSuccessMessage('');
+            $id = $request -> notification_id;
+
+            $notification = Reciever::whereHas('notification')
+                ->with(['notification' => function ($q) use($id){
+                    $q->select('id', 'photo', 'title', 'content');
+                }])->where('id', $id)
+                 ->first();
+
+            $notifications = new SingleNotificationResource($notification);
+
+            return $this->returnData('notifications', $notifications);
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
