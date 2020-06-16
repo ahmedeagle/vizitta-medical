@@ -197,8 +197,8 @@ class ReservationController extends Controller
         }
 
         if ($request->status == 2) {
-            if ($request->rejection_reason == null) {
-                return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reasondfdfdf')], 200);
+            if ($request->rejection_reason == null && $request->rejection_reason !=0 ) {
+                return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
             }
         }
 
