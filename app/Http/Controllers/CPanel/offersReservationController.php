@@ -658,4 +658,24 @@ class offersReservationController extends Controller
         return Reservation::where('offer_id', $offerId)->where('provider_id',$branchId)->where('day_date', $date)->where('from_time', $fromTime)->first();
     }
 
+
+    protected function getOfferTimePeriods($working_days)
+    {
+        $times = [];
+        $j = 0;
+        foreach ($working_days as $working_day) {
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
+            $diffInterval = ($to - $from) / 60;
+            $periodCount = $diffInterval / $working_day['time_duration'];
+            for ($i = 0; $i < round($periodCount); $i++) {
+                $times[$j]['day_code'] = $working_day['day_code'];
+                $times[$j]['day_name'] = $working_day['day_name'];
+                $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                $times[$j++]['time_duration'] = $working_day['time_duration'];
+            }
+        }
+        return $times;
+    }
 }
