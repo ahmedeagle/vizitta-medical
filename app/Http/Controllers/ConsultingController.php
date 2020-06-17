@@ -75,7 +75,7 @@ class ConsultingController extends Controller
 
         $doctors = $this->getDoctors($request->category_id, $request->nickname_id, $request->gender);
 
-        if (count($doctors) > 0) {
+       // if (count($doctors) > 0) {
             $doctors->getCollection()->each(function ($doctor) {
                 $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
                 $countRate = count($doctor->reservations);
@@ -93,13 +93,10 @@ class ConsultingController extends Controller
             $doctorsJson->total_count = $total_count;
             $doctorsJson->data = $doctors->data;
             return $this->returnData('doctors', $doctorsJson);
-        }else{
 
-             $doctorsJson = new \stdClass();
-            $doctorsJson->data = [];
-            return $this->returnData('doctors', $doctorsJson);
-        }
-        return $this->returnError('E001', trans('messages.there is no data found'));
+         //   return $this->returnData('doctors', $doctorsJson);
+
+        //return $this->returnError('E001', trans('messages.there is no data found'));
     }
 
     public function getCurrentConsultingReserves(Request $request)
