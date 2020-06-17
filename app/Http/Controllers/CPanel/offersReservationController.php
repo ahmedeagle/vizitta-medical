@@ -217,7 +217,6 @@ class offersReservationController extends Controller
         }
     }
 
-
 //get availbles  slot times by day
     public function getAvailableTimes(Request $request)
     {
