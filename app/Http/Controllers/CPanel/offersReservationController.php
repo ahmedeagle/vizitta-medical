@@ -138,13 +138,15 @@ class offersReservationController extends Controller
     public function edit(Request $request)
     {
         try {
+
+
             $reservation = Reservation::select('offer_id','provider_id')->find($request->id);
             if (!$reservation) {
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
             }
 
             return $times = OfferBranchTime::where('offer_id', $reservation->offer_id)
-                ->where('branch_id', $reservation->branch_id)
+                ->where('branch_id', $reservation->provider_id)
                 ->get();
 
             if ($reservation->approved == 2 or $reservation->approved == 3) {   // 2-> cancelled  3 -> complete
