@@ -139,9 +139,8 @@ class offersReservationController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                "offer_id" => "required|numeric|exists:offers,id",
-                "branch_id" => "required|numeric|exists:providers,id",
-            ]);
+                "id" => "required|exists:reservations,id",
+             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
