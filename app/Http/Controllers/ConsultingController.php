@@ -92,9 +92,11 @@ class ConsultingController extends Controller
             $doctorsJson->per_page = PAGINATION_COUNT;
             $doctorsJson->total_count = $total_count;
             $doctorsJson->data = $doctors->data;
-            return $this->returnData('doctors', $doctorsJson);
+
         }
-        return $this->returnError('E001', trans('messages.there is no data found'));
+
+        return $this->returnData('doctors', $doctorsJson);
+ //       return $this->returnError('E001', trans('messages.there is no data found'));
     }
 
     public function getCurrentConsultingReserves(Request $request)
