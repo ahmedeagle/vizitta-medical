@@ -20,7 +20,7 @@ trait ConsultingTrait
     public function getDoctors($specification_id, $nickname_id, $gender,$_specification_id = null)
     {
 
-        if($_specification_id != null )
+        if($_specification_id != null && $_specification_id !="" && $_specification_id != 0)
         {
             $specification_id  = $_specification_id;
         }
