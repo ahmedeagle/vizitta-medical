@@ -107,7 +107,7 @@ class NotificationsController extends Controller
                 "content" => "required|max:255",
                 "notify-type" => "required|in:1,2",
                 "allow_fire_base" => 'required|in:0,1',
-                "directiona_type" => "required|in:offer,category,center,branch,consulting,external,none",
+                "direction_type" => "required|in:offer,category,center,branch,consulting,external,none",
 
             ]);
 
@@ -125,12 +125,12 @@ class NotificationsController extends Controller
 
             ////////// determine  which place notification will go after user click on it ////////
 
-            if ($request->type == 'external') {
+            if ($request->direction_type == 'external') {
                 if (empty($request->external_link)) {
                     return $this->returnError('D000', __('messages.external link required'));
                 }
             }
-            if ($request->type == 'branch') {
+            if ($request->direction_type == 'branch') {
                 if ((empty($request->branch_id) or !is_numeric($request->branch_id)) && ($request->branch_id != 0)) {
                     return $this->returnError('D000', __('messages.provider id required'));
                 }
@@ -150,7 +150,7 @@ class NotificationsController extends Controller
             if ($request->type == 'center') {
                 //nothing
             }
-            if ($request->type == 'consulting') {
+            if ($request->direction_type == 'consulting') {
                 // required only if category_id  not equal 0  //i.e not all categories then we need subcategory of this category
                 if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
                     return $this->returnError('D000', __('messages.subcategory required'));
@@ -166,7 +166,7 @@ class NotificationsController extends Controller
 
 
             }
-            if ($request->type == 'category') {
+            if ($request->direction_type == 'category') {
                 // 0 -> means all category of offers    otherwise mean offer category id
                 if ((empty($request->category_id) or !is_numeric($request->category_id)) && ($request->category_id != 0)) {
                     return $this->returnError('D000', __('messages.category required'));
@@ -195,7 +195,7 @@ class NotificationsController extends Controller
                 }
 
             }
-            if ($request->type == 'offer') {
+            if ($request->direction_type == 'offer') {
                 if (empty($request->offer_id) or !is_numeric($request->offer_id)) {
                     return $this->returnError('D000', __('messages.offer required'));
                 }
@@ -205,22 +205,22 @@ class NotificationsController extends Controller
             }
 
 
-            if ($request->type == 'category') {
+            if ($request->direction_type == 'category') {
                 $id = $request->category_id;
                 $notifictionable_type = 'App\Models\OfferCategory';
-            } elseif ($request->type == 'offer') {
+            } elseif ($request->direction_type == 'offer') {
                 $id = $request->offer_id;
                 $notifictionable_type = 'App\Models\Offer';
-            } elseif ($request->type == 'branch') {
+            } elseif ($request->direction_type == 'branch') {
                 $id = $request->branch_id;
                 $notifictionable_type = 'App\Models\Provider';
-            } elseif ($request->type == 'center') {
+            } elseif ($request->direction_type == 'center') {
                 $id = 0;
                 $notifictionable_type = 'App\Models\MedicalCenter';
-            } elseif ($request->type == 'consulting') {
+            } elseif ($request->direction_type == 'consulting') {
                 $id = 0;
                 $notifictionable_type = 'App\Models\Doctor';
-            } elseif ($request->type == "external") {
+            } elseif ($request->direction_type == "external") {
                 $id = null;
                 $notifictionable_type = 'external';
             } else {
