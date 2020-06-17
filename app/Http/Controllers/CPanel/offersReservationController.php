@@ -161,7 +161,7 @@ class offersReservationController extends Controller
 
             return $this->returnData('days', $days);
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
