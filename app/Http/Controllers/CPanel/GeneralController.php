@@ -8,7 +8,7 @@ use App\Traits\CPanel\GeneralTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use DB;
 use Illuminate\Support\Facades\Validator;
 
 class GeneralController extends Controller
@@ -157,10 +157,10 @@ class GeneralController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $model = 'App\Models\\' . $request->type;
+            $table = $request->type;
             $status = $request->status;
 
-            $table = $model->where('id', $request->id)->first();
+            $table = DB::table($table)->where('id', $request->id)->first();
             if (!$table)
                 return $this->returnError('E001', __('Data not Found'));
 
