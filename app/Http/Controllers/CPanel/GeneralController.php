@@ -141,4 +141,30 @@ class GeneralController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+    public function changeStatus(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "type" => "required|in:ProviderType",
+                "status" => "required|in:0,1",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $model = $request->type;
+            $status = $request->status;
+
+            $model::update(['status' => $status]);
+
+            return $this->returnSuccessMessage(trans('messages.status changed successfully'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 }

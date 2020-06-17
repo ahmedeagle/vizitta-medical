@@ -9,7 +9,7 @@ class ProviderType extends Model
     protected $table = 'provider_types';
     public $timestamps = true;
 
-    protected $fillable = ['name_en', 'name_ar'];
+    protected $fillable = ['name_en', 'name_ar','status'];
 
     public function getName()
     {
