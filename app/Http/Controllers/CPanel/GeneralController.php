@@ -156,10 +156,10 @@ class GeneralController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $model = $request->type;
+            $model = 'App\Models\\'.$request->type;
             $status = $request->status;
 
-            $model::update(['status' => $status]);
+           $model::update(['status' => $status]);
 
             return $this->returnSuccessMessage(trans('messages.status changed successfully'));
 
