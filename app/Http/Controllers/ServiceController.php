@@ -357,7 +357,7 @@ class ServiceController extends Controller
     protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation)
     {
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
-        $total_amount = $reservation->service_type == 1 ? floatval($reservation->total_price) : floatval($reservation->price);
+        $total_amount =  floatval($reservation->price);
         $MC_percentage = $application_percentage_of_bill;
         $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
         $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;

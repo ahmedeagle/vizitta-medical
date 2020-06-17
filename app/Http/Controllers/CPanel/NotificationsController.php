@@ -6,8 +6,11 @@ use App\Http\Resources\CPanel\NotificationReceiversResource;
 use App\Jobs\SenAdminNotification;
 use App\Models\GeneralNotification;
 use App\Models\Notification;
+use App\Models\Offer;
+use App\Models\OfferCategory;
 use App\Models\Provider;
 use App\Models\Reciever;
+use App\Models\Specification;
 use App\Traits\Dashboard\PublicTrait;
 use App\Traits\GlobalTrait;
 use Carbon\Carbon;
@@ -23,6 +26,7 @@ use Illuminate\Support\Facades\Artisan;
 class NotificationsController extends Controller
 {
     use GlobalTrait;
+
     public function index(Request $request)
     {
         try {
@@ -40,8 +44,8 @@ class NotificationsController extends Controller
             }])->where('type', $request->type)->select('*')->get();*/
 
             $notifications = Notification::where('type', $request->type)
-                ->select('id', 'title','photo','content', 'created_at')
-                ->orderBy('id','DESC')->paginate(PAGINATION_COUNT);
+                ->select('id', 'title', 'photo', 'content', 'created_at')
+                ->orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
             return response()->json(['status' => true, 'data' => $notifications]);
 
         } catch (\Exception $ex) {
@@ -102,8 +106,10 @@ class NotificationsController extends Controller
                 "title" => "required|max:255",
                 "content" => "required|max:255",
                 "notify-type" => "required|in:1,2",
-                "allow_fire_base"  => 'required|in:0,1'
-             ]);
+                "allow_fire_base" => 'required|in:0,1',
+                "directiona_type" => "required|in:offer,category,center,branch,consulting,external,none",
+
+            ]);
 
             if ($validator->fails()) {
                 $result = $validator->messages()->toArray();
@@ -117,6 +123,112 @@ class NotificationsController extends Controller
             $allow_fire_base = $request->input("allow_fire_base");
 
 
+            ////////// determine  which place notification will go after user click on it ////////
+
+            if ($request->type == 'external') {
+                if (empty($request->external_link)) {
+                    return $this->returnError('D000', __('messages.external link required'));
+                }
+            }
+            if ($request->type == 'branch') {
+                if ((empty($request->branch_id) or !is_numeric($request->branch_id)) && ($request->branch_id != 0)) {
+                    return $this->returnError('D000', __('messages.provider id required'));
+                }
+                //check if  branch is exists or not
+                $branch = Provider::whereNotNull('provider_id')->where('id', $request->branch_id)->first();
+                if (!$branch) {
+                    return $this->returnError('D000', __('messages.branch not found'));
+                }
+                // required   subcategory_id    1 -> doctors 2 -> services
+                if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
+                    return $this->returnError('D000', __('messages.subcategory required'));
+                }
+                if ($request->subcategory_id != 1 && $request->subcategory_id != 2) {
+                    return $this->returnError('D000', __('messages.subcategory_id required and must be 1 for doctors 2 for services'));
+                }
+            }
+            if ($request->type == 'center') {
+                //nothing
+            }
+            if ($request->type == 'consulting') {
+                // required only if category_id  not equal 0  //i.e not all categories then we need subcategory of this category
+                if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
+                    return $this->returnError('D000', __('messages.subcategory required'));
+                }
+                //check if subcategory exists
+                if ($request->has('subcategory_id')) {
+                    $specification = Specification::where('id', $request->subcategory_id)->first();
+
+                    if (!$specification && $request->subcategory_id != 0) {
+                        return $this->returnError('D000', __('messages.subcategory not found'));
+                    }
+                }
+
+
+            }
+            if ($request->type == 'category') {
+                // 0 -> means all category of offers    otherwise mean offer category id
+                if ((empty($request->category_id) or !is_numeric($request->category_id)) && ($request->category_id != 0)) {
+                    return $this->returnError('D000', __('messages.category required'));
+                }
+
+                //check if main category not equal 0 (i.e not all categroy)  we must check if this main category exists or not
+                if ($request->category_id != 0) {
+                    $category = OfferCategory::whereNull('parent_id')->where('id', $request->category_id)->first();
+                    if (!$category) {
+                        return $this->returnError('D000', __('messages.category not found'));
+                    }
+                    // required only if category_id  not equal 0  //i.e not all categories then we need subcategory of this category
+                    if ((empty($request->subcategory_id) or !is_numeric($request->subcategory_id)) && ($request->subcategory_id != 0)) {
+                        return $this->returnError('D000', __('messages.subcategory required'));
+                    }
+                }
+
+                //check if subcategory exists
+                if ($request->has('subcategory_id')) {
+                    if ($request->subcategory_id != 0) {
+                        $subCategory = OfferCategory::whereNotNull('parent_id')->where('id', $request->subcategory_id)->first();
+                        if (!$subCategory) {
+                            return $this->returnError('D000', __('messages.subcategory not found'));
+                        }
+                    }
+                }
+
+            }
+            if ($request->type == 'offer') {
+                if (empty($request->offer_id) or !is_numeric($request->offer_id)) {
+                    return $this->returnError('D000', __('messages.offer required'));
+                }
+                $offer = Offer::where('id', $request->offer_id)->first();   // offer subcategory
+                if (!$offer)
+                    return $this->returnError('D000', __('messages.offer not found'));
+            }
+
+
+            if ($request->type == 'category') {
+                $id = $request->category_id;
+                $notifictionable_type = 'App\Models\OfferCategory';
+            } elseif ($request->type == 'offer') {
+                $id = $request->offer_id;
+                $notifictionable_type = 'App\Models\Offer';
+            } elseif ($request->type == 'branch') {
+                $id = $request->branch_id;
+                $notifictionable_type = 'App\Models\Provider';
+            } elseif ($request->type == 'center') {
+                $id = 0;
+                $notifictionable_type = 'App\Models\MedicalCenter';
+            } elseif ($request->type == 'consulting') {
+                $id = 0;
+                $notifictionable_type = 'App\Models\Doctor';
+            } elseif ($request->type == "external") {
+                $id = null;
+                $notifictionable_type = 'external';
+            } else {
+                $id = null;
+                $notifictionable_type = 'none';
+            }
+
+            ////////////////////////////////////////////////////////////////
             $fileName = "";
             if (isset($request->photo) && !empty($request->photo)) {
                 $fileName = $this->saveImage('notifications', $request->photo);
@@ -126,8 +238,13 @@ class NotificationsController extends Controller
                 "title" => $title,
                 "content" => $content,
                 "type" => $type,
-                "photo" =>$fileName,
-                'allow_fire_base' =>  $allow_fire_base
+                "photo" => $fileName,
+                'allow_fire_base' => $allow_fire_base,
+
+                'notifictionable_type' => $notifictionable_type,
+                'notifictionable_id' => $id,
+                'subCategory_id' => isset($request->subcategory_id) ? $request->subcategory_id : 0,
+                'external_link' => isset($request->external_link) ? $request->external_link : null
             ]);
 
 
@@ -146,15 +263,15 @@ class NotificationsController extends Controller
                     User::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token")
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type, $allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base);
                         });
 
                 } else {
                     User::whereNotNull('device_token')
                         ->select('device_token', 'id')
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type, $allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base);
 
                         });
                 }
@@ -163,14 +280,14 @@ class NotificationsController extends Controller
                     Provider::whereNotNull('device_token')
                         ->whereIn("id", $request->ids)
                         ->select("id", "device_token", "web_token")
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type, $allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base);
                         });
                 } else {
                     Provider::whereNotNull('device_token')
                         ->select('device_token', 'web_token', 'id')
-                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type,$allow_fire_base) {
-                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base);
+                        ->chunk(50, function ($actors) use ($notify_id, $content, $title, $type, $allow_fire_base) {
+                            $this->sendActorNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base);
                         });
                 }
             }
@@ -242,8 +359,8 @@ class NotificationsController extends Controller
     }
 
     ################### End to read notification ##############################
-    private function sendActorNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base)
+    private function sendActorNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base)
     {
-        dispatch(new SenAdminNotification($actors, $notify_id, $content, $title, $type,$allow_fire_base));
+        dispatch(new SenAdminNotification($actors, $notify_id, $content, $title, $type, $allow_fire_base));
     }
 }

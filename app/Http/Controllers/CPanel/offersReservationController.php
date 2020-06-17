@@ -398,7 +398,7 @@ class offersReservationController extends Controller
             }
 
                 if ($status == 2) {
-                    if ($rejection_reason == null) {
+                    if ($rejection_reason == null ) {
                         return $this->returnError('E001', trans('messages.please enter rejection reason'));
                     }
                 }
