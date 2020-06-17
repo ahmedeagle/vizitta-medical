@@ -93,6 +93,11 @@ class ConsultingController extends Controller
             $doctorsJson->total_count = $total_count;
             $doctorsJson->data = $doctors->data;
             return $this->returnData('doctors', $doctorsJson);
+        }else{
+
+             $doctorsJson = new \stdClass();
+            $doctorsJson->data = [];
+            return $this->returnData('doctors', $doctorsJson);
         }
         return $this->returnError('E001', trans('messages.there is no data found'));
     }
