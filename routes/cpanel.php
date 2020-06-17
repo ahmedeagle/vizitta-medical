@@ -365,6 +365,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/delete', "offersReservationController@destroy");
             Route::post('/changeStatus', 'offersReservationController@changeStatus');
             Route::post('/rejection', 'offersReservationController@rejectReservation');
+            Route::post('available/times', 'offersReservationController@getAvailableTimes');
         });
         ############## End Offers Reservations Routes ##############
 

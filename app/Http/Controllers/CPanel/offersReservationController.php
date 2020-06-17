@@ -178,63 +178,29 @@ class offersReservationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                $result = $validator->messages()->toArray();
-                return response()->json(['status' => false, 'error' => $result], 200);
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
             }
 
             DB::beginTransaction();
             $reservation = Reservation::where('reservation_no', $request->reservation_no)->with('user')->first();
             if ($reservation == null) {
-                return response()->json(['status' => false, 'error' => __('main.there_is_no_reservation_with_this_number')], 200);
+                 return $this->returnError('E001',__('main.there_is_no_reservation_with_this_number'));
             }
             $provider = Provider::find($reservation->provider_id);
 
-            $doctor = $reservation->doctor;
-            if ($doctor == null) {
-                return response()->json(['status' => false, 'error' => __('messages.No doctor with this id')], 200);
-            }
-
-            $hasReservation = $this->checkReservationInDate($doctor->id, $request->day_date, $request->from_time, $request->to_time);
-            if ($hasReservation) {
-                return response()->json(['status' => false, 'error' => __('messages.This time is not available')], 200);
-            }
-
-            $reservationDayName = date('l', strtotime($request->day_date));
-            $rightDay = false;
-            $timeOrder = 1;
-            $last = false;
-            $times = $this->getDoctorTimesInDay($doctor->id, $reservationDayName);
-            foreach ($times as $key => $time) {
-                if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
-                    && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
-                    $rightDay = true;
-                    $timeOrder = $key + 1;
-                    //if(count($times) == ($key+1))
-                    //  $last = true;
-                    break;
-                }
-            }
-            if (!$rightDay) {
-                return response()->json(['status' => false, 'error' => __('messages.This day is not in doctor days')], 200);
+            $offer = $reservation->offer;
+            if ($offer == null) {
+                 return $this->returnError('E001',__('messages.No doctor with this id'));
             }
 
             $reservation->update([
                 "day_date" => date('Y-m-d', strtotime($request->day_date)),
                 "from_time" => date('H:i:s', strtotime($request->from_time)),
                 "to_time" => date('H:i:s', strtotime($request->to_time)),
-                'order' => $timeOrder,
+                'order' => 0,
                 //"approved" => 1,
             ]);
-
-            if ($last) {
-                ReservedTime::create([
-                    'doctor_id' => $doctor->id,
-                    'day_date' => date('Y-m-d', strtotime($request->day_date))
-                ]);
-            }
-
-            if ($reservation->user->email != null)
-                Mail::to($reservation->user->email)->send(new AcceptReservationMail($reservation->reservation_no));
 
             DB::commit();
             try {
@@ -243,12 +209,81 @@ class offersReservationController extends Controller
             } catch (\Exception $ex) {
 
             }
-            return response()->json(['status' => true, 'msg' => __('messages.Reservation updated successfully')]);
+
+            return $this->returnError('E001', __('messages.Reservation updated successfully'));
 
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+
+//get availbles  slot times by day
+    public function getAvailableTimes(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "offer_id" => "required|exists:offers,id",
+                "branch_id" => "required|exists:providers,id",
+                "date" => "required|date_format:Y-m-d",
+            ]);
+
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $date = $request->date;
+            $offer = Offer::find($request->offer_id);
+            $branch = Provider::whereNotNull('provider_id')->find($request->branch_id);
+            if (!$branch)
+                return $this->returnError('E001', trans('messages.No doctor with this id'));
+
+            $d = new DateTime($date);
+            $day_name = strtolower($d->format('l'));
+            $days_name = ['saturday' => 'sat', 'sunday' => 'sun', 'monday' => 'mon', 'tuesday' => 'tue', 'wednesday' => 'wed', 'thursday' => 'thu', 'friday' => 'fri'];
+            $dayCode = $days_name[$day_name];
+
+
+            if ($offer != null) {
+                $day = $offer->times()->where('branch_id', $branch->id)->where('day_code', $dayCode)->first();
+                $doctorTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
+                $times = [];
+                $date = $request->date;
+                $offerTimesCount = $this->getOfferTimePeriodsInDay($day, $dayCode, true);
+                $availableTime = $this->getAllOfferAvailableTime($offer->id, $request->branch_id, $offerTimesCount, [$day], $date);
+                if (count((array)$availableTime))
+                    array_push($times, $availableTime);
+
+                $res = [];
+                if (count($times)) {
+                    foreach ($times as $key => $time) {
+                        $res = array_merge_recursive($time, $res);
+                    }
+                }
+                $offer->times = $res;
+
+                ########### Start To Get Doctor Times After The Current Time ############
+                $collection = collect($offer->times);
+                $filtered = $collection->filter(function ($value, $key) {
+
+                    if (date('Y-m-d') == $value['date'])
+                        return strtotime($value['from_time']) > strtotime(date('H:i:s'));
+                    else
+                        return $value;
+                });
+                $offer->times = array_values($filtered->all());
+                ########### End To Get Doctor Times After The Current Time ############
+
+                return $this->returnData('offer_available_times', $offer->times);
+            }
+
+            return $this->returnError('E001', trans('messages.No Offer with this id'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
     protected function getReservationByStatus($status = 'all')
     {
         if ($status == 'delay') {
