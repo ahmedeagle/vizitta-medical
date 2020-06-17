@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CPanel\ReservationResource;
-
+use DateTime;
 class offersReservationController extends Controller
 {
     use GlobalOfferTrait, GlobalTrait;
