@@ -149,6 +149,7 @@ class GeneralController extends Controller
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:ProviderType",
                 "status" => "required|in:0,1",
+                "id" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -156,10 +157,14 @@ class GeneralController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $model = 'App\Models\\'.$request->type;
+            $model = 'App\Models\\' . $request->type;
             $status = $request->status;
 
-           $model::update(['status' => $status]);
+            $table = $model->where('id', $request->id)->first();
+            if (!$table)
+                return $this->returnError('E001', __('Data not Found'));
+
+            $table -> update('status',$status);
 
             return $this->returnSuccessMessage(trans('messages.status changed successfully'));
 
