@@ -107,12 +107,13 @@ trait ConsultingTrait
         }
         return DoctorConsultingReservation::with([
             'doctor' => function ($q) {
-                $q->select('id', 'photo', 'rate', 'reservation_period', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'price')->with(['specification' => function ($qq) {
+                $q->select('id', 'photo', 'rate', 'reservation_period', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'price')
+                    ->with(['specification' => function ($qq) {
                     $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
+                },'nickname' => function ($qu) {
+                        $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
             }, 'paymentMethod' => function ($qu) {
-                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-            },'nickname' => function ($qu) {
                 $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }])
             ->where('user_id', $id)
