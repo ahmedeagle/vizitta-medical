@@ -210,7 +210,7 @@ class offersReservationController extends Controller
 
             }
 
-            return $this->returnError('E001', __('messages.Reservation updated successfully'));
+            return $this->returnSuccessMessage( __('messages.Reservation updated successfully'));
 
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
