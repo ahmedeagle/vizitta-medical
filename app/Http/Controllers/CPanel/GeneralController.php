@@ -165,7 +165,7 @@ class GeneralController extends Controller
             if (!$table)
                 return $this->returnError('E001', __('Data not Found'));
 
-            $table -> update('status',$status);
+            $table -> update(['status'=>$status]);
 
             return $this->returnSuccessMessage(trans('messages.status changed successfully'));
 
