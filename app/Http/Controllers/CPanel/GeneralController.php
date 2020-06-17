@@ -170,6 +170,7 @@ class GeneralController extends Controller
             return $this->returnSuccessMessage(trans('messages.status changed successfully'));
 
         } catch (\Exception $ex) {
+            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
