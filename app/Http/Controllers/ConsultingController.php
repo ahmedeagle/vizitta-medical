@@ -73,7 +73,7 @@ class ConsultingController extends Controller
             return $this->returnError('D000', trans("messages.This is invalid gender"));
         }
 
-        $doctors = $this->getDoctors($request->category_id, $request->nickname_id, $request->gender);
+        $doctors = $this->getDoctors($request->category_id, $request->nickname_id, $request->gender,$request -> specification_id);
 
        // if (count($doctors) > 0) {
             $doctors->getCollection()->each(function ($doctor) {

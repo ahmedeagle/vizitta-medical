@@ -17,8 +17,13 @@ use Illuminate\Support\Facades\Auth;
 
 trait ConsultingTrait
 {
-    public function getDoctors($specification_id, $nickname_id, $gender)
+    public function getDoctors($specification_id, $nickname_id, $gender,$_specification_id = null)
     {
+
+        if($_specification_id != null )
+        {
+            $specification_id  == $_specification_id;
+        }
         $doctor = Doctor::with(['nickname' => function($q){
             $q -> select('id','name_'.app()->getLocale().' as name');
         }]);
