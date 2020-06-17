@@ -160,7 +160,8 @@ class GeneralController extends Controller
             $table = $request->type;
             $status = $request->status;
 
-            $table = DB::table($table)->where('id', $request->id)->first();
+            $table = DB::table($table)->find($request->id);
+            ->first();
             if (!$table)
                 return $this->returnError('E001', __('Data not Found'));
 
