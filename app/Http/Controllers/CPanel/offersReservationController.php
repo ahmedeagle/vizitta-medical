@@ -159,12 +159,96 @@ class offersReservationController extends Controller
                 return $this->returnError('E001', __('main.appointment_for_this_reservation_cannot_be_updated'));
             }
 
-            return $this->returnData('days', $days);
+            $reservation -> days = $days;
+
+            return $this->returnData('reservation', $reservation);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_no" => "required|max:255",
+                "day_date" => "required|date",
+                "from_time" => "required",
+                "to_time" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+
+            DB::beginTransaction();
+            $reservation = Reservation::where('reservation_no', $request->reservation_no)->with('user')->first();
+            if ($reservation == null) {
+                return response()->json(['status' => false, 'error' => __('main.there_is_no_reservation_with_this_number')], 200);
+            }
+            $provider = Provider::find($reservation->provider_id);
+
+            $doctor = $reservation->doctor;
+            if ($doctor == null) {
+                return response()->json(['status' => false, 'error' => __('messages.No doctor with this id')], 200);
+            }
+
+            $hasReservation = $this->checkReservationInDate($doctor->id, $request->day_date, $request->from_time, $request->to_time);
+            if ($hasReservation) {
+                return response()->json(['status' => false, 'error' => __('messages.This time is not available')], 200);
+            }
+
+            $reservationDayName = date('l', strtotime($request->day_date));
+            $rightDay = false;
+            $timeOrder = 1;
+            $last = false;
+            $times = $this->getDoctorTimesInDay($doctor->id, $reservationDayName);
+            foreach ($times as $key => $time) {
+                if ($time['from_time'] == Carbon::parse($request->from_time)->format('H:i')
+                    && $time['to_time'] == Carbon::parse($request->to_time)->format('H:i')) {
+                    $rightDay = true;
+                    $timeOrder = $key + 1;
+                    //if(count($times) == ($key+1))
+                    //  $last = true;
+                    break;
+                }
+            }
+            if (!$rightDay) {
+                return response()->json(['status' => false, 'error' => __('messages.This day is not in doctor days')], 200);
+            }
+
+            $reservation->update([
+                "day_date" => date('Y-m-d', strtotime($request->day_date)),
+                "from_time" => date('H:i:s', strtotime($request->from_time)),
+                "to_time" => date('H:i:s', strtotime($request->to_time)),
+                'order' => $timeOrder,
+                //"approved" => 1,
+            ]);
+
+            if ($last) {
+                ReservedTime::create([
+                    'doctor_id' => $doctor->id,
+                    'day_date' => date('Y-m-d', strtotime($request->day_date))
+                ]);
+            }
+
+            if ($reservation->user->email != null)
+                Mail::to($reservation->user->email)->send(new AcceptReservationMail($reservation->reservation_no));
+
+            DB::commit();
+            try {
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
+            } catch (\Exception $ex) {
+
+            }
+            return response()->json(['status' => true, 'msg' => __('messages.Reservation updated successfully')]);
+
+        } catch (\Exception $ex) {
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+        }
+    }
     protected function getReservationByStatus($status = 'all')
     {
         if ($status == 'delay') {
