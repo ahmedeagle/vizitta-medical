@@ -49,7 +49,7 @@ trait GeneralTrait
 
     public function getProviderTypes()
     {
-        $result = ProviderType::get();
+        $result = ProviderType::active() -> get();
         return ProviderTypesResource::collection($result);
     }
 
