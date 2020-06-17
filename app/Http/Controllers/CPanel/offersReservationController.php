@@ -570,4 +570,49 @@ class offersReservationController extends Controller
         }
     }
 
+
+    protected  function getOfferTimePeriodsInDay($working_day, $day_code, $count = false)
+    {
+        $times = [];
+        $j = 0;
+        if ($working_day['day_code'] == $day_code) {
+            $from = strtotime($working_day['from_time']);
+            $to = strtotime($working_day['to_time']);
+            $diffInterval = ($to - $from) / 60;
+            $periodCount = $diffInterval / $working_day['time_duration'];
+            for ($i = 0; $i < round($periodCount); $i++) {
+                $times[$j]['day_code'] = $working_day['day_code'];
+                $times[$j]['day_name'] = $working_day['day_name'];
+                $times[$j]['from_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * $i)->format('H:i');
+                $times[$j]['to_time'] = Carbon::parse($working_day['from_time'])->addMinutes($working_day['time_duration'] * ($i + 1))->format('H:i');
+                $times[$j++]['time_duration'] = $working_day['time_duration'];
+            }
+        }
+        if ($count)
+            return count($times);
+        return $times;
+    }
+
+    protected function getAllOfferAvailableTime($offerId,$branchId, $timeCountInDay, $days, $timeDate, $count = 0)
+    {
+        // effect by date
+        $getAllAvailableTime = [];
+        if ($count > 60)
+            return new \stdClass();
+        $dayName = $this->getDayByCode($days[$count % count($days)]['day_code']);
+        $reservationsCount = $this->getOfferAvailableReservationInDate($offerId,$branchId, $timeDate, true);
+        $offerTimes = $this->getOfferTimesInDay($offerId,$branchId, $dayName);
+        foreach ($offerTimes as $key => $dTime) {
+            $reservation = $this->getOfferReservationInTime($offerId,$branchId, $timeDate, $dTime['from_time'], $dTime['to_time']);
+            if ($reservation != null)
+                continue;
+            else
+
+                $avTime = ['date' => $timeDate, 'day_name' => trans('messages.' . $dayName),
+                    'day_code' => trans('messages.' . $dayName . ' Code'), 'from_time' => $dTime['from_time'], 'to_time' => $dTime['to_time']];
+            array_push($getAllAvailableTime, $avTime);
+        }
+        return $getAllAvailableTime;
+
+    }
 }
