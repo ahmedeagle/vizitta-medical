@@ -180,7 +180,7 @@ class ReservationController extends Controller
 
     public function changeStatus(Request $request)
     {
-         $reservation = Reservation::where('id', $request->id)->with('user')->first();
+        $reservation = Reservation::where('id', $request->id)->with('user')->first();
 
         if ($reservation == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
@@ -198,7 +198,7 @@ class ReservationController extends Controller
         }
 
         if ($request->status == 2) {
-            if ($request->rejection_reason == null && $request->rejection_reason !=0 ) {
+            if ($request->rejection_reason == null && $request->rejection_reason != 0) {
                 return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
             }
         }
@@ -213,7 +213,7 @@ class ReservationController extends Controller
             $arrived = $request->arrived;
         }
 
-       return   $this->changerReservationStatus($reservation, $request->status,$request->rejection_reason,$arrived ,$request);
+        return $this->changerReservationStatus($reservation, $request->status, $request->rejection_reason, $arrived, $request);
 
     }
 
@@ -240,7 +240,7 @@ class ReservationController extends Controller
                     return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
                 }
             }
-            $this->changerReservationStatus($reservation, $status, $rejection_reason,0,$request);
+            $this->changerReservationStatus($reservation, $status, $rejection_reason, 0, $request);
             return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
         }
     }
@@ -259,7 +259,7 @@ class ReservationController extends Controller
                 return response()->json(['status' => true, 'msg' => __('main.reservation_deleted_successfully')]);
             }
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
 

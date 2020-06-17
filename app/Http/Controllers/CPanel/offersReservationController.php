@@ -88,7 +88,7 @@ class offersReservationController extends Controller
                                 $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
                                     ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                             })
-                                -> orWhereHas('provider',function ($query) use($q){
+                                ->orWhereHas('provider', function ($query) use ($q) {
                                     $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
                                         ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                                 });
@@ -134,27 +134,33 @@ class offersReservationController extends Controller
     }
 
 
-
     public function edit(Request $request)
     {
         try {
 
-
-            $reservation = Reservation::select('offer_id','provider_id')->find($request->id);
-            if (!$reservation) {
-                return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+            $validator = Validator::make($request->all(), [
+                "offer_id" => "required|numeric|exists:offers,id",
+                "branch_id" => "required|numeric|exists:providers,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
             }
 
-            return $times = OfferBranchTime::where('offer_id', $reservation->offer_id)
+            $reservation = Reservation::select('offer_id', 'provider_id')->find($request->id);
+            if (!$reservation) {
+                return $this->returnError('E001', __('main.not_found'));
+            }
+
+            $days = OfferBranchTime::where('offer_id', $reservation->offer_id)
                 ->where('branch_id', $reservation->provider_id)
                 ->get();
 
             if ($reservation->approved == 2 or $reservation->approved == 3) {   // 2-> cancelled  3 -> complete
-                return response()->json(['status' => false, 'error' => __('main.appointment_for_this_reservation_cannot_be_updated')], 200);
+                return $this->returnError('E001', __('main.appointment_for_this_reservation_cannot_be_updated'));
             }
 
-            $result['reservation'] = $reservation;
-             return response()->json(['status' => true, 'data' => $result]);
+            return $this->returnData('days', $days);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
@@ -425,11 +431,11 @@ class offersReservationController extends Controller
                 return $this->returnError('E001', trans('messages.status must be 1 or 2'));
             }
 
-                if ($status == 2) {
-                    if ($rejection_reason == null ) {
-                        return $this->returnError('E001', trans('messages.please enter rejection reason'));
-                    }
+            if ($status == 2) {
+                if ($rejection_reason == null) {
+                    return $this->returnError('E001', trans('messages.please enter rejection reason'));
                 }
+            }
 
             $arrived = 0;
 
@@ -440,7 +446,7 @@ class offersReservationController extends Controller
                 }
                 $arrived = $request->arrived;
             }
-             return   $this->changerReservationStatus($reservation, $request->status,$rejection_reason,$arrived ,$request);
+            return $this->changerReservationStatus($reservation, $request->status, $rejection_reason, $arrived, $request);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
