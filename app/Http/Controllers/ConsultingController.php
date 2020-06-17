@@ -95,7 +95,9 @@ class ConsultingController extends Controller
 
         }
 
-        return $this->returnData('doctors', $doctorsJson);
+        return $this->returnData('doctors', []);
+
+
  //       return $this->returnError('E001', trans('messages.there is no data found'));
     }
 
