@@ -615,4 +615,47 @@ class offersReservationController extends Controller
         return $getAllAvailableTime;
 
     }
+
+    protected function getOfferAvailableReservationInDate($offerId,$branchId, $dayDate, $count = false)
+    {
+        $reservation = Reservation::query();
+        if ($dayDate instanceof Carbon)
+            return $dayDate = date($dayDate->format('Y-m-d'));
+        $query = "(SELECT COUNT(*)  FROM reservations WHERE day_date = '" . $dayDate . "' and offer_id = '" . $offerId . "' and provider_id = '" . $branchId . "') as reservation,";
+        $query .= "(SELECT COUNT(*) FROM reserved_times rt WHERE rt.offer_id = '" . $offerId . "' and rt.day_date = '" . $dayDate . "' and rt.branch_id = '" . $branchId . "' ) as day_reserved";
+        $reservation = \Illuminate\Support\Facades\DB::select('SELECT ' . $query . ' FROM DUAL;')[0];
+
+        if ($reservation->day_reserved)
+            return -1;
+        else
+            return $reservation->reservation;
+
+    }
+
+    protected function getOfferTimesInDay($offerId,$branch_id, $dayName, $count = false)
+    {
+        // effect by date
+        $offerTimes = OfferBranchTime::query();
+        $offerTimes = $offerTimes->where('offer_id', $offerId)
+            ->where('branch_id',$branch_id)
+            ->whereRaw('LOWER(day_name) = ?', strtolower($dayName))
+            ->orderBy('created_at')->orderBy('order');
+
+        $times = $this->getOfferTimePeriods($offerTimes->get());
+        if ($count)
+            if (!empty($times) && is_array($times))
+                return count($times);
+            else
+                return 0;
+
+        return $times;
+    }
+
+
+    protected function getOfferReservationInTime($offerId,$branchId, $date, $fromTime, $toTime)
+    {
+        // effect by date
+        return Reservation::where('offer_id', $offerId)->where('provider_id',$branchId)->where('day_date', $date)->where('from_time', $fromTime)->first();
+    }
+
 }
