@@ -146,7 +146,7 @@ class offersReservationController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $reservation = Reservation::select('offer_id', 'provider_id')->find($request->id);
+            $reservation = Reservation::select('id','reservation_no','offer_id', 'provider_id')->find($request->id);
             if (!$reservation) {
                 return $this->returnError('E001', __('main.not_found'));
             }
