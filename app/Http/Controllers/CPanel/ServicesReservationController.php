@@ -396,7 +396,7 @@ class ServicesReservationController extends Controller
                 return $this->returnError('E001', __('main.not_found'));
             }
 
-            $days = ReservedTime::where('service_id', $reservation->service_id)
+            $days = ServiceTime::where('service_id', $reservation->service_id)
                 ->get();
 
             if ($reservation->approved == 2 or $reservation->approved == 3) {   // 2-> cancelled  3 -> complete
