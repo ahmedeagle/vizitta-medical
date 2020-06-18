@@ -33,6 +33,7 @@ class BranchController extends Controller
 
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
+            $providers =Provider::whereNotNull('provider_id');
             $providers = Provider::where(function ($qqn) use ($q) {
                 $qqn->where('name_ar', 'LIKE', '%' . trim($q) . '%')
                     ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%');
@@ -56,7 +57,6 @@ class BranchController extends Controller
                     $query->where('name_ar', 'LIKE', '%' . trim($q) . '%');
                 })
                 ->orderBy('id', 'DESC')
-                ->whereNotNull('provider_id')
                 ->paginate(PAGINATION_COUNT);
         } else
 
