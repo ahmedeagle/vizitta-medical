@@ -91,7 +91,7 @@ trait GeneralTrait
 
     public function apiGetAllSpecifications()
     {
-        return Specification::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+        return Specification::active()->select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
     }
 
     public function apiGetAllNicknames()
