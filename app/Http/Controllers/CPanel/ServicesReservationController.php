@@ -433,7 +433,7 @@ class ServicesReservationController extends Controller
              ];
 
             if ($request->service_type == 1)
-                $rules['reserve_duration'] = 'required|numerice';
+                $rules['reserve_duration'] = 'required|numeric';
 
             $validator = Validator::make($request->all(), $rules);
 
