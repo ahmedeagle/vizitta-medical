@@ -425,11 +425,16 @@ class ServicesReservationController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $rules = [
                 "date" => "required|date_format:Y-m-d",
-                "service_type" => "required|in:1,2",
                 "service_id" => "required|exists:services,id",
-            ]);
+                "service_type" => "required|in:1,2",
+             ];
+
+            if ($request->service_type == 1)
+                $rules['reserve_duration'] = 'required|numerice';
+
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -439,6 +444,7 @@ class ServicesReservationController extends Controller
             $dayName = Str::lower(date('D', strtotime($requestData['date'])));
 
             $serviceTimes = [];
+
 
             if ($requestData['service_type'] == 2) { // clinic
                 $service = Service::whereHas('types', function ($q) {
