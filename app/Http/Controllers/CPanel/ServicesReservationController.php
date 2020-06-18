@@ -498,7 +498,7 @@ class ServicesReservationController extends Controller
 
                 ########### Start To Get Times After The Current Time ############
                 $collection = collect($serviceTimes);
-                $dayDate = $requestData['reserve_day'];
+                $dayDate = $requestData['date'];
 
                 $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
 
