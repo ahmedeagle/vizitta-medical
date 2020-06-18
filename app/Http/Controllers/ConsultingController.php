@@ -194,7 +194,7 @@ class ConsultingController extends Controller
              $consultings = $this->getAllReservations($user->id, $type);
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
-                    $consulting -> nickname = $consulting -> doctor -> consulting;
+                    $consulting -> nickname = $consulting -> doctor -> nickname;
                     $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                     $consulting_end_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->to_time));
                     $currentDate = date('Y-m-d H:i:s');
