@@ -72,4 +72,9 @@ class ProviderTypesController extends Controller
         }
     }
 
+
+    public function delete(){
+
+    }
+
 }

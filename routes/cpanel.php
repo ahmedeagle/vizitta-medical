@@ -112,6 +112,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/store', 'ProviderTypesController@store');
             Route::post('/edit/{id}', 'ProviderTypesController@edit');
             Route::post('/update/{id}', 'ProviderTypesController@update');
+            Route::post('/delete', 'ProviderTypesController@delete');
         });
         ############## End Providers Types Routes ##############
 
