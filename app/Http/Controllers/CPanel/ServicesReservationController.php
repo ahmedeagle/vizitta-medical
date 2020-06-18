@@ -406,6 +406,15 @@ class ServicesReservationController extends Controller
 
             $reservation->days = $days;
 
+            $reservation->makeHidden(["for_me",
+                "branch_name",
+                "branch_no",
+                "is_reported",
+                "mainprovider",
+                "admin_value_from_reservation_price_Tax",
+                "reservation_total",
+                "rejected_reason_type",
+                "comment_report"]);
             return $this->returnData('reservation', $reservation);
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
