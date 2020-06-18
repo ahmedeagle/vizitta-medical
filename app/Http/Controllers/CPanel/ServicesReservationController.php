@@ -526,6 +526,26 @@ class ServicesReservationController extends Controller
     }
 
 
+    public function splitTimes($StartTime, $EndTime, $Duration = "30")
+    {
+        $returnArray = [];// Define output
+        $StartTime = strtotime($StartTime); //Get Timestamp
+        $EndTime = strtotime($EndTime); //Get Timestamp
+
+        $addMinutes = $Duration * 60;
+
+        for ($i = 0; $StartTime <= $EndTime; $i++) //Run loop
+        {
+            $from = date("G:i", $StartTime);
+            $StartTime += $addMinutes; //End time check
+            $to = date("G:i", $StartTime);
+            if ($EndTime >= $StartTime) {
+                $returnArray[$i]['from'] = $from;
+                $returnArray[$i]['to'] = $to;
+            }
+        }
+        return $returnArray;
+    }
     public function update(Request $request)
     {
         try {
