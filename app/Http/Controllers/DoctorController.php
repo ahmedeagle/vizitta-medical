@@ -1528,9 +1528,11 @@ class DoctorController extends Controller
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=https://mcallapp.com";
-        // "&merchantTransactionId=400" .
-        //"&testMode=EXTERNAL" .
+            "&paymentType=DB" .
+//            "&notificationUrl=https://mcallapp.com";
+            // "&merchantTransactionId=400" .
+            "&testMode=EXTERNAL" .
+            "&shopperResultUrl=com.wisyst.Medical.Call.payments";
         //"&customer.email=" . $userEmail;
 
         try {
