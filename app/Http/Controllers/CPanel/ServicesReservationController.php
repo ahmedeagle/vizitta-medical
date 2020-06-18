@@ -10,6 +10,7 @@ use App\Models\Provider;
 use App\Models\Reason;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
+use App\Models\Service;
 use App\Models\ServiceReservation;
 use App\Traits\Dashboard\ReservationTrait;
 use App\Traits\CPanel\GeneralTrait;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CPanel\ReservationResource;
+use Illuminate\Support\Str;
 use function foo\func;
 
 class ServicesReservationController extends Controller
@@ -331,7 +333,7 @@ class ServicesReservationController extends Controller
     protected function calculateServiceReservationBalanceForAdmin($application_percentage_of_bill, ServiceReservation $reservation)
     {
 
-       // $reservation->service_type == 1; ### 1 = home & 2 = clinic
+        // $reservation->service_type == 1; ### 1 = home & 2 = clinic
         $total_amount = floatval($reservation->price);
         $MC_percentage = $application_percentage_of_bill;
         $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
@@ -373,4 +375,191 @@ class ServicesReservationController extends Controller
 
         return true;
     }
+
+
+    public function edit(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "id" => "required|exists:service_reservations,id",
+            ]);
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $reservation = ServiceReservation::select('id', 'reservation_no', 'day_date', 'from_time',
+                'to_time', 'service_id', 'service_type', 'branch_id', 'provider_id')
+                ->find($request->id);
+            if (!$reservation) {
+                return $this->returnError('E001', __('main.not_found'));
+            }
+
+            $days = ReservedTime::where('service_id', $reservation->service_id)
+                ->get();
+
+            if ($reservation->approved == 2 or $reservation->approved == 3) {   // 2-> cancelled  3 -> complete
+                return $this->returnError('E001', __('main.appointment_for_this_reservation_cannot_be_updated'));
+            }
+
+            $reservation->days = $days;
+
+            return $this->returnData('reservation', $reservation);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public function getClinicServiceAvailableTimes(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "date" => "required|date_format:Y-m-d",
+                "service_type" => "required|in:1,2",
+                "service_id" => "required|exists:services,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $requestData = $request->all();
+            $dayName = Str::lower(date('D', strtotime($requestData['date'])));
+
+            $serviceTimes = [];
+
+            if ($requestData['service_type'] == 2) { // clinic
+                $service = Service::whereHas('types', function ($q) {
+                    $q->where('type_id', 2);
+                })->find($requestData['service_id']);
+                if ($service) {
+//                     $serviceTimes = $service->times()->where('day_code', $dayName)->get();
+                    $times = $service->times()->where('day_code', $dayName)->get();
+                    foreach ($times as $key => $value) {
+                        $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $service->reservation_period);
+                        foreach ($splitTimes as $k => $v) {
+                            $s = [];
+                            $s['id'] = $value->id;
+                            $s['day_name'] = $value->day_name;
+                            $s['day_code'] = $value->day_code;
+                            $s['from_time'] = $v['from'];
+                            $s['to_time'] = $v['to'];
+                            $s['branch_id'] = $value->branch_id;
+
+                            array_push($serviceTimes, $s);
+                        }
+
+                    }
+                }
+            } else {
+                $service = Service::whereHas('types', function ($q) {
+                    $q->where('type_id', 1);
+                })->find($requestData['service_id']);
+                if ($service) {
+                    $times = $service->times()->where('day_code', $dayName)->get();
+                    foreach ($times as $key => $value) {
+                        $splitTimes = $this->splitTimes($value->from_time, $value->to_time, $requestData['reserve_duration']);
+                        foreach ($splitTimes as $k => $v) {
+                            $s = [];
+                            $s['id'] = $value->id;
+                            $s['day_name'] = $value->day_name;
+                            $s['day_code'] = $value->day_code;
+                            $s['from_time'] = $v['from'];
+                            $s['to_time'] = $v['to'];
+                            $s['branch_id'] = $value->branch_id;
+
+                            array_push($serviceTimes, $s);
+                        }
+
+                    }
+                }
+            }
+
+            if ($serviceTimes) {
+
+                ########### Start To Get Times After The Current Time ############
+                $collection = collect($serviceTimes);
+                $dayDate = $requestData['reserve_day'];
+
+                $filtered = $collection->filter(function ($value, $key) use ($dayDate) {
+
+                    // Check if this time is reserved before or not
+                    $checkTime = ServiceReservation::where('day_date', $dayDate)
+                        ->where('from_time', $value['from_time'])
+                        ->where('to_time', $value['to_time'])
+                        ->first();
+
+                    if (date('Y-m-d') == $dayDate)
+                        return strtotime($value['from_time']) > strtotime(date('H:i:s')) && $checkTime == null;
+                    else
+                        return $checkTime == null;
+
+                });
+                $serTimes = array_values($filtered->all());
+                ########### End To Get Times After The Current Time ############
+
+                return $this->returnData('times', $serTimes);
+            }
+            return $this->returnError('E001', __('main.appointment_for_this_reservation_cannot_be_updated'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public function update(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "reservation_no" => "required|max:255",
+                "day_date" => "required|date",
+                "from_time" => "required",
+                "to_time" => "required",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            DB::beginTransaction();
+            $reservation = ServiceReservation::where('reservation_no', $request->reservation_no)->with('user')->first();
+            if ($reservation == null) {
+                return $this->returnError('E001', __('main.there_is_no_reservation_with_this_number'));
+            }
+            $provider = Provider::find($reservation->provider_id);
+
+            $service = $reservation->service;
+            if ($service == null) {
+                return $this->returnError('E001', __('messages.No service with this id'));
+            }
+
+            $reservation->update([
+                "day_date" => date('Y-m-d', strtotime($request->day_date)),
+                "from_time" => date('H:i:s', strtotime($request->from_time)),
+                "to_time" => date('H:i:s', strtotime($request->to_time)),
+                'order' => 0,
+                //"approved" => 1,
+            ]);
+
+            DB::commit();
+            try {
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->branch);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
+            } catch (\Exception $ex) {
+
+            }
+
+            return $this->returnSuccessMessage(__('messages.Reservation updated successfully'));
+
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+
+    }
+
+
 }

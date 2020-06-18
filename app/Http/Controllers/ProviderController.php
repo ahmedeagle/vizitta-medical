@@ -1224,7 +1224,6 @@ class ProviderController extends Controller
             }
             return $this->returnData('reservations', $reservations);
         } catch (\Exception $ex) {
-            return $ex;
             return $this->returnError($ex->getCode(), $ex);
         }
     }

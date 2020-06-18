@@ -375,6 +375,9 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/index', "ServicesReservationController@index");
             Route::post('/delete', "ServicesReservationController@destroy");
             Route::post('/changeStatus', 'ServicesReservationController@changeStatus');
+            Route::post('/edit', 'ServicesReservationController@edit');
+            Route::post('/available/times', 'ServicesReservationController@getClinicServiceAvailableTimes');
+            Route::post('/update', 'ServicesReservationController@update');
             //Route::post('/rejection', 'ServicesReservationController@rejectReservation');
         });
         ############## End Services Reservations Routes ##############

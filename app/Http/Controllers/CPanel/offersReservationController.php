@@ -191,7 +191,7 @@ class offersReservationController extends Controller
 
             $offer = $reservation->offer;
             if ($offer == null) {
-                 return $this->returnError('E001',__('messages.No doctor with this id'));
+                 return $this->returnError('E001',__('messages.No offer with this id'));
             }
 
             $reservation->update([

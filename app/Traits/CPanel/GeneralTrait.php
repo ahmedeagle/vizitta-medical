@@ -49,7 +49,7 @@ trait GeneralTrait
 
     public function getProviderTypes()
     {
-        $result = ProviderType::active() -> get();
+        $result = ProviderType::active()->get();
         return ProviderTypesResource::collection($result);
     }
 
@@ -91,7 +91,10 @@ trait GeneralTrait
 
     public function apiGetAllSpecifications()
     {
-        return Specification::active()->select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+        return Specification::active()
+            ->select(DB::raw('id, name_' . app()
+                    ->getLocale() . ' as name'))
+            ->get();
     }
 
     public function apiGetAllNicknames()
