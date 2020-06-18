@@ -9,7 +9,7 @@ class Specification extends Model
     protected $table = 'specifications';
     public $timestamps = true;
 
-    protected $fillable = ['name_en', 'name_ar'];
+    protected $fillable = ['name_en', 'name_ar','status'];
 
     protected $hidden = ['created_at', 'updated_at'];
 
@@ -34,5 +34,9 @@ class Specification extends Model
         return $this->hasMany('App\Models\Service', 'specification_id', 'id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query -> where('status',1);
+    }
 
 }
