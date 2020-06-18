@@ -12,6 +12,7 @@ use App\Models\Reservation;
 use App\Models\ReservedTime;
 use App\Models\Service;
 use App\Models\ServiceReservation;
+use App\Models\ServiceTime;
 use App\Traits\Dashboard\ReservationTrait;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
