@@ -390,7 +390,7 @@ class ServicesReservationController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-            $reservation = ServiceReservation::select('id', 'reservation_no', 'day_date', 'from_time',
+            $reservation = ServiceReservation::with('service')->select('id', 'reservation_no', 'day_date', 'from_time',
                 'to_time', 'service_id', 'service_type', 'branch_id', 'provider_id')
                 ->find($request->id);
             if (!$reservation) {
@@ -430,10 +430,8 @@ class ServicesReservationController extends Controller
                 "date" => "required|date_format:Y-m-d",
                 "service_id" => "required|exists:services,id",
                 "service_type" => "required|in:1,2",
+                "reserve_duration" => "nullable|required_if:service_type,1"
              ];
-
-            if ($request->service_type == 1)
-                $rules['reserve_duration'] = 'required|numeric';
 
             $validator = Validator::make($request->all(), $rules);
 
@@ -554,6 +552,8 @@ class ServicesReservationController extends Controller
                 "day_date" => "required|date",
                 "from_time" => "required",
                 "to_time" => "required",
+                "price" => "required",
+                "hours_duration" => "nullable|required_if:service_type,1"
             ]);
 
             if ($validator->fails()) {
@@ -566,24 +566,27 @@ class ServicesReservationController extends Controller
             if ($reservation == null) {
                 return $this->returnError('E001', __('main.there_is_no_reservation_with_this_number'));
             }
-            $provider = Provider::find($reservation->provider_id);
+            $provider = Provider::find($reservation->branch_id);
 
-            $service = $reservation->service;
+            $service = Service::find($reservation -> service_id);
             if ($service == null) {
                 return $this->returnError('E001', __('messages.No service with this id'));
             }
+
 
             $reservation->update([
                 "day_date" => date('Y-m-d', strtotime($request->day_date)),
                 "from_time" => date('H:i:s', strtotime($request->from_time)),
                 "to_time" => date('H:i:s', strtotime($request->to_time)),
                 'order' => 0,
+                "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
+                'price' => (!empty($request->price) ? $request -> price  : $service->price),
                 //"approved" => 1,
             ]);
 
             DB::commit();
             try {
-                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
+//                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->provider);
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated user reservation')]))->sendProvider($reservation->branch);
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => __('messages.The branch') . $provider->getTranslatedName() . __('messages.updated your reservation')]))->sendUser($reservation->user);
             } catch (\Exception $ex) {
