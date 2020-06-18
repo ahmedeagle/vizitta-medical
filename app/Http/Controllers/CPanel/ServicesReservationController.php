@@ -553,6 +553,7 @@ class ServicesReservationController extends Controller
                 "from_time" => "required",
                 "to_time" => "required",
                 "price" => "required",
+                "service_type" =>"required|in:1,2",
                 "hours_duration" => "nullable|required_if:service_type,1"
             ]);
 
@@ -580,6 +581,7 @@ class ServicesReservationController extends Controller
                 "to_time" => date('H:i:s', strtotime($request->to_time)),
                 'order' => 0,
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
+                "service_type" => $request -> service_type,
                 'price' => (!empty($request->price) ? $request -> price  : $service->price),
                 //"approved" => 1,
             ]);
