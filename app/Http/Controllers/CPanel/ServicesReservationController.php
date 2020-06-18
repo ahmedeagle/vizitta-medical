@@ -406,6 +406,7 @@ class ServicesReservationController extends Controller
 
             $reservation->days = $days;
 
+            $reservation -> makeVisible(['service_id']);
             $reservation->makeHidden(["for_me",
                 "branch_name",
                 "branch_no",
