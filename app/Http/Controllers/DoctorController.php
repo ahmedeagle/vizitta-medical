@@ -1528,7 +1528,6 @@ class DoctorController extends Controller
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&paymentType=DB" .
 //            "&notificationUrl=https://mcallapp.com";
             // "&merchantTransactionId=400" .
             "&testMode=EXTERNAL" .
