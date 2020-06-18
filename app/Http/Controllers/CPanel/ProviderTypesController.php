@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CPanel;
 
+use App\Models\Provider;
 use App\Models\ProviderType;
 use App\Traits\Dashboard\ProviderTypesTrait;
 use App\Traits\CPanel\GeneralTrait;
@@ -73,8 +74,26 @@ class ProviderTypesController extends Controller
     }
 
 
-    public function delete(){
+    public function delete(Request $request)
+    {
 
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:provider_types,id",
+        ]);
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
+        $checkIfTypeUsedByProviders = Provider::where('type_id', $request->id)->count();
+
+        if ($checkIfTypeUsedByProviders > 0) {
+            return $this->returnError('E001', __('messages.can not delete this item'));
+        }
+
+        ProviderType::where('id', $request->id)->delete();
+
+        return $this->returnSuccessMessage(__('messages.item deleted successfully'));
     }
 
 }
