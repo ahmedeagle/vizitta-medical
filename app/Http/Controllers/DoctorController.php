@@ -1530,7 +1530,7 @@ class DoctorController extends Controller
             "&paymentType=DB" .
 //            "&notificationUrl=https://mcallapp.com";
             // "&merchantTransactionId=400" .
-            "&testMode=EXTERNAL" .
+            "&testMode=INTERNAL" .
             "&shopperResultUrl=com.wisyst.Medical.Call.payments";
         //"&customer.email=" . $userEmail;
 
