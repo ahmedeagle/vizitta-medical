@@ -9,7 +9,7 @@ class Nickname extends Model
     protected $table = 'doctor_nicknames';
     public $timestamps = false;
 
-    protected $fillable = ['name_en', 'name_ar'];
+    protected $fillable = ['name_en', 'name_ar', 'status'];
 
     public static function laratablesCustomAction($nickname)
     {
@@ -19,6 +19,11 @@ class Nickname extends Model
     public function doctors()
     {
         return $this->hasMany('App\Models\Doctor', 'nickname_id', 'id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
 }

@@ -99,7 +99,7 @@ trait GeneralTrait
 
     public function apiGetAllNicknames()
     {
-        return Nickname::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+        return Nickname::active()->select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
     }
 
     public function apiGetAllNationalities()

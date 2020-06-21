@@ -43,37 +43,41 @@ class ReservationController extends Controller
             return response()->json(['status' => true, 'data' => $data]);
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
-            $res = Reservation::where('reservation_no', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('bill_total', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('discount_type', 'LIKE', '%' . trim($q) . '%')
-                ->orWhereHas('user', function ($query) use ($q) {
-                    $query->where('name', 'LIKE', '%' . trim($q) . '%');
-                })
-                ->orWhereHas('doctor', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                })
-                ->orWhereHas('branch', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                    $query->orWhereHas('provider', function ($query) use ($q) {
-                        $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                    });
-                })
-                ->orWhere(function ($qq) use ($q) {
-                    if (trim($q) == 'معلق') {
-                        $qq->where('approved', 0);
-                    } elseif (trim($q) == 'مقبول') {
-                        $qq->where('approved', 1);
-                    } elseif (trim($q) == 'مرفوض') {
-                        $qq->whereIn('approved', [2, 5]);
-                    } elseif (trim($q) == 'مكتمل') {
-                        $qq->where('approved', 3);
-                    }
+            $res = Reservation::whereNotNull('doctor_id')
+                ->where('doctor_id', '!=', 0)
+                ->where(function ($query) use($q){
+                    $query->where('reservation_no', 'LIKE', '%' . trim($q) . '%')
+                        ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
+                        ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
+                        ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
+                        ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
+                        ->orWhere('bill_total', 'LIKE', '%' . trim($q) . '%')
+                        ->orWhere('discount_type', 'LIKE', '%' . trim($q) . '%')
+                        ->orWhereHas('user', function ($query) use ($q) {
+                            $query->where('name', 'LIKE', '%' . trim($q) . '%');
+                        })
+                        ->orWhereHas('doctor', function ($query) use ($q) {
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                        })->orWhereHas('paymentMethod', function ($query) use ($q) {
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                        })
+                        ->orWhereHas('branch', function ($query) use ($q) {
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                            $query->orWhereHas('provider', function ($query) use ($q) {
+                                $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                            });
+                        })
+                        ->orWhere(function ($qq) use ($q) {
+                            if (trim($q) == 'معلق') {
+                                $qq->where('approved', 0);
+                            } elseif (trim($q) == 'مقبول') {
+                                $qq->where('approved', 1);
+                            } elseif (trim($q) == 'مرفوض') {
+                                $qq->whereIn('approved', [2, 5]);
+                            } elseif (trim($q) == 'مكتمل') {
+                                $qq->where('approved', 3);
+                            }
+                        });
                 })
                 ->orderBy('day_date', 'DESC')
                 ->paginate(PAGINATION_COUNT);
