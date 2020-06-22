@@ -11,7 +11,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('edit', 'ServiceController@edit');
             Route::post('update', 'ServiceController@update');
             Route::post('delete', 'ServiceController@destroy');
-            Route::get('get-payments-methods', 'ServiceController@getAllPaymentMethodWithSelectedListServices');
+            Route::post('get-payments-methods', 'ServiceController@getAllPaymentMethodWithSelectedListServices');
         });
         ############## End Visits Routes ##############
 
