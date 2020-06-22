@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
+use App\Models\PaymentMethod;
 use App\Models\Service;
 use App\Models\ServiceTime;
 use App\Models\Provider;
@@ -59,12 +60,12 @@ class ServiceController extends Controller
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'خدمة منزلية') {
                         $qq->WhereHas('types', function ($query) use ($q) {
-                                 $query -> where('services_type.id',1);
-                         });
+                            $query->where('services_type.id', 1);
+                        });
                     } elseif (trim($q) == 'خدمة بالمركز الطبي') {
                         $qq->WhereHas('types', function ($query) use ($q) {
-                                 $query -> where('services_type.id',1);
-                         });
+                            $query->where('services_type.id', 1);
+                        });
                     }
                 })
                 ->orWhere('clinic_price', 'LIKE', '%' . trim($q) . '%')
@@ -225,6 +226,13 @@ class ServiceController extends Controller
                     "status" => 1,
                     "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
+
+
+                if (isset($request->payment_method) && !empty($request->payment_method)) {
+                    foreach ($request->payment_method as $k => $method) {
+                        $service->paymentMethods()->attach($method['payment_method_id'], ['payment_amount_type' => $method['payment_amount_type'], 'payment_amount' => $method['payment_amount']]);
+                    }
+                }
 
                 $service->types()->attach($request->typeIds);
 
@@ -430,6 +438,18 @@ class ServiceController extends Controller
             return $this->returnSuccessMessage(trans('messages.service deleted successfully'));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public function getAllPaymentMethodWithSelectedListServices($serviceId = null)
+    {
+        if ($serviceId != null) {
+            return PaymentMethod::where('status', 1)
+                ->select(\Illuminate\Support\Facades\DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM service_payment_methods WHERE service_payment_methods.offer_id = ' . $serviceId . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))->get();
+        } else {
+            return PaymentMethod::where('status', 1)
+                ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, 0 as selected'))->get();
         }
     }
 }

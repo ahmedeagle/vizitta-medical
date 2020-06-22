@@ -155,5 +155,11 @@ class Service extends Model
         }
     }*/
 
+    public function paymentMethods()
+    {
+        return $this->belongsToMany('App\Models\PaymentMethod', 'service_payment_methods', 'service_id', 'payment_method_id')
+            ->using('App\Models\ServicePaymentMethod')->withPivot('payment_amount_type', 'payment_amount');
+    }
+
 }
 

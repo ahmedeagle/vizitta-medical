@@ -431,6 +431,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/update/{id}', 'OfferController@update');
             Route::post('/show/{id}', 'OfferController@show');
         });
+
         ############## End Offers Routes ##############
 
         Route::get('transaction-details/{id?}', 'GeneralController@getTransactionDetails');
