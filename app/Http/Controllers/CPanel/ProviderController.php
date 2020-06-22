@@ -1002,4 +1002,23 @@ class ProviderController extends Controller
      }*/
 
 
+    public function checkProviderHomeService(Request $request){
+
+        try {
+            $validator = Validator::make($request->all(), [
+                "id" => "required|exists:providers,id",
+            ]);
+
+
+            if ($validator->fails()) {
+                $result = $validator->messages()->toArray();
+                return response()->json(['status' => false, 'error' => $result], 200);
+            }
+
+           $provider =  Provider::select('id','name_'.app()->getLocale().' as name','has_home_visit')->find($request -> id);
+
+        }catch (\Exception $ex){
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
 }
