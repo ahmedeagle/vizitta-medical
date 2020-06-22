@@ -142,6 +142,7 @@ class ServiceController extends Controller
                 "home_price" => "sometimes|nullable|numeric",  // in minutes
                 "information_en" => "required",
                 "information_ar" => "required",
+                "payment_method" => "required|array|min:1",
                 "working_days" => "required|array|min:1",
                 // "clinic_reservation_period" => "sometimes|nullable|numeric",
             ]);
@@ -243,7 +244,6 @@ class ServiceController extends Controller
                 DB::commit();
             } catch (\Exception $ex) {
                 DB::rollback();
-                return $ex;
                 return $this->returnError('D000', __('messages.sorry please try again later'));
             }
 
@@ -267,11 +267,17 @@ class ServiceController extends Controller
             }
 
             $service = $this->getServicesForEdit($request->service_id);
+
             if (!$service) {
                 return $this->returnError('D000', __('messages.no service with this id'));
             }
 
+            $payment_method = PaymentMethod::where('status', 1)
+                ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.service_id = ' . $service->id . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))
+                ->get();
+
             $service->time = "";
+            $service->payment_method = $payment_method;
             $days = $service->times;
             $service->makeHidden(['available_time', 'provider_id', 'branch_id', 'type']);
             return $this->returnData('service', $service);
@@ -301,6 +307,7 @@ class ServiceController extends Controller
                 "information_en" => "required",
                 "information_ar" => "required",
                 "working_days" => "required|array|min:1",
+                "payment_method" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
             ]);
 
@@ -341,6 +348,14 @@ class ServiceController extends Controller
             $service = Service::find($request->service_id);
             if (!$service)
                 return $this->returnError('D000', trans("messages.no service with this id"));
+
+
+            if (isset($request->payment_method) && !empty($request->payment_method)) {
+                $service->paymentMethods()->detach();
+                foreach ($request->payment_method as $k => $method) {
+                    $service->paymentMethods()->attach($method['payment_method_id'], ['payment_amount_type' => $method['payment_amount_type'], 'payment_amount' => $method['payment_amount']]);
+                }
+            }
 
             $branch = Provider::whereNotNull('provider_id')->find($request->branch_id);
             if (!$branch)
@@ -444,10 +459,10 @@ class ServiceController extends Controller
 
     public function getAllPaymentMethodWithSelectedListServices()
     {
-            $payments =  PaymentMethod::where('status', 1)
-                ->select('id','flag', 'name_' . app()->getLocale() . ' as name',DB::raw('0 as selected'))->get();
+        $payments = PaymentMethod::where('status', 1)
+            ->select('id', 'flag', 'name_' . app()->getLocale() . ' as name', DB::raw('0 as selected'))->get();
 
-            return $this -> returnData('payments_methods',$payments);
+        return $this->returnData('payments_methods', $payments);
 
     }
 }
