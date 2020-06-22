@@ -60,7 +60,7 @@ trait ServicesTrait
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'),'provider_id');
         }, 'provider' => function ($q2) {
             $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'types'
+        }, 'types','paymentMethods'
         ]);
 
 
