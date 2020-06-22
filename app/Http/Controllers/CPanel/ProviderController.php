@@ -1011,8 +1011,8 @@ class ProviderController extends Controller
 
 
             if ($validator->fails()) {
-                $result = $validator->messages()->toArray();
-                return response()->json(['status' => false, 'error' => $result], 200);
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
             }
 
            $provider =  Provider::select('id','name_'.app()->getLocale().' as name','has_home_visit')->find($request -> id);
