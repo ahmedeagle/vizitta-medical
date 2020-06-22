@@ -446,7 +446,8 @@ class ServiceController extends Controller
     {
         if ($serviceId != null) {
             return PaymentMethod::where('status', 1)
-                ->select(\Illuminate\Support\Facades\DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM service_payment_methods WHERE service_payment_methods.offer_id = ' . $serviceId . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))->get();
+                ->select(\Illuminate\Support\Facades\DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM service_payment_methods WHERE service_payment_methods.service_id = ' . $serviceId . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))
+                ->get();
         } else {
             return PaymentMethod::where('status', 1)
                 ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, 0 as selected'))->get();
