@@ -273,7 +273,7 @@ class ServiceController extends Controller
             }
 
             $payment_method = PaymentMethod::where('status', 1)
-                ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM offer_payment_methods WHERE offer_payment_methods.service_id = ' . $service->id . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))
+                ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM service_payment_methods WHERE service_payment_methods.service_id = ' . $service->id . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))
                 ->get();
 
             $service->time = "";
