@@ -1321,7 +1321,6 @@ class OffersController extends Controller
     public function showV2(Request $request, $allow_code = false, $proCode = 0)
     {
         try {
-
             $validator = Validator::make($request->all(), [
                 "id" => "required|exists:offers,id",
             ]);

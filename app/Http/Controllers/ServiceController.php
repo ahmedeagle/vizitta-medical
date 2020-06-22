@@ -62,6 +62,8 @@ class ServiceController extends Controller
                 $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'types' => function ($q3) {
                 $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            },'paymentMethods' => function ($pay) {
+                $pay->select('payment_methods.id', 'name_' . app()->getLocale() . ' as name', 'flag', 'status');
             }
             ])->where('branch_id', $branch_id);
 
