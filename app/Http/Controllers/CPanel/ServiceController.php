@@ -446,7 +446,7 @@ class ServiceController extends Controller
     {
 
             return PaymentMethod::where('status', 1)
-                ->select('id','flag', 'name_' . app()->getLocale() . ' as name', '0 as selected')->get();
+                ->select('id','flag', 'name_' . app()->getLocale() . ' as name',DB::raw('0 as selected'))->get();
 
     }
 }
