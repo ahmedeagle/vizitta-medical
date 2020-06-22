@@ -62,9 +62,7 @@ class ServiceController extends Controller
                 $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'types' => function ($q3) {
                 $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
-            },'paymentMethods' => function ($pay) {
-                $pay->select('payment_methods.id', 'name_' . app()->getLocale() . ' as name', 'flag', 'status');
-            }
+            },'paymentMethods'
             ])->where('branch_id', $branch_id);
 
             if ($category_id != 0)
@@ -83,13 +81,18 @@ class ServiceController extends Controller
                     'id',
                     DB::raw('title_' . $this->getCurrentLang() . ' as title'),
                     DB::raw('information_' . $this->getCurrentLang() . ' as information')
-                    , 'specification_id', 'provider_id', 'branch_id',
+                    , 'specification_id',
+                    'provider_id',
+                    'branch_id',
                     'rate',
                    // 'price',
                     'clinic_price',
                     'home_price',
-                    'home_price_duration', 'clinic_price_duration', 'status', 'reservation_period as clinic_reservation_period'
-                )->paginate(PAGINATION_COUNT);
+                    'home_price_duration',
+                    'clinic_price_duration',
+                    'status',
+                    'reservation_period as clinic_reservation_period'
+                 )->paginate(PAGINATION_COUNT);
 
 
             if (count($services) > 0) {
