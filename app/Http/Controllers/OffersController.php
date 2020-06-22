@@ -1451,6 +1451,7 @@ class OffersController extends Controller
             $rules = [
                 "offer_id" => "required|numeric|exists:offers,id",
                 "payment_method_id" => "required|numeric|exists:payment_methods,id",
+                "payment_type" => "required|in:full:custom",
                 "day_date" => "required|date",
                 "agreement" => "required|boolean",
                 "from_time" => "required",
@@ -1459,6 +1460,14 @@ class OffersController extends Controller
                 "provider_id" => "required|exists:providers,id",
                 //"type" => "required|in:1,2",
             ];
+
+            $payment_type = $request->payment_type;
+
+
+            if ($request->payment_method_id != 1 && $payment_type == 'custom') {//not cach cash
+                $rules['custom_paid_price'] = "required|numeric";
+                $rules['remaining_price'] = "required|numeric";
+            }
 
             $validator = Validator::make($request->all(), $rules);
 
@@ -1532,6 +1541,9 @@ class OffersController extends Controller
                 "provider_id" => $request->provider_id,
                 "order" => $timeOrder,
                 "price" => $offer->price_after_discount,
+                "payment_type" => $payment_type,
+                "custom_paid_price" => ($request->payment_method_id != 1 && $payment_type == 'custom') ? $request->custom_paid_price : null,
+                "remaining_price" => ($request->payment_method_id != 1 && $payment_type == 'custom') ? $request->remaining_price : null,
                 "transaction_id" => isset($request->transaction_id) ? $request->transaction_id : null
             ]);
 
@@ -1555,6 +1567,9 @@ class OffersController extends Controller
             $reserve->day_date = date('l', strtotime($request->day_date));
             $reserve->reservation_date = date('Y-m-d', strtotime($request->day_date));
             $reserve->price = $reservation->price;
+            $reserve->payment_type = $reservation->payment_type;
+            $reserve->custom_paid_price = $reservation->custom_paid_price;
+            $reserve->remaining_price = $reservation->remaining_price;
             $reserve->payment_method = $reservation->paymentMethod()->select('id', DB::raw('name_' . $this->getCurrentLang() . ' as name'))->first();
             $reserve->from_time = $reservation->from_time;
             $reserve->to_time = $reservation->to_time;
@@ -1735,7 +1750,7 @@ class OffersController extends Controller
                 "status" => "required|in:1,2,3" //1->approved 2->cancelled 3 ->complete
             ]);
 
-            if ($request->status == 2 && $request -> rejected_reason_id != 0  ) {
+            if ($request->status == 2 && $request->rejected_reason_id != 0) {
                 $validator->addRules([
                     'rejected_reason_id' => 'required|string',
                     'rejected_reason_notes' => 'sometimes|nullable|string',
