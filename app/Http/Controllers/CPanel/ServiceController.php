@@ -277,7 +277,7 @@ class ServiceController extends Controller
                 ->get();
 
             $service->time = "";
-            $service->payment_method = $payment_method;
+            $service->selected_payment_method = $payment_method;
             $days = $service->times;
             $service->makeHidden(['available_time', 'provider_id', 'branch_id', 'type']);
             return $this->returnData('service', $service);
