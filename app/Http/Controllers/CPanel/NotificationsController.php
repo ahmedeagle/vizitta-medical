@@ -240,7 +240,6 @@ class NotificationsController extends Controller
                 "type" => $type,
                 "photo" => $fileName,
                 'allow_fire_base' => $allow_fire_base,
-
                 'notifictionable_type' => $notifictionable_type,
                 'notifictionable_id' => $id,
                 'subCategory_id' => isset($request->subcategory_id) ? $request->subcategory_id : 0,

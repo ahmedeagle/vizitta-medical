@@ -1017,6 +1017,7 @@ class ProviderController extends Controller
 
            $provider =  Provider::select('id','name_'.app()->getLocale().' as name','has_home_visit')->find($request -> id);
 
+            return $this->returnData('provider',$provider);
         }catch (\Exception $ex){
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
