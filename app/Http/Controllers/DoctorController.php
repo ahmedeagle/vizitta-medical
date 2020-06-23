@@ -1626,7 +1626,7 @@ class DoctorController extends Controller
             "&customParameters[branch_id]=1" .
             "&customParameters[teller_id]=1" .
             "&customParameters[device_id]=1" .
-            "&customParameters[bill_number]=" .
+            "&customParameters[bill_number]=39434" .
             "&customParameters[SHOPPER_payment_mode]=QRcode" .
             "&customer.mobile=" . $request->mobile; // STCPAY mobile number 05xxxxxxxx
 
