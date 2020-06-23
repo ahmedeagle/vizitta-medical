@@ -46,6 +46,9 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     Route::post('specifications', 'GlobalController@getSpecifications')->name('specifications');
     Route::post('coupons/categories', 'GlobalController@getCouponsCategories')->name('couponsCategories');
     Route::post('offers/banners', 'OffersController@banners');
+    Route::group(['prefix' => 'v3'], function () {
+        Route::post('specifications', 'GlobalController@getSpecificationsV2')->name('specifications');
+    });
     Route::group(['prefix' => 'v2'], function () {
         Route::post('specifications', 'GlobalController@getSpecificationsV2')->name('specifications');
         Route::post('services/specifications', 'GlobalController@getServiceSpecificationsV2');
