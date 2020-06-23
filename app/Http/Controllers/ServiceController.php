@@ -43,6 +43,7 @@ class ServiceController extends Controller
             $validator = Validator::make($request->all(), [
                 "category_id" => "required",
                 "branch_id" => "required|exists:providers,id",
+                "type" => "required|in:1,2"  // 1-home   2-clinic
             ]);
 
             if ($validator->fails()) {
@@ -53,6 +54,7 @@ class ServiceController extends Controller
             $queryStr = $request->queryStr;
             $category_id = $request->category_id;
             $branch_id = $request->branch_id;
+            $type = $request->type;
 
             $services = $services->active()->with(['specification' => function ($q1) {
                 $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
@@ -62,8 +64,13 @@ class ServiceController extends Controller
                 $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'types' => function ($q3) {
                 $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
-            },'paymentMethods'
-            ])->where('branch_id', $branch_id);
+            }, 'paymentMethods'
+            ])
+                ->where('branch_id', $branch_id)
+                ->whereHas('types' , function ($q3) use($type) {
+                $q3->where('services_type.id',$type);
+            });
+
 
             if ($category_id != 0)
                 $services = $services->where('specification_id', $category_id);
@@ -85,14 +92,14 @@ class ServiceController extends Controller
                     'provider_id',
                     'branch_id',
                     'rate',
-                   // 'price',
+                    // 'price',
                     'clinic_price',
                     'home_price',
                     'home_price_duration',
                     'clinic_price_duration',
                     'status',
                     'reservation_period as clinic_reservation_period'
-                 )->paginate(PAGINATION_COUNT);
+                )->paginate(PAGINATION_COUNT);
 
 
             if (count($services) > 0) {
@@ -235,8 +242,9 @@ class ServiceController extends Controller
             }
             if ($request->status == 3) {
                 $validator->addRules([
-                    "arrived" => "required|in:0,1"
+                    "arrived" => "required|in:0,1",
                 ]);
+
             }
 
             if ($validator->fails()) {
@@ -250,6 +258,15 @@ class ServiceController extends Controller
             $provider->makeVisible(['application_percentage_bill']);
 
             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
+
+
+            if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
+                if (!isset($request->extra_services) or is_null($request->extra_services) or !is_array($request->extra_services)){
+                    return $this->returnError('E001', trans('messages.must enter extra services'));
+                }
+            }
+
+
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
@@ -286,6 +303,7 @@ class ServiceController extends Controller
             }
 
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
+
 
             DB::commit();
 
@@ -362,7 +380,7 @@ class ServiceController extends Controller
     protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation)
     {
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
-        $total_amount =  floatval($reservation->price);
+        $total_amount = floatval($reservation->price);
         $MC_percentage = $application_percentage_of_bill;
         $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
         $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;

@@ -100,9 +100,9 @@ class GlobalVisitsController extends Controller
                         ->first();
 
                     if (date('Y-m-d') == $dayDate)
-                        return strtotime($value['from_time']) > strtotime(date('H:i:s')) &&  $checkTime == null;
+                        return strtotime($value['from_time']) > strtotime(date('H:i:s')) && $checkTime == null;
                     else
-                        return  $checkTime == null;
+                        return $checkTime == null;
 
                 });
                 $serTimes = array_values($filtered->all());
@@ -126,11 +126,21 @@ class GlobalVisitsController extends Controller
                 "service_id" => "required|numeric",
                 "day_date" => "required|date",
                 "from_time" => "required",
+                "payment_type" => "required|in:full:custom",
                 "to_time" => "required",
                 "price" => "required",
                 "hours_duration" => "nullable|required_if:service_type,1",
             ];
             $validator = Validator::make($requestData, $rules);
+
+            $payment_type = $request->payment_type;
+
+            if ($request->service_type == 1) { //home
+                if ($request->payment_method_id != 1 && $payment_type == 'custom') {//not cach cash
+                    $rules['custom_paid_price'] = "required|numeric";
+                    $rules['remaining_price'] = "required|numeric";
+                }
+            }
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -163,22 +173,28 @@ class GlobalVisitsController extends Controller
                 "branch_id" => $service->branch_id,
                 'price' => (!empty($request->price) ? $requestData['price'] : $service->price),
                 'total_price' => $totalPrice,
+                "payment_type" => $payment_type,
+                "custom_paid_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->service_type == 1) ? $request->custom_paid_price : null,
+                "remaining_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->service_type == 1) ? $request->remaining_price : null,
                 "latitude" => $request->latitude,
                 "longitude" => $request->longitude,
                 "payment_method_id" => $request->payment_method_id,
                 "hours_duration" => empty($request->hours_duration) ? null : $request->hours_duration,
-                "transaction_id" => isset($request -> transaction_id) ? $request -> transaction_id  : null
+                "transaction_id" => isset($request->transaction_id) ? $request->transaction_id : null
             ]);
 
             if ($reservation) {
                 try {
 
                     $reserve = new \stdClass();
+                    $reserve = new \stdClass();
                     $reserve->reservation_no = $reservation->reservation_no;
                     $reserve->day_date = date('l', strtotime($requestData['day_date']));
                     $reserve->code = $reservation->code;
                     $reserve->reservation_date = date('Y-m-d', strtotime($requestData['day_date']));
                     $reserve->price = $reservation->price;
+                    $reserve->custom_paid_price = $reservation->custom_paid_price;
+                    $reserve->remaining_price = $reservation->remaining_price;
                     $reserve->from_time = $reservation->from_time;
                     $reserve->to_time = $reservation->to_time;
                     $branch = ServiceReservation::find($reservation->id)->branch_id;
@@ -511,25 +527,25 @@ class GlobalVisitsController extends Controller
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
-        $url = env('PAYTABS_CHECKOUTS_URL','https://oppwa.com/v1/checkouts');
+        $url = env('PAYTABS_CHECKOUTS_URL', 'https://oppwa.com/v1/checkouts');
         $data =
-            "entityId=" . env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') .
+            "entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8') .
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-            "&notificationUrl=https://mcallapp.com" ;
-           // "&merchantTransactionId=400" .
-            //"&testMode=EXTERNAL" .
-            //"&customer.email=" . $userEmail;
+            "&notificationUrl=https://mcallapp.com";
+        // "&merchantTransactionId=400" .
+        //"&testMode=EXTERNAL" .
+        //"&customer.email=" . $userEmail;
 
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer '.env('PAYTABS_AUTHORIZATION','OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
+                'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -547,6 +563,7 @@ class GlobalVisitsController extends Controller
         return $this->returnData('checkoutId', $id, trans('messages.Checkout id successefully retrieved'), 'S001');
 
     }
+
     public function checkPaymentStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -559,9 +576,9 @@ class GlobalVisitsController extends Controller
             return $this->returnValidationError($code, $validator);
         }
 
-        $url =  env('PAYTABS_BASE_URL','https://test.oppwa.com/');
-        $url .= $request -> resource;
-        $url .= "?entityId=".env('PAYTABS_ENTITYID','8ac7a4ca6d0680f7016d14c5bbb716d8') ;
+        $url = env('PAYTABS_BASE_URL', 'https://test.oppwa.com/');
+        $url .= $request->resource;
+        $url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
 
         // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
         //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
@@ -571,7 +588,7 @@ class GlobalVisitsController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization:Bearer ' . env('PAYTABS_AUTHORIZATION', 'OGFjN2E0Y2E2ZDA2ODBmNzAxNmQxNGM1NzMwYzE2ZDR8QVpZRXI1ZzZjZQ')));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL',false));// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, env('PAYTABS_SSL', false));// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
@@ -582,9 +599,9 @@ class GlobalVisitsController extends Controller
         curl_close($ch);
         $r = json_decode($responseData);
         $obj = new \stdClass();
-        $obj -> id = isset($r->id) ?  $r->id : '0';
-        $obj -> res = $r->result;
-        return $this->returnData('status',$obj, trans('messages.Payment status'), 'S001');
+        $obj->id = isset($r->id) ? $r->id : '0';
+        $obj->res = $r->result;
+        return $this->returnData('status', $obj, trans('messages.Payment status'), 'S001');
     }
 
 

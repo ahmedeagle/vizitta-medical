@@ -12,7 +12,9 @@ class Service extends Model
     protected $table = 'services';
     public $timestamps = true;
 //
-    protected $fillable = ['title_ar', 'title_en', 'information_ar','price', 'information_en', 'provider_id', 'branch_id', 'specification_id', 'clinic_price', 'home_price', 'clinic_price_duration', 'home_price_duration', 'status', 'type', 'rate', 'reservation_period', 'created_at', 'updated_at'];
+    protected $fillable = ['title_ar', 'title_en', 'information_ar','price', 'information_en', 'provider_id', 'branch_id', 'specification_id', 'clinic_price', 'home_price', 'clinic_price_duration', 'home_price_duration',
+        'status', 'type', 'rate', 'reservation_period',
+        'created_at', 'updated_at'];
     protected $hidden = ['specification_id', 'created_at', 'updated_at'];
 
     protected $forcedNullStrings = ['reservation_period', 'home_price_duration', 'clinic_price_duration'];
