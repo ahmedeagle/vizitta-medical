@@ -65,7 +65,7 @@ class ServiceController extends Controller
                 $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }, 'paymentMethods'
             ])
-                ->where('branch_id', $branch_id)
+                ->where('branch_id', $branch_id);
 
             if ($category_id != 0)
                 $services = $services->where('specification_id', $category_id);
