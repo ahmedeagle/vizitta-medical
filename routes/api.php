@@ -83,8 +83,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             Route::post('apple_pay_check_payment_status', 'DoctorController@checkPaymentStatus_apple_pay');
 
             Route::post('stc_checkout_id', 'DoctorController@get_checkout_id_stc_pay');
-            Route::post('stc_check_payment_status', 'DoctorController@checkPaymentStatus_stc_pay');
-        });
+         });
         Route::group(['prefix' => 'services'], function () {
             Route::post('/', 'ServiceController@index');
             Route::group(['prefix' => 'v2'], function () {

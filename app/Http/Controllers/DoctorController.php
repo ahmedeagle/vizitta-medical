@@ -1606,7 +1606,12 @@ class DoctorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "price" => array('required', 'regex:/^\d+(\.\d{1,2})?$/', 'min:1'),
-            "mobile" => 'required',
+            "mobile" =>
+            array(
+                "required",
+                "digits_between:8,10",
+                "regex:/^(009665|9665|\+9665|05|5)(5|0|3|6|4|9|1|8|7)([0-9]{7})$/"
+            )
         ]);
         if ($validator->fails()) {
             $code = $this->returnCodeAccordingToInput($validator);
