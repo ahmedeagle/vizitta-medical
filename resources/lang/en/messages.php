@@ -305,5 +305,6 @@ return [
     'external link required' => 'External link required',
     'status changed successfully'=> 'Status changed successfully',
         'will send notify' => 'سيتم ارسال الاشعارات في الخلفية ',
-
+    'must enter extra services status'  => 'Is client has additional services',
+    'must enter extra services' => 'Must enter extra services',
 ];

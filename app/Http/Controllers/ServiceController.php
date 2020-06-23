@@ -6,6 +6,7 @@ use App\Mail\AcceptReservationMail;
 use App\Mail\NewReservationMail;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
+use App\Models\ExtraServices;
 use App\Models\GeneralNotification;
 use App\Models\InsuranceCompanyDoctor;
 use App\Models\Payment;
@@ -67,10 +68,9 @@ class ServiceController extends Controller
             }, 'paymentMethods'
             ])
                 ->where('branch_id', $branch_id)
-                ->whereHas('types' , function ($q3) use($type) {
-                $q3->where('services_type.id',$type);
-            });
-
+                ->whereHas('types', function ($q3) use ($type) {
+                    $q3->where('services_type.id', $type);
+                });
 
             if ($category_id != 0)
                 $services = $services->where('specification_id', $category_id);
@@ -260,10 +260,27 @@ class ServiceController extends Controller
             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
 
 
+            //here we check if user visited in home  AND  has extra services must calculate them
             if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
-                if (!isset($request->extra_services) or is_null($request->extra_services) or !is_array($request->extra_services)){
+                if (!isset($request->has_extra_services) or ($request->has_extra_services != 0 && $request->has_extra_services != 1)) {
+                    return $this->returnError('E001', trans('messages.must enter extra services status'));
+                }
+
+                if ($reservation->has_extra_services == 1 && !isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services)) {
                     return $this->returnError('E001', trans('messages.must enter extra services'));
                 }
+                if (isset($reservation->extra_services) && count($reservation->extra_services) > 0) {
+                    $extra_services = [];
+                    foreach ($reservation->extra_services as $extra_service) {
+                        $extra_service = new ExtraServices();
+                        $extra_service->name = $extra_service['name'];
+                        $extra_service->price = $extra_service['price'];
+                        $extra_service->save();
+                        array_push($extra_services, $extra_service);
+                    }
+                    $reservation->extraServices()->saveMany($extra_services);
+                }
+
             }
 
 

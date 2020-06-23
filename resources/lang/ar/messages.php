@@ -335,4 +335,6 @@ return [
     'will send notify' => 'سيتم ارسال الاشعارات في الخلفية ',
     'can not delete this item' =>'عذرا لا يمكن حذف هذا العنصر',
     'item deleted successfully' =>'تم حذف العنصر بنجاح',
+    'must enter extra services status'  => 'لابد من توضيح هل تلاقي العميل خدمات اضافية',
+    'must enter extra services' => 'الخدمات الاضافية مطلوب ادخالها',
 ];

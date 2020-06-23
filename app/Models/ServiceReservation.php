@@ -13,7 +13,7 @@ class ServiceReservation extends Model
     protected $forcedNullStrings = ['transaction_id','bill_photo', 'reservation_no', 'rejection_reason', 'price', 'provider_rate', 'service_rate', 'rate_comment', 'bill_total', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason', 'service_rate', 'address'];
     protected $forcedNullNumbers = [];
 
-    protected $fillable = ['reservation_no','transaction_id', 'user_id', 'service_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
+    protected $fillable = ['reservation_no','has_extra_services','transaction_id', 'user_id', 'service_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'order', 'provider_id', 'branch_id', 'service_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
         'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes'];
@@ -69,6 +69,13 @@ class ServiceReservation extends Model
     {
         return $this->hasMany('App\Models\UserRecord', 'reservation_no')->withDefault(["name" => ""]);
     }
+
+
+    public function extraServices()
+    {
+        return $this->hasMany('App\Models\ExtraServices', 'reservation_id')->withDefault(["name" => ""]);
+    }
+
 
     /*public function branch()
     {

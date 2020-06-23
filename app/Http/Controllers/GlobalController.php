@@ -182,6 +182,42 @@ class GlobalController extends Controller
     }
 
     public
+
+    function getServiceSpecificationsV2ByType(Request $request)
+    {
+        $type = isset($request->type) ? $request->type : 1;   //1 -> home serices   1 -> clinic
+        try {
+            if (isset($request->provider_id)) {
+                $provider = $this->checkProvider($request->provider_id);
+                if ($provider == null)
+                    return $this->returnError('D000', trans('messages.There is no provider with this id'));
+            }
+
+            $provider_id = $request->provider_id;
+            if (!empty($provider_id)) {
+                $result = Specification::whereHas('services', function ($q) use ($provider_id, $type) {
+                    $q->where('branch_id', $provider_id)
+                        ->whereHas('types', function ($q3) use ($type) {
+                            $q3->where('services_type.id', $type);
+                        });
+                })
+                    ->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+
+            } else {
+                $result = Specification::has('services')->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+            }
+
+            if ($result && count($result) > 0)
+                return $this->returnData('specifications', $result);
+
+            return $this->returnError('E001', trans('messages.There is no specifications found'));
+        } catch
+        (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    public
     function getCouponsFilters()
     {
         try {
@@ -733,7 +769,7 @@ class GlobalController extends Controller
                     DB::raw('use2_' . $this->getCurrentLang() . ' as use2'),
                     DB::raw('use3_' . $this->getCurrentLang() . ' as use3'),
                     'app_price_note_' . $this->getCurrentLang() . ' as app_price_note',
-                    DB::raw('IFNULL(app_price_note_'.$this->getCurrentLang().', "") AS app_price_note'),
+                    DB::raw('IFNULL(app_price_note_' . $this->getCurrentLang() . ', "") AS app_price_note'),
                     DB::raw('address_' . $this->getCurrentLang() . ' as address'),
                     'email',
                     'mobile',
@@ -850,7 +886,8 @@ class GlobalController extends Controller
     }
 
 
-    public function getAppPriceNote(Request $request){
+    public function getAppPriceNote(Request $request)
+    {
 
 
     }
