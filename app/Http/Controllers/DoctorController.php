@@ -1626,8 +1626,8 @@ class DoctorController extends Controller
             "&customParameters[branch_id]=1" .
             "&customParameters[teller_id]=1" .
             "&customParameters[device_id]=1" .
-            "&customParameters[bill_number]=39434" .
-            "&customParameters[SHOPPER_payment_mode]=QRcode" .
+            "&customParameters[bill_number]=" .
+            "&customParameters[SHOPPER_payment_mode]=mobile" .
             "&customer.mobile=" . $request->mobile; // STCPAY mobile number 05xxxxxxxx
 
         //  "&shopperResultUrl=com.wisyst.Medical.Call.payments";
