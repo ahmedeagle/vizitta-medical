@@ -44,6 +44,103 @@ class ServiceController extends Controller
             $validator = Validator::make($request->all(), [
                 "category_id" => "required",
                 "branch_id" => "required|exists:providers,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+            $services = Service::query();
+            $queryStr = $request->queryStr;
+            $category_id = $request->category_id;
+            $branch_id = $request->branch_id;
+
+            $services = $services->active()->with(['specification' => function ($q1) {
+                $q1->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($q2) {
+                $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            }, 'provider' => function ($q2) {
+                $q2->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'types' => function ($q3) {
+                $q3->select('services_type.id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'paymentMethods'
+            ])
+                ->where('branch_id', $branch_id)
+
+            if ($category_id != 0)
+                $services = $services->where('specification_id', $category_id);
+
+
+            if (isset($request->queryStr)) {
+                $services = $services->where(function ($q4) use ($queryStr) {
+                    $q4->where('title_en', 'LIKE', '%' . trim($queryStr) . '%')
+                        ->orWhere('title_ar', 'LIKE', '%' . trim($queryStr) . '%');
+                });
+            }
+
+            $services = $services
+                ->select(
+                    'id',
+                    DB::raw('title_' . $this->getCurrentLang() . ' as title'),
+                    DB::raw('information_' . $this->getCurrentLang() . ' as information')
+                    , 'specification_id',
+                    'provider_id',
+                    'branch_id',
+                    'rate',
+                    // 'price',
+                    'clinic_price',
+                    'home_price',
+                    'home_price_duration',
+                    'clinic_price_duration',
+                    'status',
+                    'reservation_period as clinic_reservation_period'
+                )->paginate(PAGINATION_COUNT);
+
+
+            if (count($services) > 0) {
+                foreach ($services as $key => $service) {
+                    $service->time = "";
+                    $days = $service->times;
+                    $num_of_rates = ServiceReservation::where('service_id', $service->id)
+                        ->Where('service_rate', '!=', null)
+                        ->Where('service_rate', '!=', 0)
+                        ->Where('provider_rate', '!=', null)
+                        ->Where('provider_rate', '!=', 0)
+                        ->count();
+
+                    $service->num_of_rates = $num_of_rates;
+                }
+                $total_count = $services->total();
+                $per_page = PAGINATION_COUNT;
+                $services->getCollection()->each(function ($service) {
+                    $service->makeHidden(['available_time', 'provider_id', 'branch_id', 'hide', 'clinic_reservation_period', 'time']);
+                    return $service;
+                });
+
+                $services = json_decode($services->toJson());
+                $servicesJson = new \stdClass();
+                $servicesJson->current_page = $services->current_page;
+                $servicesJson->total_pages = $services->last_page;
+                $servicesJson->total_count = $total_count;
+                $servicesJson->per_page = $per_page;
+                $servicesJson->data = $services->data;
+
+                return $this->returnData('services', $servicesJson);
+            }
+
+            return $this->returnError('E001', trans('messages.No data founded'));
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+
+    public function indexV2(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "category_id" => "required",
+                "branch_id" => "required|exists:providers,id",
                 "type" => "required|in:1,2"  // 1-home   2-clinic
             ]);
 
@@ -138,7 +235,6 @@ class ServiceController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
-
 
     public function getServiceRates(Request $request)
     {
