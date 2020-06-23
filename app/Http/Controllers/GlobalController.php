@@ -185,7 +185,16 @@ class GlobalController extends Controller
 
     function getServiceSpecificationsV2ByType(Request $request)
     {
-        $type = isset($request->type) ? $request->type : 1;   //1 -> home serices   1 -> clinic
+        $validator = Validator::make($request->all(), [
+            "type" => "required|in:1,2" //1->home 2->clinic
+        ]);
+
+        if ($validator->fails()) {
+            $code = $this->returnCodeAccordingToInput($validator);
+            return $this->returnValidationError($code, $validator);
+        }
+
+        $type = $request->type;
         try {
             if (isset($request->provider_id)) {
                 $provider = $this->checkProvider($request->provider_id);
