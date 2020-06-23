@@ -1528,11 +1528,7 @@ class DoctorController extends Controller
             "&amount=" . $request->price .
             "&currency=SAR" .
             "&paymentType=DB" .
-//            "&notificationUrl=https://mcallapp.com";
-            // "&merchantTransactionId=400" .
-            "&testMode=INTERNAL" .
             "&shopperResultUrl=com.wisyst.Medical.Call.payments";
-        //"&customer.email=" . $userEmail;
 
         try {
             $ch = curl_init();
@@ -1631,8 +1627,8 @@ class DoctorController extends Controller
             "&customParameters[teller_id]=1" .
             "&customParameters[device_id]=1" .
             "&customParameters[bill_number]=" .
-            "&customParameters[SHOPPER_payment_mode]=mobile" .
-            "&customer.mobile=" . $request->price; // STCPAY mobile number 05xxxxxxxx
+            "&customParameters[SHOPPER_payment_mode]=QRcode" .
+            "&customer.mobile=" . $request->mobile; // STCPAY mobile number 05xxxxxxxx
 
         //  "&shopperResultUrl=com.wisyst.Medical.Call.payments";
         try {
