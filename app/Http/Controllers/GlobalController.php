@@ -213,7 +213,9 @@ class GlobalController extends Controller
                     ->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
 
             } else {
-                $result = Specification::has('services')->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
+                $result = Specification::whereHas('types', function ($q3) use ($type) {
+                    $q3->where('services_type.id', $type);
+                })->get(['id', \Illuminate\Support\Facades\DB::raw('name_' . $this->getCurrentLang() . ' as name')]);
             }
 
             if ($result && count($result) > 0)
