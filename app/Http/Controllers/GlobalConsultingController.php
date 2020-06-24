@@ -265,6 +265,7 @@ class GlobalConsultingController extends Controller
             return $this->returnError('E001', trans('main.oops_error'));
 
         } catch (\Exception $ex) {
+            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
