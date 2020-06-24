@@ -182,13 +182,15 @@ class GlobalConsultingController extends Controller
                 $reserve->to_time = $reservation->to_time;
                 $branch = DoctorConsultingReservation::find($reservation->id)->branch_id;
 
-                $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
-                $reserve->branch = $branch;
+                if ($doctor->doctor_type == 'clinic') {
+                    $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
+                    $reserve->branch = $branch;
+                    $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
+                    $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
+                    $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
+                }
 
-                $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
                 $doctorName = $doctor->{'name_' . app()->getLocale()};
-                $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
-                $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
 
                 if ($doctor->doctor_type == 'clinic') {
                     //push notification
@@ -234,7 +236,7 @@ class GlobalConsultingController extends Controller
                         'content_ar' => 'هناك حجز استشارة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )',
                         'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )',
                         'notificationable_type' => 'App\Models\Doctor',
-                        'notificationable_id' => $doctor -> id,
+                        'notificationable_id' => $doctor->id,
                         'data_id' => $reservation->id,
                         'type' => 7 // new consulting reservation
                     ]);
