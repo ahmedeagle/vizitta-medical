@@ -50,7 +50,7 @@ class GlobalConsultingController extends Controller
         try {
             $requestData = $request->only(['doctor_id']);
             $doctor = Doctor::find($requestData['doctor_id']);
-            $doctor -> user = $this->auth('user-api');
+            $doctor->user = $this->auth('user-api');
 
             $result = new SingleDoctorResource($doctor);
             return $this->returnData('doctor', $result);
@@ -104,21 +104,21 @@ class GlobalConsultingController extends Controller
             $doctorId = $requestData['doctor_id'];
             $collection = collect($doctorTimes);
             $dayDate = $requestData['day_date'];
-            $filtered = $collection->filter(function ($value, $key) use ($dayDate,$doctorId){
+            $filtered = $collection->filter(function ($value, $key) use ($dayDate, $doctorId) {
 
                 // Check if this time is reserved before or not
-            $checkTime = DoctorConsultingReservation::where('day_date', $dayDate)
-                ->where('from_time', $value['from_time'])
-                ->where('to_time', $value['to_time'])
-                ->where('doctor_id',$doctorId)
-                ->first();
+                $checkTime = DoctorConsultingReservation::where('day_date', $dayDate)
+                    ->where('from_time', $value['from_time'])
+                    ->where('to_time', $value['to_time'])
+                    ->where('doctor_id', $doctorId)
+                    ->first();
 
-            if (date('Y-m-d') == $dayDate)
-                return strtotime($value['from_time']) > strtotime(date('H:i:s')) && $checkTime == null;
-            else
-                return $checkTime == null;
-        });
-             $docTimes = array_values($filtered->all());
+                if (date('Y-m-d') == $dayDate)
+                    return strtotime($value['from_time']) > strtotime(date('H:i:s')) && $checkTime == null;
+                else
+                    return $checkTime == null;
+            });
+            $docTimes = array_values($filtered->all());
             ########### End To Get Times After The Current Time ############
 
             return $this->returnData('times', $docTimes);
@@ -171,33 +171,34 @@ class GlobalConsultingController extends Controller
             ]);
 
             if ($reservation) {
+                $reserve = new \stdClass();
+                $reserve->reservation_no = $reservation->reservation_no;
+                $reserve->day_date = date('l', strtotime($requestData['day_date']));
+                $reserve->code = $reservation->code;
+                $reserve->reservation_date = date('Y-m-d', strtotime($requestData['day_date']));
+                $reserve->price = $reservation->price;
+                $reserve->total_price = $reservation->total_price;
+                $reserve->from_time = $reservation->from_time;
+                $reserve->to_time = $reservation->to_time;
+                $branch = DoctorConsultingReservation::find($reservation->id)->branch_id;
 
-                if (!empty($doctor->provider_id) && !empty($doctor->branch_id)) {
+                $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
+                $reserve->branch = $branch;
 
-                    $reserve = new \stdClass();
-                    $reserve->reservation_no = $reservation->reservation_no;
-                    $reserve->day_date = date('l', strtotime($requestData['day_date']));
-                    $reserve->code = $reservation->code;
-                    $reserve->reservation_date = date('Y-m-d', strtotime($requestData['day_date']));
-                    $reserve->price = $reservation->price;
-                    $reserve->total_price = $reservation->total_price;
-                    $reserve->from_time = $reservation->from_time;
-                    $reserve->to_time = $reservation->to_time;
-                    $branch = DoctorConsultingReservation::find($reservation->id)->branch_id;
+                $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
+                $doctorName = $doctor->{'name_' . app()->getLocale()};
+                $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
+                $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
 
-                    $reserve->provider = Provider::providerSelection()->find($reservation->provider->provider_id);
-                    $reserve->branch = $branch;
-
+                if ($doctor->doctor_type == 'clinic') {
                     //push notification
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)); // branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProvider(Provider::find($doctor->provider_id)->provider); // main  provider
-
-                    $providerName = Provider::find($doctor->provider_id)->provider->{'name_' . app()->getLocale()};
-                    $smsMessage = __('messages.dear_service_provider') . ' ( ' . $providerName . ' ) ' . __('messages.provider_have_new_reservation_from_MedicalCall');
-                    $this->sendSMS(Provider::find($doctor->provider_id)->provider->mobile, $smsMessage);  //sms for main provider
-
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id), null, 'new_reservation'); //branch
                     (new \App\Http\Controllers\NotificationController(['title' => __('messages.New Reservation'), 'body' => __('messages.You have new reservation')]))->sendProviderWeb(Provider::find($doctor->provider_id)->provider, null, 'new_reservation');  //main provider
+                }
+
+                if ($doctor->doctor_type == 'clinic') {
                     $notification = GeneralNotification::create([
                         'title_ar' => 'حجز استشارة جديد لدي مقدم الخدمة ' . ' ' . $providerName,
                         'title_en' => 'New consulting reservation for ' . ' ' . $providerName,
@@ -208,6 +209,7 @@ class GlobalConsultingController extends Controller
                         'data_id' => $reservation->id,
                         'type' => 7 // new consulting reservation
                     ]);
+
                     $notify = [
                         'provider_name' => $providerName,
                         'reservation_no' => $reservation->reservation_no,
@@ -221,10 +223,38 @@ class GlobalConsultingController extends Controller
                     try {
                         ########### admin firebase push notifications ##############################
                         (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(7);
-                       // event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                        // event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
                     } catch (\Exception $ex) {
                     }
 
+                } else {
+                    $notification = GeneralNotification::create([
+                        'title_ar' => 'حجز استشارة جديد لدي  الطبيب ' . ' ' . $doctorName,
+                        'title_en' => 'New consulting reservation for ' . ' ' . $doctorName,
+                        'content_ar' => 'هناك حجز استشارة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )',
+                        'content_en' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )',
+                        'notificationable_type' => 'App\Models\Doctor',
+                        'notificationable_id' => $doctor -> id,
+                        'data_id' => $reservation->id,
+                        'type' => 7 // new consulting reservation
+                    ]);
+
+                    $notify = [
+                        'provider_name' => $doctorName,
+                        'reservation_no' => $reservation->reservation_no,
+                        'reservation_id' => $reservation->id,
+                        'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                        'photo' => $reserve->provider->logo,
+                        'notification_id' => $notification->id
+                    ];
+
+                    //fire pusher  notification for admin  stop pusher for now
+                    try {
+                        ########### admin firebase push notifications ##############################
+                        (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(7);
+                        // event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                    } catch (\Exception $ex) {
+                    }
                 }
 
                 $res = DoctorConsultingReservation::with(['doctor', 'provider', 'branch', 'paymentMethod'])->find($reservation->id);
