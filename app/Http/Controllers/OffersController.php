@@ -1450,7 +1450,7 @@ class OffersController extends Controller
             $rules = [
                 "offer_id" => "required|numeric|exists:offers,id",
                 "payment_method_id" => "required|numeric|exists:payment_methods,id",
-                "payment_type" => "required|in:full:custom",
+                "payment_type" => "required|in:full,custom",
                 "day_date" => "required|date",
                 "agreement" => "required|boolean",
                 "from_time" => "required",
