@@ -132,7 +132,9 @@ class GlobalProviderController extends Controller
     public function storeService(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+
+
+            $rules = [
                 "api_token" => "required",
                 "branch_id" => "required|numeric|exists:providers,id",
                 "title_ar" => "required|max:255",
@@ -148,7 +150,12 @@ class GlobalProviderController extends Controller
                 "information_ar" => "required",
                 "working_days" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
-            ]);
+            ];
+            if (in_array(2, $request->typeIds)) {  // clinic
+                $rules["has_price"] = 'required|in:0,1';
+            }
+
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -226,6 +233,7 @@ class GlobalProviderController extends Controller
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 0,
+                    "has_price" => isset($request->has_price)? $request->has_price : null,
                     "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
 
@@ -309,7 +317,7 @@ class GlobalProviderController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $rules=[
                 "service_id" => "required|numeric|exists:services,id",
                 "branch_id" => "required|numeric|exists:providers,id",
                 "title_ar" => "required|max:255",
@@ -326,7 +334,12 @@ class GlobalProviderController extends Controller
                 "working_days" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
                 "api_token" => "required",
-            ]);
+            ];
+            if (in_array(2, $request->typeIds)) {  // clinic
+                $rules["has_price"] = 'required|in:0,1';
+            }
+
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -408,7 +421,8 @@ class GlobalProviderController extends Controller
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     //"status" => 0,
-                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
+                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
+                    "has_price" => isset($request->has_price)? $request->has_price : null
                 ]);
 
                 $service->times()->delete();
@@ -490,6 +504,7 @@ class GlobalProviderController extends Controller
             'rate',
             'home_price',
             'price',
+            'has_price',
             'home_price',
             'clinic_price',
             'home_price_duration',

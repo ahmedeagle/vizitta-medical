@@ -129,7 +129,8 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+
+            $rules = [
                 "branch_id" => "required|numeric|exists:providers,id",
                 "title_ar" => "required|max:255",
                 "title_en" => "required|max:255",
@@ -145,7 +146,13 @@ class ServiceController extends Controller
                 "payment_method" => "required|array|min:1",
                 "working_days" => "required|array|min:1",
                 // "clinic_reservation_period" => "sometimes|nullable|numeric",
-            ]);
+            ];
+            if (in_array(2, $request->typeIds)) {  // clinic
+                $rules["has_price"] = 'required|in:0,1';
+            }
+
+
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -225,7 +232,8 @@ class ServiceController extends Controller
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 1,
-                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
+                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
+                    "has_price" => isset($request->has_price)? $request->has_price : null
                 ]);
 
 
@@ -292,7 +300,7 @@ class ServiceController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $rules =  [
                 "service_id" => "required|numeric|exists:services,id",
                 "branch_id" => "required|numeric|exists:providers,id",
                 "title_ar" => "required|max:255",
@@ -309,7 +317,12 @@ class ServiceController extends Controller
                 "working_days" => "required|array|min:1",
                 "payment_method" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
-            ]);
+            ];
+
+            if (in_array(2, $request->typeIds)) {  // clinic
+                $rules["has_price"] = 'required|in:0,1';
+            }
+            $validator = Validator::make($request->all(),$rules);
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -403,7 +416,8 @@ class ServiceController extends Controller
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
                     "status" => 1,
-                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
+                    "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
+                    "has_price" => isset($request->has_price)? $request->has_price : null
                 ]);
 
                 $service->times()->delete();

@@ -44,13 +44,13 @@ class NotificationController extends Controller
         $notification = [
             'title' => $this->title,
             'body' => $this->body,
-            "click_action" => "action"
+            "click_action" => "action",
+            'sound' => 'default'
         ];
         if ($bill && $reservation_id != null) {
             $extraNotificationData = [
                 'upload_bill' => '1',
                 'reservation_id' => $reservation_id,
-                'sound' => 'default'
             ];
 
             // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];
@@ -59,11 +59,6 @@ class NotificationController extends Controller
                 'to' => $notify->device_token,//'/topics/alldevices',// $User->device_token, //single token
                 'notification' => $notification,
                 'data' => $extraNotificationData,
-                "apns" => [
-                    "payload" => [
-                        "sound" => "default"
-                    ]
-                ]
             ];
 
         } else {
