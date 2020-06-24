@@ -135,12 +135,12 @@ class GlobalVisitsController extends Controller
 
             $payment_type = $request->payment_type;
 
-            if ($request->service_type == 1) { //home
-                if ($request->payment_method_id != 1 && $payment_type == 'custom') {//not cach cash
-                    $rules['custom_paid_price'] = "required|numeric";
-                    $rules['remaining_price'] = "required|numeric";
-                }
+//            if ($request->service_type == 1) { //home
+            if ($request->payment_method_id != 1 && $payment_type == 'custom') {//not cach cash
+                $rules['custom_paid_price'] = "required|numeric";
+                $rules['remaining_price'] = "required|numeric";
             }
+            //           }
 
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -174,8 +174,8 @@ class GlobalVisitsController extends Controller
                 'price' => (!empty($request->price) ? $requestData['price'] : $service->price),
                 'total_price' => $totalPrice,
                 "payment_type" => $payment_type,
-                "custom_paid_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->service_type == 1) ? $request->custom_paid_price : null,
-                "remaining_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->service_type == 1) ? $request->remaining_price : null,
+                "custom_paid_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->price != 0) ? $request->custom_paid_price : null,
+                "remaining_price" => ($request->payment_method_id != 1 && $payment_type == 'custom' && $request->price != 0) ? $request->remaining_price : null,
                 "latitude" => $request->latitude,
                 "longitude" => $request->longitude,
                 "payment_method_id" => $request->payment_method_id,
@@ -185,8 +185,6 @@ class GlobalVisitsController extends Controller
 
             if ($reservation) {
                 try {
-
-                    $reserve = new \stdClass();
                     $reserve = new \stdClass();
                     $reserve->reservation_no = $reservation->reservation_no;
                     $reserve->day_date = date('l', strtotime($requestData['day_date']));
