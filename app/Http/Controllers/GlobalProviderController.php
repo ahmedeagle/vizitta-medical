@@ -407,7 +407,7 @@ class GlobalProviderController extends Controller
                     "clinic_price" => in_array(2, $request->typeIds) ? $request->clinic_price : null,
                     "clinic_price_duration" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null,
                     "home_price_duration" => in_array(1, $request->typeIds) ? $request->home_price_duration : null,
-                    "status" => 0,
+                    //"status" => 0,
                     "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
 

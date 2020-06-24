@@ -49,7 +49,8 @@ class NotificationController extends Controller
         if ($bill && $reservation_id != null) {
             $extraNotificationData = [
                 'upload_bill' => '1',
-                'reservation_id' => $reservation_id
+                'reservation_id' => $reservation_id,
+                'sound' => 'default'
             ];
 
             // $extraNotificationData = ["message" => $notification,"moredata" =>'New Data'];
@@ -57,7 +58,12 @@ class NotificationController extends Controller
                 //'registration_ids' => $tokenList, //multple token array
                 'to' => $notify->device_token,//'/topics/alldevices',// $User->device_token, //single token
                 'notification' => $notification,
-                'data' => $extraNotificationData
+                'data' => $extraNotificationData,
+                "apns" => [
+                    "payload" => [
+                        "sound" => "default"
+                    ]
+                ]
             ];
 
         } else {
@@ -73,7 +79,8 @@ class NotificationController extends Controller
         return $this->sendFCM($fcmNotification, 'user');
     }
 
-    public function sendProvider(Provider $notify)
+    public
+    function sendProvider(Provider $notify)
     {
         $notification = [
             'title' => $this->title,
@@ -92,7 +99,8 @@ class NotificationController extends Controller
               $this->sendProviderWebBrowser($notify);*/
     }
 
-    public function sendProviderWeb(Provider $notify, $reservation_no = null, $type = 'new_reservation')
+    public
+    function sendProviderWeb(Provider $notify, $reservation_no = null, $type = 'new_reservation')
     {
         if ($reservation_no != null) {
             $notification = [
@@ -125,7 +133,8 @@ class NotificationController extends Controller
 
     }
 
-    public function sendAdminWeb($type)
+    public
+    function sendAdminWeb($type)
     {
         $notification = [
             'title' => $this->title,
@@ -205,7 +214,6 @@ class NotificationController extends Controller
         $this->title = $data['title'];
         $this->body = $data['body'];
     }
-
 
 
 }
