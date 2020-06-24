@@ -245,7 +245,7 @@ class GlobalConsultingController extends Controller
                         'provider_name' => $doctorName,
                         'reservation_no' => $reservation->reservation_no,
                         'reservation_id' => $reservation->id,
-                        'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $providerName . ' )',
+                        'content' => __('messages.You have new reservation no:') . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )',
                         'photo' => $reserve->provider->logo,
                         'notification_id' => $notification->id
                     ];
