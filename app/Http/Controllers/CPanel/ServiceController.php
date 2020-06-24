@@ -161,7 +161,7 @@ class ServiceController extends Controller
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
+                if ((empty($request->clinic_price) or !is_numeric($request->clinic_price)) && $request->clinic_price  != 0 ) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
@@ -325,7 +325,7 @@ class ServiceController extends Controller
                     return $this->returnError('D000', __('messages.clinic price duration required'));
                 }
 
-                if (empty($request->clinic_price) or !is_numeric($request->clinic_price)) {
+                if ((empty($request->clinic_price) or !is_numeric($request->clinic_price)) && $request->clinic_price  != 0 ) {
                     return $this->returnError('D000', __('messages.clinic price required'));
                 }
 
