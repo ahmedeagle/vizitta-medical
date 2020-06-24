@@ -126,7 +126,7 @@ class GlobalVisitsController extends Controller
                 "service_id" => "required|numeric",
                 "day_date" => "required|date",
                 "from_time" => "required",
-                "payment_type" => "required|in:full:custom",
+                "payment_type" => "required|in:full,custom",
                 "to_time" => "required",
                 "price" => "required",
                 "hours_duration" => "nullable|required_if:service_type,1",
