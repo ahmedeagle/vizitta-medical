@@ -233,7 +233,7 @@ class GlobalVisitsController extends Controller
                     try {
                         ########### admin firebase push notifications ##############################
                         (new \App\Http\Controllers\NotificationController(['title' => $notification->title_ar, 'body' => $notification->content_ar]))->sendAdminWeb(6);
-                        event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
+                      //  event(new \App\Events\NewReservation($notify));   // fire pusher new reservation  event notification*/
                     } catch (\Exception $ex) {
                     }
 
