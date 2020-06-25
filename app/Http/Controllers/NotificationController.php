@@ -40,13 +40,15 @@ class NotificationController extends Controller
     public function sendUser(User $notify, $bill = false, $reservation_id = null)
     {
 
+        $unreadNotifications = $this->getUnreadNotifications($notify);
+
         // $data['device_token'] = $User->device_token;
         $notification = [
             'title' => $this->title,
             'body' => $this->body,
             "click_action" => "action",
             'sound' => 'default',
-            'badge' => 5
+            'badge' => $unreadNotifications
         ];
         if ($bill && $reservation_id != null) {
             $extraNotificationData = [
@@ -209,6 +211,12 @@ class NotificationController extends Controller
         $this->device_token = $data['device_token'];
         $this->title = $data['title'];
         $this->body = $data['body'];
+    }
+
+    private function getUnreadNotifications(User $user)
+    {
+        $userId = $user->id;
+        return Reciever::unseenForUser()->where('actor_id', $userId)->count();
     }
 
 
