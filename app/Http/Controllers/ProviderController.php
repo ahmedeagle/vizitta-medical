@@ -46,6 +46,7 @@ class ProviderController extends Controller
     public function __construct(Request $request)
     {
 
+    //
     }
 
     public function featuredProviders(Request $request)

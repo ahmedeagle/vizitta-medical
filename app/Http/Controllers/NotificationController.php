@@ -45,7 +45,8 @@ class NotificationController extends Controller
             'title' => $this->title,
             'body' => $this->body,
             "click_action" => "action",
-            'sound' => 'default'
+            'sound' => 'default',
+            'badge' => 5
         ];
         if ($bill && $reservation_id != null) {
             $extraNotificationData = [
