@@ -32,13 +32,15 @@ trait GlobalOfferTrait
                     $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
             }, 'provider' => function ($qq) {
-                $qq->whereNotNull('provider_id')->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                $qq->whereNotNull('provider_id')
+                    ->select('id', DB::raw('name_' . app()->getLocale() . ' as name'))
                     ->with(['provider' => function ($g) {
                         $g->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'))
                             ->with(['type' => function ($gu) {
                                 $gu->select('id', 'type_id', DB::raw('name_' . app()->getLocale() . ' as name'));
                             }]);
-                    }]);
+                    }
+                    ]);
             }])->where('id', $reservation_id)
             ->first();
     }

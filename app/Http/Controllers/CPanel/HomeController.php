@@ -122,7 +122,7 @@ class HomeController extends Controller
             }
         }
 
-        $data['allConsultingReservations'] = DoctorConsultingReservationController::count(); //pending reservations
+        $data['allConsultingReservations'] = 0; //pending reservations
 
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
 
