@@ -1572,9 +1572,6 @@ class DoctorController extends Controller
         $url .= $request->resource;
         $url .= "?entityId=" . env('PAYTABS_APPLE_PAY_ENTITYID', '8ac7a4c8729db6f90172a323404c16f6');
 
-        // $url = env('PAYTABS_CHECKOUTS_URL', 'https://test.oppwa.com/v1/checkouts') . '/' . $request->checkoutId . "/payment";
-        //$url .= "?entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8');
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(

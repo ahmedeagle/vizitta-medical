@@ -178,7 +178,11 @@ trait GeneralTrait
             $q->select('id', 'name');
         }, 'doctor' => function ($q) {
             $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }])->find($id);
+        }, 'provider' => function ($q) {
+
+            $q -> select('id','name_'.app()->getLocale().' as name');
+        }])
+            ->find($id);
     }
 
     public function getAllOfferParentCategoriesList()
