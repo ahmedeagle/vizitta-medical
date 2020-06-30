@@ -355,7 +355,6 @@ class ServiceController extends Controller
 
             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
 
-            return $request -> extra_services;
 
             //here we check if user visited in home  AND  has extra services must calculate them
             if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
@@ -369,15 +368,15 @@ class ServiceController extends Controller
 
                 if ($request->has_extra_services == 1) {
                     if (isset($request->extra_services) && count($request->extra_services) > 0) {
-                        $extra_services = [];
-                        foreach ($request->extra_services as $extra_service) {
+                        $extra_services_array = [];
+                        foreach ($request->extra_services as $extra) {
                             $extra_service = new ExtraServices();
-                            $extra_service->name = $extra_service -> name ;
-                            $extra_service->price = $extra_service -> price;
+                            $extra_service->name = $extra -> name ;
+                            $extra_service->price = $extra -> price;
                             $extra_service->save();
-                            array_push($extra_services, $extra_service);
+                            array_push($extra_services_array, $extra_service);
                         }
-                        $reservation->extraServices()->saveMany($extra_services);
+                        $reservation->extraServices()->saveMany($extra_services_array);
                     }
                 }
             }
