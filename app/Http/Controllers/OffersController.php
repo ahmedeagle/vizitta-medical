@@ -1888,6 +1888,8 @@ class OffersController extends Controller
             $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
             $provider = $reservation->provider;  // always get branch
+
+            return $reservationBalance;
             $provider->update([
                 'balance' => $provider->balance - $reservationBalance,
             ]);
