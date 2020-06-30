@@ -362,7 +362,7 @@ class ServiceController extends Controller
                     return $this->returnError('E001', trans('messages.must enter extra services status'));
                 }
 
-                if ($request->has_extra_services == 1 && !isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services)) {
+                if ($request->has_extra_services == 1 && (!isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services))) {
                     return $this->returnError('E001', trans('messages.must enter extra services'));
                 }
 
