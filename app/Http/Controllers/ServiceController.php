@@ -355,32 +355,6 @@ class ServiceController extends Controller
 
             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
 
-
-            //here we check if user visited in home  AND  has extra services must calculate them
-            if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
-                if (!isset($request->has_extra_services) or ($request->has_extra_services != 0 && $request->has_extra_services != 1)) {
-                    return $this->returnError('E001', trans('messages.must enter extra services status'));
-                }
-
-                if ($request->has_extra_services == 1 && (!isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services))) {
-                    return $this->returnError('E001', trans('messages.must enter extra services'));
-                }
-
-                if ($request->has_extra_services == 1) {
-                    if (isset($request->extra_services) && count($request->extra_services) > 0) {
-                        $extra_services_array = [];
-                        foreach ($request->extra_services as $extra) {
-                            $extra_service = new ExtraServices();
-                            $extra_service->name = $extra['name'] ;
-                            $extra_service->price = $extra['price'];
-                            $extra_service->save();
-                            array_push($extra_services_array, $extra_service);
-                        }
-                        $reservation->extraServices()->saveMany($extra_services_array);
-                    }
-                }
-            }
-
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
 
@@ -421,6 +395,31 @@ class ServiceController extends Controller
             DB::commit();
 
             try {
+
+                //here we check if user visited in home  AND  has extra services must calculate them
+                if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
+                    if (!isset($request->has_extra_services) or ($request->has_extra_services != 0 && $request->has_extra_services != 1)) {
+                        return $this->returnError('E001', trans('messages.must enter extra services status'));
+                    }
+
+                    if ($request->has_extra_services == 1 && (!isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services))) {
+                        return $this->returnError('E001', trans('messages.must enter extra services'));
+                    }
+
+                    if ($request->has_extra_services == 1) {
+                        if (isset($request->extra_services) && count($request->extra_services) > 0) {
+                            $extra_services_array = [];
+                            foreach ($request->extra_services as $extra) {
+                                $extra_service = new ExtraServices();
+                                $extra_service->name = $extra['name'] ;
+                                $extra_service->price = $extra['price'];
+                                $extra_service->save();
+                                array_push($extra_services_array, $extra_service);
+                            }
+                            $reservation->extraServices()->saveMany($extra_services_array);
+                        }
+                    }
+                }
 
                 if ($request->status == 3) {
                     $complete = $request->arrived;
@@ -542,7 +541,7 @@ class ServiceController extends Controller
             $total_amount = floatval($reservation->price);
             $MC_percentage = $application_percentage_of_bill;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-             $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
             $branch = $reservation->branch;  // always get branch
 
             //cash with/without additional services
@@ -587,6 +586,13 @@ class ServiceController extends Controller
                         $ExtraReservationBalanceBeforeAdditionalTax = ($extra_total_amount * $Extra_MC_percentage) / 100;
                         $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
                     }
+
+                  /*  return  $total_amount .' '.
+                        '('.$reservationBalanceBeforeAdditionalTax
+                            .' '. $additional_tax_value
+                        .' '. $ExtraReservationBalanceBeforeAdditionalTax
+                        .' '.$ExtraAdditional_tax_value.
+                        ')';*/
                     $reservationBalance =
                         $total_amount -
                         ($reservationBalanceBeforeAdditionalTax
