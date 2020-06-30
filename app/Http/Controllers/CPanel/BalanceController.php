@@ -311,7 +311,7 @@ class BalanceController extends Controller
             ->whereNotNull('doctor_id')
             ->where('doctor_id', '!=', 0)
             ->orderBy('id', 'DESC')
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total')
+            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total','payment_method_id')
             ->paginate(PAGINATION_COUNT);
     }
 
