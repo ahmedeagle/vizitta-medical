@@ -248,26 +248,15 @@ class BalanceController extends Controller
     {
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
-        })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
-                ->with(['specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'type', 'paymentMethod' => function ($qu) {
+        })->with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'user' => function ($q) {
-            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
-                ->with(['insuranceCompany' => function ($qu) {
-                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
             ->whereIn('branch_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
+            ->where('approved', 3)
+            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -276,26 +265,14 @@ class BalanceController extends Controller
     {
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
-        })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
-                ->with(['specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'type', 'paymentMethod' => function ($qu) {
+        })->with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'user' => function ($q) {
-            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
-                ->with(['insuranceCompany' => function ($qu) {
-                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'type' => function ($qq) {
+        } , 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
             ->whereIn('branch_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
+            ->where('approved', 3)
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -304,14 +281,14 @@ class BalanceController extends Controller
     {
 
         return $reservations = Reservation::with(['paymentMethod' => function ($q) {
-            $q->select('id','name_'.app()->getLocale() .' as name');
-    }])
+            $q->select('id', 'name_' . app()->getLocale() . ' as name');
+        }])
             ->whereIn('provider_id', $providers)
             ->where('approved', 3)   //reservations which cancelled by user or branch or complete
             ->whereNotNull('doctor_id')
             ->where('doctor_id', '!=', 0)
             ->orderBy('id', 'DESC')
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total','payment_method_id')
+            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->paginate(PAGINATION_COUNT);
     }
 
