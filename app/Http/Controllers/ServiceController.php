@@ -418,7 +418,6 @@ class ServiceController extends Controller
 
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
 
-
             DB::commit();
 
             try {
@@ -445,8 +444,6 @@ class ServiceController extends Controller
                         'approved' => $request->status, //approve reservation
                     ]);
                 }
-
-
                 ########################## Start calculate balance #################################
 
                 $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
@@ -457,7 +454,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request->has_extra_services);
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request);
                     } catch (\Exception $ex) {
                     }
                 }
@@ -468,7 +465,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
                     $invoice_type = 0;
                     try {
-                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation);
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation,$request);
                     } catch (\Exception $ex) {
                     }
                 }
@@ -511,7 +508,7 @@ class ServiceController extends Controller
         }
     }
 
-    protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $has_extra_services = 0)
+    protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request)
     {
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
 
@@ -560,7 +557,7 @@ class ServiceController extends Controller
                     $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
                 }
 
-                $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+return                 $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
                 $branch->update([
                     'balance' => $branch->balance - ($reservationBalance + $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value)
                 ]);
