@@ -303,12 +303,15 @@ class BalanceController extends Controller
     protected function getDoctorRecordReservations($providers)
     {
 
-        return $reservations = Reservation::whereIn('provider_id', $providers)
-            ->where('approved',3)   //reservations which cancelled by user or branch or complete
+        return $reservations = Reservation::with(['paymentMethod' => function ($q) {
+            $q->select('id','name_'.app()->getLocale() .' as name');
+    }])
+            ->whereIn('provider_id', $providers)
+            ->where('approved', 3)   //reservations which cancelled by user or branch or complete
             ->whereNotNull('doctor_id')
             ->where('doctor_id', '!=', 0)
             ->orderBy('id', 'DESC')
-            ->select('id','reservation_no','application_balance_value','custom_paid_price','remaining_price','payment_type','price','bill_total')
+            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total')
             ->paginate(PAGINATION_COUNT);
     }
 
