@@ -1895,10 +1895,6 @@ class OffersController extends Controller
                 'discount_type' => $discountType,
                 'application_balance_value' => -$reservationBalance
             ]);
-            $manager = $this->getAppInfo();
-           /* $manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);*/
         } else {
 
             $provider = $reservation->provider;  // always get branch
@@ -1913,23 +1909,29 @@ class OffersController extends Controller
                 $provider->update([
                     'balance' => $provider->balance + $reservationBalance,
                 ]);
-            }elseif ($reservation->payment_type == 'custom'){
 
+                $reservation->update([
+                    'discount_type' => $discountType,
+                    'application_balance_value' => $reservationBalance
+                ]);
+
+            }
+            elseif ($reservation->payment_type == 'custom'){
                 $discountType = " فاتورة حجز الكتروني لعرض دفع جزئي  ";
                 $reservationBalance = $reservation -> custom_paid_price;
+
+                $reservation->update([
+                    'discount_type' => $discountType,
+                    'application_balance_value' => $reservationBalance
+                ]);
             }
 
-            $reservation->update([
-                'discount_type' => $discountType,
-                'application_balance_value' => $reservationBalance
-            ]);
-           // $manager = $this->getAppInfo();
-            /*$manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance,
-                 'application_balance_value' => $reservationBalance
-            ]);*/
-
         }
+
+        $reservation->update([
+            'discount_type' => $discountType,
+            'application_balance_value' => $reservationBalance
+        ]);
 
         return true;
     }
