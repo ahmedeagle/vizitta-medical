@@ -371,8 +371,8 @@ class ServiceController extends Controller
                         $extra_services = [];
                         foreach ($request->extra_services as $extra_service) {
                             $extra_service = new ExtraServices();
-                            $extra_service->name = $extra_service['name'];
-                            $extra_service->price = $extra_service['price'];
+                            $extra_service->name = $extra_service -> name ;
+                            $extra_service->price = $extra_service -> price;
                             $extra_service->save();
                             array_push($extra_services, $extra_service);
                         }
