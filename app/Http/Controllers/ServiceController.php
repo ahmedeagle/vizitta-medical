@@ -454,7 +454,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                       return  $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request);
+                         $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request);
                     } catch (\Exception $ex) {
                         return $ex;
                     }
@@ -542,7 +542,7 @@ class ServiceController extends Controller
             $total_amount = floatval($reservation->price);
             $MC_percentage = $application_percentage_of_bill;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-           return  $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+             $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
             $branch = $reservation->branch;  // always get branch
 
             //cash with/without additional services
@@ -551,7 +551,7 @@ class ServiceController extends Controller
 
                 // cash extra services balance
 
-                $additional_tax_value = 0;
+
                 $ExtraReservationBalanceBeforeAdditionalTax =0;
                 $ExtraAdditional_tax_value =0;
                 if (isset($reservation->extraServices) && count($reservation->extraServices) > 0) {
