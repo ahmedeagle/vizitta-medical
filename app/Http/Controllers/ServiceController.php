@@ -560,7 +560,7 @@ class ServiceController extends Controller
                     $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
                 }
 
-return                 $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+                 $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
                 $branch->update([
                     'balance' => $branch->balance - ($reservationBalance + $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value)
                 ]);
