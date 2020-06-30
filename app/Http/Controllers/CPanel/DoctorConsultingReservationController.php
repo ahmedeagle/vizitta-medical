@@ -33,8 +33,7 @@ class DoctorConsultingReservationController extends Controller
                     $reservations = $this->getReservationByStatus();
                 } else {
                     $status = request('status') ? request('status') : $status;
-                    $reservations = $this->getReservationByStatus($status);
-
+                     $reservations = $this->getReservationByStatus($status);
                 }
             } elseif (request('generalQueryStr')) {  //search all column
                 $q = request('generalQueryStr');
@@ -217,29 +216,35 @@ class DoctorConsultingReservationController extends Controller
                 $q->whereDate('day_date', Carbon::today())->orWhereDate('day_date', Carbon::tomorrow());
             })->orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
         } elseif ($status == 'pending') {
-            return $reservaitons = DoctorConsultingReservation::where('approved', 0)->orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
+            return $reservaitons = DoctorConsultingReservation::where('approved', '0')
+                ->orderBy('day_date', 'DESC')
+                ->paginate(PAGINATION_COUNT);
         } elseif ($status == 'approved') {
-            return $reservaitons = DoctorConsultingReservation::where('approved', 1)->orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
+            return $reservaitons = DoctorConsultingReservation::where('approved', '1')
+                ->orderBy('day_date', 'DESC')
+                ->paginate(PAGINATION_COUNT);
         } elseif ($status == 'reject') {
             return $reservaitons = DoctorConsultingReservation::where(function ($q) {
-                $q->where('approved', 2);
+                $q->where('approved', '2');
             })->orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
         } elseif ($status == 'completed') {
-            return $reservaitons = DoctorConsultingReservation::where('approved', 3)
+            return $reservaitons = DoctorConsultingReservation::where('approved', '3')
                 ->orderBy('day_date', 'DESC')
                 ->orderBy('from_time', 'ASC')
                 ->paginate(PAGINATION_COUNT);
         } elseif ($status == 'complete_visited') {
             return $reservaitons = DoctorConsultingReservation::whereNotNull('chat_duration')
                 ->where('chat_duration','!=',0)
-                ->where('approved', 3)
+                ->where('approved', '3')
                 ->orderBy('day_date', 'DESC')
                 ->paginate(PAGINATION_COUNT);
         } elseif ($status == 'complete_not_visited') {
-            return $reservaitons = DoctorConsultingReservation::where('approved', 3)->where(function ($q) {
-                $q->whereNull('chat_duration')
+            return $reservaitons = DoctorConsultingReservation::where('approved', '3')
+                ->where(function ($q) {
+                   $q->whereNull('chat_duration')
                     ->orwhere('chat_duration',0);
-            })->orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
+            })->orderBy('day_date', 'DESC')
+                ->paginate(PAGINATION_COUNT);
         } else {
             return $reservaitons = DoctorConsultingReservation::orderBy('day_date', 'DESC')->paginate(PAGINATION_COUNT);
         }
