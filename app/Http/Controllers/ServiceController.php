@@ -422,10 +422,27 @@ class ServiceController extends Controller
             DB::commit();
 
             try {
-                $reservation->update([
-                    'approved' => $request->status, //approve reservation
-                    'is_visit_doctor' => $complete
-                ]);
+
+                if ($request->status == 3) {
+                    $complete = $request->arrived;
+
+                    if ($complete == 1) {
+                        //calculate balance
+                        $reservation->update([
+                            'approved' => 3,
+                            'is_visit_doctor' => $complete
+                        ]);
+                    } else {
+                        //calculate balance
+                        $reservation->update([
+                            'approved' => 2,
+                            'is_visit_doctor' => $complete
+                        ]);
+
+                    }
+                }
+
+
 
                 ########################## Start calculate balance #################################
 

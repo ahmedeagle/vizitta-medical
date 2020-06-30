@@ -1833,9 +1833,6 @@ class OffersController extends Controller
                     }
                 }
 
-
-
-
                 $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
                 $application_percentage_of_offer = $reservation->offer->application_percentage ? $reservation->offer->application_percentage : 0;
                 if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
