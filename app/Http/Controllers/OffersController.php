@@ -1893,7 +1893,7 @@ class OffersController extends Controller
             ]);
             $reservation->update([
                 'discount_type' => $discountType,
-                'application_balance_value' => $reservationBalance
+                'application_balance_value' => -$reservationBalance
             ]);
             $manager = $this->getAppInfo();
            /* $manager->update([
