@@ -440,6 +440,10 @@ class ServiceController extends Controller
                         ]);
 
                     }
+                } else {
+                    $reservation->update([
+                        'approved' => $request->status, //approve reservation
+                    ]);
                 }
 
 
