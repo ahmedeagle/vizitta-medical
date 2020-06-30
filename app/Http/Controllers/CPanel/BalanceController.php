@@ -250,8 +250,6 @@ class BalanceController extends Controller
             $e->where('id', 1);
         })->with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'type' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
             ->whereIn('branch_id', $providers)
@@ -267,12 +265,11 @@ class BalanceController extends Controller
             $e->where('id', 2);
         })->with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        } , 'type' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }
         ])
             ->whereIn('branch_id', $providers)
             ->where('approved', 3)
+            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -294,25 +291,14 @@ class BalanceController extends Controller
 
     protected function getOfferRecordReservations($providers)
     {
-        return $reservations = Reservation::with(['offer' => function ($q) {
-            $q->select('id',
-                DB::raw('title_' . app()->getLocale() . ' as title'),
-                'expired_at',
-                'price'
-            );
-        }, 'paymentMethod' => function ($qu) {
+        return $reservations = Reservation::with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'user' => function ($q) {
-            $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
-                ->with(['insuranceCompany' => function ($qu) {
-                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
         }])
             ->whereIn('provider_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
+            ->where('approved', 3)
             ->whereNotNull('offer_id')
             ->where('offer_id', '!=', 0)
-            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+            ->select('id', 'reservation_no','application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
