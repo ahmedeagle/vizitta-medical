@@ -551,7 +551,8 @@ class ServiceController extends Controller
                 // cash extra services balance
 
                 $additional_tax_value = 0;
-
+                $ExtraReservationBalanceBeforeAdditionalTax =0;
+                $ExtraAdditional_tax_value =0;
                 if (isset($reservation->extraServices) && count($reservation->extraServices) > 0) {
                     $priceOfExtraReservation = $reservation->extraServices()->sum('price');
                     $extra_total_amount = floatval($priceOfExtraReservation);
