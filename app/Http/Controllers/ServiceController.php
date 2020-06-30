@@ -587,12 +587,6 @@ class ServiceController extends Controller
                         $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
                     }
 
-                  /*  return  $total_amount .' '.
-                        '('.$reservationBalanceBeforeAdditionalTax
-                            .' '. $additional_tax_value
-                        .' '. $ExtraReservationBalanceBeforeAdditionalTax
-                        .' '.$ExtraAdditional_tax_value.
-                        ')';*/
                     $reservationBalance =
                         $total_amount -
                         ($reservationBalanceBeforeAdditionalTax
@@ -633,7 +627,7 @@ class ServiceController extends Controller
 
                     $reservation->update([
                         'discount_type' => $discountType,
-                        'application_balance_value' => $ExtrareservationBalance
+                        'application_balance_value' => - $ExtrareservationBalance
                     ]);
 
                 }
