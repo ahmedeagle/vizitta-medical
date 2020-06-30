@@ -366,7 +366,7 @@ class ServiceController extends Controller
                     return $this->returnError('E001', trans('messages.must enter extra services'));
                 }
 
-                if ($request->has_extra_services == 1 ){
+                if ($request->has_extra_services == 1) {
                     if (isset($request->extra_services) && count($request->extra_services) > 0) {
                         $extra_services = [];
                         foreach ($request->extra_services as $extra_service) {
@@ -379,9 +379,7 @@ class ServiceController extends Controller
                         $reservation->extraServices()->saveMany($extra_services);
                     }
                 }
-
             }
-
 
             if (!$reservation)
                 return $this->returnError('D000', trans('messages.No reservation with this number'));
@@ -445,7 +443,6 @@ class ServiceController extends Controller
                 }
 
 
-
                 ########################## Start calculate balance #################################
 
                 $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
@@ -456,7 +453,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation);
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request->has_extra_services);
                     } catch (\Exception $ex) {
                     }
                 }
@@ -510,48 +507,126 @@ class ServiceController extends Controller
         }
     }
 
-    protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation)
+    protected function calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $has_extra_services = 0)
     {
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
-        $total_amount = floatval($reservation->price);
-        $MC_percentage = $application_percentage_of_bill;
-        $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
 
-        if ($reservation->paymentMethod->id == 1) {//cash
-            $discountType = " فاتورة حجز نقدي لخدمة ";
-            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+        if ($reservation->service_type == 2) {//clinic services only cache paid allowed with bill percentage with out additional services
+            $total_amount = floatval($reservation->price);
+            $MC_percentage = $application_percentage_of_bill;
+            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
 
+            if ($reservation->paymentMethod->id == 1) {//cash
+                $discountType = " فاتورة حجز نقدي لخدمة عياده ";
+                $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+
+                $branch = $reservation->branch;  // always get branch
+                $branch->update([
+                    'balance' => $branch->balance - $reservationBalance,
+                ]);
+                $reservation->update([
+                    'discount_type' => $discountType,
+                    'application_balance_value' => -$reservationBalance
+                ]);
+
+
+            }
+
+        } else {  // home services
+
+            $total_amount = floatval($reservation->price);
+            $MC_percentage = $application_percentage_of_bill;
+            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
             $branch = $reservation->branch;  // always get branch
-            $branch->update([
-                'balance' => $branch->balance - $reservationBalance,
-            ]);
-            $reservation->update([
-                'discount_type' => $discountType,
-            ]);
-            /*$manager = $this->getAppInfo();
-            $manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);*/
-        } else {
+            //cash with/without additional services
+            if ($reservation->paymentMethod->id == 1) {//cash
+                $discountType = " فاتورة حجز نقدي لخدمة منزلية ";
 
-            $discountType = " فاتورة حجز الكتروني لخدمة ";
-            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+                // cash extra services balance
 
-            $branch = $reservation->branch;  // always get branch
-            $branch->update([
-                'balance' => $branch->balance + $reservationBalance,
-            ]);
-            $reservation->update([
-                'discount_type' => $discountType,
-            ]);
-            /*$manager = $this->getAppInfo();
-            $manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);*/
+                $additional_tax_value = 0;
 
+                if (isset($reservation->extraServices) && count($reservation->extraServices) > 0) {
+                    $priceOfExtraReservation = $reservation->extraServices()->sum('price');
+                    $extra_total_amount = floatval($priceOfExtraReservation);
+                    $Extra_MC_percentage = $application_percentage_of_bill;
+                    $ExtraReservationBalanceBeforeAdditionalTax = ($extra_total_amount * $Extra_MC_percentage) / 100;
+                    $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+                }
+
+                $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+                $branch->update([
+                    'balance' => $branch->balance - ($reservationBalance + $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value)
+                ]);
+
+                $reservation->update([
+                    'discount_type' => $discountType,
+                    'application_balance_value' => -($reservationBalance + $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value)
+                ]);
+
+            } //electronice with visa
+            else {
+                if ($reservation->payment_type == 'full') {
+                    $discountType = " فاتورة حجز الكتروني لخدمة منزلية دفع كامل  ";
+
+                    //check if there are extra services
+                    $ExtraReservationBalanceBeforeAdditionalTax = 0;
+                    $ExtraAdditional_tax_value = 0;
+                    if (isset($reservation->extraServices) && count($reservation->extraServices) > 0) {
+                        $priceOfExtraReservation = $reservation->extraServices()->sum('price');
+                        $extra_total_amount = floatval($priceOfExtraReservation);
+                        $Extra_MC_percentage = $application_percentage_of_bill;
+                        $ExtraReservationBalanceBeforeAdditionalTax = ($extra_total_amount * $Extra_MC_percentage) / 100;
+                        $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+                    }
+                    $reservationBalance =
+                        $total_amount -
+                        ($reservationBalanceBeforeAdditionalTax
+                            + $additional_tax_value
+                            + $ExtraReservationBalanceBeforeAdditionalTax
+                            + $ExtraAdditional_tax_value
+                        );
+
+                    $branch->update([
+                        'balance' => $branch->balance + $reservationBalance,
+                    ]);
+
+                    $reservation->update([
+                        'discount_type' => $discountType,
+                        'application_balance_value' => $reservationBalance
+                    ]);
+
+                } elseif ($reservation->payment_type == 'custom') {
+                    $discountType = " فاتورة حجز الكتروني لخدمة منزلية دفع جزئي ";
+                    $reservationBalance = $reservation->custom_paid_price;
+
+                    $ExtraReservationBalanceBeforeAdditionalTax = 0;
+                    $ExtraAdditional_tax_value = 0;
+
+                    if (isset($reservation->extraServices) && count($reservation->extraServices) > 0) {
+                        $priceOfExtraReservation = $reservation->extraServices()->sum('price');
+                        $extra_total_amount = floatval($priceOfExtraReservation);
+                        $Extra_MC_percentage = $application_percentage_of_bill;
+                        $ExtraReservationBalanceBeforeAdditionalTax = ($extra_total_amount * $Extra_MC_percentage) / 100;
+                        $ExtraAdditional_tax_value = ($ExtraReservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+                    }
+
+                    $ExtrareservationBalance = $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value;
+
+                    $branch->update([
+                        'balance' => $branch->balance - $ExtrareservationBalance,
+                    ]);
+
+                    $reservation->update([
+                        'discount_type' => $discountType,
+                        'application_balance_value' => $ExtrareservationBalance
+                    ]);
+
+                }
+            }
         }
-
         return true;
 
     }
