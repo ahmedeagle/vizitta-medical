@@ -1824,7 +1824,7 @@ class OffersController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (عرض) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                        $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
+                     return    $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
                     } catch (\Exception $ex) {
                     }
                 }
