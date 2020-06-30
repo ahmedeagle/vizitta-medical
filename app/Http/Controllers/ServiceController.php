@@ -366,16 +366,18 @@ class ServiceController extends Controller
                     return $this->returnError('E001', trans('messages.must enter extra services'));
                 }
 
-                if (isset($request->extra_services) && count($request->extra_services) > 0) {
-                    $extra_services = [];
-                    foreach ($request->extra_services as $extra_service) {
-                        $extra_service = new ExtraServices();
-                        $extra_service->name = $extra_service['name'];
-                        $extra_service->price = $extra_service['price'];
-                        $extra_service->save();
-                        array_push($extra_services, $extra_service);
+                if ($request->has_extra_services == 1 ){
+                    if (isset($request->extra_services) && count($request->extra_services) > 0) {
+                        $extra_services = [];
+                        foreach ($request->extra_services as $extra_service) {
+                            $extra_service = new ExtraServices();
+                            $extra_service->name = $extra_service['name'];
+                            $extra_service->price = $extra_service['price'];
+                            $extra_service->save();
+                            array_push($extra_services, $extra_service);
+                        }
+                        $reservation->extraServices()->saveMany($extra_services);
                     }
-                    $reservation->extraServices()->saveMany($extra_services);
                 }
 
             }
