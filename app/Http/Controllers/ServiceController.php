@@ -454,7 +454,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                      return  $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request);
+                        $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation, $request);
                     } catch (\Exception $ex) {
                         return $ex;
                     }
@@ -466,7 +466,7 @@ class ServiceController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
                     $invoice_type = 0;
                     try {
-                       return  $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation,$request);
+                         $this->calculateServiceReservationBalance($application_percentage_of_bill, $reservation,$request);
                     } catch (\Exception $ex) {
 
                         return $ex;
