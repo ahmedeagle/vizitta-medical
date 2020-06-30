@@ -2578,6 +2578,7 @@ class ProviderController extends Controller
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->where('is_visit_doctor', 1)
                 ->count();
 
             $amount_if_reservation_with_bill = ServiceReservation::whereHas('type', function ($e) {
@@ -2586,6 +2587,7 @@ class ProviderController extends Controller
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
                 ->whereNotNull('bill_total')
+                ->where('is_visit_doctor', 1)
                 ->where('bill_total', '!=', '0')
                 ->sum('bill_total');
 
@@ -2594,6 +2596,7 @@ class ProviderController extends Controller
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->where('is_visit_doctor', 1)
                 ->where(function ($q) {
                     $q->whereNull('bill_total')
                         ->orWhere('bill_total', '0');
@@ -2608,6 +2611,7 @@ class ProviderController extends Controller
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->where('is_visit_doctor', 1)
                 ->count();
             $amount_if_reservation_with_bill = ServiceReservation::whereHas('type', function ($e) {
                 $e->where('id', 2);
@@ -2616,6 +2620,7 @@ class ProviderController extends Controller
                 ->whereIn('approved', [3])
                 ->whereNotNull('bill_total')
                 ->where('bill_total', '!=', '0')
+                ->where('is_visit_doctor', 1)
                 ->sum('bill_total');
 
             $amount_if_reservation_withOut_bill = ServiceReservation::whereHas('type', function ($e) {
@@ -2623,6 +2628,7 @@ class ProviderController extends Controller
             })
                 ->whereIn('branch_id', $branches)
                 ->whereIn('approved', [3])
+                ->where('is_visit_doctor', 1)
                 ->where(function ($q) {
                     $q->whereNull('bill_total')
                         ->orWhere('bill_total', '0');

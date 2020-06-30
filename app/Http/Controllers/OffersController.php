@@ -1804,21 +1804,38 @@ class OffersController extends Controller
                      return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
                  }*/
             }
-
             $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
 
             DB::commit();
-
             try {
-
                 $reservation->update([
                     'approved' => $request->status, //approve reservation
                     'is_visit_doctor' => $complete
                 ]);
 
+
+                if ($request->status == 3) {
+                    if ($complete == 1) {
+                        //calculate balance
+                        $reservation->update([
+                            'approved' => 3,
+                            'is_visit_doctor' => $complete
+                        ]);
+                    } else {
+                        //calculate balance
+                        $reservation->update([
+                            'approved' => 3,
+                            'is_visit_doctor' => $complete
+                        ]);
+
+                    }
+                }
+
+
+
+
                 $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
                 $application_percentage_of_offer = $reservation->offer->application_percentage ? $reservation->offer->application_percentage : 0;
-
                 if ($payment_method == 1 && $request->status == 3 && $complete == 1) {//1- cash reservation 3-complete reservation  1- user attend reservation
                     $totalBill = 0;
                     $comment = " نسبة ميدكال كول من كشف (عرض) حجز نقدي ";
@@ -1928,8 +1945,6 @@ class OffersController extends Controller
             }
 
         }
-
-
 
         return true;
     }

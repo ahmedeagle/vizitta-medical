@@ -215,6 +215,11 @@ class ReservationController extends Controller
                 return response()->json(['status' => false, 'error' => __('main.enter_arrived_status')], 200);
             }
             $arrived = $request->arrived;
+        }else{
+
+             $reservation->update([
+                'approved' => $request->status ,
+            ]);
         }
 
        return   $this->changerReservationStatus($reservation, $request->status,$request->rejection_reason,$arrived ,$request);

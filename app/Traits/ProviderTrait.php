@@ -1133,7 +1133,7 @@ trait ProviderTrait
             ->paginate(PAGINATION_COUNT);
     }
 
-    public function recordReservationsByType($providers, $type)
+    public function getReservationsRecodes($providers, $type)
     {
         if ($type == 'home_services') {
             return $this->getHomeServicesRecordReservations($providers);

@@ -362,12 +362,13 @@ class ServiceController extends Controller
                     return $this->returnError('E001', trans('messages.must enter extra services status'));
                 }
 
-                if ($reservation->has_extra_services == 1 && !isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services)) {
+                if ($request->has_extra_services == 1 && !isset($request->extra_services) or empty($request->extra_services) != 0 or is_null($request->extra_services)) {
                     return $this->returnError('E001', trans('messages.must enter extra services'));
                 }
-                if (isset($reservation->extra_services) && count($reservation->extra_services) > 0) {
+
+                if (isset($request->extra_services) && count($request->extra_services) > 0) {
                     $extra_services = [];
-                    foreach ($reservation->extra_services as $extra_service) {
+                    foreach ($request->extra_services as $extra_service) {
                         $extra_service = new ExtraServices();
                         $extra_service->name = $extra_service['name'];
                         $extra_service->price = $extra_service['price'];
