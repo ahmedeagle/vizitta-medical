@@ -1804,7 +1804,7 @@ class OffersController extends Controller
                      return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
                  }*/
             }
-            $complete = (isset($request->arrived) && $request->arrived == 1) ? 1 : 0;
+            $complete =   0;
 
             DB::commit();
             try {
@@ -1815,6 +1815,8 @@ class OffersController extends Controller
 
 
                 if ($request->status == 3) {
+                    $complete = $request->arrived;
+
                     if ($complete == 1) {
                         //calculate balance
                         $reservation->update([
