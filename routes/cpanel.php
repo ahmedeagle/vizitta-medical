@@ -80,6 +80,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
                 Route::post('/', 'BalanceController@getBranchesBalances');
                 Route::post('edit', 'BalanceController@editBranchBalance');
                 Route::post('update', 'BalanceController@updateBranchBalance');
+                Route::post('history', 'BalanceController@getBalanceHistory');
             });
         });
         ############## End Branches Routes ##############
@@ -439,7 +440,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
 
         Route::post('change-status-by-type', 'GeneralController@changeStatusByType');
 
-        Route::post('general-change-status','GeneralController@changeStatus');
+        Route::post('general-change-status', 'GeneralController@changeStatus');
     });
 
 
