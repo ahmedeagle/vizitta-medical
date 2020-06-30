@@ -1884,7 +1884,7 @@ class OffersController extends Controller
             $total_amount = $reservation->offer->price_after_discount; // اجمالي اكشف
             $MC_percentage = $application_percentage_of_offer;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', 5)) / 100;
             $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
             $provider = $reservation->provider;  // always get branch
@@ -1893,31 +1893,42 @@ class OffersController extends Controller
             ]);
             $reservation->update([
                 'discount_type' => $discountType,
+                'application_balance_value' => $reservationBalance
             ]);
             $manager = $this->getAppInfo();
-            $manager->update([
+           /* $manager->update([
                 'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);
+            ]);*/
         } else {
 
-            $discountType = " فاتورة حجز الكتروني لعرض ";
-            $total_amount = $reservation->offer->price_after_discount;
-            $MC_percentage = $application_percentage_of_offer;
-            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;  //20 ريال
-            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;   //2
-            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
-
             $provider = $reservation->provider;  // always get branch
-            $provider->update([
-                'balance' => $provider->balance + $reservationBalance,
-            ]);
+            if ($reservation->payment_type == 'full') {
+
+                $discountType = " فاتورة حجز الكتروني لعرض دفع كامل  ";
+                $total_amount = $reservation->offer->price_after_discount;
+                $MC_percentage = $application_percentage_of_offer;
+                $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;  //20 ريال
+                $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', 5)) / 100;   //2
+                $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+                $provider->update([
+                    'balance' => $provider->balance + $reservationBalance,
+                ]);
+            }elseif ($reservation->payment_type == 'custom'){
+
+                $discountType = " فاتورة حجز الكتروني لعرض دفع جزئي  ";
+                $reservationBalance = $reservation -> custom_paid_price;
+
+            }
+
             $reservation->update([
                 'discount_type' => $discountType,
+                'application_balance_value' => $reservationBalance
             ]);
-            $manager = $this->getAppInfo();
-            $manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);
+           // $manager = $this->getAppInfo();
+            /*$manager->update([
+                'balance' => $manager->unpaid_balance + $reservationBalance,
+                 'application_balance_value' => $reservationBalance
+            ]);*/
 
         }
 

@@ -988,6 +988,7 @@ trait GlobalTrait
         ]);
         $reservation->update([
             'discount_type' => $discountType,
+            'application_balance_value' => $reservationBalance
         ]);
         /*  $manager->update([
               'balance' => $manager->unpaid_balance + $reservationBalance
