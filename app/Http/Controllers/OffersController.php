@@ -1917,7 +1917,6 @@ class OffersController extends Controller
 
                 $discountType = " فاتورة حجز الكتروني لعرض دفع جزئي  ";
                 $reservationBalance = $reservation -> custom_paid_price;
-
             }
 
             $reservation->update([
