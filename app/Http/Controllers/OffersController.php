@@ -1826,7 +1826,7 @@ class OffersController extends Controller
                     } else {
                         //calculate balance
                         $reservation->update([
-                            'approved' => 3,
+                            'approved' => 2,
                             'is_visit_doctor' => $complete
                         ]);
 
