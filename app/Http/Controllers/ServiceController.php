@@ -355,6 +355,7 @@ class ServiceController extends Controller
 
             $reservation = $this->getServicesReservationByNo($request->reservation_id, $provider->id);
 
+            return $request -> extra_services;
 
             //here we check if user visited in home  AND  has extra services must calculate them
             if ($request->status == 3 && $request->arrived == 1 && $reservation->service_type == 1) {
