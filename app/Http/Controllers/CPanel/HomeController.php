@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Models\Doctor;
 //use App\Models\OfferBranchTime;
+use App\Models\DoctorConsultingReservation;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Traits\Dashboard\PublicTrait;
@@ -122,10 +123,9 @@ class HomeController extends Controller
             }
         }
 
-        $data['allConsultingReservations'] = 0; //pending reservations
+        $data['allConsultingReservations'] = DoctorConsultingReservation::count() ; //pending reservations
 
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
-
 
         $data['mostBookingSpecifications'] = $specifications;
 
