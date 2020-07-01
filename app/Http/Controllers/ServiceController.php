@@ -515,27 +515,28 @@ class ServiceController extends Controller
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
 
         if ($reservation->service_type == 2  ) {//clinic services only cache paid allowed with bill percentage with out additional services
-            $total_amount = floatval($reservation->price);
-            $MC_percentage = $application_percentage_of_bill;
-            $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-            $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
 
-            if ($reservation->paymentMethod->id == 1) {//cash
-                $discountType = " فاتورة حجز نقدي لخدمة عياده ";
-                $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+            if($reservation -> price > 0 )// not free sevice
+            {
+                $total_amount = floatval($reservation->price);
+                $MC_percentage = $application_percentage_of_bill;
+                $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
+                $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
 
-                $branch = $reservation->branch;  // always get branch
-                $branch->update([
-                    'balance' => $branch->balance - $reservationBalance,
-                ]);
-                $reservation->update([
-                    'discount_type' => $discountType,
-                    'application_balance_value' => -$reservationBalance
-                ]);
+                if ($reservation->paymentMethod->id == 1) {//cash
+                    $discountType = " فاتورة حجز نقدي لخدمة عياده ";
+                    $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
 
-
+                    $branch = $reservation->branch;  // always get branch
+                    $branch->update([
+                        'balance' => $branch->balance - $reservationBalance,
+                    ]);
+                    $reservation->update([
+                        'discount_type' => $discountType,
+                        'application_balance_value' => -$reservationBalance
+                    ]);
+                }
             }
-
         } else {  // home services
 
             $total_amount = floatval($reservation->price);
