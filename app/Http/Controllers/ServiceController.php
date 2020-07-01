@@ -514,7 +514,7 @@ class ServiceController extends Controller
     {
 //        $reservation->service_type == 1 ### 1 = home & 2 = clinic
 
-        if ($reservation->service_type == 2 && $reservation-> price > 0  ) {//clinic services only cache paid allowed with bill percentage with out additional services
+        if ($reservation->service_type == 2  ) {//clinic services only cache paid allowed with bill percentage with out additional services
             $total_amount = floatval($reservation->price);
             $MC_percentage = $application_percentage_of_bill;
             $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
