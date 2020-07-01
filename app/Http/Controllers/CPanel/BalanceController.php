@@ -242,9 +242,7 @@ class BalanceController extends Controller
         } elseif ($type == 'consulting') {
             return $this->getConsultingRecordReservations($providers);
         } else {
-            // return all reservations
-
-            return $this->getAllRecordReservations($providers);
+           //
         }
     }
 
@@ -323,80 +321,5 @@ class BalanceController extends Controller
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
-
-    public function getAllRecordReservations($providers)
-    {
-        $doctor_reservations = Reservation::doctorSelection()
-            ->whereIn('provider_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
-            ->whereNotNull('doctor_id')
-            ->where('doctor_id', '!=', 0)
-            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
-            ->orderBy('id', 'DESC');
-
-
-        $home_services_reservations = ServiceReservation::serviceSelection()
-            ->whereHas('type', function ($e) {
-                $e->where('id', 1);
-            })
-            ->whereIn('branch_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
-            ->orderBy('id', 'DESC');
-
-        $clinic_services_reservations = ServiceReservation::serviceSelection()->whereHas('type', function ($e) {
-            $e->where('id', 2);
-        })
-            ->whereIn('branch_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
-            ->orderBy('id', 'DESC');
-
-        return Reservation::OfferReservationSelection()->with(['offer' => function ($q) {
-            $q->select('id',
-                DB::raw('title_' . app()->getLocale() . ' as title'),
-                'expired_at',
-                'price'
-            );
-        }, 'doctor' => function ($g) {
-            $g->select('id', 'nickname_id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))
-                ->with(['nickname' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }, 'specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'rejectionResoan' => function ($rs) {
-            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
-        }, 'paymentMethod' => function ($qu) {
-            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'user' => function ($q) {
-            $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
-                ->with(['insuranceCompany' => function ($qu) {
-                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'people' => function ($p) {
-            $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
-                $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-            }]);
-        }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
-                ->with(['specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'type' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }])
-            ->whereIn('provider_id', $providers)
-            ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
-            ->whereNotNull('offer_id')
-            ->where('offer_id', '!=', 0)
-            /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
-            ->orderBy('id', 'DESC')
-            ->union($doctor_reservations)
-            ->union($home_services_reservations)
-            ->union($clinic_services_reservations)
-            ->paginate(PAGINATION_COUNT);
-    }
-
 
 }
