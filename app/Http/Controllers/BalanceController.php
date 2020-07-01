@@ -30,7 +30,6 @@ class BalanceController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:home_services,clinic_services,doctor,offer,all",
-                "provider_id" => "required|exists:providers,id"
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -39,10 +38,9 @@ class BalanceController extends Controller
 
             $type = $request->type;
 
-            $provider = Provider::where('id', $request->provider_id)->first();
-            if ($provider->provider_id != null) { // main provider
-                return $this->returnError('E001', 'لابد ان يكون الحساب مقدم خدمة');
-            }
+            $provider = $this->auth('provider-api');
+            if ($provider->provider_id == null)
+                return $this->returnError('D000', trans("messages.Your account isn't branch"));
 
             $branches = $provider->providers()->pluck('id')->toArray();  // branches ids
 
