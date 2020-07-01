@@ -253,7 +253,7 @@ class BalanceController extends Controller
             ->whereIn('branch_id', $providers)
             ->where('approved', 3)
             ->where('is_visit_doctor', 1)
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->select('id','discount_type', 'reservation_no','','application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -269,7 +269,7 @@ class BalanceController extends Controller
             ->whereIn('branch_id', $providers)
             ->where('approved', 3)
             ->where('is_visit_doctor', 1)
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->select('id','discount_type', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -285,7 +285,7 @@ class BalanceController extends Controller
             ->whereNotNull('doctor_id')
             ->where('doctor_id', '!=', 0)
             ->orderBy('id', 'DESC')
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->select('id', 'discount_type','reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->paginate(PAGINATION_COUNT);
     }
 
@@ -298,7 +298,7 @@ class BalanceController extends Controller
             ->where('approved', 3)
             ->whereNotNull('offer_id')
             ->where('offer_id', '!=', 0)
-            ->select('id', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->select('id', 'discount_type','reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
