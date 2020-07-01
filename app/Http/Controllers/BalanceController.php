@@ -81,6 +81,8 @@ class BalanceController extends Controller
                             "latitude",
                             "branch_name",
                             "comment_report",
+                            "rejected_reason_type",
+                            "rejection_resoan",
                             "longitude"]);
 
 
