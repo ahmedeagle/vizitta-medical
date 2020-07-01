@@ -29,7 +29,7 @@ class BalanceController extends Controller
     {
         try {
               $doctor = $this->getAuthDoctor();
-               $reservations = $this->getReservationBalanceForConsultingDoctors($doctor -> id);  // get consulting reservation balance of completed reservation
+     return          $reservations = $this->getReservationBalanceForConsultingDoctors($doctor -> id);  // get consulting reservation balance of completed reservation
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
