@@ -146,9 +146,10 @@ class BalanceController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:home_services,clinic_services,doctor,offer,all",
+                "type" => "required|in:home_services,clinic_services,doctor,offer,consulting",
                 "branch_id" => "required|exists:providers,id"
             ]);
+
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
@@ -235,6 +236,8 @@ class BalanceController extends Controller
             return $this->getDoctorRecordReservations($providers);
         } elseif ($type == 'offer') {
             return $this->getOfferRecordReservations($providers);
+        }elseif ($type == 'consulting') {
+            return $this->getConsultingRecordReservations($providers);
         } else {
             // return all reservations
 
@@ -299,6 +302,21 @@ class BalanceController extends Controller
             ->whereNotNull('offer_id')
             ->where('offer_id', '!=', 0)
             ->select('id', 'discount_type','reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
+    protected function getConsultingRecordReservations($providers)
+    {
+        return $reservations = DoctorConsultingReservation::with(['paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->whereNotNull('provider_id')
+            ->whereIn('provider_id', $providers)
+            ->where('approved', 3)
+            ->whereNotNull('chat_duration')
+            ->where('chat_duration', '!=', 0)
+            ->select('id', 'discount_type','hours_duration','reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
     }
@@ -376,5 +394,8 @@ class BalanceController extends Controller
             ->union($clinic_services_reservations)
             ->paginate(PAGINATION_COUNT);
     }
+
+
+
 
 }

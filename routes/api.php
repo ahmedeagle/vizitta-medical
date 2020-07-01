@@ -320,8 +320,6 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
 
         // reservation  records
         Route::post('reservations-records', 'ProviderController@getReservationsRecodes')->middleware(['CheckProviderToken', 'CheckProviderStatus']);
-
-
     });
     Route::post('consulting-reasons', 'CPanel\RefusalReasonsController@getConsultingRefusalReasonsList');
     Route::post('app_price_note', 'GlobalController@getAppPriceNote');

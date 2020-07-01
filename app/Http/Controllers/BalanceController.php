@@ -58,7 +58,8 @@ class BalanceController extends Controller
                         $reservation->reservation_type = 'doctor';
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
-                    } elseif ($request->type == 'all') {
+                    }
+                    elseif ($request->type == 'all') {
 
                         $this->addReservationTypeToResult($reservation);
                         $reservation->makeVisible(["bill_total"]);
@@ -119,11 +120,29 @@ class BalanceController extends Controller
             return $this->getDoctorRecordReservations($providers);
         } elseif ($type == 'offer') {
             return $this->getOfferRecordReservations($providers);
-        } else {
+        } elseif ($type == 'consulting') {
+            return $this->getConsultingRecordReservations($providers);
+        }else {
             // return all reservations
 
             return $this->getAllRecordReservations($providers);
         }
+    }
+
+
+    protected function getConsultingRecordReservations($providers)
+    {
+        return $reservations = DoctorConsultingReservation::with(['paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->whereNotNull('provider_id')
+            ->whereIn('provider_id', $providers)
+            ->where('approved', 3)
+            ->whereNotNull('chat_duration')
+            ->where('chat_duration', '!=', 0)
+            ->select('id', 'discount_type','hours_duration','reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
     }
 
     protected function getHomeServicesRecordReservations($providers)
