@@ -193,6 +193,8 @@ class BalanceController extends Controller
                             "rate_date",
                             "address",
                             "latitude",
+                            "branch_name",
+                            "comment_report",
                             "longitude"]);
 
                         $reservation->doctor->makeHidden(['available_time', 'times']);
