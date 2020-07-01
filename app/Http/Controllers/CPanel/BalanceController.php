@@ -315,7 +315,6 @@ class BalanceController extends Controller
 
 
         $home_services_reservations = ServiceReservation::serviceSelection()
-            ->serviceSelection()
             ->whereHas('type', function ($e) {
                 $e->where('id', 1);
             })
@@ -323,7 +322,7 @@ class BalanceController extends Controller
             ->whereIn('approved', [2, 3, 5])   //reservations which cancelled by user or branch or complete
             ->orderBy('id', 'DESC');
 
-        $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
+        $clinic_services_reservations = ServiceReservation::serviceSelection()->whereHas('type', function ($e) {
             $e->where('id', 2);
         })
             ->whereIn('branch_id', $providers)

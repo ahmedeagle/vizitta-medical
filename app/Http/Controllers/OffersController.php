@@ -1445,7 +1445,6 @@ class OffersController extends Controller
 
     public function reserveTime(Request $request)
     {
-
         try {
             $rules = [
                 "offer_id" => "required|numeric|exists:offers,id",
@@ -1461,7 +1460,6 @@ class OffersController extends Controller
             ];
 
             $payment_type = $request->payment_type;
-
 
             if ($request->payment_method_id != 1 && $payment_type == 'custom') {//not cach cash
                 $rules['custom_paid_price'] = "required|numeric";

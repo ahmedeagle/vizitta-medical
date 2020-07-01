@@ -67,8 +67,8 @@ class DoctorReservationsController extends Controller
                     } else {
                         $reservation->allow_chat = 0;
                     }
-                   // $reservation->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
-                   // $reservation->doctor->makeHidden(['times']);
+                    // $reservation->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    // $reservation->doctor->makeHidden(['times']);
                 }
             }
 
@@ -91,6 +91,7 @@ class DoctorReservationsController extends Controller
             return $this->returnError('E001', __('main.oops_error'));
         }
     }
+
     function getDiffBetweenTwoDate($ConsultingDate)
     {
         $end = Carbon::parse($ConsultingDate, 'Asia/Riyadh');
@@ -154,7 +155,7 @@ class DoctorReservationsController extends Controller
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
                 ) {
-                      return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+                    return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
                 }
 
             }
@@ -163,7 +164,6 @@ class DoctorReservationsController extends Controller
                 // initialize chat
                 $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
             }
-
 
             $reservation->update([
                 'approved' => $request->status, //approve reservation
@@ -174,22 +174,14 @@ class DoctorReservationsController extends Controller
 
             $payment_method = $reservation->paymentMethod->id;   // 1- cash otherwise electronic
             $application_percentage_of_consulting = $reservation->doctor->application_percentage ? $reservation->doctor->application_percentage : 0;
-            if ($payment_method == 1 && $request->status == 3) {//1- cash reservation 3-complete reservation
-                $totalBill = 0;
-                $comment = " نسبة ميدكال كول من كشف (استشاري) حجز نقدي ";
-                $invoice_type = 0;
-                try {
-                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
-                } catch (\Exception $ex) {
-                }
-            }
 
             if ($payment_method != 1 && $request->status == 3) {//  visa reservation 3-complete reservation
                 $totalBill = 0;
-                $comment = " نسبة ميدكال كول من كشف (استشاري) حجز الكتروني ";
+                $doctor_type = $reservation->doctor->doctor_type;
+
                 $invoice_type = 0;
                 try {
-                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation);
+                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation, $doctor_type);
                 } catch (\Exception $ex) {
                 }
             }
@@ -203,42 +195,36 @@ class DoctorReservationsController extends Controller
     }
 
     ##################### End change doctor consulting reservation status ########################
-    private function calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation)
+    private function calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation, $doctor_type = 'clinic')
     {
         $total_amount = floatval($reservation->total_price);
         $MC_percentage = $application_percentage_of_consulting;
         $reservationBalanceBeforeAdditionalTax = ($total_amount * $MC_percentage) / 100;
-        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * 5) / 100;
+        $additional_tax_value = ($reservationBalanceBeforeAdditionalTax * env('ADDITIONAL_TAX', '5')) / 100;
+        $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
+        $doctor = $reservation->doctor;  // always get branch
+        $provider = $reservation->provider;  // always get branch
 
-        if ($reservation->paymentMethod->id == 1) {//cash
-            $discountType = " فاتورة حجز نقدي لخدمة ";
-            $reservationBalance = ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
-
-            $doctor = $reservation->doctor;
-            $doctor->update([
-                'balance' => $doctor->balance - $reservationBalance,
-            ]);
-            $reservation->update([
-                'discount_type' => $discountType,
-            ]);
-            /*$manager = $this->getAppInfo();
-            $manager->update([
-                'balance' => $manager->unpaid_balance + $reservationBalance
-            ]);*/
-        } else {
-
-            $discountType = " فاتورة حجز الكتروني لخدمة ";
-            $reservationBalance = $total_amount - ($reservationBalanceBeforeAdditionalTax + $additional_tax_value);
-
-            $doctor = $reservation->doctor;  // always get branch
+        if ($doctor_type == 'clinic') {
+            $discountType = " نسبة ميدكال كول من كشف (استشاري تابع لفرع ) حجز الكتروني ";
             $doctor->update([
                 'balance' => $doctor->balance + $reservationBalance,
             ]);
-
-            $reservation->update([
-                'discount_type' => $discountType,
+            $provider->update([
+                'balance' => $provider->balance + $reservationBalance,
+            ]);
+        } else {
+            $discountType = " نسبة ميدكال كول من كشف (استشاري غير تابع لفرع) حجز الكتروني ";
+            $doctor->update([
+                'balance' => $doctor->balance + $reservationBalance,
             ]);
         }
+
+        $reservation->update([
+            'discount_type' => $discountType,
+            'application_balance_value' => $reservationBalance
+        ]);
+
 
         return true;
     }

@@ -16,7 +16,7 @@ class DoctorConsultingReservation extends Model
     protected $fillable = ['reservation_no','chat_duration','chatId','transaction_id', 'user_id', 'doctor_id', 'day_date', 'from_time', 'to_time', 'payment_method_id', 'paid',
         'approved', 'order', 'provider_id', 'branch_id', 'doctor_rate', 'provider_rate', 'rate_comment', 'rate_date', 'rejection_reason', 'price', 'total_price', 'is_visit_doctor', 'bill_total', 'discount_type',
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
-        'doctor_id', 'doctor_rate', 'address', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes', 'doctor_rejection_reason'];
+        'doctor_id', 'doctor_rate', 'address', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes', 'doctor_rejection_reason','payment_type','custom_paid_price','remaining_price','application_balance_value'];
 
     protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'discount_type'];
     protected $appends = ['for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
