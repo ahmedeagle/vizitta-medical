@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CPanel;
+namespace App\Http\Controllers;
 
 use App\Http\Resources\CPanel\BalanceResource;
 use App\Http\Resources\CPanel\ConsultingBalanceResource;
