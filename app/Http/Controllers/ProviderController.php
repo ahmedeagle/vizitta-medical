@@ -2494,7 +2494,7 @@ class ProviderController extends Controller
                 $branches = [$provider->id];
             }
 
-            $reservations = $this->getReservationsRecodes($branches, $type);
+            $reservations = $this->recordReservationsByType($branches, $type);
 
             if (count($reservations->toArray()) > 0) {
 
