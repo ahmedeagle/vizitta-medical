@@ -293,7 +293,12 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
             //Route::post('update', 'ProviderController@update')->name('provider.update');
             Route::post('delete/reservation', 'ProviderBranchController@deleteReservation')->name('provider.delete.reservation');
             Route::post('add/user/record', 'ProviderController@addUserRecord')->name('provider.add.user.record');
-            Route::post('balance', 'ProviderController@getBalance')->name('provider.balance');
+
+            Route::group(['prefix' => 'balance'], function () {
+                Route::post('/', 'ProviderController@getBalance')->name('provider.balance');
+                Route::post('history', 'BalanceController@getBalanceHistory');
+            });
+
             // Route::post('info', function(){
             //   return auth('provider-api')->user();
             //});

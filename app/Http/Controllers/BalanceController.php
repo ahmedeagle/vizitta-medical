@@ -24,130 +24,13 @@ class BalanceController extends Controller
 {
     use GlobalTrait;
 
-    public function getBranchesBalances()
-    {
-        $providers = Provider::with(['provider' => function ($q) {
-            $q->select('id', 'name_' . app()->getLocale() . ' as name');
-        }])
-            ->whereNotNull('provider_id')
-            ->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id', 'balance')
-            ->paginate(PAGINATION_COUNT);
-
-        $result = new BalanceResource($providers);
-        return $this->returnData('balances', $result);
-    }
-
-    public function editBranchBalance(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                "branch_id" => "required|numeric|exists:providers,id",
-            ]);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $provider = Provider::select('id', 'name_' . app()->getLocale() . ' as name', 'balance')->find($request->branch_id);
-            $result = new SingleProviderResource($provider);
-            return $this->returnData('branch', $result);
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
-
-    public function updateBranchBalance(Request $request)
-    {
-
-        try {
-            $validator = Validator::make($request->all(), [
-                "branch_id" => "required|numeric|exists:providers,id",
-                "balance" => "required|numeric"
-            ]);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $provider = Provider::whereNotNull('provider_id')->find($request->branch_id);
-
-            if (!$provider)
-                return $this->returnError('E001', trans("messages.provider not found"));
-
-            $provider->update(['balance' => $request->balance]);
-
-            return $this->returnSuccessMessage(trans('messages.Balance updated successfully'));
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
-
-    public function getDoctorsBalances()
-    {
-        $doctors = Doctor::with(['provider' => function ($q) {
-            $q->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
-        }])
-            ->select('id', 'name_' . app()->getLocale() . ' as name', 'photo', 'provider_id', 'balance', 'doctor_type', 'is_consult')
-            ->paginate(PAGINATION_COUNT);
-
-        $result = new ConsultingBalanceResource($doctors);
-        return $this->returnData('balances', $result);
-    }
-
-    public function editDoctorsBalance(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                "doctor_id" => "required|numeric|exists:doctors,id",
-            ]);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $doctor = Doctor::select('id', 'name_' . app()->getLocale() . ' as name', 'balance')->find($request->doctor_id);
-            $result = new SingleDoctorBalanceResource($doctor);
-            return $this->returnData('doctor', $result);
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
-
-    public function updateDoctorsBalance(Request $request)
-    {
-
-        try {
-            $validator = Validator::make($request->all(), [
-                "doctor_id" => "required|numeric|exists:doctors,id",
-                "balance" => "required|numeric"
-            ]);
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $doctor = Doctor::find($request->doctor_id);
-
-            if (!$doctor)
-                return $this->returnError('E001', trans("messages.Doctor not found"));
-
-            $doctor->update(['balance' => $request->balance]);
-
-            return $this->returnSuccessMessage(trans('messages.Balance updated successfully'));
-        } catch (\Exception $ex) {
-            return $this->returnError($ex->getCode(), $ex->getMessage());
-        }
-    }
-
-
     //get all reservation doctor - services - offers which cancelled [2 by branch ,5 by user] or complete [3]
     public function getBalanceHistory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 "type" => "required|in:home_services,clinic_services,doctor,offer,all",
-                "branch_id" => "required|exists:providers,id"
+                "provider_id" => "required|exists:providers,id"
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -155,9 +38,13 @@ class BalanceController extends Controller
             }
 
             $type = $request->type;
-            $branch = ProviderType::find($request->branch_id);
-            $provider = $branch->provider;
-            $branches = [$request->branch_id];
+
+            $provider = Provider::where('id', $request->provider_id)->first();
+            if ($provider->provider_id != null) { // main provider
+                return $this->returnError('E001', 'لابد ان يكون الحساب مقدم خدمة');
+            }
+
+            $branches = $provider->providers()->pluck('id')->toArray();  // branches ids
 
             $reservations = $this->recordReservationsByType($branches, $type);
 
@@ -196,7 +83,6 @@ class BalanceController extends Controller
                             "branch_name",
                             "comment_report",
                             "longitude"]);
-
 
 
                     } else {
