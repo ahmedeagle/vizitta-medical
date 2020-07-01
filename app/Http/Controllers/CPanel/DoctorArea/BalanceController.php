@@ -28,7 +28,7 @@ class BalanceController extends Controller
     public function getBalanceHistory(Request $request)
     {
         try {
-            $doctor = $this->getAuthDoctor();
+            return $doctor = $this->getAuthDoctor();
             $type = $request->type;
             return $reservations = $this->getReservationBalance($doctor -> id);  // get consulting reservation balance of completed reservation
             if (count($reservations->toArray()) > 0) {
