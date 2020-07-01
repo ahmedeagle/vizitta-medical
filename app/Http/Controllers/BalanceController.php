@@ -59,6 +59,9 @@ class BalanceController extends Controller
                     } elseif ($request->type == 'offer') {
                         $reservation->reservation_type = 'offer';
                     }
+                    elseif ($request->type == 'consulting') {
+                        $reservation->reservation_type = 'consulting';
+                    }
                     elseif ($request->type == 'all') {
 
                         $this->addReservationTypeToResult($reservation);
