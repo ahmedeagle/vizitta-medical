@@ -39,8 +39,8 @@ class BalanceController extends Controller
             $type = $request->type;
 
             $provider = $this->auth('provider-api');
-            if ($provider->provider_id == null)
-                return $this->returnError('D000', trans("messages.Your account isn't branch"));
+            if ($provider->provider_id != null)
+                return $this->returnError('D000', trans("messages.Your account isn't  provider"));
 
             $branches = $provider->providers()->pluck('id')->toArray();  // branches ids
 
