@@ -263,7 +263,7 @@ class GlobalConsultingController extends Controller
                 //send sms to consulting doctor
                 $doctorMessage =   'هناك حجز استشارة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctor->name_ar . ' )';
                 if (!is_null($doctor->phone))
-                    $this->sendSMS($doctor->phone, $doctorMessage);  //sms for main provider
+                    $this->sendSMS($doctor->phone, $doctorMessage);  //sms for doctor
 
                 $res = DoctorConsultingReservation::with(['doctor', 'provider', 'branch', 'paymentMethod'])->find($reservation->id);
                 $result = new SingleDoctorConsultingReservationResource($res);

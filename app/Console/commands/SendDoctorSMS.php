@@ -60,12 +60,14 @@ class SendDoctorSMS extends Command
                 $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                 if ($consulting_start_date > date('Y-m-d H:i:s')) {
                     if (getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'), $consulting_start_date) <= 5) {
-                        DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => '1']);
+                        DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 1]);
                         //send sms to consulting doctor
-                        $doctorMessage = 'هناك حجز استشارة جديد برقم ' . ' ' . $consulting->reservation_no . ' ' . ' ( ' . $consulting->doctor->name_ar . ' )';
+                        $doctorMessage = 'هناك حجز استشارة جديد بعد 5 دقائق من الان  برقم ' . ' ' . $consulting->reservation_no . ' ' . ' ( ' . $consulting->doctor->name_ar . ' )';
                         if (!is_null($consulting->doctor->phone))
                             $this->sendSMS($consulting->doctor->phone, $doctorMessage);  //sms for main provider
                     }
+                }else{
+                    DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 5]);
                 }
             }
         }
