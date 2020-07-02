@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CPanel;
 
 use App\Http\Resources\CPanel\BalanceResource;
 use App\Http\Resources\CPanel\ConsultingBalanceResource;
+use App\Http\Resources\CPanel\ConsultiveBalanceResource;
 use App\Http\Resources\CPanel\SingleDoctorBalanceResource;
 use App\Http\Resources\CPanel\SingleProviderResource;
 use App\Http\Resources\CustomReservationsResource;
@@ -242,7 +243,7 @@ class BalanceController extends Controller
         } elseif ($type == 'consulting') {
             return $this->getConsultingRecordReservations($providers);
         } else {
-           //
+            //
         }
     }
 
@@ -320,6 +321,19 @@ class BalanceController extends Controller
             ->select('id', 'discount_type', 'hours_duration', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
             ->orderBy('id', 'DESC')
             ->paginate(PAGINATION_COUNT);
+    }
+
+    public function consultingDoctors()
+    {
+        $doctor = Doctor::with(['specification' => function ($q) {
+            $q->select('id', 'name_' . app()->getLocale() . ' as name');
+        }])
+            ->where('doctor_type','consultative')
+            ->select('id', 'name_' . app()->getLocale() . ' as name', 'specification_id', 'balance')
+            ->paginate(PAGINATION_COUNT);
+
+        $result = new ConsultiveBalanceResource($doctor);
+        return $this->returnData('balances', $result);
     }
 
 }
