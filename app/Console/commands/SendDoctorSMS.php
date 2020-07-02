@@ -64,12 +64,16 @@ class SendDoctorSMS extends Command
                         //send sms to consulting doctor
                         $doctorMessage = 'هناك حجز استشارة جديد بعد 5 دقائق من الان  برقم ' . ' ' . $consulting->reservation_no . ' ' . ' ( ' . $consulting->doctor->name_ar . ' )';
                         if (!is_null($consulting->doctor->phone))
-                            $this->sendSMS($consulting->doctor->phone, $doctorMessage);  //sms for main provider
+                            $this->sendSMS($consulting->doctor->phone, $doctorMessage);  //sms for doctor
                     }
+                    DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 4]);
                 }else{
                     DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 5]);
                 }
             }
+        }
+        else{
+            DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 6]);
         }
     }
 }
