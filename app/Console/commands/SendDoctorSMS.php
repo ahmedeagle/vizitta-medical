@@ -72,8 +72,6 @@ class SendDoctorSMS extends Command
                 }
             }
         }
-        else{
-            DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 6]);
-        }
+
     }
 }
