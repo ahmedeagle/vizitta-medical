@@ -3,13 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\DoctorConsultingReservation;
-use App\Models\FeaturedBranch;
-use App\Models\PromoCodeCategory;
-use App\Models\Subscription;
-use App\Models\User;
-use App\Traits\SMSTrait;
-use Carbon\Carbon;
-use Illuminate\Console\Command;
+ use App\Traits\SMSTrait;
+ use Illuminate\Console\Command;
 
 class SendDoctorSMS extends Command
 {
@@ -46,7 +41,6 @@ class SendDoctorSMS extends Command
      */
     public function handle()
     {
-
         $reservations = DoctorConsultingReservation::with(['doctor' => function ($q) {
             $q->select('id', 'phone', 'name_ar');
         }])
@@ -72,6 +66,8 @@ class SendDoctorSMS extends Command
                     DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 5]);
                 }
             }
+        }else{
+            DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 1]);
         }
 
     }
