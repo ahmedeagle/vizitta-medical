@@ -102,6 +102,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::group(['prefix' => 'balances'], function () {
                 Route::post('/', 'BalanceController@getDoctorsBalances');
                 Route::post('only-consulting-doctors-withoutBranch', 'BalanceController@consultingDoctors');
+                Route::post('only-consulting-doctors-withoutBranch/history', 'BalanceController@consultingDoctorsHistory');
                 Route::post('edit', 'BalanceController@editDoctorsBalance');
                 Route::post('update', 'BalanceController@updateDoctorsBalance');
             });

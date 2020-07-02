@@ -328,12 +328,72 @@ class BalanceController extends Controller
         $doctor = Doctor::with(['specification' => function ($q) {
             $q->select('id', 'name_' . app()->getLocale() . ' as name');
         }])
-            ->where('doctor_type','consultative')
+            ->where('doctor_type', 'consultative')
             ->select('id', 'name_' . app()->getLocale() . ' as name', 'specification_id', 'balance')
             ->paginate(PAGINATION_COUNT);
 
         $result = new ConsultiveBalanceResource($doctor);
         return $this->returnData('balances', $result);
     }
+
+
+    public function consultingDoctorsHistory(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                "doctor_id" => "required|exists:doctors,id"
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $doctor = Doctor::find($request -> doctor_id);
+
+            if ($doctor->doctor_type == 'clinic')
+                return $this->returnError('E001', 'حسابك تابع لفرع يرجي الرجوع الي الفرع لعرض السجل ');
+
+            $reservations = $this->getReservationBalanceForConsultingDoctors($doctor->id);  // get consulting reservation balance of completed reservation
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
+                    $reservation->makeHidden(['order', 'hours_duration', 'rejected_reason_type', 'rejection_resoan', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejectionReason', 'user_rejection_reason']);
+                    $reservation->reservation_type = 'consulting';
+                    return $reservation;
+                });
+
+                $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnData('reservations', $reservations);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
+    }
+
+    private function getReservationBalanceForConsultingDoctors($doctorId)
+    {
+        return $reservations = DoctorConsultingReservation::with(['paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }])
+            ->whereNull('provider_id')
+            ->where('doctor_id', $doctorId)
+            ->where('approved', '3')
+            ->whereNotNull('chat_duration')
+            ->where('chat_duration', '!=', 0)
+            ->select('id', 'discount_type', 'hours_duration', 'reservation_no', 'application_balance_value', 'custom_paid_price', 'remaining_price', 'payment_type', 'price', 'bill_total', 'payment_method_id')
+            ->orderBy('id', 'DESC')
+            ->paginate(PAGINATION_COUNT);
+    }
+
 
 }
