@@ -78,7 +78,6 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
             Route::post('/removeProviderFromFeatured', 'BranchController@removeProviderFromFeatured');
             Route::group(['prefix' => 'balances'], function () {
                 Route::post('/', 'BalanceController@getBranchesBalances');
-                Route::post('only-consulting-doctors-withoutBranch', 'BalanceController@consultingDoctors');
                 Route::post('edit', 'BalanceController@editBranchBalance');
                 Route::post('update', 'BalanceController@updateBranchBalance');
                 Route::post('history', 'BalanceController@getBalanceHistory');
@@ -102,6 +101,7 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
 
             Route::group(['prefix' => 'balances'], function () {
                 Route::post('/', 'BalanceController@getDoctorsBalances');
+                Route::post('only-consulting-doctors-withoutBranch', 'BalanceController@consultingDoctors');
                 Route::post('edit', 'BalanceController@editDoctorsBalance');
                 Route::post('update', 'BalanceController@updateDoctorsBalance');
             });
