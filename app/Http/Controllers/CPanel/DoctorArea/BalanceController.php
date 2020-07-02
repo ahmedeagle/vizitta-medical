@@ -29,6 +29,10 @@ class BalanceController extends Controller
     {
         try {
              $doctor = $this->getAuthDoctor();
+
+             if($doctor -> doctor_type =='clinic')
+                 return $this->returnError('E001','حسابك تابع لفرع يرجي الرجوع الي الفرع لعرض السجل ');
+
              $reservations = $this->getReservationBalanceForConsultingDoctors($doctor->id);  // get consulting reservation balance of completed reservation
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
