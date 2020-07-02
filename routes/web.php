@@ -38,6 +38,7 @@ use Twilio\Rest\Client;
 use Twilio\Exceptions\TwilioException;
 use Vinkla\Hashids\Facades\Hashids;
 
+
 route::get('sendSms',function (){
     $accountSid = env('TWILIO_ACCOUNT_SID');
     $authToken = env('TWILIO_AUTH_TOKEN');
@@ -78,6 +79,13 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
 
     Route::get('clearPermissionCach', function () {
         app()['cache']->forget('spatie.permission.cache');
+    });
+
+
+    Route::get('dd',function (){
+        $v =  getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'),'2020-07-02 03:00:00');
+
+        return response()->json($v);
     });
 
 

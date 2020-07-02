@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\BranchFeaturedExpire::class,
         \App\Console\Commands\ConsultingReservationExpire::class,
+        \App\Console\Commands\SendDoctorSMS::class,
     ];
 
 
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('subscription:expire')->daily();
         //$schedule->command('counter:expire')->everyMinute();
+        $schedule->command('doctor:sms')->everyMinute() ->runInBackground();
         $schedule->command('consulting:expire')->everyMinute() ->runInBackground();
         $schedule->command('queue:restart')->everyFiveMinutes();
         $schedule->command('queue:work')->everyMinute() ;

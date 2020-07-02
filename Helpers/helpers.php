@@ -35,33 +35,44 @@ function getDiffBetweenTwoDate($startDate, $endDate, $formate = 'a')
 }
 
 
-function getDiffinSeconds($created_date){
+function getDiffBetweenTwoDateIMinute($startDate, $endDate)
+{
+    $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $endDate);
+    $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $startDate);
+    return $diff_in_minutes = $to->diffInMinutes($from);
+}
+
+function getDiffinSeconds($created_date)
+{
     return Carbon::now()->diffInSeconds(Carbon::parse($created_date));
 }
-function getSeconds($hours,$mins,$secs){
-    return ($hours * 60 * 60) + ($mins * 60) +($secs);
+
+function getSeconds($hours, $mins, $secs)
+{
+    return ($hours * 60 * 60) + ($mins * 60) + ($secs);
 }
 
 function getDoctorById($DoctorId)
 {
-  $doctor =  \App\Models\Doctor::find($DoctorId);
-   if($doctor)
-       return $doctor -> name_ar;
-       else
-           return '';
+    $doctor = \App\Models\Doctor::find($DoctorId);
+    if ($doctor)
+        return $doctor->name_ar;
+    else
+        return '';
 }
 
 function getBranchById($branchId)
 {
-    $branch =  \App\Models\Provider::find($branchId);
-    if($branchId)
-        return $branch -> name_ar;
-       else
-           return '';
+    $branch = \App\Models\Provider::find($branchId);
+    if ($branchId)
+        return $branch->name_ar;
+    else
+        return '';
 }
 
 
-function maskPhoneNumber($number){
-    $mask_number =  str_repeat("x", (strlen($number))-4) . substr($number, -4);
+function maskPhoneNumber($number)
+{
+    $mask_number = str_repeat("x", (strlen($number)) - 4) . substr($number, -4);
     return $mask_number;
 }

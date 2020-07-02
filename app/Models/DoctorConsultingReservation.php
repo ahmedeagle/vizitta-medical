@@ -341,4 +341,8 @@ class DoctorConsultingReservation extends Model
                 $val;
     }
 
+
+    public function notNotifyBefor5Minutes($query){
+        return $query ->  where('notified',0);
+    }
 }
