@@ -51,6 +51,7 @@ class SendDoctorSMS extends Command
 
         if (isset($reservations) && $reservations->count() > 0) {
             foreach ($reservations as $key => $consulting) {
+                DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 11]);
                 $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                 if ($consulting_start_date > date('Y-m-d H:i:s')) {
                     if (getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'), $consulting_start_date) <= 5) {
