@@ -31,7 +31,6 @@ class Doctor extends Authenticatable implements JWTSubject
         return view('doctor.actions', compact('doctor'))->render();
     }
 
-
     public static function laratablesCustomProviderfullname($doctor)
     {
         $doctor = Doctor::find($doctor->id);
