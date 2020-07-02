@@ -35,6 +35,7 @@ use Carbon\Carbon;
 trait GlobalTrait
 {
 
+
     public function checkUser($id)
     {
         return User::find($id);
@@ -1112,4 +1113,18 @@ trait GlobalTrait
         return auth('doctor-api')->userOrFail();
     }
 
+    public function getHyperPayMerchantTransactionUniqueId($length = 10){
+
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $string = '';
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+        }
+        $chkCode = HyperPayTransaction::where('random_id', $string)->first();
+        if ($chkCode) {
+            $this->getHyperPayMerchantTransactionUniqueId(6);
+        }
+        return $string;
+
+    }
 }

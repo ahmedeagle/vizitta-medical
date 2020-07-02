@@ -7,6 +7,7 @@ use App\Models\ConsultativeDoctorTime;
 use App\Models\Doctor;
 use App\Models\DoctorTime;
 use App\Models\GeneralNotification;
+use App\Models\HyperPayTransaction;
 use App\Models\InsuranceCompany;
 use App\Models\InsuranceCompanyDoctor;
 use App\Models\Nationality;
@@ -1430,6 +1431,11 @@ class DoctorController extends Controller
         $user = $this->auth('user-api');
         $userEmail = $user->email ? $user->email : 'info@wisyst.info';
 
+       /*$merchantId =  $this -> getHyperPayMerchantTransactionUniqueId(10);
+        $hyperPayTransaction= HyperPayTransaction::create([
+            'random_id' => $merchantId
+        ]);*/
+
         $url = env('PAYTABS_CHECKOUTS_URL', 'https://oppwa.com/v1/checkouts');
         $data =
             "entityId=" . env('PAYTABS_ENTITYID', '8ac7a4ca6d0680f7016d14c5bbb716d8') .
@@ -1437,7 +1443,7 @@ class DoctorController extends Controller
             "&currency=SAR" .
             "&paymentType=DB" .
             "&notificationUrl=https://mcallapp.com";
-        // "&merchantTransactionId=400" .
+//           "&merchantTransactionId=".$hyperPayTransaction -> merchantId ;
         //"&testMode=EXTERNAL" .
         //"&customer.email=" . $userEmail;
 
@@ -1463,6 +1469,9 @@ class DoctorController extends Controller
         }
 
         $id = json_decode($responseData)->id;
+
+//        HyperPayTransaction::where('random_id',$hyperPayTransaction -> merchantId ) -> update(['checkout_id' => $id ]);
+
         return $this->returnData('checkoutId', $id, trans('messages.Checkout id successefully retrieved'), 'S001');
 
     }
@@ -1504,6 +1513,8 @@ class DoctorController extends Controller
         $obj = new \stdClass();
         $obj->id = isset($r->id) ? $r->id : '0';
         $obj->res = $r->result;
+
+       // HyperPayTransaction::where('checkout_id',$request -> checkoutId) ->update(['transaction_id',$obj->id]);
         return $this->returnData('status', $obj, trans('messages.Payment status'), 'S001');
     }
 

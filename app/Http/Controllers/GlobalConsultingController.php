@@ -241,6 +241,7 @@ class GlobalConsultingController extends Controller
                         'type' => 7 // new consulting reservation
                     ]);
 
+
                     $notify = [
                         'provider_name' => $doctorName,
                         'reservation_no' => $reservation->reservation_no,
@@ -258,6 +259,11 @@ class GlobalConsultingController extends Controller
                     } catch (\Exception $ex) {
                     }
                 }
+
+                //send sms to consulting doctor
+                $doctorMessage =   'هناك حجز استشارة جديد برقم ' . ' ' . $reservation->reservation_no . ' ' . ' ( ' . $doctorName . ' )';
+                if (!is_null($doctor->phone))
+                    $this->sendSMS($doctor->phone, $smsMessage);  //sms for main provider
 
                 $res = DoctorConsultingReservation::with(['doctor', 'provider', 'branch', 'paymentMethod'])->find($reservation->id);
                 $result = new SingleDoctorConsultingReservationResource($res);
