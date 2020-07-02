@@ -45,7 +45,7 @@ class SendDoctorSMS extends Command
             $q->select('id', 'phone', 'name_ar');
         }])
             ->notNotifyBefor5Minutes()
-            ->wherein('approved', ['0'])
+            ->where('approved', '0')
             ->get();    // get all new reservations
 
 
