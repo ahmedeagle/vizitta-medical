@@ -32,7 +32,7 @@ class BalanceController extends Controller
              $reservations = $this->getReservationBalanceForConsultingDoctors($doctor->id);  // get consulting reservation balance of completed reservation
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
-                    $reservation->makeHidden(['order', 'hours_duration','rejected_reason_type','rejection_resoan','reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+                    $reservation->makeHidden(['order', 'hours_duration','rejected_reason_type','rejection_resoan','reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejectionReason', 'user_rejection_reason']);
                     $reservation->reservation_type = 'consulting';
                     return $reservation;
                 });
