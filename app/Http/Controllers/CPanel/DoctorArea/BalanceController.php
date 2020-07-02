@@ -28,8 +28,8 @@ class BalanceController extends Controller
     public function getBalanceHistory(Request $request)
     {
         try {
-              $doctor = $this->getAuthDoctor();
-               $reservations = $this->getReservationBalanceForConsultingDoctors($doctor -> id);  // get consulting reservation balance of completed reservation
+           return  $doctor = $this->getAuthDoctor();
+            $reservations = $this->getReservationBalanceForConsultingDoctors($doctor->id);  // get consulting reservation balance of completed reservation
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($request) {
                     $reservation->makeHidden(['order', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_id', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
@@ -43,8 +43,6 @@ class BalanceController extends Controller
                 $reservationsJson->current_page = $reservations->current_page;
                 $reservationsJson->total_pages = $reservations->last_page;
                 $reservationsJson->total_count = $total_count;
-                //$reservationsJson->complete_reservation__count = $complete_reservation__count;
-                //$reservationsJson->complete_reservation__amount = $complete_reservation__amount;
                 $reservationsJson->per_page = PAGINATION_COUNT;
                 $reservationsJson->data = $reservations->data;
 
@@ -58,7 +56,7 @@ class BalanceController extends Controller
 
     private function getReservationBalanceForConsultingDoctors($doctorId)
     {
-         return $reservations = DoctorConsultingReservation::with(['paymentMethod' => function ($qu) {
+        return $reservations = DoctorConsultingReservation::with(['paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }])
             ->whereNull('provider_id')
