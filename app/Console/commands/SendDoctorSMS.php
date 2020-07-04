@@ -47,7 +47,7 @@ class SendDoctorSMS extends Command
             ->notNotifyBefor5Minutes()
             ->where('approved', '0')
             ->get();    // get all new reservations
-
+        DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 11]);
 
         if (isset($reservations) && $reservations->count() > 0) {
             foreach ($reservations as $key => $consulting) {
