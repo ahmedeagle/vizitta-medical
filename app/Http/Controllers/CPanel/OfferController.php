@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\CPanel;
-
 use App\Http\Resources\CPanel\MainActiveProvidersResource;
 use App\Http\Resources\CPanel\OffersResource;
 use App\Http\Resources\CPanel\OfferBranchesResource;
+//use App\Http\Resources\OfferUserResource;
+use App\Jobs\AddOfferUsers;
+use App\Jobs\UpdateOfferUsers;
 use App\Models\OfferTime;
 use App\Models\Filter;
 use App\Models\OfferCategory;
@@ -58,19 +60,18 @@ class OfferController extends Controller
                 ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('price_after_discount', 'LIKE', '%' . trim($q) . '%')
                 ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
-
                 ->orWhere(function ($qq) use ($q) {
                     if (trim($q) == 'مميز') {
                         $qq->where('featured', '2');
                     } elseif (trim($q) == 'غير مميز') {
                         $qq->where('featured', 1);
                     }
-                })  ->orWhereHas('provider', function ($query) use ($q) {
+                })->orWhereHas('provider', function ($query) use ($q) {
                     $query->where(function ($query) use ($q) {
                         $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
                             ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                     })
-                        -> orWhereHas('provider',function ($query) use($q){
+                        ->orWhereHas('provider', function ($query) use ($q) {
                             $query->where('name_en', 'LIKE', '%' . trim($q) . '%')
                                 ->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                         });
@@ -318,7 +319,7 @@ class OfferController extends Controller
                 $offer = Offer::find($offer->id);
                 //allowed users to use this offer
                 if (!empty($users) && count($users) > 0) {
-                    $offer->users()->attach($request->users);
+                    dispatch(new AddOfferUsers($offer, $request->users))->onConnection('sync');
                     $offer->update(['general' => 0]);
                 } else {
                     //all user can see offer
@@ -345,6 +346,8 @@ class OfferController extends Controller
 
             $data['providers'] = $this->getMainActiveProviders(); // active providers list
             $data['categories'] = $this->getOfferCategoriesWithSelected($data['offer']);
+            //return $users = $this->getOfferActiveUsersWithPaginateSelected($data['offer']);
+            // $data['users'] = new OfferUserResource($users);
             $data['users'] = $this->getOfferActiveUsersWithSelected($data['offer']);
             $data['paymentMethods'] = $this->getAllPaymentMethodWithSelectedList($data['offer']); // payment methods to checkboxes
             $data['offerContents'] = $data['offer']->contents;
@@ -352,7 +355,6 @@ class OfferController extends Controller
             $data['offerBranchTimes'] = $this->_group_by($data['offer']->offerBranchTimes, 'branch_id');
 
             unset($data['offer']['offerBranchTimes']);
-
             return response()->json(['status' => true, 'data' => $data]);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
@@ -463,13 +465,10 @@ class OfferController extends Controller
             if (isset($request->branchTimes) && !empty($request->branchTimes)) {
                 $offer->times()->delete();
                 foreach ($request->branchTimes as $key => $branchInfo) {
-
                     if (count($branchInfo['day_times']) > 0) {
                         foreach ($branchInfo['day_times'] as $k => $working_day) {
-
                             $from = Carbon::parse($working_day['from']);
                             $to = Carbon::parse($working_day['to']);
-
                             $working_days_data = [
                                 'offer_id' => $offer->id,
                                 'branch_id' => $branchInfo['branch_id'],
@@ -518,7 +517,7 @@ class OfferController extends Controller
 
             //allowed users to use this offer
             if (!empty($users) && count($users) > 0) {
-                $offer->users()->sync($request->users);
+                dispatch(new UpdateOfferUsers($offer, $request->users))->onConnection('sync');
                 $offer->update(['general' => 0]);
             } else {
                 //all user can see offer

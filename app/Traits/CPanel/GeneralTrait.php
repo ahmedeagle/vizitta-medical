@@ -264,6 +264,18 @@ trait GeneralTrait
         }
     }
 
+
+    public function getOfferActiveUsersWithPaginateSelected($offer = null)
+    {
+        if ($offer != null) {
+            return User::select('id',
+                'name',
+                DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected'))->paginate(PAGINATION_COUNT);
+        } else {
+            return User::select('id', 'name', DB::raw('0 as selected'))->paginate(PAGINATION_COUNT);
+        }
+    }
+
     public function returnData($key, $value, $msg = "")
     {
         return response()->json(['status' => true, 'errNum' => "S000", 'msg' => $msg, $key => $value]);
