@@ -48,28 +48,23 @@ class SendDoctorSMS extends Command
             ->where('notified',0)
             ->get();    // get all new reservations
 
-        DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 11]);
 
-       /* if (isset($reservations) && $reservations->count() > 0) {
+        if (isset($reservations) && $reservations->count() > 0) {
             foreach ($reservations as $key => $consulting) {
                 DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 11]);
                 $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
                 if ($consulting_start_date > date('Y-m-d H:i:s')) {
                     if (getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'), $consulting_start_date) <= 5) {
-                        DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 1]);
-                        //send sms to consulting doctor
+                        DoctorConsultingReservation::where('id', $consulting->id)->update(['notified' => 1]);
+
+                         //send sms to consulting doctor
                         $doctorMessage = 'هناك حجز استشارة جديد بعد 5 دقائق من الان  برقم ' . ' ' . $consulting->reservation_no . ' ' . ' ( ' . $consulting->doctor->name_ar . ' )';
                         if (!is_null($consulting->doctor->phone))
                             $this->sendSMS($consulting->doctor->phone, $doctorMessage);  //sms for doctor
                     }
-                    DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 4]);
-                }
-                else{
-                    DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 5]);
+
                 }
             }
-        }else{
-            DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 1]);
-        }*/
+        }
     }
 }
