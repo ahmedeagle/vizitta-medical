@@ -8,13 +8,15 @@ use App\Models\Mix;
 use App\Models\PromoCode;
 use App\Models\Provider;
 use App\Models\Reservation;
+use App\Traits\GlobalTrait;
 use App\Traits\OdooTrait;
+use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Freshbitsweb\Laratables\Laratables;
 
 trait ReservationTrait
 {
-    use OdooTrait;
+    use OdooTrait , SMSTrait;
 
     public function getReservationById($id)
     {
@@ -366,9 +368,8 @@ trait ReservationTrait
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
                 //send mobile sms
-//                $message = $bodyUser;
-
-                //   $this->sendSMS($reservation->user->mobile, $message);
+                $message = $bodyUser;
+                $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 

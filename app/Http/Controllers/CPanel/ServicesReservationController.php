@@ -16,6 +16,7 @@ use App\Models\ServiceTime;
 use App\Traits\Dashboard\ReservationTrait;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
+use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -28,7 +29,7 @@ use function foo\func;
 
 class ServicesReservationController extends Controller
 {
-    use GlobalTrait;
+    use GlobalTrait,SMSTrait;
 
     public function index(Request $request)
     {
@@ -320,9 +321,9 @@ class ServicesReservationController extends Controller
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
                 //send mobile sms
-//                $message = $bodyUser;
+               $message = $bodyUser;
 
-//                $this->sendSMS($reservation->user->mobile, $message);
+                $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 

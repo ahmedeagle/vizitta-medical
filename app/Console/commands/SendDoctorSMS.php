@@ -70,6 +70,5 @@ class SendDoctorSMS extends Command
         }else{
             DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 1]);
         }
-
     }
 }
