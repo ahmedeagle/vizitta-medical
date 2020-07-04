@@ -44,12 +44,13 @@ class SendDoctorSMS extends Command
         $reservations = DoctorConsultingReservation::with(['doctor' => function ($q) {
             $q->select('id', 'phone', 'name_ar');
         }])
-            ->notNotifyBefor5Minutes()
             ->where('approved', '0')
+            ->where('notified',0)
             ->get();    // get all new reservations
+
         DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 11]);
 
-        if (isset($reservations) && $reservations->count() > 0) {
+       /* if (isset($reservations) && $reservations->count() > 0) {
             foreach ($reservations as $key => $consulting) {
                 DoctorConsultingReservation::where('id', $consulting->id)->update(['remaining_price' => 11]);
                 $consulting_start_date = date('Y-m-d H:i:s', strtotime($consulting->day_date . ' ' . $consulting->from_time));
@@ -69,6 +70,6 @@ class SendDoctorSMS extends Command
             }
         }else{
             DoctorConsultingReservation::where('id', 165)->update(['remaining_price' => 1]);
-        }
+        }*/
     }
 }
