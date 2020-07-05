@@ -195,6 +195,9 @@ trait GeneralTrait
         return User::active()->get(['id', 'name']);
     }
 
+    public function getOfferUser($offer){
+        return      $offer -> users() -> get();
+    }
     public function getAllPaymentMethodWithSelectedList($offer = null)
     {
         if ($offer != null) {
@@ -257,10 +260,10 @@ trait GeneralTrait
     {
         if ($offer != null) {
             return User::select('id',
-                'name',
-                DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected'))->get();
+                'name'
+              /*  DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected')*/)->get();
         } else {
-            return User::select('id', 'name', DB::raw('0 as selected'))->get();
+            return User::select('id', 'name')->get();
         }
     }
 
