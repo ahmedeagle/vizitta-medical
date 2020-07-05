@@ -845,7 +845,8 @@ trait ProviderTrait
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
                 'expired_at',
-                'price'
+                'price',
+                'price_after_discount'
             );
         }, 'paymentMethod' => function ($qu) {
             $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
