@@ -72,7 +72,8 @@ trait OfferTrait
             $q->select('id',
                 DB::raw('title_' . app()->getLocale() . ' as title'),
                 'expired_at',
-                'price'
+                'price',
+                'price_after_discount'
             );
         }, 'provider' => function ($que) {
             $que->select('id', 'provider_id', DB::raw('name_' . app()->getLocale() . ' as name'), 'latitude', 'longitude');
