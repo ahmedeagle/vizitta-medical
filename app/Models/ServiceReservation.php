@@ -424,6 +424,7 @@ class ServiceReservation extends Model
             "last_day_date",
             "last_from_time",
             "last_to_time",
+            'payment_type', 'custom_paid_price', 'remaining_price',
             DB::raw("'' as doctor_rate"),
             "service_rate",
             "provider_rate",
