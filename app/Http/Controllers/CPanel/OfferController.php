@@ -347,7 +347,7 @@ class OfferController extends Controller
             $data['providers'] = $this->getMainActiveProviders(); // active providers list
             $data['categories'] = $this->getOfferCategoriesWithSelected($data['offer']);
             $data['users'] = $this->getAllActiveUsersList(); // active users list
-           return  $data['selected_users'] = $this->getOfferUser($data['offer']); // active users list
+            $data['selected_users'] = $this->getOfferUser($data['offer']); // active users list
 
             $data['paymentMethods'] = $this->getAllPaymentMethodWithSelectedList($data['offer']); // payment methods to checkboxes
             $data['offerContents'] = $data['offer']->contents;
