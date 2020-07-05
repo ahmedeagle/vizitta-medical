@@ -885,7 +885,7 @@ trait ProviderTrait
             ->where('approved', 0)
             ->orderBy('id', 'DESC');
 
-        $clinic_services_reservations = ServiceReservation::serviceSelection()->serviceSelection()->whereHas('type', function ($e) {
+        $clinic_services_reservations = ServiceReservation::serviceSelection()->whereHas('type', function ($e) {
             $e->where('id', 2);
         })
             ->whereIn('branch_id', $providers)
