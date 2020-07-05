@@ -9,6 +9,7 @@ use App\Models\Specification;
 use App\Traits\ChattingTrait;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
+use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -19,7 +20,7 @@ use function foo\func;
 
 class DoctorConsultingReservationController extends Controller
 {
-    use GlobalTrait, ChattingTrait;
+    use GlobalTrait, ChattingTrait,SMSTrait;
 
     public function index(Request $request)
     {
@@ -162,6 +163,17 @@ class DoctorConsultingReservationController extends Controller
                 if ($status == 1) { //admin accept reservation
                     // initialize chat id for firebase
                     $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
+                }
+
+
+
+                if($status == 1){
+                    //send mobile sms
+
+                    $this->sendSMS($reservation->user->mobile,   $reservation -> reservation_no. 'تم قبول حجزك برقم -  ');
+                }else{
+                    //send mobile sms
+                     $this->sendSMS($reservation->user->mobile,  $reservation -> reservation_no. 'تم رفض حجزك برقم -  ');
                 }
 
                 return response()->json(['status' => true, 'msg' => __('messages.reservation status changed successfully')]);

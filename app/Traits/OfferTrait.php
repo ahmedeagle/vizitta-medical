@@ -81,7 +81,7 @@ trait OfferTrait
         }, 'user' => function ($u) {
             $u->select('id', 'name', 'mobile');
         }])
-            ->select('id', 'reservation_no', 'user_id', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
+            ->select('id', 'reservation_no','payment_type', 'custom_paid_price', 'remaining_price','user_id', 'payment_method_id', 'offer_id', 'day_date', 'from_time', 'to_time', 'provider_rate', 'offer_rate', 'approved', 'provider_id', 'price', 'rate_comment',
                 'rate_date')
             ->whereNotNull('offer_id')
             ->where('id', $reservation_id)

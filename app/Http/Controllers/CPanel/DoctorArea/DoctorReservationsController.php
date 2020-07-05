@@ -9,6 +9,7 @@ use App\Models\Reason;
 use App\Traits\ChattingTrait;
 use App\Traits\CPanel\GeneralTrait;
 use App\Traits\GlobalTrait;
+use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -18,7 +19,7 @@ use App\Http\Resources\CPanel\DoctorArea\DoctorConsultingReservationResource;
 
 class DoctorReservationsController extends Controller
 {
-    use GlobalTrait, ChattingTrait;
+    use GlobalTrait, ChattingTrait,SMSTrait;
 
     public function index(Request $request)
     {
@@ -163,6 +164,11 @@ class DoctorReservationsController extends Controller
             if ($status == 1) { //doctor accept reservation
                 // initialize chat
                 $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
+                $this->sendSMS($reservation->user->mobile,   $reservation -> reservation_no. 'تم قبول حجزك برقم -  ');
+            }
+            if($status == 2)
+            {
+                $this->sendSMS($reservation->user->mobile,  $reservation -> reservation_no. 'تم رفض حجزك برقم -  ');
             }
 
             $reservation->update([
@@ -180,10 +186,7 @@ class DoctorReservationsController extends Controller
                 $doctor_type = $reservation->doctor->doctor_type;
 
                 $invoice_type = 0;
-                try {
-                    $this->calculateConsultingReservationBalance($application_percentage_of_consulting, $reservation, $doctor_type);
-                } catch (\Exception $ex) {
-                }
+
             }
             $name = 'name_' . app()->getLocale();
             //send push notifications goes here
