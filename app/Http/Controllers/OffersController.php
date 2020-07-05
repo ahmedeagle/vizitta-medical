@@ -1883,6 +1883,10 @@ class OffersController extends Controller
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
+                //send mobile sms
+                $message = $bodyUser;
+                $this->sendSMS($reservation->user->mobile, $message);
+
             } catch (\Exception $ex) {
             }
             return $this->returnSuccessMessage($message_res);
