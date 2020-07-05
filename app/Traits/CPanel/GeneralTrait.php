@@ -196,7 +196,8 @@ trait GeneralTrait
     }
 
     public function getOfferUser($offer){
-        return      $offer -> users() -> select('id','name') -> get();
+        return      $offer -> users()
+            -> get();
     }
     public function getAllPaymentMethodWithSelectedList($offer = null)
     {
