@@ -6,12 +6,14 @@ use App\Models\Doctor;
 use App\Models\Mix;
 use App\Models\Provider;
 use App\Models\Reservation;
+use App\Traits\SMSTrait;
 use Carbon\Carbon;
 use Freshbitsweb\Laratables\Laratables;
 use DB;
 
 trait GlobalOfferTrait
 {
+    use SMSTrait;
     public function getReservationById($id)
     {
         return Reservation::find($id);
@@ -138,9 +140,8 @@ trait GlobalOfferTrait
                  (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
                 //send mobile sms
-//                $message = $bodyUser;
-
-//                $this->sendSMS($reservation->user->mobile, $message);
+                $message = $bodyUser;
+                 $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 
