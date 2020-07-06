@@ -347,7 +347,7 @@ trait ReservationTrait
                     $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
                         __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
 
-                } elseif($status == 1) {
+                } elseif($status == 2) {
                     $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
 
@@ -367,9 +367,11 @@ trait ReservationTrait
 
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
-                //send mobile sms
-                $message = $bodyUser;
-                $this->sendSMS($reservation->user->mobile, $message);
+                if($status == 1 or $status == 2) {
+                    //send mobile sms
+                    $message = $bodyUser;
+                    $this->sendSMS($reservation->user->mobile, $message);
+                }
             }
         } catch (\Exception $exception) {
 
