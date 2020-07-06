@@ -105,9 +105,13 @@ class UserController extends Controller
                 $android_device_hasCode = $request->android_device_hasCode;
             }
 
+            if (mb_substr(trim($request->mobile), 0, 1) === '0') {
+                $phone = mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
+            }
+
             $user = User::create([
                 'name' => trim($request->name),
-                'mobile' => $request->mobile,
+                'mobile' => $phone,
                 'id_number' => $request->id_number,
                 'email' => $request->email,
                 'address' => trim($request->address),
@@ -133,7 +137,7 @@ class UserController extends Controller
 
             $deviceHash = $user->android_device_hasCode === null ? '' : $user->android_device_hasCode;
             $message = trans('messages.Your Activation Code') . ' ' . $activationCode . ' ' . $deviceHash;
-            $this->sendSMS($user->mobile, $message);
+            $this->sendSMS($phone, $message);
 
             return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($request->mobile), JSON_FORCE_OBJECT)));
         } catch (\Exception $ex) {

@@ -94,6 +94,11 @@ trait SMSTrait
     public function sendSMS($phone, $message)
     {
         $url = 'http://api.unifonic.com/wrapper/sendSMS.php';
+
+        if (mb_substr(trim($phone), 0, 1) === '0') {
+            $phone = mb_substr(trim($phone), 1, mb_strlen($phone));
+        }
+
         $fields = array(
             "userid" => "info@mcallapp.com",
             "password" => "NUH*cath4kung",
