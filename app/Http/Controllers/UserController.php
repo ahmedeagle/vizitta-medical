@@ -105,9 +105,11 @@ class UserController extends Controller
                 $android_device_hasCode = $request->android_device_hasCode;
             }
 
-            if (mb_substr(trim($request->mobile), 0, 1) === '0') {
-                $phone = '0' . mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
-            } else {
+
+
+            if (!preg_match("~^0\d+$~", $request->mobile)) {
+                $phone = '0' . $request->mobile;
+            }else{
                 $phone = '0' . $request->mobile;
             }
 
