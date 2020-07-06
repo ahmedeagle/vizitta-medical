@@ -328,7 +328,7 @@ class ServicesReservationController extends Controller
             }
         } catch (\Exception $exception) {
 
-            return $this->returnError($ex->getCode(), $ex->getMessage());
+
         }
         return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
     }

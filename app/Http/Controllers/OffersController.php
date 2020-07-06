@@ -1802,7 +1802,7 @@ class OffersController extends Controller
                      return $this->returnError('AM01', trans("messages.there are reservations need to be closed first"));
                  }*/
             }
-            $complete =   0;
+            $complete = 0;
 
             DB::commit();
             try {
@@ -1838,7 +1838,7 @@ class OffersController extends Controller
                     $comment = " نسبة ميدكال كول من كشف (عرض) حجز نقدي ";
                     $invoice_type = 0;
                     try {
-                         $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
+                        $this->calculateOfferReservationBalance($application_percentage_of_offer, $reservation);
                     } catch (\Exception $ex) {
                     }
                 }
@@ -1883,9 +1883,12 @@ class OffersController extends Controller
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id == null ? $provider->id : $provider->provider_id));
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
-                //send mobile sms
-                $message = $bodyUser;
-                $this->sendSMS($reservation->user->mobile, $message);
+
+                if ($request->status == 1 or $request->status == 2) {
+                    //send mobile sms
+                    $message = $bodyUser;
+                    $this->sendSMS($reservation->user->mobile, $message);
+                }
 
             } catch (\Exception $ex) {
             }
@@ -1934,14 +1937,13 @@ class OffersController extends Controller
                     'application_balance_value' => $reservationBalance
                 ]);
 
-            }
-            elseif ($reservation->payment_type == 'custom'){
+            } elseif ($reservation->payment_type == 'custom') {
                 $discountType = " فاتورة حجز الكتروني لعرض دفع جزئي  ";
-                $reservationBalance = $reservation -> custom_paid_price;
+                $reservationBalance = $reservation->custom_paid_price;
 
                 $reservation->update([
                     'discount_type' => $discountType,
-                   // 'application_balance_value' => $reservationBalance
+                    // 'application_balance_value' => $reservationBalance
                 ]);
             }
 
