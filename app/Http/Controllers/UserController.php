@@ -110,7 +110,7 @@ class UserController extends Controller
             if (!preg_match("~^0\d+$~", $request->mobile)) {
                 $phone = '0' . $request->mobile;
             }else{
-                $phone = '0' . $request->mobile;
+                $phone = $request->mobile;
             }
 
             $user = User::create([

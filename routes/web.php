@@ -39,7 +39,7 @@ use Twilio\Exceptions\TwilioException;
 use Vinkla\Hashids\Facades\Hashids;
 
 
-route::get('sendSms',function (){
+route::get('sendSms', function () {
     $accountSid = env('TWILIO_ACCOUNT_SID');
     $authToken = env('TWILIO_AUTH_TOKEN');
     $twilioNumber = env('TWILIO_NUMBER');
@@ -48,7 +48,7 @@ route::get('sendSms',function (){
 
         $client->messages->create(
             "+201032878227", [
-                "body" =>'Hello',
+                "body" => 'Hello',
                 "from" => $twilioNumber,
             ]
         );
@@ -70,11 +70,13 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
 
 
     Route::get('test', function () {
+        $mobile = '0512345678';
+        if (!preg_match("~^0\d+$~", $mobile)) {
+            $phone = '0' . $mobile;
+        } else {
+            return $phone = $mobile;
+        }
 
-
-        $fdate = '2020-04-14 13:00:00';
-        User::where('birth_date', '0000-00-00')->update(['birth_date' => '1970-01-01']);
-        User::where('insurance_expire_date', '0000-00-00')->update(['insurance_expire_date' => null]);
     });
 
     Route::get('clearPermissionCach', function () {
@@ -82,8 +84,8 @@ Route::group(['prefix' => 'mc33', 'middleware' => ['web', 'ChangeLanguage']], fu
     });
 
 
-    Route::get('dd',function (){
-        $v =  getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'),'2020-07-02 03:00:00');
+    Route::get('dd', function () {
+        $v = getDiffBetweenTwoDateIMinute(date('Y-m-d H:i:s'), '2020-07-02 03:00:00');
 
         return response()->json($v);
     });
@@ -551,10 +553,10 @@ Route::get('testd', function () {
 
             // branches that its featured time passes must not return
             $to = \Carbon\Carbon::now('Asia/Riyadh');
-            $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $provider->subscriptions-> created_at);
+            $from = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $provider->subscriptions->created_at);
             $diff_in_days = $to->diffInDays($from);
-            if($diff_in_days > $provider -> subscriptions -> duration ){
-                 unset($provider);
+            if ($diff_in_days > $provider->subscriptions->duration) {
+                unset($provider);
             }
         }
 

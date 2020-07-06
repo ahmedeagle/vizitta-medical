@@ -96,7 +96,7 @@ trait SMSTrait
         $url = 'http://api.unifonic.com/wrapper/sendSMS.php';
 
         if (!preg_match("~^0\d+$~", $phone)) {
-            $phone = '0' .$phone;
+            $mobile = '0' . $phone;
         }
 
         $fields = array(
@@ -104,7 +104,7 @@ trait SMSTrait
             "password" => "NUH*cath4kung",
             "msg" => $message,
             "sender" => "MedicalCall",
-            "to" => $phone,
+            "to" => $mobile,
             "encoding" => "encoding=UTF8"
         );
 
