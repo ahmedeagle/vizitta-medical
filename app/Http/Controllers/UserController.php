@@ -106,7 +106,7 @@ class UserController extends Controller
             }
 
             if (mb_substr(trim($request->mobile), 0, 1) === '0') {
-                $phone = mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
+                $phone = '0'.mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
             }
 
             $user = User::create([
