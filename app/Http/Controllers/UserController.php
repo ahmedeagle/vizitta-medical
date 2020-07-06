@@ -56,7 +56,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        try {
+                   try {
 
             $validator = Validator::make($request->all(), [
                 "name" => "required|max:255",
@@ -108,10 +108,11 @@ class UserController extends Controller
 
 
             if (!preg_match("~^0\d+$~", $request->mobile)) {
-                $phone = '0' . $request->mobile;
+                  $phone = '0' . $request->mobile;
             }else{
-                $phone = $request->mobile;
+                  $phone = $request->mobile;
             }
+
 
             $user = User::create([
                 'name' => trim($request->name),
@@ -143,7 +144,7 @@ class UserController extends Controller
             $message = trans('messages.Your Activation Code') . ' ' . $activationCode . ' ' . $deviceHash;
             $this->sendSMS($phone, $message);
 
-            return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($request->mobile), JSON_FORCE_OBJECT)));
+            return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($phone), JSON_FORCE_OBJECT)));
         } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
