@@ -97,7 +97,8 @@ trait SMSTrait
 
         if (!preg_match("~^0\d+$~", $phone)) {
             $mobile = '0' . $phone;
-        }
+        }else
+            $mobile =  $phone;
 
         $fields = array(
             "userid" => "info@mcallapp.com",
