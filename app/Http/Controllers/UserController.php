@@ -231,9 +231,18 @@ class UserController extends Controller
 //                $userPhoto = $this->saveImage('users', $request->photo);
 //            }
 
+
+
+            if (!preg_match("~^0\d+$~", $request->mobile)) {
+                $phone = '0' . $request->mobile;
+            }else{
+                $phone = $request->mobile;
+            }
+
+
             $user = User::create([
                 'name' => trim($request->name),
-                'mobile' => $request->mobile,
+                'mobile' => $phone,
                 'id_number' => $request->id_number,
                 'email' => $request->email,
                 'address' => trim($request->address),
@@ -265,7 +274,7 @@ class UserController extends Controller
             $message = trans('messages.Your Activation Code') . ' ' . $activationCode . ' ' . $deviceHash;
             $this->sendSMS($user->mobile, $message);
 
-            return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($request->mobile), JSON_FORCE_OBJECT)));
+            return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($phone), JSON_FORCE_OBJECT)));
         } catch (\Exception $ex) {
             return $ex;
         }
