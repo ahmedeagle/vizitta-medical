@@ -146,6 +146,7 @@ class UserController extends Controller
 
             return $this->returnData('user', json_decode(json_encode($this->authUserByMobile($phone), JSON_FORCE_OBJECT)));
         } catch (\Exception $ex) {
+                       return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
