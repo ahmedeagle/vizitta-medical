@@ -265,7 +265,7 @@ class ServicesReservationController extends Controller
                     }
                 }
 
-                if ($payment_method != 1 && $status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
+             /*   if ($payment_method != 1 && $status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
                     $totalBill = 0;
                     $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
                     $invoice_type = 0;
@@ -273,7 +273,7 @@ class ServicesReservationController extends Controller
                         $this->calculateOfferReservationBalanceForAdmin($application_percentage_of_bill, $reservation);
                     } catch (\Exception $ex) {
                     }
-                }
+                }*/
 
             } else {
                 $reservation->update([
@@ -320,13 +320,15 @@ class ServicesReservationController extends Controller
 
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
-                //send mobile sms
-               $message = $bodyUser;
-
-                $this->sendSMS($reservation->user->mobile, $message);
+                if($status == 1 or $status == 2) {
+                    //send mobile sms
+                    $message = $bodyUser;
+                    $this->sendSMS($reservation->user->mobile, $message);
+                }
             }
         } catch (\Exception $exception) {
 
+            return $this->returnError($ex->getCode(), $ex->getMessage());
         }
         return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
     }
