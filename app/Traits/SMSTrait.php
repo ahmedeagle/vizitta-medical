@@ -96,7 +96,9 @@ trait SMSTrait
         $url = 'http://api.unifonic.com/wrapper/sendSMS.php';
 
         if (mb_substr(trim($phone), 0, 1) === '0') {
-            $phone ='0'.mb_substr(trim($phone), 1, mb_strlen($phone));
+            $phone = '0' . mb_substr(trim($phone), 1, mb_strlen($phone));
+        } else {
+            $phone = '0' . $phone;
         }
 
         $fields = array(

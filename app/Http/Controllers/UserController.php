@@ -106,7 +106,9 @@ class UserController extends Controller
             }
 
             if (mb_substr(trim($request->mobile), 0, 1) === '0') {
-                $phone = '0'.mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
+                $phone = '0' . mb_substr(trim($request->mobile), 1, mb_strlen($request->mobile));
+            } else {
+                $phone = '0' . $request->mobile;
             }
 
             $user = User::create([
@@ -2146,7 +2148,7 @@ class UserController extends Controller
 
             $notifications = Reciever::whereHas('notification')
                 ->with(['notification' => function ($q) {
-                    $q->select('id','photo','title', 'content');
+                    $q->select('id', 'photo', 'title', 'content');
                 }])->where('actor_id', $user->id)
                 ->unseenForUser()
                 ->paginate(PAGINATION_COUNT);
@@ -2159,11 +2161,12 @@ class UserController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
     public function MarknotificationsAsSeen(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                 "notification_id" => "required|exists:admin_notifications_receivers,id"
+                "notification_id" => "required|exists:admin_notifications_receivers,id"
             ]);
             if ($validator->fails()) {
                 $code = $this->returnCodeAccordingToInput($validator);
@@ -2174,7 +2177,7 @@ class UserController extends Controller
                 return $this->returnError('E001', trans('messages.There is no user with this id'));
             }
 
-            Reciever::where('id', $request->notification_id)->update(['seen'=> '1']);
+            Reciever::where('id', $request->notification_id)->update(['seen' => '1']);
 
             return $this->returnSuccessMessage('');
 
