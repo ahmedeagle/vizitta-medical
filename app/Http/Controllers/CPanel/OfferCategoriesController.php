@@ -83,7 +83,7 @@ class OfferCategoriesController extends Controller
             $rules = [
                 "name_ar" => "required|max:255",
                 "name_en" => "required|max:255",
-                "parent_id" => "nullable|exists:offers_categories,id",
+                "parent_id" => "nullable",
                 "photo" => "sometimes|nullable",
             ];
 
