@@ -268,7 +268,7 @@ class Reservation extends Model
 
     public function scopeSelection($query)
     {
-        return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'doctor_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total', 'discount_type', 'rejection_reason');
+        return $query->select('id', 'reservation_no', 'day_date', 'from_time', 'to_time', 'user_id', 'doctor_id', 'provider_id', 'payment_method_id', 'approved', 'price', 'bill_total', 'discount_type', 'rejection_reason','payment_type','custom_paid_price','remaining_price');
     }
 
     public function scopeOfferSelection($query)
