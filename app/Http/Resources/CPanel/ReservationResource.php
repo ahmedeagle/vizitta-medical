@@ -30,6 +30,9 @@ class ReservationResource extends ResourceCollection
                 'branch_name' => $data->branch_name,
                 'doctor_name' => app()->getLocale() == 'ar' ? $data->doctor->name_ar : $data->doctor->name_en,
                 'user_name' => $data->user->name,
+                'payment_type' => $data->payment_type,
+                'remaining_price' => $data->remaining_price,
+                'custom_price' => $data->custom_price,
             ];
         });
 
