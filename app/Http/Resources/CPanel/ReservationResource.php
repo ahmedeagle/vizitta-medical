@@ -32,7 +32,8 @@ class ReservationResource extends ResourceCollection
                 'user_name' => $data->user->name,
                 'payment_type' => $data->payment_type,
                 'remaining_price' => $data->remaining_price,
-                'custom_price' => $data->custom_price,
+                'custom_paid_price' => $data->custom_paid_price
+
             ];
         });
 
