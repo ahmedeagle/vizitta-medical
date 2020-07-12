@@ -124,7 +124,7 @@ class OfferCategoriesController extends Controller
             $offerCat->delete();
             return response()->json(['status' => true, 'msg' => __('main.offer_category_deleted_successfully')]);
         } catch (\Exception $ex) {
-            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
+            return response()->json(['success' => false, 'error' => $ex], 200);
         }
     }
 

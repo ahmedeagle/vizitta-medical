@@ -193,7 +193,6 @@ class DoctorController extends Controller
                 $rules["price_consulting"] = "required|numeric";
             }
 
-
             $validator = Validator::make($requestData, $rules);
 
             if ($validator->fails()) {
