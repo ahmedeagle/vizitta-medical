@@ -118,14 +118,13 @@ class OfferCategoriesController extends Controller
             if (!$offerCat)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            if ($offerCat -> offers() > 0)
+            if (count($offerCat -> offers()) > 0)
                 return response()->json(['success' => false, 'error' => __('main.cannot delete has offers')], 200);
 
             $offerCat->delete();
             return response()->json(['status' => true, 'msg' => __('main.offer_category_deleted_successfully')]);
         } catch (\Exception $ex) {
-            return $ex;
-            return response()->json(['success' => false, 'error' => $ex], 200);
+            return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
 
