@@ -187,7 +187,7 @@ trait GeneralTrait
 
     public function getAllOfferParentCategoriesList()
     {
-        return OfferCategory::parentCategories()->select(DB::raw('id, name_' . app()->getLocale() . ' as name, hastimer'))->get();
+        return OfferCategory::parentCategories()->active()->select(DB::raw('id, name_' . app()->getLocale() . ' as name, hastimer'))->get();
     }
 
     public function getAllActiveUsersList()
@@ -233,7 +233,7 @@ trait GeneralTrait
             $selectedChildCat = \Illuminate\Support\Facades\DB::table('offers_categories_pivot')
                 ->where('offer_id', $offer->id)
                 ->pluck('category_id');
-            $parents = OfferCategory::whereIn('id', $selectedChildCat->toArray())->pluck('parent_id');
+            $parents = OfferCategory::active()->whereIn('id', $selectedChildCat->toArray())->pluck('parent_id');
 
             $data = OfferCategory::whereNull('parent_id')
                 ->with(['childCategories' => function ($query) use ($offer) {

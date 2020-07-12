@@ -91,7 +91,7 @@ class OfferCategory extends Model
     }
 
     public  function scopeActive($query){
-        return $query ;
+        return $query -> where('status',1) ;
     }
 
 }
