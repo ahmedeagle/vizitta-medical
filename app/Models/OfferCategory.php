@@ -10,7 +10,7 @@ class OfferCategory extends Model
     protected $table = 'offers_categories';
     public $timestamps = true;
 
-    protected $fillable = ['parent_id', 'name_en', 'name_ar', 'photo', 'hastimer', 'hours', 'minutes', 'seconds', 'timerexpired'];
+    protected $fillable = ['parent_id', 'name_en', 'name_ar', 'photo', 'hastimer', 'hours', 'minutes', 'seconds', 'timerexpired','status'];
 
     protected $hidden = ['updated_at', 'hastimer'];
 
