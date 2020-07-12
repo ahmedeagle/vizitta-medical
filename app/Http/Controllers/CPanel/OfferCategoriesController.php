@@ -23,7 +23,7 @@ class OfferCategoriesController extends Controller
     public function create()
     {
         try {
-            $result['parentCategories'] = OfferCategory::parentCategories()->get(['id', 'name_' . app()->getLocale() . ' as name']);
+            $result['parentCategories'] = OfferCategory::parentCategories()->active()->get(['id', 'name_' . app()->getLocale() . ' as name']);
             return response()->json(['status' => true, 'data' => $result]);
 
         } catch (\Exception $ex) {
@@ -69,7 +69,7 @@ class OfferCategoriesController extends Controller
             if (!$result['category'])
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            $result['parentCategories'] = OfferCategory::parentCategories()->get(['id', 'name_' . app()->getLocale() . ' as name']);
+            $result['parentCategories'] = OfferCategory::parentCategories()->active()->get(['id', 'name_' . app()->getLocale() . ' as name']);
 
             return response()->json(['status' => true, 'data' => $result]);
         } catch (\Exception $ex) {
