@@ -118,7 +118,7 @@ class OfferCategoriesController extends Controller
             if (!$offerCat)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
-            if (count($offerCat -> offers()) > 0)
+            if ($offerCat -> offers() -> count() > 0)
                 return response()->json(['success' => false, 'error' => __('main.cannot delete has offers')], 200);
 
             $offerCat->delete();
