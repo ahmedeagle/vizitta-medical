@@ -10,7 +10,7 @@ return [
     'item_added_successfully'               => 'Item added successfully ...',
     'item_updated_successfully'             => 'Item updated successfully ...',
     'item_deleted_successfully'             => 'Item deleted successfully ...',
-
+     'cannot delete has offers'            =>'cannot delete category that has offers',
     'oops_error'                            => 'Oops, There is a problem, Please try again !!',
 
     'invalid_email_or_password'             => 'Invalid e-mail or password',

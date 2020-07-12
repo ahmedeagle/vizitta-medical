@@ -10,7 +10,7 @@ return [
     'item_added_successfully'               => 'تم إضافة العنصر بنجاح ...',
     'item_updated_successfully'             => 'تم تعديل العنصر بنجاح ...',
     'item_deleted_successfully'             => 'تم حذف العنصر بنجاح ...',
-
+    'cannot delete has offers'             => 'لايمكن حذف القسم لاحتوائه علي عروض',
     'oops_error'                            => 'حدث خطأ ما, يرجى المحاولة لاحقاً !!',
 
     'invalid_email_or_password'             => 'خطأ فى البريد الإلكترونى أو كلمة المرور',

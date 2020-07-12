@@ -117,6 +117,10 @@ class OfferCategoriesController extends Controller
             $offerCat = OfferCategory::find($request->id);
             if (!$offerCat)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
+
+            if ($offerCat -> offers() > 0)
+                return response()->json(['success' => false, 'error' => __('main.cannot delete has offers')], 200);
+
             $offerCat->delete();
             return response()->json(['status' => true, 'msg' => __('main.offer_category_deleted_successfully')]);
         } catch (\Exception $ex) {
