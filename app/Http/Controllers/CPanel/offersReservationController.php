@@ -479,7 +479,7 @@ class offersReservationController extends Controller
                 $code = $this->returnCodeAccordingToInput($validator);
                 return $this->returnValidationError($code, $validator);
             }
-            $reservation = $this->getReservationByNoWihRelation($request->reservation_id);
+            $reservation = $this->getReservationByNoWihRelation2($request->reservation_id);
             if ($reservation == null)
                 return $this->returnError('E001', trans('messages.No reservation with this number'));
 

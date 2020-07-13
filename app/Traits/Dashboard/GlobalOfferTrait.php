@@ -48,6 +48,30 @@ trait GlobalOfferTrait
     }
 
 
+    public function getReservationByNoWihRelation2($reservation_id)
+    {
+
+        return Reservation::with(['commentReport', 'offer' => function ($g) {
+            $g->select('id', DB::raw('title_' . app()->getLocale() . ' as title'), 'photo');
+        }, 'rejectionResoan' => function ($rs) {
+            $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+        }, 'paymentMethod' => function ($qu) {
+            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }
+            , 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_company_id', 'insurance_image', 'mobile')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            },
+            'branch' => function ($q) {
+                $q->select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+                $q->with(['provider' => function($qq){
+                    $qq -> select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+                }]);
+            }])->where('id', $reservation_id)
+            ->first();
+    }
+
     public function changerReservationStatus($reservation, $status, $rejection_reason = null,$arrived = 0, $request = null)
     {
         if ($status != 3) {
