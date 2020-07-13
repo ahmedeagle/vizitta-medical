@@ -105,14 +105,7 @@ class DoctorController extends Controller
 
             $res = ['status' => true, 'data' => []];
             $res['data'] = $doctor;
-
-            if ($doctor -> doctor_type == 'clinic') {
-                $result['data']['provider'] = $doctor->provider;
-            }
-
-            $result['data']['provider'] = null;
-            //$res['data']['provider'] = $doctor -> ;
-          //  $res['data']['branch'] =;
+            $res['data']['provider'] = $doctor->provider()->select('id', 'name_ar', 'name_en')->first();
             return response()->json($res);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
