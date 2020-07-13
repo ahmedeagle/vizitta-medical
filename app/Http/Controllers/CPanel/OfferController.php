@@ -570,9 +570,9 @@ class OfferController extends Controller
                 return response()->json(['status' => false, 'error' => __('main.not_found')], 200);
 
             if (count($offer->reservations) == 0) {
-                $offer->deleteWithRelations();
+                $offer->delete();
                 return response()->json(['status' => true, 'msg' => __('main.offer_deleted_successfully')]);
-            } else
+            }
                 return response()->json(['status' => false, 'error' => __('main.offer_with_reservations_cannot_be_deleted')], 200);
 
         } catch (\Exception $ex) {
