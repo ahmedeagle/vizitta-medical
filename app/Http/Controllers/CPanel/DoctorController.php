@@ -105,7 +105,7 @@ class DoctorController extends Controller
 
             $res = ['status' => true, 'data' => []];
             $res['data'] = $doctor;
-            $res['data']['provider'] = $doctor->provider()->select('id', 'name_ar', 'name_en')->first();
+            $res['data']['provider'] ='yuytuytuytuyu';
             return response()->json($res);
         } catch (\Exception $ex) {
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
