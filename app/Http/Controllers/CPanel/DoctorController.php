@@ -106,7 +106,7 @@ class DoctorController extends Controller
             $res = ['status' => true, 'data' => []];
            //
              $res['data']['doctor'] = $doctor;
-            $res['data']['provider'] = Doctor::find($request->id)->provider()->select('id', 'name_'.app() -> getLocale() .' as name');
+            $res['data']['provider'] = Doctor::find($request->id)->provider->select('id', 'name_'.app() -> getLocale() .' as name');
             return response()->json($res);
         } catch (\Exception $ex) {
             return $ex;
