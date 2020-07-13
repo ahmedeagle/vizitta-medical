@@ -40,7 +40,9 @@ class SingleDoctorResource extends JsonResource
             'show_delete' => $this->reservations->count() > 0 || $this->doctorConsultingReservations->count() > 0 ? 0 : 1,
         ];
 
-
+        if ($this->doctor_type == 'clinic') {
+            $result['provider'] = app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en;
+        }
         return $result;
     }
 
