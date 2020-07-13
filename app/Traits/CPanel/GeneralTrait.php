@@ -161,7 +161,9 @@ trait GeneralTrait
     {
         $doctor = Doctor::with(['provider' => function($q){
             $q -> select('id','name_'.app()->getLocale() .' as name');
-        }]) -> find($id);
+                $q->with('provider');
+        }])
+            -> find($id);
         return new SingleDoctorResource($doctor);
     }
 
