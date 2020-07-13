@@ -61,6 +61,9 @@ class ServicesReservationController extends Controller
         }, 'branch' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
         },
+            'rejectionResoan' => function ($q) {
+                $q->select('id', 'name_' . app()->getLocale() . ' as name');
+            }
         ]);
 
 
