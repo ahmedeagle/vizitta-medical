@@ -107,8 +107,10 @@ class DoctorController extends Controller
             $res['data'] = $doctor;
 
             if ($doctor -> doctor_type == 'clinic') {
-                $result['provider'] = $doctor->provider;
+                $result['data']['provider'] = $doctor->provider;
             }
+
+            $result['data']['provider'] = null;
             //$res['data']['provider'] = $doctor -> ;
           //  $res['data']['branch'] =;
             return response()->json($res);
