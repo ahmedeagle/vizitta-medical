@@ -14,6 +14,7 @@ use DB;
 trait GlobalOfferTrait
 {
     use SMSTrait;
+
     public function getReservationById($id)
     {
         return Reservation::find($id);
@@ -64,15 +65,17 @@ trait GlobalOfferTrait
                 }]);
             },
             'branch' => function ($q) {
-                $q->select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
-                $q->with(['provider' => function($qq){
-                    $qq -> select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+                $q->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
+                $q->with(['provider' => function ($qq) {
+                    $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
                 }]);
+            }, 'rejectionResoan' => function ($q) {
+                $q->select('id', 'name_' . app()->getLocale() . ' as name');
             }])->where('id', $reservation_id)
             ->first();
     }
 
-    public function changerReservationStatus($reservation, $status, $rejection_reason = null,$arrived = 0, $request = null)
+    public function changerReservationStatus($reservation, $status, $rejection_reason = null, $arrived = 0, $request = null)
     {
         if ($status != 3) {
             $reservation->update([
@@ -137,14 +140,14 @@ trait GlobalOfferTrait
                     $message = __('messages.your_reservation_has_been_accepted_from') . ' ( ' . "{$provider->provider->$name}" . ' ) ' .
                         __('messages.branch') . ' ( ' . " {$provider->getTranslatedName()} " . ' ) ' . __('messages.if_you_wish_to_change_reservations');
 
-                } elseif($status == 2) {
+                } elseif ($status == 2) {
                     $bodyProvider = __('messages.canceled user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  $name } " . __('messages.branch') . " - {$provider->getTranslatedName()} ";
                     $bodyUser = __('messages.canceled your reservation') . " " . "{$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . "  - {$provider->getTranslatedName()} ";
 
                     $rejected_reason = 'name_' . app()->getLocale();
                     $message = __('messages.reject_reservations') . ' ( ' . "{$provider->provider->getTranslatedName()} - {$provider->getTranslatedName()}" . ' ) ' .
                         __('messages.because') . '( ' . "{$rejection_reason}" . ' ) ' . __('messages.can_re_book');
-                }elseif ($status == 3) { // complete reservation
+                } elseif ($status == 3) { // complete reservation
                     if ($complete == 1) { //when reservation complete and user arrived to branch
                         $bodyProvider = __('messages.complete user reservation') . "  {$reservation->user->name}   " . __('messages.in') . " {$provider -> provider ->  getTranslatedName() } " . __('messages.branch') . " - {$provider->getTranslatedName()}  ";
                         $bodyUser = __('messages.complete your reservation') . " " . "{$provider -> provider ->  $name } " . __('messages.branch') . "  - {$provider->getTranslatedName()}  - ";
@@ -161,11 +164,11 @@ trait GlobalOfferTrait
                 //send push notification
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyProvider]))->sendProvider(Provider::find($provider->provider_id));
 
-                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
+                (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
                 //send mobile sms
                 $message = $bodyUser;
-                 $this->sendSMS($reservation->user->mobile, $message);
+                $this->sendSMS($reservation->user->mobile, $message);
             }
         } catch (\Exception $exception) {
 
