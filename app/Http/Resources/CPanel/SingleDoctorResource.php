@@ -41,7 +41,8 @@ class SingleDoctorResource extends JsonResource
         ];
 
         if ($this->doctor_type == 'clinic') {
-            $result['provider'] =  $this->provider;
+            $result['branch'] = $this->branch;
+            $result['provider'] = $this->brach->provider ;
         }
         return $result;
     }
