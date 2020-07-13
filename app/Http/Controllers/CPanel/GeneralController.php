@@ -147,7 +147,7 @@ class GeneralController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
-                "type" => "required|in:provider_types,specifications,doctor_nicknames,offers_categories",
+                "type" => "required|in:provider_types,specifications,doctor_nicknames,offers_categories,reasons",
                 "status" => "required|in:0,1",
                 "id" => "required"
             ]);
