@@ -30,6 +30,7 @@ use App\Models\Specification;
 use App\Models\User;
 use App\Models\UserRecord;
 use Illuminate\Support\Facades\DB;
+use function foo\func;
 
 trait GeneralTrait
 {
@@ -158,7 +159,9 @@ trait GeneralTrait
 
     public function getDoctorDetailsById($id)
     {
-        $doctor = Doctor::find($id);
+        $doctor = Doctor::with(['provider' => function($q){
+            $q -> select('id','name_'.app()->getLocale() .' as name');
+        }]) -> find($id);
         return new SingleDoctorResource($doctor);
     }
 
