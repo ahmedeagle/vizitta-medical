@@ -225,12 +225,12 @@ class DoctorController extends Controller
 
     public function apiGetAllSpecifications()
     {
-        return Specification::select(\Illuminate\Support\Facades\DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+        return Specification::active()->select(\Illuminate\Support\Facades\DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
     }
 
     public function apiGetAllNicknames()
     {
-        return Nickname::select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
+        return Nickname::active()->select(DB::raw('id, name_' . app()->getLocale() . ' as name'))->get();
     }
 
     public function apiGetAllNationalities()
