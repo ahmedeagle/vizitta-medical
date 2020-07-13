@@ -19,7 +19,7 @@ class Reservation extends Model
         'bill_photo', 'odoo_invoice_id', 'odoo_offer_id', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
         'offer_id', 'offer_rate', 'address', 'payment_type', 'custom_paid_price', 'remaining_price', 'created_at'];
 
-    protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'payment_method_id', 'people_id', 'discount_type', 'odoo_invoice_id', 'odoo_offer_id'];
+    protected $hidden = ['bill_photo', 'updated_at', 'user_id', 'payment_method_id', 'people_id', 'discount_type', 'odoo_invoice_id', 'odoo_offer_id'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total'];
 
     public static function laratablesCustomAction($reservation)
