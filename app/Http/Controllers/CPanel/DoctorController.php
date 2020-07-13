@@ -104,12 +104,9 @@ class DoctorController extends Controller
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
             $res = ['status' => true, 'data' => []];
-           //
-             $res['data']['doctor'] = $doctor;
-            $res['data']['provider'] = Doctor::find($request->id)->provider->select('id', 'name_'.app() -> getLocale() .' as name');
-            return response()->json($res);
+            $res['data'] = $doctor;
+             return response()->json($res);
         } catch (\Exception $ex) {
-            return $ex;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
