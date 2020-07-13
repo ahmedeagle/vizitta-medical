@@ -174,6 +174,7 @@ class ReservationController extends Controller
             if ($reservation == null)
                 return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
 
+            $reservation->makeHidden(['rejection_reason']);
 
             return response()->json(['status' => true, 'data' => $reservation]);
         } catch (\Exception $ex) {
