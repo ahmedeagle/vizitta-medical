@@ -185,9 +185,13 @@ trait GeneralTrait
             $q->select('id', 'name');
         }, 'doctor' => function ($q) {
             $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'provider' => function ($q) {
+        }, 'branch' => function ($q) {
 
-            $q->select('id', 'name_' . app()->getLocale() . ' as name');
+            $q->select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+            $q->with(['provider' => function($qq){
+
+                $qq -> select('id', 'name_' . app()->getLocale() . ' as name','provider_id');
+            }]);
         }])
             ->find($id);
     }
