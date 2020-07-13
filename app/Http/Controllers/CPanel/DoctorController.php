@@ -109,6 +109,7 @@ class DoctorController extends Controller
             $res['data']['provider'] = Doctor::find($request->id)->provider()->select('id', 'name_'.app() -> getLocale() .' as name');
             return response()->json($res);
         } catch (\Exception $ex) {
+            return $ex;
             return response()->json(['success' => false, 'error' => __('main.oops_error')], 200);
         }
     }
