@@ -98,6 +98,12 @@ class Doctor extends Authenticatable implements JWTSubject
     }
 
 
+    public function branch()
+    {
+        return $this->belongsTo('App\Models\Provider', 'provider_id')->withDefault(["name" => ""]);
+    }
+
+
 
     public function chats()
     {

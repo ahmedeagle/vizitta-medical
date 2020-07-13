@@ -159,11 +159,13 @@ trait GeneralTrait
 
     public function getDoctorDetailsById($id)
     {
-        $doctor = Doctor::with(['provider' => function($q){
-            $q -> select('id','name_'.app()->getLocale() .' as name','provider_id');
-            $q -> with('provider');
+        $doctor = Doctor::with(['branch' => function ($q) {
+            $q->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
+            $q->with(['provider' => function ($qq) {
+                $qq->select('id', 'name_' . app()->getLocale() . ' as name', 'provider_id');
+            }]);
         }])
-            -> find($id);
+            ->find($id);
         return new SingleDoctorResource($doctor);
     }
 
@@ -185,7 +187,7 @@ trait GeneralTrait
             $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'provider' => function ($q) {
 
-            $q -> select('id','name_'.app()->getLocale().' as name');
+            $q->select('id', 'name_' . app()->getLocale() . ' as name');
         }])
             ->find($id);
     }
@@ -200,10 +202,12 @@ trait GeneralTrait
         return User::active()->get(['id', 'name']);
     }
 
-    public function getOfferUser($offer){
-        return      $offer -> users()
-             -> get();
+    public function getOfferUser($offer)
+    {
+        return $offer->users()
+            ->get();
     }
+
     public function getAllPaymentMethodWithSelectedList($offer = null)
     {
         if ($offer != null) {
@@ -267,7 +271,7 @@ trait GeneralTrait
         if ($offer != null) {
             return User::select('id',
                 'name'
-              /*  DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected')*/)->get();
+            /*  DB::raw('IF ((SELECT count(id) FROM user_offers WHERE user_offers.offer_id = ' . $offer->id . ' AND user_offers.user_id = users.id) > 0, 1, 0) as selected')*/)->get();
         } else {
             return User::select('id', 'name')->get();
         }
