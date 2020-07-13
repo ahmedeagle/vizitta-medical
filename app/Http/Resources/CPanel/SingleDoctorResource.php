@@ -41,7 +41,7 @@ class SingleDoctorResource extends JsonResource
         ];
 
         if ($this->doctor_type == 'clinic') {
-            $result['provider'] = app()->getLocale() == 'ar' ? $this->provider->name_ar : $this->provider->name_en;
+            $result['provider'] = $this->provider;
         }
         return $result;
     }
