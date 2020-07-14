@@ -44,7 +44,7 @@ class ServicesReservationController extends Controller
 
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
-                $reservations = $this->getReservationByStatus();
+              return   $reservations = $this->getReservationByStatus();
             } else {
                 $status = request('status') ? request('status') : $status;
                 $reservations = $this->getReservationByStatus($status);
@@ -721,6 +721,7 @@ class ServicesReservationController extends Controller
                 ->where('is_visit_doctor', 1);
         } elseif ($status == 'complete_not_visited') {
 
+            return 'here';
             return ServiceReservation::with(['service' => function ($g) {
                 $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
                     ->with(['specification' => function ($g) {
@@ -747,8 +748,7 @@ class ServicesReservationController extends Controller
                 }
             ])
                 ->where('approved', 2)
-                ->
-                where(function ($q) {
+                ->where(function ($q) {
                     $q->whereNull('rejected_reason_notes')
                         ->orwhere('rejected_reason_notes', '=', '')
                         ->orwhere('rejected_reason_notes', 0);
