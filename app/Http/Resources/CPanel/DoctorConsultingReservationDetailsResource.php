@@ -27,10 +27,9 @@ class DoctorConsultingReservationDetailsResource extends JsonResource
             'provider_rate' => $this->provider_rate,
             'rate_comment' => $this->rate_comment,
             'rate_date' => $this->rate_date,
-            'rejection_reason' => $this->rejection_reason,
+            'rejection_reason' => $this->rejectionResoan,
             'bill_photo' => $this->bill_photo,
-
-            'user_rejected_reason_type' => $this->rejected_reason_type,
+            'doctor_rejected_reason_notes' => $this->doctor_rejection_reason,
             'user_rejected_reason_notes' => $this->rejected_reason_notes,
             'approved' => [
                 'name' => $this->getApproved(),
