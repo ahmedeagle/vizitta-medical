@@ -19,7 +19,7 @@ use App\Http\Resources\CPanel\DoctorArea\DoctorConsultingReservationResource;
 
 class DoctorReservationsController extends Controller
 {
-    use GlobalTrait, ChattingTrait,SMSTrait;
+    use GlobalTrait, ChattingTrait, SMSTrait;
 
     public function index(Request $request)
     {
@@ -112,7 +112,7 @@ class DoctorReservationsController extends Controller
             if ($request->status == 2) {
                 $validator->addRules([
                     'rejected_reason_id' => 'required|string',
-                    'rejected_reason_notes' => 'sometimes|nullable|string',
+                    'reason_text' => 'sometimes|nullable|string',
                 ]);
             }
 
@@ -164,12 +164,18 @@ class DoctorReservationsController extends Controller
             if ($status == 1) { //doctor accept reservation
                 // initialize chat
                 $this->startChatting($reservation->id, $reservation->user_id, '1');  // 1 ---> user
-                $this->sendSMS($reservation->user->mobile,   $reservation -> reservation_no. 'تم قبول حجزك برقم -  ');
+                $this->sendSMS($reservation->user->mobile, $reservation->reservation_no . 'تم قبول حجزك برقم -  ');
             }
-            if($status == 2)
-            {
-                $this->sendSMS($reservation->user->mobile,  $reservation -> reservation_no. 'تم رفض حجزك برقم -  ');
+            if ($status == 2) {
+                $this->sendSMS($reservation->user->mobile, $reservation->reservation_no . 'تم رفض حجزك برقم -  ');
+
+            $reservation->update([
+                'rejection_reason' => $request->rejected_reason_id,
+                'doctor_rejection_reason' =>$request -> reason_text
+            ]);
+
             }
+
 
             $reservation->update([
                 'approved' => $request->status, //approve reservation
