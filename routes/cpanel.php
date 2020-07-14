@@ -444,6 +444,10 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         Route::post('change-status-by-type', 'GeneralController@changeStatusByType');
 
         Route::post('general-change-status', 'GeneralController@changeStatus');
+
+        Route::post('general-reservation-counts', 'ReservationController@ReservationCounts');
+
+
     });
 
 

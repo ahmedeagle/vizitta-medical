@@ -91,6 +91,8 @@ class ReservationController extends Controller
         return response()->json(['status' => true, 'data' => $data]);
     }
 
+
+
     protected function getReservationByStatus($status = 'all')
     {
         if ($status == 'delay') {
@@ -111,7 +113,9 @@ class ReservationController extends Controller
         } elseif ($status == 'reject') {
             return $reservaitons = Reservation::selection()->where('approved', 2)->whereNotNull('rejection_reason')->where('rejection_reason', '!=', '')->orderBy('day_date', 'DESC')->paginate(10);
         } elseif ($status == 'rejected_by_user') {
-            return $reservaitons = Reservation::selection()->where('approved', 5)->paginate(10);
+             $reservaitons = Reservation::selection()->where('approved', 5)->paginate(10);
+            $reservaitons -> count =   Reservation::selection()->where('approved', 5) -> count();
+            return $reservaitons;
         } elseif ($status == 'completed') {
             return $reservaitons = Reservation::selection()->where('approved', 3)->orderBy('day_date', 'DESC')->orderBy('from_time', 'ASC')->paginate(10);
         } elseif ($status == 'complete_visited') {
