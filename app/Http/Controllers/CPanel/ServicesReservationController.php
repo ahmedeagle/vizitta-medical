@@ -42,6 +42,7 @@ class ServicesReservationController extends Controller
         $status = 'all';
         $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'rejected_by_user', 'completed', 'complete_visited', 'complete_not_visited'];
 
+
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
                 $reservations = $this->getReservationByStatus();
@@ -54,8 +55,8 @@ class ServicesReservationController extends Controller
         }
 
 
-        if ($request->type == 'clinic' or $request->type = "home") {
-            $type = $request->type = "home" ? 1 : 2;
+        if ($request->type == 'clinic' or $request->type = 'home') {
+            $type = $request->type == 'home' ? 1 : 2;
             $reservations = $reservations->where('service_type', $type);
         }
 
