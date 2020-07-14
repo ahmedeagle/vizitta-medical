@@ -188,9 +188,11 @@ class DoctorController extends Controller
 
             if ($requestData['is_consult'] == 1) {
                 $rules["password"] = "required|max:100|min:6";
-                $rules["phone"] = "required|max:100|unique:doctors,phone";
                 $rules["price_consulting"] = "required|numeric";
             }
+
+            if($request -> has('phone')  or $requestData['is_consult'] == 1)
+                $rules["phone"] = "required|max:100|unique:doctors,phone";
 
             $validator = Validator::make($requestData, $rules);
 
