@@ -18,7 +18,7 @@ class DoctorConsultingReservation extends Model
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
         'doctor_id', 'doctor_rate', 'address', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes', 'doctor_rejection_reason','payment_type','custom_paid_price','remaining_price','application_balance_value','notified'];
 
-    protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'discount_type'];
+    protected $hidden = ['bill_photo', 'updated_at', 'user_id', 'doctor_id', 'payment_method_id', 'discount_type'];
     protected $appends = ['for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
 
     public function getIsReportedAttribute()

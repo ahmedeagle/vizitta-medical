@@ -14,6 +14,7 @@ class DoctorConsultingReservationDetailsResource extends JsonResource
             'day_date' => $this->day_date,
             'from_time' => $this->from_time,
             'to_time' => $this->to_time,
+            'created_at'  =>  $this->created_at,
             'paid' => $this->paid,
             'price' => $this->price,
             'total_price' => $this->total_price,
