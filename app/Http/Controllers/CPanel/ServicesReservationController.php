@@ -40,17 +40,14 @@ class ServicesReservationController extends Controller
         }
 
         $status = 'all';
-        $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'rejected_by_user', 'completed', 'complete_visited', 'complete_not_visited'];
-
+        $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'rejected_by_user', 'completed', 'complete_visited','complete_not_visited'];
 
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
-                return 'here';
                 $reservations = $this->getReservationByStatus();
             } else {
-                return request('status');
                 $status = request('status') ? request('status') : $status;
-                $reservations = $this->getReservationByStatus($status);
+           return      $reservations = $this->getReservationByStatus($status);
             }
         }else{
             $reservations = $this->getReservationByStatus();
@@ -722,8 +719,9 @@ class ServicesReservationController extends Controller
             ])
                 ->where('approved', 3)
                 ->where('is_visit_doctor', 1);
-        } elseif ($status == 'complete_not_visited') {
+              } elseif ($status == 'complete_not_visited') {
 
+            return 'fgfgfg';
             return ServiceReservation::with(['service' => function ($g) {
                 $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
                     ->with(['specification' => function ($g) {
