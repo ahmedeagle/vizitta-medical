@@ -18,7 +18,7 @@ class ServiceReservation extends Model
         'bill_photo', 'last_day_date', 'last_from_time', 'last_to_time', 'user_rejection_reason',
         'service_id', 'service_rate', 'address', 'service_type', 'latitude', 'longitude', 'hours_duration', 'rejected_reason_id', 'rejected_reason_notes'];
 
-    protected $hidden = ['bill_photo', 'created_at', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
+    protected $hidden = ['bill_photo', 'updated_at', 'user_id', 'service_id', 'payment_method_id', 'people_id', 'discount_type'];
     protected $appends = ['for_me', 'branch_name', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'reservation_total', 'rejected_reason_type'];
 
     public function getIsReportedAttribute()
