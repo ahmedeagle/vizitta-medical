@@ -45,8 +45,10 @@ class ServicesReservationController extends Controller
 
         if (request('status')) {
             if (!in_array(request('status'), $list)) {
+                return 'here';
                 $reservations = $this->getReservationByStatus();
             } else {
+                return 'here2';
                 $status = request('status') ? request('status') : $status;
                 $reservations = $this->getReservationByStatus($status);
             }
