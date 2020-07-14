@@ -29,15 +29,15 @@ use function foo\func;
 
 class ServicesReservationController extends Controller
 {
-    use GlobalTrait,SMSTrait;
+    use GlobalTrait, SMSTrait;
 
     public function index(Request $request)
     {
 
         if ($request->reservation_id) {
-            $reservation = ServiceReservation::with(['extraServices' => function($q){
-                  $q -> select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-            }]) -> find($request->reservation_id);
+            $reservation = ServiceReservation::with(['extraServices' => function ($q) {
+                $q->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'price');
+            }])->find($request->reservation_id);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.Reservation Not Found'));
         }
@@ -71,7 +71,7 @@ class ServicesReservationController extends Controller
 
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);
-            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_notes','rejected_reason_type','rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
+            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_notes', 'rejected_reason_type', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.No Reservations founded'));
             else
@@ -270,15 +270,15 @@ class ServicesReservationController extends Controller
                     }
                 }
 
-             /*   if ($payment_method != 1 && $status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
-                    $totalBill = 0;
-                    $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
-                    $invoice_type = 0;
-                    try {
-                        $this->calculateOfferReservationBalanceForAdmin($application_percentage_of_bill, $reservation);
-                    } catch (\Exception $ex) {
-                    }
-                }*/
+                /*   if ($payment_method != 1 && $status == 3 && $complete == 1) {//  visa reservation 3-complete reservation  1- user attend reservation
+                       $totalBill = 0;
+                       $comment = " نسبة ميدكال كول من كشف (خدمة) حجز الكتروني ";
+                       $invoice_type = 0;
+                       try {
+                           $this->calculateOfferReservationBalanceForAdmin($application_percentage_of_bill, $reservation);
+                       } catch (\Exception $ex) {
+                       }
+                   }*/
 
             } else {
                 $reservation->update([
@@ -325,7 +325,7 @@ class ServicesReservationController extends Controller
 
                 (new \App\Http\Controllers\NotificationController(['title' => __('messages.Reservation Status'), 'body' => $bodyUser]))->sendUser($reservation->user);
 
-                if($status == 1 or $status == 2) {
+                if ($status == 1 or $status == 2) {
                     //send mobile sms
                     $message = $bodyUser;
                     $this->sendSMS($reservation->user->mobile, $message);
@@ -414,7 +414,7 @@ class ServicesReservationController extends Controller
 
             $reservation->days = $days;
 
-            $reservation -> makeVisible(['service_id']);
+            $reservation->makeVisible(['service_id']);
             $reservation->makeHidden(["for_me",
                 "branch_name",
                 "branch_no",
@@ -439,7 +439,7 @@ class ServicesReservationController extends Controller
                 "service_id" => "required|exists:services,id",
                 "service_type" => "required|in:1,2",
                 "reserve_duration" => "nullable|required_if:service_type,1"
-             ];
+            ];
 
             $validator = Validator::make($request->all(), $rules);
 
@@ -552,6 +552,7 @@ class ServicesReservationController extends Controller
         }
         return $returnArray;
     }
+
     public function update(Request $request)
     {
         try {
@@ -574,7 +575,7 @@ class ServicesReservationController extends Controller
             }
             $provider = Provider::find($reservation->branch_id);
 
-            $service = Service::find($reservation -> service_id);
+            $service = Service::find($reservation->service_id);
             if ($service == null) {
                 return $this->returnError('E001', __('messages.No service with this id'));
             }
