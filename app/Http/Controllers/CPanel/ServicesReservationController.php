@@ -37,6 +37,8 @@ class ServicesReservationController extends Controller
         if ($request->reservation_id) {
             $reservation = ServiceReservation::with(['extraServices' => function ($q) {
                 $q->select('id', 'name', 'price');
+            },'rejectionResoan' => function($q){
+                $q ->select('id', 'name_' . app()->getLocale() . ' as name');
             }])->find($request->reservation_id);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.Reservation Not Found'));
@@ -69,11 +71,11 @@ class ServicesReservationController extends Controller
             }
         ]);
 
-
         if ($request->type == 'clinic' or $request->type = "home") {
             $type = $request->type = "home" ? 1 : 2;
             $reservations = $reservations->where('service_type', $type);
         }
+
 
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);

@@ -20,7 +20,7 @@ class ReservationResource extends ResourceCollection
                 'approved' => $data->approved,
                 'price' => $data->price,
                 'bill_total' => $data->bill_total,
-                'rejection_reason' => $data->rejection_reason,
+                'rejection_reason' => $data->rejectionResoan,
                 'for_me' => $data->for_me,
                 'branch_no' => $data->branch_no,
                 'is_reported' => $data->is_reported,
