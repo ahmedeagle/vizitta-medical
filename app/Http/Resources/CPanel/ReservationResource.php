@@ -21,6 +21,7 @@ class ReservationResource extends ResourceCollection
                 'price' => $data->price,
                 'bill_total' => $data->bill_total,
                 'rejection_reason' => $data->rejectionResoan,
+                'rejected_reason_notes' => $data->rejected_reason_notes,
                 'for_me' => $data->for_me,
                 'branch_no' => $data->branch_no,
                 'is_reported' => $data->is_reported,
