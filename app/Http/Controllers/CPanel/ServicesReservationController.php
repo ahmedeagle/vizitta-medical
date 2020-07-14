@@ -688,8 +688,7 @@ class ServicesReservationController extends Controller
                 }
             ])
                 ->where('approved', 2)
-                ->whereNull('rejection_reason')
-                ->where('rejection_reason', '!=', '');
+                ->whereNotNull('rejected_reason_notes');
         } elseif ($status == 'complete_visited') {
             return ServiceReservation::with(['service' => function ($g) {
                 $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
