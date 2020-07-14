@@ -36,11 +36,12 @@ class ServicesReservationController extends Controller
 
         if ($request->reservation_id) {
             $reservation = ServiceReservation::with(['extraServices' => function ($q) {
-                $q->select('id','name', 'price');
+                $q->select('id', 'name', 'price');
             }])->find($request->reservation_id);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.Reservation Not Found'));
         }
+
 
         $reservations = ServiceReservation::with(['service' => function ($g) {
             $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
@@ -68,6 +69,11 @@ class ServicesReservationController extends Controller
             }
         ]);
 
+
+        if ($request->type == 'clinic' or $request->type = "home") {
+            $type = $request->type = "home" ? 1 : 2;
+            $reservations = $reservations->where('service_type', $type);
+        }
 
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);
@@ -128,7 +134,6 @@ class ServicesReservationController extends Controller
             $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
                 ->paginate(10));
         }
-
         $reservations = $reservations->paginate(PAGINATION_COUNT);
         $reservations->getCollection()->each(function ($reservation) {
             $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
