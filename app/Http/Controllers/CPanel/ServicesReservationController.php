@@ -749,9 +749,9 @@ class ServicesReservationController extends Controller
                 ->where('approved', 2)
                 ->
                 where(function ($q) {
-                    $q->whereNull('user_rejection_reason')
-                        ->orwhere('user_rejection_reason', '=', '')
-                        ->orwhere('rejection_reason', 0);
+                    $q->whereNull('rejected_reason_notes')
+                        ->orwhere('rejected_reason_notes', '=', '')
+                        ->orwhere('rejected_reason_notes', 0);
                 })
                 -> where(function ($q) {
                     $q->whereNull('rejection_reason')
