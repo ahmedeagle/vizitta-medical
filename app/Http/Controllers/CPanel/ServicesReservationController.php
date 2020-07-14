@@ -33,109 +33,40 @@ class ServicesReservationController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->reservation_id) {
-            $reservation = ServiceReservation::with(['extraServices' => function ($q) {
-                $q->select('id', 'name', 'price');
-            },'rejectionResoan' => function($q){
-                $q ->select('id', 'name_' . app()->getLocale() . ' as name');
-            }])->find($request->reservation_id);
+            $reservation = ServiceReservation::find($request->reservation_id);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.Reservation Not Found'));
         }
 
+        $status = 'all';
+        $list = ['delay', 'all', 'today_tomorrow', 'pending', 'approved', 'reject', 'rejected_by_user', 'completed', 'complete_visited', 'complete_not_visited'];
 
-        $reservations = ServiceReservation::with(['service' => function ($g) {
-            $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
-                ->with(['specification' => function ($g) {
-                    $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'paymentMethod' => function ($qu) {
-            $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'user' => function ($q) {
-            $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
-                ->with(['insuranceCompany' => function ($qu) {
-                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
-                }]);
-        }, 'provider' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'branch' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'type' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'branch' => function ($qq) {
-            $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
-        },
-            'rejectionResoan' => function ($q) {
-                $q->select('id', 'name_' . app()->getLocale() . ' as name');
+        if (request('status')) {
+            if (!in_array(request('status'), $list)) {
+                $reservations = $this->getReservationByStatus();
+            } else {
+                $status = request('status') ? request('status') : $status;
+                $reservations = $this->getReservationByStatus($status);
             }
-        ]);
+        }
+
 
         if ($request->type == 'clinic' or $request->type = "home") {
             $type = $request->type = "home" ? 1 : 2;
             $reservations = $reservations->where('service_type', $type);
         }
 
-
         if ($request->reservation_id) {
             $reservation = $reservations->find($request->reservation_id);
-            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_type', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
+            $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_notes', 'rejected_reason_type', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.No Reservations founded'));
             else
                 return $this->returnData('reservations', $reservation);
         }
 
-        if (request('generalQueryStr')) {  //search all column
-            $q = request('generalQueryStr');
-            $res = $reservations->where('reservation_no', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('to_time', 'LIKE binary', '%' . trim($q) . '%')
-                ->orWhere('price', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('total_price', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('bill_total', 'LIKE', '%' . trim($q) . '%')
-                ->orWhere('discount_type', 'LIKE', '%' . trim($q) . '%')
-                ->orWhereHas('user', function ($query) use ($q) {
-                    $query->where('name', 'LIKE', '%' . trim($q) . '%');
-                })
-                ->orWhereHas('service', function ($query) use ($q) {
-                    $query->where('title_ar', 'LIKE', '%' . trim($q) . '%')->where('title_en', 'LIKE', '%' . trim($q) . '%');
-                })->orWhereHas('paymentMethod', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->where('name_en', 'LIKE', '%' . trim($q) . '%');
-                })
-                ->orWhereHas('branch', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
-                })->orWhereHas('provider', function ($query) use ($q) {
-                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->where('name_en', 'LIKE', '%' . trim($q) . '%');
-                })
-                ->orWhere(function ($qq) use ($q) {
-                    if (trim($q) == 'خدمة بالمركز الطبي') {
-                        $qq->where('service_type', 2);
-                    } elseif (trim($q) == 'خدمة منزلية') {
-                        $qq->where('service_type', 1);
-                    }
-                })
-                ->orWhere(function ($qq) use ($q) {
-                    if (trim($q) == 'معلق') {
-                        $qq->where('approved', 0);
-                    } elseif (trim($q) == 'مقبول') {
-                        $qq->where('approved', 1);
-                    } elseif (trim($q) == 'مرفوض') {
-                        $qq->whereIn('approved', [2, 5]);
-                    } elseif (trim($q) == 'مكتمل') {
-                        $qq->where('approved', 3);
-                    }
-                })
-                ->orderBy('day_date', 'DESC')
-                ->paginate(PAGINATION_COUNT);
 
-            $data['reservations'] = new ReservationResource($res);
-
-        } else {
-            $data['reservations'] = new ReservationResource(Reservation::orderBy('day_date', 'DESC')
-                ->paginate(10));
-        }
         $reservations = $reservations->paginate(PAGINATION_COUNT);
         $reservations->getCollection()->each(function ($reservation) {
             $reservation->makeHidden(['paid', 'branch_id', 'provider_id', 'for_me', 'is_reported', 'reservation_total', 'mainprovider', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason', 'order', 'is_visit_doctor', 'bill_total', 'latitude', 'longitude', 'admin_value_from_reservation_price_Tax']);
@@ -611,6 +542,249 @@ class ServicesReservationController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
 
+    }
+
+    private function getReservationByStatus($status = 'all')
+    {
+
+        if ($status == 'delay') {
+            $allowTime = 15;  // 15 min
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])->whereRaw('ABS(TIMESTAMPDIFF(MINUTE,created_at,CURRENT_TIMESTAMP)) >= ?', $allowTime);
+
+        } elseif ($status == 'pending') {
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 0);
+
+        } elseif ($status == 'approved') {
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 1);
+        } elseif ($status == 'reject') {
+
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 2)
+                ->whereNotNull('rejection_reason')
+                ->where('rejection_reason', '!=', '');
+
+        } elseif ($status == 'rejected_by_user') {
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 2)
+                ->whereNull('rejection_reason')
+                ->where('rejection_reason', '!=', '');
+        } elseif ($status == 'complete_visited') {
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 3)
+                ->where('is_visit_doctor', 1);
+        } elseif ($status == 'complete_not_visited') {
+
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ])
+                ->where('approved', 2)
+                ->
+                where(function ($q) {
+                    $q->whereNull('user_rejection_reason')
+                        ->orwhere('user_rejection_reason', '=', '')
+                        ->orwhere('rejection_reason', 0);
+                })
+                -> where(function ($q) {
+                    $q->whereNull('rejection_reason')
+                        ->orwhere('rejection_reason', '=', '')
+                        ->orwhere('rejection_reason', 0);
+                });
+
+        } else {
+            return ServiceReservation::with(['service' => function ($g) {
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'insurance_image', 'insurance_company_id')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'branch' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'), 'provider_id');
+            },
+                'rejectionResoan' => function ($q) {
+                    $q->select('id', 'name_' . app()->getLocale() . ' as name');
+                }
+            ]);
+        }
     }
 
 
