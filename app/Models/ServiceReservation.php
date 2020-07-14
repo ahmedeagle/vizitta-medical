@@ -154,7 +154,7 @@ class ServiceReservation extends Model
     public function rejectionResoan()
     {
 
-        return $this->belongsTo('App\Models\Reason', 'rejected_reason_id', 'id');
+        return $this->belongsTo('App\Models\Reason', 'rejection_reason', 'id');
     }
 
     public function commentReport()
