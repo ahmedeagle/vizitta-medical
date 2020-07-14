@@ -49,6 +49,8 @@ class ServicesReservationController extends Controller
                 $status = request('status') ? request('status') : $status;
                 $reservations = $this->getReservationByStatus($status);
             }
+        }else{
+            $reservations = $this->getReservationByStatus();
         }
 
 
