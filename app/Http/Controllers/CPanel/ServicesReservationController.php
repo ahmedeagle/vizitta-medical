@@ -35,7 +35,9 @@ class ServicesReservationController extends Controller
     {
 
         if ($request->reservation_id) {
-            $reservation = ServiceReservation::find($request->reservation_id);
+            $reservation = ServiceReservation::with(['extraServices' => function($q){
+                  $q -> select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }]) -> find($request->reservation_id);
             if (!$reservation)
                 return $this->returnError('E001', trans('messages.Reservation Not Found'));
         }
