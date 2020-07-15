@@ -17,7 +17,7 @@ class ServiceReservationDetailsResource extends JsonResource
             'approved' => $this->approved,
             'price' => $this->price,
             'total_price' => $this->total_price,
-            'bill_total' => $this->bill_totalq,
+            'bill_total' => $this->bill_total,
             'service_type' => $this->service_type,
             'service_rate' => $this->service_rate,
             'provider_rate' => $this->provider_rate,
