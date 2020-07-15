@@ -24,7 +24,11 @@ class ServiceReservationDetailsResource extends JsonResource
             'rate_date' => $this->rate_date,
             'rejected_reason_type' => $this->rejected_reason_type,
             'rejected_reason_notes' => $this->rejected_reason_notes,
+            'payment_type' => $this->payment_type,
+            'custom_paid_price' => $this->custom_paid_price,
+            'remaining_price' => $this->remaining_price,
             'paymentMethod' => app()->getLocale() == 'ar' ? $this->paymentMethod->name_ar : $this->paymentMethod->name_en,
+
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,
