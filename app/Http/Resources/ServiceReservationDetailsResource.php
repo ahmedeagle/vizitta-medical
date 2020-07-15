@@ -55,6 +55,7 @@ class ServiceReservationDetailsResource extends JsonResource
                 'id' => $this->paymentMethod->id,
                 'name' => app()->getLocale() == 'ar' ? $this->paymentMethod->name_ar : $this->paymentMethod->name_en,
             ],
+            'extra_services'  => $this -> extraServices;
         ];
 
         return $result;

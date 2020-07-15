@@ -70,12 +70,10 @@ class ServiceReservation extends Model
         return $this->hasMany('App\Models\UserRecord', 'reservation_no')->withDefault(["name" => ""]);
     }
 
-
     public function extraServices()
     {
-        return $this->hasMany('App\Models\ExtraServices', 'reservation_id');
+        return $this->hasMany('App\Models\ExtraServices', 'reservation_id')->withDefault(["name" => ""]);
     }
-
 
     /*public function branch()
     {

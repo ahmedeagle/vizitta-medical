@@ -530,11 +530,11 @@ class Reservation extends Model
 
     public function getCustomPaidPriceAttribute($val)
     {
-        return $val !== null ? $val : "";
+        return $val !== null ? $val : "0";
     }
 
     public function getRemainingPriceAttribute($val)
     {
-        return $val !== null ? $val : "";
+        return $val !== null ? $val : "0";
     }
 }
