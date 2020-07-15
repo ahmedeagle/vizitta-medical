@@ -333,7 +333,7 @@ class GlobalVisitsController extends Controller
     {
         try {
 //            $user = $this->auth('user-api');
-           return  $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod','servicesExtra'])->find($request->id);
+           return  $serviceReservations = ServiceReservation::with(['service', 'provider', 'branch', 'paymentMethod','extraServices'])->find($request->id);
             $result = new ServiceReservationDetailsResource($serviceReservations);
             return $this->returnData('reservation', $result);
 
