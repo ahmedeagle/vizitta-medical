@@ -721,8 +721,7 @@ class ServicesReservationController extends Controller
                 ->where('is_visit_doctor', 1);
               } elseif ($status == 'complete_not_visited') {
 
-            return 'fgfgfg';
-            return ServiceReservation::with(['service' => function ($g) {
+             return ServiceReservation::with(['service' => function ($g) {
                 $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));

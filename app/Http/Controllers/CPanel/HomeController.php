@@ -29,23 +29,62 @@ class HomeController extends Controller
         $data['activeDoctorsCount'] = $this->getActiveDoctors(true);
         $data['activeUsersCount'] = $this->getActiveUsers(true);
         $data['allUsersCount'] = User::count();
-        $data['totalReservations'] = Reservation::count();
+
+        $doctorAndOfferTotalCount = Reservation::count();
+        $servicesTotalCount = ServiceReservation::count();
+        $consultingTotalCount = DoctorConsultingReservation::count();
+        $data['totalReservations'] = $doctorAndOfferTotalCount + $servicesTotalCount + $consultingTotalCount;
 
         $doctorAndOfferPendingCount = Reservation::where('approved', 0)->count();
-        $servicesCount = ServiceReservation::where('approved', 0)->count();
-        $consultingCount = DoctorConsultingReservation::where('approved', '0')->count();
-        $data['pendingReservations'] = $doctorAndOfferPendingCount + $servicesCount + $consultingCount;
+        $servicesPendingCount = ServiceReservation::where('approved', 0)->count();
+        $consultingPendingCount = DoctorConsultingReservation::where('approved', '0')->count();
+        $data['pendingReservations'] = $doctorAndOfferPendingCount + $servicesPendingCount + $consultingPendingCount;
 
+        $doctorAndOfferApprovedCount = Reservation::where('approved', 1)->count();
+        $servicesApprovedCount = ServiceReservation::where('approved', 1)->count();
+        $consultingApprovedCount = DoctorConsultingReservation::where('approved', '1')->count();
+        $data['approvedReservations'] = $doctorAndOfferApprovedCount + $servicesApprovedCount + $consultingApprovedCount;
 
-        $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
-        $data['refusedReservationsByProvider'] = Reservation::where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations  by providers
-        $data['refusedReservationsByUser'] = Reservation::where('approved', 5)->count(); //rejected  reservations by users
-        $data['completedReservationsWithVisited'] = Reservation::where('approved', 3)->count(); //completed  reservations with user visit doctor
-        $data['completedReservationsWithNotVisited'] = Reservation::where('approved', 2)->where(function ($q) {
+        $doctorAndOfferRefusedByProviderCount = Reservation::where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations  by providers
+        $servicesRefusedByProviderCount = ServiceReservation::where('approved', 2)->whereNotNull('rejection_reason')->where('rejection_reason', '!=', '')->count(); //rejected  reservations  by providers
+        $consultingRefusedByProviderCount = DoctorConsultingReservation::where('approved', '2')->count(); //rejected  reservations  by providers
+        $data['refusedReservationsByProvider'] = $doctorAndOfferRefusedByProviderCount + $servicesRefusedByProviderCount + $consultingRefusedByProviderCount;
+
+        $doctorAndOfferRefusedByUserCount = Reservation::where('approved', 5)->count();
+        $servicesRefusedByUserCount = ServiceReservation::where('approved', 2)->whereNotNull('rejected_reason_notes')->count();
+        $consultingRefusedByUserCount = 0;// user not reject consulting reservations
+        $data['refusedReservationsByUser'] = $doctorAndOfferRefusedByUserCount + $servicesRefusedByUserCount + $consultingRefusedByUserCount;
+
+        $doctorAndOfferCompleteVisitedCount = Reservation::where('approved', 3)->count();
+        $servicesCompleteVisitedCount = ServiceReservation::where('approved', 3)->where('is_visit_doctor', 1)->count();
+        $consultingCompleteVisitedCount = DoctorConsultingReservation::whereNotNull('chat_duration')->where('chat_duration', '!=', 0)->where('approved', '3')->count();
+        $data['completedReservationsWithVisited'] = $doctorAndOfferCompleteVisitedCount + $servicesCompleteVisitedCount + $consultingCompleteVisitedCount;
+
+        $doctorAndOfferCompleteNotVisitedCount = Reservation::where('approved', 2)->where(function ($q) {
             $q->whereNull('rejection_reason');
             $q->orwhere('rejection_reason', '');
             $q->orwhere('rejection_reason', 0);
-        })->count(); //completed  reservations with user not visit doctor
+        })->count();
+
+        $servicesCompleteNotVisitedCount = ServiceReservation::where('approved', 2)
+            ->where(function ($q) {
+                $q->whereNull('rejected_reason_notes')
+                    ->orwhere('rejected_reason_notes', '=', '')
+                    ->orwhere('rejected_reason_notes', 0);
+            })
+            ->where(function ($q) {
+                $q->whereNull('rejection_reason')
+                    ->orwhere('rejection_reason', '=', '')
+                    ->orwhere('rejection_reason', 0);
+            })->count();
+
+        $consultingCompleteNotVisitedCount = Reservation::where('approved', '3')
+            ->where(function ($q) {
+                $q->whereNull('chat_duration')
+                    ->orwhere('chat_duration', 0);
+            })->count();
+
+        $data['completedReservationsWithNotVisited'] = $doctorAndOfferCompleteNotVisitedCount + $servicesCompleteNotVisitedCount + $consultingCompleteNotVisitedCount;
 
         $allowTime = 15;  // 15 minutes
         $data['reservation_notReplayForMore15Mins'] = Reservation::where('approved', 0)->whereRaw('ABS(TIMESTAMPDIFF(MINUTE,created_at,CURRENT_TIMESTAMP)) >= ?', $allowTime)->count();
