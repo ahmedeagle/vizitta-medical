@@ -78,7 +78,7 @@ class HomeController extends Controller
                     ->orwhere('rejection_reason', 0);
             })->count();
 
-        $consultingCompleteNotVisitedCount = Reservation::where('approved', '3')
+        $consultingCompleteNotVisitedCount = DoctorConsultingReservation::where('approved', '3')
             ->where(function ($q) {
                 $q->whereNull('chat_duration')
                     ->orwhere('chat_duration', 0);
