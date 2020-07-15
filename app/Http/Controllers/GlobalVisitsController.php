@@ -338,6 +338,7 @@ class GlobalVisitsController extends Controller
             return $this->returnData('reservation', $result);
 
         } catch (\Exception $ex) {
+            return $ex;
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
