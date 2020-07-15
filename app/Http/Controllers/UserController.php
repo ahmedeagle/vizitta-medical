@@ -848,7 +848,6 @@ class UserController extends Controller
                 'order',
                 'rejection_reason',
                 'is_visit_doctor',
-                'bill_total',
                 'branch_no',
                 'admin_value_from_reservation_price_Tax',
                 'admin_value_from_reservation_price_Tax',
