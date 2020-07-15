@@ -72,7 +72,7 @@ class ServiceReservation extends Model
 
     public function extraServices()
     {
-        return $this->hasMany('App\Models\ExtraServices', 'reservation_id') ;
+        return $this->hasMany('App\Models\ExtraServices', 'reservation_id');
     }
 
 
