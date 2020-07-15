@@ -130,7 +130,7 @@ class HomeController extends Controller
         }
 
         $data['allConsultingReservations'] = DoctorConsultingReservation::count();
-        /
+
 
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
 
