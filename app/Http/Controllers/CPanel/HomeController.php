@@ -6,6 +6,7 @@ use App\Models\Doctor;
 //use App\Models\OfferBranchTime;
 use App\Models\DoctorConsultingReservation;
 use App\Models\Reservation;
+use App\Models\ServiceReservation;
 use App\Models\User;
 use App\Traits\Dashboard\PublicTrait;
 use App\Traits\GlobalTrait;
@@ -30,7 +31,12 @@ class HomeController extends Controller
         $data['allUsersCount'] = User::count();
         $data['totalReservations'] = Reservation::count();
 
-        $data['pendingReservations'] = Reservation::where('approved', 0)->count(); //pending reservations
+        $doctorAndOfferPendingCount = Reservation::where('approved', 0)->count();
+        $servicesCount = ServiceReservation::where('approved', 0)->count();
+        $consultingCount = DoctorConsultingReservation::where('approved', '0')->count();
+        $data['pendingReservations'] = $doctorAndOfferPendingCount + $servicesCount + $consultingCount;
+
+
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
         $data['refusedReservationsByProvider'] = Reservation::where('approved', 2)->where('rejection_reason', '!=', 0)->where('rejection_reason', '!=', '')->where('rejection_reason', '!=', 0)->whereNotNull('rejection_reason')->count(); //rejected  reservations  by providers
         $data['refusedReservationsByUser'] = Reservation::where('approved', 5)->count(); //rejected  reservations by users
@@ -70,7 +76,7 @@ class HomeController extends Controller
         if (isset($data['mostBookingDay']) && $data['mostBookingDay']->count() > 0) {
             foreach ($data['mostBookingDay'] as $day) {
                 $day->day_name = __('messages.' . \App\Traits\Dashboard\ReservationTrait::getdayNameByDate($day['day_date']));
-                $day -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+                $day->makeHidden(['branch_name', 'for_me', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'comment_report', 'reservation_total']);
             }
         }
 
@@ -81,7 +87,7 @@ class HomeController extends Controller
 
         if (isset($data['mostBookingHour']) && $data['mostBookingHour']->count() > 0) {
             foreach ($data['mostBookingHour'] as $hour) {
-                $hour -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+                $hour->makeHidden(['branch_name', 'for_me', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'comment_report', 'reservation_total']);
             }
         }
 
@@ -93,7 +99,7 @@ class HomeController extends Controller
 
         if (isset($data['mostBookingProviders']) && $data['mostBookingProviders']->count() > 0) {
             foreach ($data['mostBookingProviders'] as $provider) {
-                $provider -> makeHidden(['for_me','branch_no','is_reported','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+                $provider->makeHidden(['for_me', 'branch_no', 'is_reported', 'admin_value_from_reservation_price_Tax', 'comment_report', 'reservation_total']);
             }
         }
 
@@ -104,8 +110,8 @@ class HomeController extends Controller
 
         if (isset($data['mostBookingDoctor']) && $data['mostBookingDoctor']->count() > 0) {
             foreach ($data['mostBookingDoctor'] as $doctor) {
-                $doctor-> name = \App\Traits\Dashboard\DoctorTrait::getDoctorNameById($doctor['doctor_id']);
-                $doctor -> makeHidden(['branch_name','for_me','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+                $doctor->name = \App\Traits\Dashboard\DoctorTrait::getDoctorNameById($doctor['doctor_id']);
+                $doctor->makeHidden(['branch_name', 'for_me', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'comment_report', 'reservation_total']);
             }
         }
 
@@ -118,12 +124,13 @@ class HomeController extends Controller
 
         if (isset($specifications) && $specifications->count() > 0) {
             foreach ($specifications as $specification) {
-                $specification-> name = \App\Traits\Dashboard\SpecificationTrait::getSpecificationNameById($specification['specification_id']);
-                $specification -> makeHidden(['branch_name','available_time','hide','times','for_me','doctor_id','branch_no','is_reported','mainprovider','admin_value_from_reservation_price_Tax','comment_report','reservation_total']);
+                $specification->name = \App\Traits\Dashboard\SpecificationTrait::getSpecificationNameById($specification['specification_id']);
+                $specification->makeHidden(['branch_name', 'available_time', 'hide', 'times', 'for_me', 'doctor_id', 'branch_no', 'is_reported', 'mainprovider', 'admin_value_from_reservation_price_Tax', 'comment_report', 'reservation_total']);
             }
         }
 
-        $data['allConsultingReservations'] = DoctorConsultingReservation::count() ; //pending reservations
+        $data['allConsultingReservations'] = DoctorConsultingReservation::count();
+        /
 
         $data['approvedReservations'] = Reservation::where('approved', 1)->count(); //approved  reservations
 
