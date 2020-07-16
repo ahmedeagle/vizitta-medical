@@ -1036,13 +1036,14 @@ class ProviderController extends Controller
                   "id" => "required|exists:providers,id",
               ]);
 
-
               if ($validator->fails()) {
                   $code = $this->returnCodeAccordingToInput($validator);
                   return $this->returnValidationError($code, $validator);
               }
 
               $provider = Provider::select('application_percentage','application_percentage_for_offers','application_percentage_bill','application_percentage_bill_insurance')->find($request->id);
+              $provider -> makevisible(['application_percentage']);
+              $provider -> makeHidden(['is_branch','hide','parent_type','provider_has_bill','has_insurance','is_lottery','rate_count']);
 
               return $this->returnData('provider', $provider);
           } catch (\Exception $ex) {
