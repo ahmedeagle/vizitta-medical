@@ -552,7 +552,7 @@ class ServicesReservationController extends Controller
         if ($status == 'delay') {
             $allowTime = 15;  // 15 min
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price',)
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -579,7 +579,7 @@ class ServicesReservationController extends Controller
 
         } elseif ($status == 'pending') {
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -607,7 +607,7 @@ class ServicesReservationController extends Controller
 
         } elseif ($status == 'approved') {
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -635,7 +635,7 @@ class ServicesReservationController extends Controller
         } elseif ($status == 'reject') {
 
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -665,7 +665,7 @@ class ServicesReservationController extends Controller
 
         } elseif ($status == 'rejected_by_user') {
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -693,7 +693,7 @@ class ServicesReservationController extends Controller
                 ->whereNotNull('rejected_reason_notes');
         } elseif ($status == 'complete_visited') {
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -722,7 +722,7 @@ class ServicesReservationController extends Controller
               } elseif ($status == 'complete_not_visited') {
 
              return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
@@ -761,7 +761,7 @@ class ServicesReservationController extends Controller
 
         } else {
             return ServiceReservation::with(['service' => function ($g) {
-                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'))
+                $g->select('id', 'specification_id', DB::raw('title_' . app()->getLocale() . ' as title'),'price','clinic_price', 'home_price')
                     ->with(['specification' => function ($g) {
                         $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                     }]);
