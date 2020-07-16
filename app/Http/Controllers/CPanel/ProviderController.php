@@ -34,8 +34,8 @@ class ProviderController extends Controller
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
             $providers = Provider::where('provider_id', null)
-                ->where(function($query) use ($q){
-                    $query ->where('name_ar', 'LIKE', '%' . trim($q) . '%')
+                ->where(function ($query) use ($q) {
+                    $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')
                         ->orWhere('name_en', 'LIKE', '%' . trim($q) . '%')
                         ->orWhere(function ($qq) use ($q) {
                             if (trim($q) == 'مفعل') {
@@ -57,12 +57,11 @@ class ProviderController extends Controller
                         ->orWhere('commercial_no', 'LIKE', '%' . trim($q) . '%')
                         ->orWhere('created_at', 'LIKE binary', '%' . trim($q) . '%')
                         ->orWhereHas('city', function ($query) use ($q) {
-                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_en', 'LIKE', '%' . trim($q) . '%');
                         })->orWhereHas('district', function ($query) use ($q) {
-                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%') -> orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
+                            $query->where('name_ar', 'LIKE', '%' . trim($q) . '%')->orwhere('name_ar', 'LIKE', '%' . trim($q) . '%');
                         });
                 })
-
                 ->orderBy('id', 'DESC')
                 ->paginate(10);
         } else
@@ -196,7 +195,8 @@ class ProviderController extends Controller
                 "city_id" => "required|exists:cities,id",
                 "district_id" => "required|exists:districts,id",
                 "status" => "required|in:0,1",
-                "application_percentage" => "required|numeric"
+                "application_percentage" => "required|numeric",
+                "application_percentage_for_offers" => "required|numeric"
             ]);
 
             if ($validator->fails()) {
@@ -239,6 +239,7 @@ class ProviderController extends Controller
                     'district_id' => $request->district_id,
                     'api_token' => '',
                     'application_percentage' => $request->application_percentage,
+                    'application_percentage_for_offers' => $request->application_percentage_for_offers,
                 ]);
 
                 // save user  to odoo erp system
@@ -400,6 +401,7 @@ class ProviderController extends Controller
                 "city_id" => "required|exists:cities,id",
                 "district_id" => "required|exists:districts,id",
                 'application_percentage' => "required",
+                "application_percentage_for_offers" => "required|numeric"
             ]);
 
             if ($validator->fails()) {
@@ -440,6 +442,9 @@ class ProviderController extends Controller
 
             if ($request->has('application_percentage')) {
                 $provider->update(['application_percentage' => $request->application_percentage]);
+            }
+            if ($request->has('application_percentage_for_offers')) {
+                $provider->update(['application_percentage_for_offers' => $request->application_percentage_for_offers]);
             }
             $this->updateProvider($provider, $request);
 
@@ -1002,7 +1007,8 @@ class ProviderController extends Controller
      }*/
 
 
-    public function checkProviderHomeService(Request $request){
+    public function checkProviderHomeService(Request $request)
+    {
 
         try {
             $validator = Validator::make($request->all(), [
@@ -1015,10 +1021,10 @@ class ProviderController extends Controller
                 return $this->returnValidationError($code, $validator);
             }
 
-           $provider =  Provider::select('id','name_'.app()->getLocale().' as name','has_home_visit')->find($request -> id);
+            $provider = Provider::select('id', 'name_' . app()->getLocale() . ' as name', 'has_home_visit')->find($request->id);
 
-            return $this->returnData('provider',$provider);
-        }catch (\Exception $ex){
+            return $this->returnData('provider', $provider);
+        } catch (\Exception $ex) {
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }

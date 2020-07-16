@@ -27,12 +27,12 @@ class Provider extends Authenticatable implements JWTSubject
     ];
     protected $forcedNullStrings = ['email', 'address','address_ar','address_en', 'logo', 'street', 'created_at', 'api_token', 'branch_no', 'rate', 'commercial_en', 'commercial_ar', 'android_device_hasCode'];
     protected $forcedNullNumbers = ['
-    ', 'latitude', 'longitude', 'commercial_no', 'application_percentage', 'application_percentage_bill', 'balance', 'application_percentage_bill_insurance'];
+    ', 'latitude', 'longitude', 'commercial_no', 'application_percentage','application_percentage_for_offers','application_percentage_bill', 'balance', 'application_percentage_bill_insurance'];
 
     protected $fillable = ['name_en', 'name_ar', 'username', 'password', 'longitude', 'device_token', 'web_token', 'latitude', 'email', 'address',
         'logo', 'mobile', 'commercial_no', 'type_id', 'city_id', 'district_id', 'street', 'provider_id',
         'no_of_sms', 'status', 'activation', 'activation_code', 'activation_code', 'api_token', 'branch_no', 'paid_balance',
-        'unpaid_balance', 'application_percentage', 'application_percentage_bill', 'balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
+        'unpaid_balance', 'application_percentage', 'application_percentage_bill','application_percentage_for_offers','balance', 'commercial_en', 'commercial_ar', 'application_percentage_bill_insurance',
         'odoo_provider_id',
         'android_device_hasCode', 'lottery','address_ar','address_en', 'rate', 'has_home_visit','test'];
 
