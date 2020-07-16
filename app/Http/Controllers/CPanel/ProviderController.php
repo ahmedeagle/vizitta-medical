@@ -1028,4 +1028,25 @@ class ProviderController extends Controller
             return $this->returnError($ex->getCode(), $ex->getMessage());
         }
     }
+
+
+      public function getProviderPercentages(Request $request){
+          try {
+              $validator = Validator::make($request->all(), [
+                  "id" => "required|exists:providers,id",
+              ]);
+
+
+              if ($validator->fails()) {
+                  $code = $this->returnCodeAccordingToInput($validator);
+                  return $this->returnValidationError($code, $validator);
+              }
+
+              $provider = Provider::select('application_percentage','application_percentage_for_offers','application_percentage_bill','application_percentage_bill_insurance')->find($request->id);
+
+              return $this->returnData('provider', $provider);
+          } catch (\Exception $ex) {
+              return $this->returnError($ex->getCode(), $ex->getMessage());
+          }
+      }
 }

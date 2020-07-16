@@ -440,17 +440,12 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         ############## End Offers Routes ##############
 
         Route::get('transaction-details/{id?}', 'GeneralController@getTransactionDetails');
-
         Route::post('change-status-by-type', 'GeneralController@changeStatusByType');
-
         Route::post('general-change-status', 'GeneralController@changeStatus');
-
         Route::post('general-reservation-counts', 'ReservationController@ReservationCounts');
-
+        Route::post('get-provider-percentages', 'ProviderController@getProviderPercentages');
 
     });
-
-
 });
 
 //Route::post('/branch-times', 'HomeController@branchTimes');
