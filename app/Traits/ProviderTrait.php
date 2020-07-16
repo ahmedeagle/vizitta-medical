@@ -752,7 +752,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -780,7 +780,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -922,7 +922,7 @@ trait ProviderTrait
         }, 'provider' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -998,7 +998,7 @@ trait ProviderTrait
         }, 'provider' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -1023,7 +1023,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -1051,7 +1051,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -1160,7 +1160,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 1);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -1188,7 +1188,7 @@ trait ProviderTrait
         return $reservations = ServiceReservation::whereHas('type', function ($e) {
             $e->where('id', 2);
         })->with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -1328,7 +1328,7 @@ trait ProviderTrait
         }, 'provider' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
