@@ -302,7 +302,7 @@ class GlobalVisitsController extends Controller
             $requestData = $request->all();
             $rules = [
                 "reservation_id" => "required",
-                "rejected_reason_id" => "required",
+              //  "rejected_reason_id" => "required",
                 "rejected_reason_notes" => "required",
             ];
             $validator = Validator::make($requestData, $rules);
@@ -317,7 +317,7 @@ class GlobalVisitsController extends Controller
             if ($reservation) {
                 $reservation->update([
                     'approved' => 2, // canceled
-                    'rejected_reason_id' => $requestData['rejected_reason_id'],
+                    //'rejected_reason_id' => $requestData['rejected_reason_id'],
                     'rejected_reason_notes' => $requestData['rejected_reason_notes'],
                 ]);
             }

@@ -30,7 +30,7 @@ class ProviderController extends Controller
                     $q->where('name_ar', 'LIKE', '%' . trim($queryStr) . '%')
                         ->orwhere('name_en', 'LIKE', '%' . trim($queryStr) . '%');
                 })
-                ->orderBy('id', 'DESC')->paginate(10);
+                ->orderBy('id', 'DESC')->paginate(PAGINATION_COUNT);
         } elseif (request('generalQueryStr')) {  //search all column
             $q = request('generalQueryStr');
             $providers = Provider::where('provider_id', null)

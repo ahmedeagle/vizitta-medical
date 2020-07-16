@@ -155,6 +155,7 @@ class UserController extends Controller
     {
         try {
 
+
             $validator = Validator::make($request->all(), [
                 "name" => "required|max:255",
                 "device_token" => "required|min:63|max:255",
