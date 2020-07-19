@@ -412,6 +412,7 @@ class ServiceReservation extends Model
     public function scopeServiceSelection($query)
     {
 
+
         return $query->select(
             "id",
             "reservation_no",
