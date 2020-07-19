@@ -368,7 +368,7 @@ trait ServiceTrait
         }
 
         return $reservations = ServiceReservation::with(['service' => function ($g) {
-            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'),'price','home_price','clinic_price')
+            $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'home_price', 'clinic_price')
                 ->with(['specification' => function ($g) {
                     $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
                 }]);
@@ -383,6 +383,8 @@ trait ServiceTrait
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+        }, 'extra_services' => function ($ex) {
+            $ex->select('id', 'name', 'price');
         }
         ])
             ->whereIn('branch_id', $branchesIds)
