@@ -103,8 +103,6 @@ class Doctor extends Authenticatable implements JWTSubject
         return $this->belongsTo('App\Models\Provider', 'provider_id')->withDefault(["name" => ""]);
     }
 
-
-
     public function chats()
     {
         return $this->morphMany('\App\Models\Chat', 'chatable');
