@@ -1405,13 +1405,13 @@ class ProviderController extends Controller
             if ($reservation->approved == 2)
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
 
-            if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+         /*   if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                 (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                     strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
             ) {
 
                 return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
-            }
+            }*/
 
             $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
 
