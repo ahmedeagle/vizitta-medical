@@ -436,6 +436,7 @@ class ServiceReservation extends Model
             "provider_id",
             "branch_id",
             "price",
+            "bill_total",
             "total_price",
             "rate_comment",
             "rate_date",
