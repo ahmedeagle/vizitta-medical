@@ -383,7 +383,7 @@ trait ServiceTrait
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
         }, 'type' => function ($qq) {
             $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
-        }, 'extra_services' => function ($ex) {
+        }, 'extraServices' => function ($ex) {
             $ex->select('id', 'name', 'price');
         }
         ])
