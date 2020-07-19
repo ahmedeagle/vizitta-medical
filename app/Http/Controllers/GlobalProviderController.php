@@ -624,7 +624,7 @@ class GlobalProviderController extends Controller
             if (isset($consultings) && $consultings->count() > 0) {
                 foreach ($consultings as $key => $consulting) {
                     $consulting->allow_chat = 0;
-                    $consulting->makeHidden(['day_date', 'from_time', 'to_time', 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
+                    $consulting->makeHidden([ 'rejected_reason_type', 'reservation_total', 'for_me', 'is_reported', 'branch_name', 'branch_no', 'mainprovider', 'admin_value_from_reservation_price_Tax']);
                     $consulting->doctor->makeHidden(['times']);
                 }
             }
