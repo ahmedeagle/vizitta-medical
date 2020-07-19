@@ -373,7 +373,7 @@ class ServiceController extends Controller
             if ($reservation->approved == 0 && $request->status == 3)
                 return $this->returnError('E001', trans('messages.Reservation must be approved first'));
 
-            if ($request->status == 1) {
+         /*   if ($request->status == 1) {
                 if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
                     (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
                         strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
@@ -381,7 +381,7 @@ class ServiceController extends Controller
 
                     return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
                 }
-            }
+            }*/
 
             if ($request->status == 1) {
                 /* $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
