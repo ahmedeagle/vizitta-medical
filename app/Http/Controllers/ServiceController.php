@@ -576,7 +576,7 @@ class ServiceController extends Controller
                     'application_balance_value' => -($reservationBalance + $ExtraReservationBalanceBeforeAdditionalTax + $ExtraAdditional_tax_value)
                 ]);
 
-            } //electronice with visa
+            } //electronic with visa
             else {
                 if ($reservation->payment_type == 'full') {
                     $discountType = " فاتورة حجز الكتروني لخدمة منزلية دفع كامل  ";

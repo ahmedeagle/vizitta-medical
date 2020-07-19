@@ -6,6 +6,7 @@ use App\Http\Resources\CPanel\MainActiveProvidersResource;
 use App\Http\Resources\CustomReservationsResource;
 use App\Http\Resources\ProviderServicesResource;
 use App\Models\DoctorConsultingReservation;
+use App\Models\PaymentMethod;
 use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\Provider;
@@ -133,7 +134,6 @@ class GlobalProviderController extends Controller
     {
         try {
 
-
             $rules = [
                 "api_token" => "required",
                 "branch_id" => "required|numeric|exists:providers,id",
@@ -148,6 +148,7 @@ class GlobalProviderController extends Controller
                 "home_price" => "sometimes|nullable|numeric",
                 "information_en" => "required",
                 "information_ar" => "required",
+                "payment_method" => "required|array|min:1",
                 "working_days" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
             ];
@@ -237,6 +238,12 @@ class GlobalProviderController extends Controller
                     "reservation_period" => in_array(2, $request->typeIds) ? $request->clinic_price_duration : null
                 ]);
 
+                if (isset($request->payment_method) && !empty($request->payment_method)) {
+                    foreach ($request->payment_method as $k => $method) {
+                        $service->paymentMethods()->attach($method['payment_method_id'], ['payment_amount_type' => $method['payment_amount_type'], 'payment_amount' => $method['payment_amount']]);
+                    }
+                }
+
                 $service->types()->attach($request->typeIds);
 
                 for ($i = 0; $i < count($working_days_data); $i++) {
@@ -303,6 +310,11 @@ class GlobalProviderController extends Controller
                 return $this->returnError('D000', __('messages.no service with this id'));
             }
 
+            $payment_method = PaymentMethod::where('status', 1)
+                ->select(DB::raw('id, flag, name_' . app()->getLocale() . ' as name, IF ((SELECT count(id) FROM service_payment_methods WHERE service_payment_methods.service_id = ' . $service->id . ' AND service_payment_methods.payment_method_id = payment_methods.id) > 0, 1, 0) as selected'))
+                ->get();
+            $service->selected_payment_method = $payment_method;
+
             $service->time = "";
             $days = $service->times;
             $service->makeHidden(['available_time', 'provider_id', 'branch_id', 'type']);
@@ -331,6 +343,7 @@ class GlobalProviderController extends Controller
                 "home_price" => "sometimes|nullable|numeric",
                 "information_en" => "required",
                 "information_ar" => "required",
+                "payment_method" => "required|array|min:1",
                 "working_days" => "required|array|min:1",
                 "clinic_reservation_period" => "sometimes|nullable|numeric",
                 "api_token" => "required",
@@ -374,6 +387,14 @@ class GlobalProviderController extends Controller
             $service = Service::find($request->service_id);
             if (!$service)
                 return $this->returnError('D000', trans("messages.no service with this id"));
+
+
+            if (isset($request->payment_method) && !empty($request->payment_method)) {
+                $service->paymentMethods()->detach();
+                foreach ($request->payment_method as $k => $method) {
+                    $service->paymentMethods()->attach($method['payment_method_id'], ['payment_amount_type' => $method['payment_amount_type'], 'payment_amount' => $method['payment_amount']]);
+                }
+            }
 
             $branch = Provider::whereNotNull('provider_id')->find($request->branch_id);
             if (!$branch)
