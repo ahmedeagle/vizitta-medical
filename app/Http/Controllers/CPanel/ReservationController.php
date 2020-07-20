@@ -580,4 +580,21 @@ class ReservationController extends Controller
         }
     }
 
+    private function addReservationTypeToResult($reservation)
+    {
+        if ($reservation->doctor_id != null && $reservation->doctor_id != 0 && $reservation->doctor_id != "") {
+            $reservation->reservation_type = "doctor";
+        } elseif ($reservation->offer_id != null && $reservation->offer_id != 0 && $reservation->offer_id != "") {
+            $reservation->reservation_type = "offer";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 1) {
+            $reservation->reservation_type = "home_services";
+        } elseif (isset($reservation->type->id) && $reservation->type->id = 2) {
+            $reservation->reservation_type = "clinic_services";
+        } else {
+            $reservation->reservation_type = "undefined";
+        }
+    }
+
+
+
 }
