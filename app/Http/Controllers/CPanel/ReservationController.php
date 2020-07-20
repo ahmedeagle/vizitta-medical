@@ -471,7 +471,7 @@ class ReservationController extends Controller
             }
 
             $doctor_reservations = $doctor_reservations->doctorSelection()
-                ->where('approved', 0)
+                ->where('approved', 1)
                 ->whereNotNull('doctor_id')
                 ->where('doctor_id', '!=', 0)
                 ->orderBy('id', 'DESC');
@@ -482,13 +482,13 @@ class ReservationController extends Controller
                 ->whereHas('type', function ($e) {
                     $e->where('id', 1);
                 })
-                ->where('approved', 0)
+                ->where('approved', 1)
                 ->orderBy('id', 'DESC');
 
             $clinic_services_reservations = $clinic_services_reservations->serviceSelection()->whereHas('type', function ($e) {
                 $e->where('id', 2);
             })
-                ->where('approved', 0)
+                ->where('approved', 1)
                 ->orderBy('id', 'DESC');
 
             $reservations = $reservations -> OfferReservationSelection()->with(['offer' => function ($q) {
@@ -528,7 +528,7 @@ class ReservationController extends Controller
             }, 'type' => function ($qq) {
                 $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
             }])
-                ->where('approved', 0)
+                ->where('approved', 1)
                 ->whereNotNull('offer_id')
                 ->where('offer_id', '!=', 0)
                 /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
