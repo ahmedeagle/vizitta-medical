@@ -1042,7 +1042,7 @@ class ProviderController extends Controller
               }
 
               $provider = Provider::select('application_percentage','application_percentage_for_offers','application_percentage_bill','application_percentage_bill_insurance')->find($request->id);
-              $provider -> makevisible(['application_percentage']);
+              $provider -> makevisible(['application_percentage','application_percentage_bill']);
               $provider -> makeHidden(['is_branch','hide','parent_type','provider_has_bill','has_insurance','is_lottery','rate_count']);
 
               return $this->returnData('provider', $provider);
