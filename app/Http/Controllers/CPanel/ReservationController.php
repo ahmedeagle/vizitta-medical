@@ -450,13 +450,12 @@ class ReservationController extends Controller
 
             $conditions = [];
             if ($request->has('from_date')) {
-                array_push($conditions, ['day_dat', '>=', $request->from_date]);
+                array_push($conditions, ['day_date', '>=', $request->from_date]);
             }
 
             if ($request->has('to_date')) {
-                array_push($conditions, ['day_dat', '<=', $request->from_date]);
+                array_push($conditions, ['day_date', '<=', $request->from_date]);
             }
-
 
             if (!empty($conditions)) {
                 $doctor_reservations = Reservation::query()->where($conditions);
