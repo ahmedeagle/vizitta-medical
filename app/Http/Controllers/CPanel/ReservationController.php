@@ -11,6 +11,7 @@ use App\Models\Provider;
 use App\Models\Reason;
 use App\Models\Reservation;
 use App\Models\ReservedTime;
+use App\Models\ServiceReservation;
 use App\Traits\Dashboard\ReservationTrait;
 use App\Traits\CPanel\GeneralTrait;
 use Carbon\Carbon;
@@ -45,7 +46,7 @@ class ReservationController extends Controller
             $q = request('generalQueryStr');
             $res = Reservation::whereNotNull('doctor_id')
                 ->where('doctor_id', '!=', 0)
-                ->where(function ($query) use($q){
+                ->where(function ($query) use ($q) {
                     $query->where('reservation_no', 'LIKE', '%' . trim($q) . '%')
                         ->orWhere('day_date', 'LIKE binary', '%' . trim($q) . '%')
                         ->orWhere('from_time', 'LIKE binary', '%' . trim($q) . '%')
@@ -92,7 +93,6 @@ class ReservationController extends Controller
     }
 
 
-
     protected function getReservationByStatus($status = 'all')
     {
         if ($status == 'delay') {
@@ -113,8 +113,8 @@ class ReservationController extends Controller
         } elseif ($status == 'reject') {
             return $reservaitons = Reservation::selection()->where('approved', 2)->whereNotNull('rejection_reason')->where('rejection_reason', '!=', '')->orderBy('day_date', 'DESC')->paginate(10);
         } elseif ($status == 'rejected_by_user') {
-             $reservaitons = Reservation::selection()->where('approved', 5)->paginate(10);
-            $reservaitons -> count =   Reservation::selection()->where('approved', 5) -> count();
+            $reservaitons = Reservation::selection()->where('approved', 5)->paginate(10);
+            $reservaitons->count = Reservation::selection()->where('approved', 5)->count();
             return $reservaitons;
         } elseif ($status == 'completed') {
             return $reservaitons = Reservation::selection()->where('approved', 3)->orderBy('day_date', 'DESC')->orderBy('from_time', 'ASC')->paginate(10);
@@ -188,7 +188,7 @@ class ReservationController extends Controller
 
     public function changeStatus(Request $request)
     {
-         $reservation = Reservation::where('id', $request->id)->with('user')->first();
+        $reservation = Reservation::where('id', $request->id)->with('user')->first();
 
         if ($reservation == null)
             return response()->json(['success' => false, 'error' => __('main.not_found')], 200);
@@ -206,7 +206,7 @@ class ReservationController extends Controller
         }
 
         if ($request->status == 2) {
-            if ($request->rejection_reason == null && $request->rejection_reason !=0 ) {
+            if ($request->rejection_reason == null && $request->rejection_reason != 0) {
                 return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
             }
         }
@@ -219,14 +219,14 @@ class ReservationController extends Controller
                 return response()->json(['status' => false, 'error' => __('main.enter_arrived_status')], 200);
             }
             $arrived = $request->arrived;
-        }else{
+        } else {
 
-             $reservation->update([
-                'approved' => $request->status ,
+            $reservation->update([
+                'approved' => $request->status,
             ]);
         }
 
-       return   $this->changerReservationStatus($reservation, $request->status,$request->rejection_reason,$arrived ,$request);
+        return $this->changerReservationStatus($reservation, $request->status, $request->rejection_reason, $arrived, $request);
 
     }
 
@@ -253,7 +253,7 @@ class ReservationController extends Controller
                     return response()->json(['status' => false, 'error' => __('main.enter_reservation_rejected_reason')], 200);
                 }
             }
-            $this->changerReservationStatus($reservation, $status, $rejection_reason,0,$request);
+            $this->changerReservationStatus($reservation, $status, $rejection_reason, 0, $request);
             return response()->json(['status' => true, 'msg' => __('main.reservation_status_changed_successfully')]);
         }
     }
@@ -432,6 +432,151 @@ class ReservationController extends Controller
             }
         }
         return $times;
+    }
+
+    public function getApprovedReservations(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "from_date" => "sometimes|nullable|date_format:Y-m-d",
+                "to_date" => "sometimes|nullable|date_format:Y-m-d",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $conditions = [];
+            if ($request->has('from_date')) {
+                array_push($conditions, ['day_dat', '>=', $request->from_date]);
+            }
+
+            if ($request->has('to_date')) {
+                array_push($conditions, ['day_dat', '<=', $request->from_date]);
+            }
+
+
+            if (!empty($conditions)) {
+                $doctor_reservations = Reservation::query()->where($conditions);
+                $home_services_reservations = ServiceReservation::query()->where($conditions);
+                $clinic_services_reservations = ServiceReservation::query()->where($conditions);
+                $reservations = Reservation::query()->where($conditions);
+            } else {
+                $doctor_reservations = Reservation::query();
+                $home_services_reservations = ServiceReservation::query();
+                $clinic_services_reservations = ServiceReservation::query();
+                $reservations = Reservation::query();
+            }
+
+            $doctor_reservations = $doctor_reservations->doctorSelection()
+                ->where('approved', 0)
+                ->whereNotNull('doctor_id')
+                ->where('doctor_id', '!=', 0)
+                ->orderBy('id', 'DESC');
+
+
+            $home_services_reservations = $home_services_reservations->serviceSelection()
+                ->serviceSelection()
+                ->whereHas('type', function ($e) {
+                    $e->where('id', 1);
+                })
+                ->where('approved', 0)
+                ->orderBy('id', 'DESC');
+
+            $clinic_services_reservations = $clinic_services_reservations->serviceSelection()->whereHas('type', function ($e) {
+                $e->where('id', 2);
+            })
+                ->where('approved', 0)
+                ->orderBy('id', 'DESC');
+
+            $reservations = $reservations -> OfferReservationSelection()->with(['offer' => function ($q) {
+                $q->select('id',
+                    DB::raw('title_' . app()->getLocale() . ' as title'),
+                    'expired_at',
+                    'price',
+                    'price_after_discount'
+                );
+            }, 'doctor' => function ($g) {
+                $g->select('id', 'nickname_id', 'specification_id', DB::raw('name_' . app()->getLocale() . ' as name'))
+                    ->with(['nickname' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }, 'specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'rejectionResoan' => function ($rs) {
+                $rs->select('id', DB::raw('name_' . app()->getLocale() . ' as rejection_reason'));
+            }, 'paymentMethod' => function ($qu) {
+                $qu->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'user' => function ($q) {
+                $q->select('id', 'name', 'mobile', 'email', 'address', 'insurance_image', 'insurance_company_id', 'mobile')
+                    ->with(['insuranceCompany' => function ($qu) {
+                        $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'people' => function ($p) {
+                $p->select('id', 'name', 'insurance_company_id', 'insurance_image')->with(['insuranceCompany' => function ($qu) {
+                    $qu->select('id', 'image', DB::raw('name_' . app()->getLocale() . ' as name'));
+                }]);
+            }, 'provider' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }, 'service' => function ($g) {
+                $g->select('id', 'specification_id', \Illuminate\Support\Facades\DB::raw('title_' . app()->getLocale() . ' as title'), 'price', 'clinic_price', 'home_price')
+                    ->with(['specification' => function ($g) {
+                        $g->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+                    }]);
+            }, 'type' => function ($qq) {
+                $qq->select('id', DB::raw('name_' . app()->getLocale() . ' as name'));
+            }])
+                ->where('approved', 0)
+                ->whereNotNull('offer_id')
+                ->where('offer_id', '!=', 0)
+                /*  ->whereDate('day_date', '>=', Carbon::now()->format('Y-m-d'))*/
+                ->orderBy('id', 'DESC')
+                ->union($doctor_reservations)
+                ->union($home_services_reservations)
+                ->union($clinic_services_reservations)
+                ->paginate(PAGINATION_COUNT);
+
+            if (count($reservations->toArray()) > 0) {
+                $reservations->getCollection()->each(function ($reservation) use ($request) {
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'is_visit_doctor', 'rejection_reason', 'user_rejection_reason']);
+
+                    $this->addReservationTypeToResult($reservation);
+                    $reservation->makeHidden(["offer_id", "doctor_id", "service_id", "doctor_rate",
+                        "service_rate",
+                        "provider_rate",
+                        "offer_rate",
+                        "paid", "use_insurance",
+                        "promocode_id",
+                        "provider_id",
+                        "branch_id", "rate_comment",
+                        "rate_date",
+                        "address", "latitude",
+                        "longitude"]);
+
+                    $reservation->doctor->makeHidden(['available_time', 'times']);
+                    $reservation->provider->makeHidden(["provider_has_bill",
+                        "has_insurance",
+                        "is_lottery",
+                        "rate_count"]);
+
+                    return $reservation;
+                });
+
+                  $total_count = $reservations->total();
+                $reservations = json_decode($reservations->toJson());
+                $reservationsJson = new \stdClass();
+                $reservationsJson->current_page = $reservations->current_page;
+                $reservationsJson->total_pages = $reservations->last_page;
+                $reservationsJson->total_count = $total_count;
+                $reservationsJson->per_page = PAGINATION_COUNT;
+                $reservationsJson->data = $reservations->data;
+                return $this->returnData('reservations', $reservationsJson);
+            }
+            return $this->returnError('E001','لايوجد نتائح حتي اللحظه');
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
 }
