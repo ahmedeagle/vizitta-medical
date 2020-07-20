@@ -386,6 +386,13 @@ Route::group(['middleware' => ['CheckManagerToken:manager-api']], function () {
         });
         ############## End Services Reservations Routes ##############
 
+        ############### Start approved reservation search Routes ##############
+        Route::prefix('approved-reservations/')->group(function () {
+            Route::post('/search', "ReservationController@getApprovedReservations");
+        });
+        ############## End approved reservation search Routes ##############
+
+
         Route::post('/get-consulting-categories', 'DoctorConsultingReservationController@getConsultingCategories');
 
         ############### Start Doctor Consulting Reservations Routes ##############
