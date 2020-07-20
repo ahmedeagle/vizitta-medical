@@ -324,5 +324,7 @@ Route::group(['middleware' => ['CheckPassword', 'ChangeLanguage', 'api']], funct
     });
     Route::post('consulting-reasons', 'CPanel\RefusalReasonsController@getConsultingRefusalReasonsList');
     Route::post('app_price_note', 'GlobalController@getAppPriceNote');
+
+    Route::post('get-provider-percentages', 'ProviderController@getProviderPercentages');
 });
 

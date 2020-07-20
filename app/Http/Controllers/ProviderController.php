@@ -46,7 +46,7 @@ class ProviderController extends Controller
     public function __construct(Request $request)
     {
 
-    //
+        //
     }
 
     public function featuredProviders(Request $request)
@@ -791,16 +791,16 @@ class ProviderController extends Controller
                     foreach ($doctors as $key => $doctor) {
 
                         $doctor->time = "";
-                              $days = $doctor->times;
-                             $match = $this->getMatchedDateToDays($days);
+                        $days = $doctor->times;
+                        $match = $this->getMatchedDateToDays($days);
 
-                            if (!$match || $match['date'] == null) {
-                                $doctor->time = new \stdClass();;
-                                continue;
-                            }
-                            $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                            $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
-                            $doctor->time = $availableTime;
+                        if (!$match || $match['date'] == null) {
+                            $doctor->time = new \stdClass();;
+                            continue;
+                        }
+                        $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
+                        $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
+                        $doctor->time = $availableTime;
 
 
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
@@ -1254,7 +1254,7 @@ class ProviderController extends Controller
 
             if (count($reservations->toArray()) > 0) {
                 $reservations->getCollection()->each(function ($reservation) use ($provider, $request) {
-                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id',  'rejection_reason', 'user_rejection_reason']);
+                    $reservation->makeHidden(['order', 'rejected_reason_type', 'reservation_total', 'admin_value_from_reservation_price_Tax', 'mainprovider', 'is_reported', 'branch_no', 'for_me', 'rejected_reason_notes', 'rejected_reason_id', 'rejection_reason', 'user_rejection_reason']);
                     if ($request->type == 'home_services') {
                         $reservation->reservation_type = 'home_services';
                     } elseif ($request->type == 'clinic_services') {
@@ -1405,13 +1405,13 @@ class ProviderController extends Controller
             if ($reservation->approved == 2)
                 return $this->returnError('E001', trans('messages.Reservation already rejected'));
 
-         /*   if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
-                (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
-                    strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
-            ) {
+            /*   if (strtotime($reservation->day_date) < strtotime(Carbon::now()->format('Y-m-d')) ||
+                   (strtotime($reservation->day_date) == strtotime(Carbon::now()->format('Y-m-d')) &&
+                       strtotime($reservation->to_time) < strtotime(Carbon::now()->format('H:i:s')))
+               ) {
 
-                return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
-            }*/
+                   return $this->returnError('E001', trans("messages.You can't take action to a reservation passed"));
+               }*/
 
             $ReservationsNeedToClosed = $this->checkIfThereReservationsNeedToClosed($request->reservation_no, $provider->id);
 
@@ -1613,8 +1613,7 @@ class ProviderController extends Controller
                 $data['comment'] = $comment;
                 $data['sales_journal'] = 1;
                 $data['Receivables_account'] = 8;
-            }
-            elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
+            } elseif ($reservation->use_insurance == 0 && $reservation->promocode_id == null) {
                 $data['payment_term'] = 4; //edit
                 $data['sales_account'] = 19;
                 $comment = "  نسبة ميدكال كول من  فاتورة حجز نقدي عادية ";
@@ -1648,8 +1647,7 @@ class ProviderController extends Controller
             if ($reservation->promocode_id == null) {
                 $odoo_invoice_id = $this->createInvoice_CashReservation($data);
                 $reservation->update(['odoo_invoice_id' => $odoo_invoice_id]);
-            }
-            elseif ($reservation->promocode_id != null) { //discount coupon
+            } elseif ($reservation->promocode_id != null) { //discount coupon
                 //calculate balance if reservation with coupon  discount / prepaid
                 $this->calculateBalance($provider, $reservation->payment_method_id, $reservation, $request);
                 $data = [];
@@ -2410,7 +2408,7 @@ class ProviderController extends Controller
                 }
 
                 $front = $request->has('show_front') ? 1 : 0;
-                  $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
+                $doctors = $this->getDoctorsV2($branchesIDs, $request->specification_id, $request->nickname_id, $request->provider_id, $request->gender, $front, $request->doctor_name);
 
                 if (count($doctors) > 0) {
                     foreach ($doctors as $key => $doctor) {
@@ -2423,8 +2421,8 @@ class ProviderController extends Controller
                             continue;
                         }
                         $doctorTimesCount = $this->getDoctorTimePeriodsInDay($match['day'], $match['day']['day_code'], true);
-                             $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
-                            $doctor->time = $availableTime;
+                        $availableTime = $this->getFirstAvailableTime($doctor->id, $doctorTimesCount, $days, $match['date'], $match['index']);
+                        $doctor->time = $availableTime;
 
                         $doctor->branch_name = Doctor::find($doctor->id)->provider->{'name_' . app()->getLocale()};
                         $countRate = Doctor::find($doctor->id)->reservations()
@@ -2456,6 +2454,29 @@ class ProviderController extends Controller
         }
         return $this->returnError('E001', trans('messages.There is no provider with this id'));
 
+    }
+
+
+    public function getProviderPercentages(Request $request)
+    {
+        try {
+            $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+                "id" => "required|exists:providers,id",
+            ]);
+
+            if ($validator->fails()) {
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code, $validator);
+            }
+
+            $provider = Provider::select('application_percentage', 'application_percentage_for_offers', 'application_percentage_bill', 'application_percentage_bill_insurance')->find($request->id);
+            $provider->makevisible(['application_percentage', 'application_percentage_bill']);
+            $provider->makeHidden(['is_branch', 'hide', 'parent_type', 'provider_has_bill', 'has_insurance', 'is_lottery', 'rate_count']);
+
+            return $this->returnData('provider', $provider);
+        } catch (\Exception $ex) {
+            return $this->returnError($ex->getCode(), $ex->getMessage());
+        }
     }
 
     private function addReservationTypeToResult($reservation)
@@ -2806,13 +2827,13 @@ class ProviderController extends Controller
 
             Reciever::where('id', $request->notification_id)->update(['seen' => '1']);
 
-            $id = $request -> notification_id;
+            $id = $request->notification_id;
 
             $notification = Reciever::whereHas('notification')
-                ->with(['notification' => function ($q) use($id){
+                ->with(['notification' => function ($q) use ($id) {
                     $q->select('id', 'photo', 'title', 'content');
                 }])->where('id', $id)
-                 ->first();
+                ->first();
 
             $notifications = new SingleNotificationResource($notification);
 
