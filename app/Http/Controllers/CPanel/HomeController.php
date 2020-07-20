@@ -25,7 +25,8 @@ class HomeController extends Controller
             return redirect()->route('admin.lotteries.drawing');
         }*/
 
-        $data['activeProvidersCount'] = $this->getActiveProviders(true);
+        $data['AllProvidersCount'] = $this->getActiveProviders(true,'providers');
+        $data['AllBranchCount'] = $this->getActiveProviders(true,'branches');
         $data['activeDoctorsCount'] = $this->getActiveDoctors(true);
         $data['activeUsersCount'] = $this->getActiveUsers(true);
         $data['allUsersCount'] = User::count();
