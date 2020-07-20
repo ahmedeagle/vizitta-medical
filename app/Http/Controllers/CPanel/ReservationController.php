@@ -434,6 +434,7 @@ class ReservationController extends Controller
         return $times;
     }
 
+
     public function getApprovedReservations(Request $request)
     {
         try {
