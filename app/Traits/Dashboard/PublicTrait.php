@@ -34,9 +34,14 @@ trait PublicTrait
         return User::find($id);
     }
 
-    public function getActiveProviders($count = false)
+    public function getActiveProviders($count = false, $type = 'providers')
     {
-        $providers = Provider::query()->where('status', 1);
+
+        if ($type == 'providers') {
+            $providers = Provider::query()->whereNull('provider_id');   // main providers
+        } else
+            $providers = Provider::query()->whereNotNull('provider_id'); // branches
+
         if ($count)
             return $providers->count();
 
