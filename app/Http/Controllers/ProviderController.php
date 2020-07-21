@@ -2069,13 +2069,13 @@ class ProviderController extends Controller
 
         $ticket = Ticket::create([
 
-            'title' => $request->title ? json_decode($request->title)  : "",
+            'title' => $request->title ? $request->title : "",
             'actor_id' => $user->id,
             'actor_type' => $actor_type,
             'message_no' => $this->getRandomUniqueNumberTicket(8),
             'type' => $request->type,
             'importance' => $request->importance,
-            'message' =>  json_decode($request->message),
+            'message' => $request->message,
             //'message_id' => $request->message_id != 0 ? $request->message_id : NULL,
             //'order' => $order
         ]);
@@ -2164,7 +2164,7 @@ class ProviderController extends Controller
             }
 
             Replay::create([
-                'message' => json_decode($message),
+                'message' =>  json_encode($message) ,
                 "ticket_id" => $id,
                 "FromUser" => $actor_type
             ]);
