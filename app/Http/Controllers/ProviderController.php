@@ -2240,8 +2240,7 @@ class ProviderController extends Controller
                 $messagesJson->data = $messages->data;
                 //add photo
                 foreach ($messages->data as $message) {
-                    $message ->  message = json_encode($message ->  message );
-                    if ($message->FromUser == 0) {//admin
+                     if ($message->FromUser == 0) {//admin
                         $message->logo = url('/') . '/images/admin.png';
                     } elseif ($message->FromUser == 1) { //provider
                         $ticket = Ticket::find($id);
