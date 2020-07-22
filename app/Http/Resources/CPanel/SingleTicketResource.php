@@ -11,7 +11,7 @@ class SingleTicketResource extends JsonResource
         $result = [
             'id' => $this->id,
             'message_no' => $this->message_no,
-            'title' =>json_encode($this->title) ,
+            'title' => $this->title,
             'created_at' => $this->created_at->format('Y-m-d'),
         ];
 
